@@ -58,9 +58,6 @@ class PartyMinder_Event_Manager {
             return new WP_Error('creation_failed', $error_msg);
         }
         
-        // Flush rewrite rules to ensure permalinks work
-        flush_rewrite_rules();
-        
         return $post_id;
     }
     

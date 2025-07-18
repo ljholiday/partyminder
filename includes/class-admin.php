@@ -499,7 +499,7 @@ class PartyMinder_Admin {
     }
     
     public function settings_page() {
-        if (isset($_POST['submit'])) {
+        if (isset($_POST['submit']) && wp_verify_nonce($_POST['partyminder_settings_nonce'], 'partyminder_settings')) {
             // Save settings
             update_option('partyminder_ai_provider', sanitize_text_field($_POST['ai_provider']));
             update_option('partyminder_ai_api_key', sanitize_text_field($_POST['ai_api_key']));

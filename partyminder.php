@@ -90,6 +90,7 @@ class PartyMinder {
         add_shortcode('partyminder_event_form', array($this, 'event_form_shortcode'));
         add_shortcode('partyminder_rsvp_form', array($this, 'rsvp_form_shortcode'));
         add_shortcode('partyminder_events_list', array($this, 'events_list_shortcode'));
+        add_shortcode('partyminder_my_events', array($this, 'my_events_shortcode'));
     }
     
     public function init() {
@@ -126,7 +127,7 @@ class PartyMinder {
                 'not_found_in_trash' => __('No events found in trash', 'partyminder')
             ),
             'public' => true,
-            'has_archive' => true,
+            'has_archive' => false,
             'supports' => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
             'menu_icon' => 'dashicons-calendar-alt',
             'rewrite' => array('slug' => 'events'),
@@ -284,20 +285,23 @@ class PartyMinder {
         return ob_get_clean();
     }
     
-    public function handle_form_submissions() {
-        // Log that this method is being called
-        error_log('PartyMinder: handle_form_submissions called');
-        file_put_contents(PARTYMINDER_PLUGIN_DIR . 'debug.log', date('Y-m-d H:i:s') . " - handle_form_submissions called\n", FILE_APPEND);
+    public function my_events_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'show_past' => false
+        ), $atts);
         
+        ob_start();
+        include PARTYMINDER_PLUGIN_DIR . 'templates/my-events.php';
+        return ob_get_clean();
+    }
+    
+    public function handle_form_submissions() {
         // Handle frontend event form submission
         if (isset($_POST['partyminder_create_event'])) {
-            error_log('PartyMinder: Form submission detected');
-            file_put_contents(PARTYMINDER_PLUGIN_DIR . 'debug.log', date('Y-m-d H:i:s') . " - Form submission detected\n", FILE_APPEND);
             
             if (wp_verify_nonce($_POST['partyminder_event_nonce'], 'create_partyminder_event')) {
-                error_log('PartyMinder: Nonce verified');
+                // Nonce verified, proceed with form processing
             } else {
-                error_log('PartyMinder: Nonce verification failed');
                 return;
             }
             
@@ -326,11 +330,9 @@ class PartyMinder {
                     'host_notes' => wp_kses_post($_POST['host_notes'])
                 );
                 
-                error_log('PartyMinder: Attempting to create event with data: ' . print_r($event_data, true));
                 $event_id = $this->create_event_via_form($event_data);
                 
                 if (!is_wp_error($event_id)) {
-                    error_log('PartyMinder: Event created successfully with ID: ' . $event_id);
                     // Store success data in session or transient for the template
                     set_transient('partyminder_event_created_' . get_current_user_id(), array(
                         'event_id' => $event_id,
@@ -341,7 +343,6 @@ class PartyMinder {
                     wp_redirect(add_query_arg('partyminder_created', 1, wp_get_referer()));
                     exit;
                 } else {
-                    error_log('PartyMinder: Event creation failed: ' . $event_id->get_error_message());
                     // Store error for template
                     set_transient('partyminder_form_errors_' . get_current_user_id(), array($event_id->get_error_message()), 60);
                 }
@@ -373,11 +374,11 @@ class PartyMinder {
         if ($post && $post->post_type == 'party_event') {
             $plugin_template = PARTYMINDER_PLUGIN_DIR . 'templates/single-event.php';
             if (file_exists($plugin_template)) {
-                error_log('PartyMinder: Loading custom template for event ID: ' . $post->ID);
                 return $plugin_template;
             }
         }
         
         return $template;
     }
+    
 }

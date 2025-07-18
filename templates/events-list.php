@@ -37,13 +37,6 @@ if ($show_past) {
     $upcoming_events = $event_manager->get_upcoming_events($limit);
     $events = $upcoming_events;
     
-    // Debug: Show what we found
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        echo "<!-- DEBUG: Found " . count($events) . " upcoming events -->";
-        foreach ($events as $event) {
-            echo "<!-- DEBUG: Event '" . esc_html($event->title) . "' date: " . esc_html($event->event_date) . " -->";
-        }
-    }
 }
 
 // If we got results from the direct query, convert them to event objects
