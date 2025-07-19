@@ -17,9 +17,6 @@ class PartyMinder_Event_Manager {
             return new WP_Error('missing_data', __('Event title and date are required', 'partyminder'));
         }
         
-        // Ensure tables exist
-        $this->ensure_tables_exist();
-        
         // Create WordPress post
         $post_data = array(
             'post_title' => sanitize_text_field($event_data['title']),
@@ -301,18 +298,4 @@ class PartyMinder_Event_Manager {
         }
     }
     
-    private function ensure_tables_exist() {
-        global $wpdb;
-        
-        $events_table = $wpdb->prefix . 'partyminder_events';
-        
-        // Check if table exists
-        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$events_table'") == $events_table;
-        
-        if (!$table_exists) {
-            // Create the table
-            require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-activator.php';
-            PartyMinder_Activator::activate();
-        }
-    }
 }

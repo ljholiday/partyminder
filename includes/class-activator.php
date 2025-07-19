@@ -11,7 +11,7 @@ class PartyMinder_Activator {
         // Set default options
         self::set_default_options();
         
-        // Flush rewrite rules
+        // Flush rewrite rules only on activation
         flush_rewrite_rules();
         
         // Set activation flag
