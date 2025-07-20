@@ -298,4 +298,51 @@ class PartyMinder_Event_Manager {
         }
     }
     
+    public function update_event($event_id, $event_data) {
+        global $wpdb;
+        
+        // Validate required fields
+        if (empty($event_data['title']) || empty($event_data['event_date'])) {
+            return new WP_Error('missing_data', __('Event title and date are required', 'partyminder'));
+        }
+        
+        // Update WordPress post
+        $post_data = array(
+            'ID' => $event_id,
+            'post_title' => sanitize_text_field($event_data['title']),
+            'post_content' => wp_kses_post($event_data['description'] ?? '')
+        );
+        
+        $result = wp_update_post($post_data);
+        
+        if (is_wp_error($result)) {
+            return $result;
+        }
+        
+        // Update extended event data
+        $events_table = $wpdb->prefix . 'partyminder_events';
+        $update_data = array(
+            'event_date' => sanitize_text_field($event_data['event_date']),
+            'event_time' => sanitize_text_field($event_data['event_time'] ?? ''),
+            'guest_limit' => intval($event_data['guest_limit'] ?? 0),
+            'venue_info' => sanitize_text_field($event_data['venue'] ?? ''),
+            'host_email' => sanitize_email($event_data['host_email'] ?? ''),
+            'host_notes' => wp_kses_post($event_data['host_notes'] ?? '')
+        );
+        
+        $result = $wpdb->update(
+            $events_table,
+            $update_data,
+            array('post_id' => $event_id),
+            array('%s', '%s', '%d', '%s', '%s', '%s'),
+            array('%d')
+        );
+        
+        if ($result === false) {
+            return new WP_Error('db_error', __('Failed to update event data', 'partyminder'));
+        }
+        
+        return $event_id;
+    }
+    
 }

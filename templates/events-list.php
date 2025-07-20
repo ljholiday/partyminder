@@ -422,7 +422,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                 
                 <?php if (current_user_can('publish_posts')): ?>
                 <div class="no-events-actions">
-                    <a href="<?php echo admin_url('admin.php?page=partyminder-create'); ?>" class="pm-button pm-button-primary style-<?php echo esc_attr($button_style); ?>">
+                    <a href="<?php echo home_url('/create-event/'); ?>" class="pm-button pm-button-primary style-<?php echo esc_attr($button_style); ?>">
                         <span class="button-icon">✨</span>
                         <?php _e('Create First Event', 'partyminder'); ?>
                     </a>

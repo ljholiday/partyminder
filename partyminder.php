@@ -80,6 +80,8 @@ class PartyMinder {
         // AJAX handlers
         add_action('wp_ajax_partyminder_create_event', array($this, 'ajax_create_event'));
         add_action('wp_ajax_nopriv_partyminder_create_event', array($this, 'ajax_create_event'));
+        add_action('wp_ajax_partyminder_update_event', array($this, 'ajax_update_event'));
+        add_action('wp_ajax_nopriv_partyminder_update_event', array($this, 'ajax_update_event'));
         add_action('wp_ajax_partyminder_rsvp', array($this, 'ajax_rsvp'));
         add_action('wp_ajax_nopriv_partyminder_rsvp', array($this, 'ajax_rsvp'));
         add_action('wp_ajax_partyminder_generate_ai_plan', array($this, 'ajax_generate_ai_plan'));
@@ -88,6 +90,7 @@ class PartyMinder {
     public function register_shortcodes() {
         // Shortcodes
         add_shortcode('partyminder_event_form', array($this, 'event_form_shortcode'));
+        add_shortcode('partyminder_event_edit_form', array($this, 'event_edit_form_shortcode'));
         add_shortcode('partyminder_rsvp_form', array($this, 'rsvp_form_shortcode'));
         add_shortcode('partyminder_events_list', array($this, 'events_list_shortcode'));
         add_shortcode('partyminder_my_events', array($this, 'my_events_shortcode'));
@@ -215,6 +218,82 @@ class PartyMinder {
         }
     }
     
+    public function ajax_update_event() {
+        // Use the correct nonce from the form
+        check_ajax_referer('edit_partyminder_event', 'partyminder_edit_event_nonce');
+        
+        // Get event ID
+        $event_id = intval($_POST['event_id']);
+        if (!$event_id) {
+            wp_send_json_error(__('Event ID is required.', 'partyminder'));
+        }
+        
+        // Load event manager
+        require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+        $event_manager = new PartyMinder_Event_Manager();
+        
+        // Get the event to check permissions
+        $event = $event_manager->get_event($event_id);
+        if (!$event) {
+            wp_send_json_error(__('Event not found.', 'partyminder'));
+        }
+        
+        // Check permissions - only event creator or admin can edit
+        $current_user = wp_get_current_user();
+        $can_edit = false;
+        
+        if (current_user_can('edit_posts') || 
+            (is_user_logged_in() && $current_user->ID == $event->post_author) ||
+            ($current_user->user_email == $event->host_email)) {
+            $can_edit = true;
+        }
+        
+        if (!$can_edit) {
+            wp_send_json_error(__('You do not have permission to edit this event.', 'partyminder'));
+        }
+        
+        // Validate required fields
+        $form_errors = array();
+        if (empty($_POST['event_title'])) {
+            $form_errors[] = __('Event title is required.', 'partyminder');
+        }
+        if (empty($_POST['event_date'])) {
+            $form_errors[] = __('Event date is required.', 'partyminder');
+        }
+        if (empty($_POST['host_email'])) {
+            $form_errors[] = __('Host email is required.', 'partyminder');
+        }
+        
+        if (!empty($form_errors)) {
+            wp_send_json_error(implode(' ', $form_errors));
+        }
+        
+        // Prepare update data
+        $event_data = array(
+            'ID' => $event_id,
+            'title' => sanitize_text_field($_POST['event_title']),
+            'description' => wp_kses_post($_POST['event_description']),
+            'event_date' => sanitize_text_field($_POST['event_date']),
+            'venue' => sanitize_text_field($_POST['venue_info']),
+            'guest_limit' => intval($_POST['guest_limit']),
+            'host_email' => sanitize_email($_POST['host_email']),
+            'host_notes' => wp_kses_post($_POST['host_notes'])
+        );
+        
+        // Update the event
+        $result = $event_manager->update_event($event_id, $event_data);
+        
+        if (!is_wp_error($result)) {
+            wp_send_json_success(array(
+                'event_id' => $event_id,
+                'message' => __('Event updated successfully!', 'partyminder'),
+                'event_url' => get_permalink($event_id)
+            ));
+        } else {
+            wp_send_json_error($result->get_error_message());
+        }
+    }
+    
     public function ajax_rsvp() {
         check_ajax_referer('partyminder_nonce', 'nonce');
         
@@ -292,6 +371,16 @@ class PartyMinder {
         
         ob_start();
         include PARTYMINDER_PLUGIN_DIR . 'templates/my-events.php';
+        return ob_get_clean();
+    }
+    
+    public function event_edit_form_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'event_id' => intval($_GET['event_id'] ?? 0)
+        ), $atts);
+        
+        ob_start();
+        include PARTYMINDER_PLUGIN_DIR . 'templates/event-edit-form.php';
         return ob_get_clean();
     }
     

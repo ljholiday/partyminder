@@ -434,7 +434,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                             <a href="<?php echo get_permalink($event->ID); ?>" class="pm-button pm-button-small">
                                 <?php _e('View Event', 'partyminder'); ?>
                             </a>
-                            <a href="<?php echo get_edit_post_link($event->ID); ?>" class="pm-button pm-button-secondary pm-button-small">
+                            <a href="<?php echo add_query_arg('event_id', $event->ID, home_url('/edit-event/')); ?>" class="pm-button pm-button-secondary pm-button-small">
                                 <?php _e('Edit', 'partyminder'); ?>
                             </a>
                         </div>
@@ -521,7 +521,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
         <h3><?php _e('No Events Found', 'partyminder'); ?></h3>
         <?php if (is_user_logged_in()): ?>
             <p><?php _e('You haven\'t created any events yet, and no RSVPs found.', 'partyminder'); ?></p>
-            <a href="<?php echo admin_url('admin.php?page=partyminder-create'); ?>" class="pm-button">
+            <a href="<?php echo home_url('/create-event/'); ?>" class="pm-button">
                 <?php _e('Create Your First Event', 'partyminder'); ?>
             </a>
         <?php else: ?>
@@ -538,13 +538,9 @@ $button_style = get_option('partyminder_button_style', 'rounded');
         </div>
         
         <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
-            <a href="<?php echo admin_url('admin.php?page=partyminder-create'); ?>" class="pm-button">
+            <a href="<?php echo home_url('/create-event/'); ?>" class="pm-button">
                 <span style="margin-right: 8px;">✨</span>
                 <?php _e('Create New Event', 'partyminder'); ?>
-            </a>
-            <a href="<?php echo admin_url('edit.php?post_type=party_event'); ?>" class="pm-button pm-button-secondary">
-                <span style="margin-right: 8px;">📋</span>
-                <?php _e('Manage All Events', 'partyminder'); ?>
             </a>
             <a href="<?php echo get_permalink() . '?show_past=1'; ?>" class="pm-button pm-button-secondary">
                 <span style="margin-right: 8px;">📅</span>
