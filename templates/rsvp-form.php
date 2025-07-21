@@ -264,7 +264,7 @@ $form_layout = get_option('partyminder_form_layout', 'card');
 
                 <!-- Additional Info (only show if not declined) -->
                 <div class="form-section additional-info" id="additional-info" 
-                     style="<?php echo $current_status === 'declined' ? 'display: none;' : ''; ?>">
+                     class="<?php echo $current_status === 'declined' ? 'pm-conditional-hide' : ''; ?>">
                      
                     <div class="form-group">
                         <label for="dietary_restrictions"><?php _e('Dietary Restrictions', 'partyminder'); ?></label>

@@ -107,216 +107,23 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
 ?>
 
 <style>
-.partyminder-edit-content {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 0 20px;
-}
-
-.partyminder-edit-content .page-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
+/* Dynamic theme colors for edit event content */
 .partyminder-edit-content .page-header h2 {
-    font-size: 2.2em;
-    margin-bottom: 10px;
     color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-edit-content .event-info-summary {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 25px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.partyminder-edit-content .event-info-summary .event-icon {
-    font-size: 2em;
-}
-
-.partyminder-edit-content .event-info-summary .event-details h3 {
-    margin: 0 0 5px 0;
-    color: #333;
-}
-
-.partyminder-edit-content .event-info-summary .event-details p {
-    margin: 0;
-    color: #666;
-    font-size: 0.9em;
-}
-
-.partyminder-edit-content .partyminder-form {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    padding: 30px;
-    margin: 20px 0;
-}
-
-.partyminder-edit-content .form-section {
-    margin-bottom: 25px;
 }
 
 .partyminder-edit-content .form-section h3 {
-    font-size: 1.2em;
-    margin-bottom: 15px;
     color: <?php echo esc_attr($primary_color); ?>;
-    border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 5px;
-}
-
-.partyminder-edit-content .form-group {
-    margin-bottom: 20px;
-}
-
-.partyminder-edit-content .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-
-.partyminder-edit-content .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #333;
-}
-
-.partyminder-edit-content .form-group input,
-.partyminder-edit-content .form-group textarea,
-.partyminder-edit-content .form-group select {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid #e0e0e0;
-    border-radius: 6px;
-    font-size: 16px;
-    transition: border-color 0.3s ease;
-    box-sizing: border-box;
 }
 
 .partyminder-edit-content .form-group input:focus,
 .partyminder-edit-content .form-group textarea:focus,
 .partyminder-edit-content .form-group select:focus {
-    outline: none;
     border-color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-edit-content .form-actions {
-    margin-top: 30px;
-    text-align: center;
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    flex-wrap: wrap;
 }
 
 .partyminder-edit-content .pm-button {
     background: <?php echo esc_attr($primary_color); ?>;
-    color: white !important;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 1em;
-    transition: opacity 0.3s ease;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.partyminder-edit-content .pm-button:hover {
-    opacity: 0.9;
-    color: white !important;
-}
-
-.partyminder-edit-content .pm-button-secondary {
-    background: #6c757d;
-}
-
-.partyminder-edit-content .partyminder-success {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    margin: 20px 0;
-}
-
-.partyminder-edit-content .partyminder-success h3 {
-    margin-bottom: 15px;
-    font-size: 1.5em;
-}
-
-.partyminder-edit-content .success-actions {
-    margin-top: 20px;
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.partyminder-edit-content .partyminder-errors {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-}
-
-.partyminder-edit-content .partyminder-errors h4 {
-    margin-bottom: 10px;
-}
-
-.partyminder-edit-content .partyminder-errors ul {
-    margin-left: 20px;
-}
-
-.partyminder-edit-content .partyminder-error-content {
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 20px;
-    text-align: center;
-}
-
-.partyminder-edit-content .error-wrapper {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    padding: 30px;
-}
-
-.partyminder-edit-content .error-wrapper h3 {
-    color: #dc3545;
-    margin-bottom: 15px;
-}
-
-@media (max-width: 768px) {
-    .partyminder-edit-content .form-row {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-    
-    .partyminder-edit-content .form-actions {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .partyminder-edit-content .pm-button {
-        width: 100%;
-        justify-content: center;
-    }
-    
-    .partyminder-edit-content .event-info-summary {
-        flex-direction: column;
-        text-align: center;
-    }
 }
 </style>
 
@@ -493,14 +300,14 @@ jQuery(document).ready(function($) {
                     window.location.href = '<?php echo PartyMinder::get_edit_event_url($event_id); ?>?partyminder_updated=1';
                 } else {
                     // Show error message
-                    $form.before('<div class="partyminder-errors" style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; margin: 15px 0; border-radius: 4px;"><h4><?php _e("Please fix the following issues:", "partyminder"); ?></h4><ul><li>' + (response.data || 'Unknown error occurred') + '</li></ul></div>');
+                    $form.before('<div class="partyminder-errors"><h4><?php _e("Please fix the following issues:", "partyminder"); ?></h4><ul><li>' + (response.data || 'Unknown error occurred') + '</li></ul></div>');
                     
                     // Scroll to top to show error message
                     $('html, body').animate({scrollTop: 0}, 500);
                 }
             },
             error: function() {
-                $form.before('<div class="partyminder-errors" style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; margin: 15px 0; border-radius: 4px;"><h4><?php _e("Error", "partyminder"); ?></h4><p><?php _e("Network error. Please try again.", "partyminder"); ?></p></div>');
+                $form.before('<div class="partyminder-errors"><h4><?php _e("Error", "partyminder"); ?></h4><p><?php _e("Network error. Please try again.", "partyminder"); ?></p></div>');
                 
                 // Scroll to top to show error message
                 $('html, body').animate({scrollTop: 0}, 500);

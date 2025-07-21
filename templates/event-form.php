@@ -184,17 +184,17 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success) {
                     // Show success message
-                    $form.before('<div class="partyminder-success" style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; margin: 15px 0; border-radius: 4px;"><h3><?php _e("🎉 Event Created Successfully!", "partyminder"); ?></h3><p><?php _e("Your party event has been created and is ready for guests.", "partyminder"); ?></p><div class="success-actions"><a href="' + response.data.event_url + '" class="pm-button pm-button-primary"><?php _e("View Event", "partyminder"); ?></a></div></div>');
+                    $form.before('<div class="partyminder-success partyminder-js-success"><h3><?php _e("🎉 Event Created Successfully!", "partyminder"); ?></h3><p><?php _e("Your party event has been created and is ready for guests.", "partyminder"); ?></p><div class="success-actions"><a href="' + response.data.event_url + '" class="pm-button pm-button-primary"><?php _e("View Event", "partyminder"); ?></a></div></div>');
                     
                     // Hide the form
                     $form.hide();
                 } else {
                     // Show error message
-                    $form.before('<div class="partyminder-errors" style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; margin: 15px 0; border-radius: 4px;"><h4><?php _e("Please fix the following issues:", "partyminder"); ?></h4><ul><li>' + (response.data || 'Unknown error occurred') + '</li></ul></div>');
+                    $form.before('<div class="partyminder-errors partyminder-js-errors"><h4><?php _e("Please fix the following issues:", "partyminder"); ?></h4><ul><li>' + (response.data || 'Unknown error occurred') + '</li></ul></div>');
                 }
             },
             error: function() {
-                $form.before('<div class="partyminder-errors" style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; margin: 15px 0; border-radius: 4px;"><h4><?php _e("Error", "partyminder"); ?></h4><p><?php _e("Network error. Please try again.", "partyminder"); ?></p></div>');
+                $form.before('<div class="partyminder-errors partyminder-js-errors"><h4><?php _e("Error", "partyminder"); ?></h4><p><?php _e("Network error. Please try again.", "partyminder"); ?></p></div>');
             },
             complete: function() {
                 // Re-enable submit button

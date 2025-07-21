@@ -38,167 +38,23 @@ $form_layout = get_option('partyminder_form_layout', 'card');
 ?>
 
 <style>
-.partyminder-create-content {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 0 20px;
-}
-
-.partyminder-create-content .page-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
+/* Dynamic color styles only */
 .partyminder-create-content .page-header h2 {
-    font-size: 2.2em;
-    margin-bottom: 10px;
     color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-create-content .partyminder-form {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    padding: 30px;
-    margin: 20px 0;
-}
-
-.partyminder-create-content .form-section {
-    margin-bottom: 25px;
 }
 
 .partyminder-create-content .form-section h3 {
-    font-size: 1.2em;
-    margin-bottom: 15px;
     color: <?php echo esc_attr($primary_color); ?>;
-    border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 5px;
-}
-
-.partyminder-create-content .form-group {
-    margin-bottom: 20px;
-}
-
-.partyminder-create-content .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-
-.partyminder-create-content .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #333;
-}
-
-.partyminder-create-content .form-group input,
-.partyminder-create-content .form-group textarea,
-.partyminder-create-content .form-group select {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid #e0e0e0;
-    border-radius: 6px;
-    font-size: 16px;
-    transition: border-color 0.3s ease;
-    box-sizing: border-box;
 }
 
 .partyminder-create-content .form-group input:focus,
 .partyminder-create-content .form-group textarea:focus,
 .partyminder-create-content .form-group select:focus {
-    outline: none;
     border-color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-create-content .form-actions {
-    margin-top: 30px;
-    text-align: center;
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    flex-wrap: wrap;
 }
 
 .partyminder-create-content .pm-button {
     background: <?php echo esc_attr($primary_color); ?>;
-    color: white !important;
-    padding: 12px 30px;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 1em;
-    transition: opacity 0.3s ease;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.partyminder-create-content .pm-button:hover {
-    opacity: 0.9;
-    color: white !important;
-}
-
-.partyminder-create-content .pm-button-secondary {
-    background: #6c757d;
-}
-
-.partyminder-create-content .partyminder-success {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    margin: 20px 0;
-}
-
-.partyminder-create-content .partyminder-success h3 {
-    margin-bottom: 15px;
-    font-size: 1.5em;
-}
-
-.partyminder-create-content .success-actions {
-    margin-top: 20px;
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.partyminder-create-content .partyminder-errors {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-}
-
-.partyminder-create-content .partyminder-errors h4 {
-    margin-bottom: 10px;
-}
-
-.partyminder-create-content .partyminder-errors ul {
-    margin-left: 20px;
-}
-
-@media (max-width: 768px) {
-    .partyminder-create-content .form-row {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-    
-    .partyminder-create-content .form-actions {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .partyminder-create-content .pm-button {
-        width: 100%;
-        justify-content: center;
-    }
 }
 </style>
 

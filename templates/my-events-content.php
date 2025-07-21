@@ -100,267 +100,29 @@ $button_style = get_option('partyminder_button_style', 'rounded');
 ?>
 
 <style>
-.partyminder-my-events-content {
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 0 20px;
-}
-
-.partyminder-my-events-content .my-events-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
+/* Dynamic color styles for PartyMinder My Events */
 .partyminder-my-events-content .my-events-header h2 {
-    font-size: 2.2em;
-    margin-bottom: 10px;
     color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-my-events-content .events-section {
-    margin: 30px 0;
-}
-
-.partyminder-my-events-content .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #f0f0f0;
 }
 
 .partyminder-my-events-content .section-title {
-    font-size: 1.4em;
     color: <?php echo esc_attr($primary_color); ?>;
-    margin: 0;
 }
 
 .partyminder-my-events-content .event-count {
     background: <?php echo esc_attr($primary_color); ?>;
-    color: white;
-    padding: 5px 15px;
-    border-radius: 20px;
-    font-size: 0.9em;
-}
-
-.partyminder-my-events-content .events-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.partyminder-my-events-content .my-event-card {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
-}
-
-.partyminder-my-events-content .my-event-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-}
-
-.partyminder-my-events-content .event-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.8em;
-    font-weight: bold;
-    z-index: 1;
-}
-
-.partyminder-my-events-content .badge-created {
-    background: #28a745;
-    color: white;
-}
-
-.partyminder-my-events-content .badge-confirmed {
-    background: #17a2b8;
-    color: white;
-}
-
-.partyminder-my-events-content .badge-maybe {
-    background: #ffc107;
-    color: #212529;
-}
-
-.partyminder-my-events-content .badge-declined {
-    background: #dc3545;
-    color: white;
-}
-
-.partyminder-my-events-content .event-content {
-    padding: 20px;
-}
-
-.partyminder-my-events-content .event-title {
-    font-size: 1.2em;
-    font-weight: bold;
-    margin: 0 0 10px 0;
-    color: #333;
-}
-
-.partyminder-my-events-content .event-title a {
-    color: inherit;
-    text-decoration: none;
 }
 
 .partyminder-my-events-content .event-title a:hover {
     color: <?php echo esc_attr($primary_color); ?>;
 }
 
-.partyminder-my-events-content .event-meta {
-    margin: 15px 0;
-    font-size: 0.9em;
-}
-
-.partyminder-my-events-content .meta-item {
-    display: inline-flex;
-    align-items: center;
-    margin: 5px 15px 5px 0;
-    color: #666;
-}
-
-.partyminder-my-events-content .meta-icon {
-    margin-right: 6px;
-}
-
-.partyminder-my-events-content .event-stats {
-    display: flex;
-    gap: 15px;
-    margin: 15px 0;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 6px;
-}
-
-.partyminder-my-events-content .stat-item {
-    text-align: center;
-    flex: 1;
-}
-
 .partyminder-my-events-content .stat-number {
-    font-size: 1.1em;
-    font-weight: bold;
     color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-my-events-content .stat-label {
-    font-size: 0.8em;
-    color: #666;
-}
-
-.partyminder-my-events-content .event-actions {
-    margin-top: 15px;
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
 }
 
 .partyminder-my-events-content .pm-button {
     background: <?php echo esc_attr($primary_color); ?>;
-    color: white !important;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 0.9em;
-    transition: opacity 0.3s ease;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.partyminder-my-events-content .pm-button:hover {
-    opacity: 0.9;
-    color: white !important;
-}
-
-.partyminder-my-events-content .pm-button-secondary {
-    background: #6c757d;
-}
-
-.partyminder-my-events-content .pm-button-small {
-    padding: 4px 10px;
-    font-size: 0.8em;
-}
-
-.partyminder-my-events-content .no-events {
-    text-align: center;
-    padding: 40px 20px;
-    color: #666;
-}
-
-.partyminder-my-events-content .no-events-icon {
-    font-size: 3em;
-    margin-bottom: 15px;
-}
-
-.partyminder-my-events-content .login-prompt {
-    background: #e7f3ff;
-    border: 1px solid #b8daff;
-    color: #004085;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    margin: 20px 0;
-}
-
-.partyminder-my-events-content .email-lookup {
-    background: #fff3cd;
-    border: 1px solid #ffeaa7;
-    color: #856404;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-}
-
-.partyminder-my-events-content .email-form {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 15px;
-    flex-wrap: wrap;
-}
-
-.partyminder-my-events-content .email-form input {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 250px;
-    max-width: 100%;
-}
-
-@media (max-width: 768px) {
-    .partyminder-my-events-content .events-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .partyminder-my-events-content .section-header {
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-    }
-    
-    .partyminder-my-events-content .event-actions {
-        flex-direction: column;
-    }
-    
-    .partyminder-my-events-content .email-form {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .partyminder-my-events-content .email-form input {
-        width: 100%;
-    }
 }
 </style>
 
@@ -569,13 +331,13 @@ $button_style = get_option('partyminder_button_style', 'rounded');
             <h3 class="section-title"><?php _e('⚡ Quick Actions', 'partyminder'); ?></h3>
         </div>
         
-        <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+        <div class="quick-actions-section">
             <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-button">
-                <span style="margin-right: 8px;">✨</span>
+                <span class="action-icon">✨</span>
                 <?php _e('Create New Event', 'partyminder'); ?>
             </a>
             <a href="<?php echo get_permalink() . '?show_past=1'; ?>" class="pm-button pm-button-secondary">
-                <span style="margin-right: 8px;">📅</span>
+                <span class="action-icon">📅</span>
                 <?php echo $show_past ? __('Hide Past Events', 'partyminder') : __('Show Past Events', 'partyminder'); ?>
             </a>
         </div>

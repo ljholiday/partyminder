@@ -61,172 +61,21 @@ $button_style = get_option('partyminder_button_style', 'rounded');
 ?>
 
 <style>
-.partyminder-events-content {
-    margin: 20px 0;
-}
-
-.partyminder-events-content .events-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
+/* Dynamic color styles only */
 .partyminder-events-content .events-header h2 {
-    font-size: 2.2em;
-    margin-bottom: 10px;
     color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-events-content .events-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
-    margin: 30px 0;
-}
-
-.partyminder-events-content .event-card {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.partyminder-events-content .event-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-}
-
-.partyminder-events-content .event-content {
-    padding: 20px;
-}
-
-.partyminder-events-content .event-title a {
-    color: #333;
-    text-decoration: none;
-    font-size: 1.3em;
-    font-weight: bold;
-    line-height: 1.3;
 }
 
 .partyminder-events-content .event-title a:hover {
     color: <?php echo esc_attr($primary_color); ?>;
 }
 
-.partyminder-events-content .event-meta {
-    margin: 15px 0;
-    font-size: 0.9em;
-    color: #666;
-}
-
-.partyminder-events-content .meta-item {
-    display: inline-flex;
-    align-items: center;
-    margin: 5px 15px 5px 0;
-}
-
-.partyminder-events-content .meta-icon {
-    margin-right: 6px;
-}
-
-.partyminder-events-content .event-description {
-    margin: 15px 0;
-    color: #666;
-    line-height: 1.5;
-}
-
-.partyminder-events-content .event-stats {
-    display: flex;
-    gap: 15px;
-    margin: 15px 0;
-}
-
-.partyminder-events-content .stat-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.9em;
-    color: #666;
-}
-
-.partyminder-events-content .event-actions {
-    margin-top: 15px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
 .partyminder-events-content .pm-button {
     background: <?php echo esc_attr($primary_color); ?>;
-    color: white !important;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 0.9em;
-    transition: opacity 0.3s ease;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.partyminder-events-content .pm-button:hover {
-    opacity: 0.9;
-    color: white !important;
-}
-
-.partyminder-events-content .pm-button-secondary {
-    background: #6c757d;
-}
-
-.partyminder-events-content .pm-button-small {
-    padding: 6px 12px;
-    font-size: 0.8em;
-}
-
-.partyminder-events-content .no-events-found {
-    text-align: center;
-    padding: 40px 20px;
-    color: #666;
-}
-
-.partyminder-events-content .no-events-icon {
-    font-size: 3em;
-    margin-bottom: 15px;
-}
-
-.partyminder-events-content .events-stats {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin: 15px 0;
-    flex-wrap: wrap;
 }
 
 .partyminder-events-content .stat-number {
-    font-size: 1.8em;
-    font-weight: bold;
     color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-events-content .stat-label {
-    color: #666;
-    font-size: 0.9em;
-}
-
-@media (max-width: 768px) {
-    .partyminder-events-content .events-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .partyminder-events-content .event-actions {
-        flex-direction: column;
-    }
-    
-    .partyminder-events-content .pm-button {
-        justify-content: center;
-    }
 }
 </style>
 

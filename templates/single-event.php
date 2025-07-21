@@ -20,6 +20,7 @@ if (!$event) {
     return;
 }
 
+
 // Get styling options
 $primary_color = get_option('partyminder_primary_color', '#667eea');
 $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
@@ -36,67 +37,6 @@ $is_past = $event_date < new DateTime();
     --pm-primary: <?php echo esc_attr($primary_color); ?>;
     --pm-secondary: <?php echo esc_attr($secondary_color); ?>;
 }
-.partyminder-single-event {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}
-.event-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-.event-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    margin: 20px 0;
-}
-.meta-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #f8f9fa;
-    padding: 8px 16px;
-    border-radius: 20px;
-}
-.event-content {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin: 20px 0;
-}
-.event-stats {
-    display: flex;
-    gap: 20px;
-    margin: 20px 0;
-}
-.stat-item {
-    background: var(--pm-primary);
-    color: white;
-    padding: 15px;
-    border-radius: 8px;
-    text-align: center;
-    flex: 1;
-}
-.pm-button {
-    background: var(--pm-primary);
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    display: inline-block;
-    margin: 10px 10px 10px 0;
-}
-.pm-button:hover {
-    opacity: 0.9;
-    color: white;
-}
-.pm-button-secondary {
-    background: #6c757d;
-}
 </style>
 
 <div class="partyminder-single-event">
@@ -104,20 +44,20 @@ $is_past = $event_date < new DateTime();
         <h1 class="event-title"><?php echo esc_html($event->title); ?></h1>
         
         <?php if ($is_past): ?>
-            <div class="event-status past-event">
-                <span style="background: #dc3545; color: white; padding: 4px 12px; border-radius: 20px;">
+            <div class="event-status">
+                <span class="past-event">
                     📅 Past Event
                 </span>
             </div>
         <?php elseif ($is_today): ?>
-            <div class="event-status today-event">
-                <span style="background: #28a745; color: white; padding: 4px 12px; border-radius: 20px;">
+            <div class="event-status">
+                <span class="today-event">
                     🎉 Today!
                 </span>
             </div>
         <?php elseif ($is_tomorrow): ?>
-            <div class="event-status tomorrow-event">
-                <span style="background: #ffc107; color: black; padding: 4px 12px; border-radius: 20px;">
+            <div class="event-status">
+                <span class="tomorrow-event">
                     ⏰ Tomorrow
                 </span>
             </div>
@@ -162,8 +102,8 @@ $is_past = $event_date < new DateTime();
     </div>
     
     <?php if (has_post_thumbnail()): ?>
-    <div class="event-image" style="text-align: center; margin: 20px 0;">
-        <?php the_post_thumbnail('large', array('style' => 'max-width: 100%; border-radius: 8px;')); ?>
+    <div class="event-image">
+        <?php the_post_thumbnail('large'); ?>
     </div>
     <?php endif; ?>
     
@@ -200,7 +140,7 @@ $is_past = $event_date < new DateTime();
         </div>
         
         <?php if (!$is_past): ?>
-            <div class="event-actions" style="text-align: center; margin-top: 30px;">
+            <div class="event-actions">
                 <?php 
                 $is_full = $event->guest_limit > 0 && $event->guest_stats->confirmed >= $event->guest_limit;
                 ?>
@@ -222,27 +162,27 @@ $is_past = $event_date < new DateTime();
     
     <?php if (!$is_past): ?>
     <!-- RSVP Form Section -->
-    <div class="event-rsvp" id="rsvp" style="margin-top: 40px;">
+    <div class="event-rsvp" id="rsvp">
         <?php echo do_shortcode('[partyminder_rsvp_form event_id="' . $event->ID . '"]'); ?>
     </div>
     <?php endif; ?>
     
     <!-- Event Details -->
-    <div class="event-details" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px;">
+    <div class="event-details">
         <h3>Event Details</h3>
-        <table style="width: 100%; border-collapse: collapse;">
+        <table>
             <tr>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Host Email:</strong></td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;"><?php echo esc_html($event->host_email); ?></td>
+                <td><strong>Host Email:</strong></td>
+                <td><?php echo esc_html($event->host_email); ?></td>
             </tr>
             <tr>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Created:</strong></td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;"><?php echo date('F j, Y', strtotime($event->created_date)); ?></td>
+                <td><strong>Created:</strong></td>
+                <td><?php echo date('F j, Y', strtotime($event->created_date)); ?></td>
             </tr>
             <?php if ($event->guest_limit > 0): ?>
             <tr>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Guest Limit:</strong></td>
-                <td style="padding: 8px; border-bottom: 1px solid #ddd;"><?php echo $event->guest_limit; ?> people</td>
+                <td><strong>Guest Limit:</strong></td>
+                <td><?php echo $event->guest_limit; ?> people</td>
             </tr>
             <?php endif; ?>
         </table>
