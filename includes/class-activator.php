@@ -128,22 +128,26 @@ class PartyMinder_Activator {
             'events' => array(
                 'title' => __('Events', 'partyminder'),
                 'content' => '[partyminder_events_list]',
-                'slug' => 'events'
+                'slug' => 'events',
+                'description' => __('Discover and RSVP to exciting events in your area.', 'partyminder')
             ),
             'create-event' => array(
                 'title' => __('Create Event', 'partyminder'),
                 'content' => '[partyminder_event_form]',
-                'slug' => 'create-event'
+                'slug' => 'create-event',
+                'description' => __('Plan and host your perfect event with our easy-to-use event creation tools.', 'partyminder')
             ),
             'my-events' => array(
                 'title' => __('My Events', 'partyminder'),
                 'content' => '[partyminder_my_events]',
-                'slug' => 'my-events'
+                'slug' => 'my-events',
+                'description' => __('View and manage all your created events and RSVPs in one convenient dashboard.', 'partyminder')
             ),
             'edit-event' => array(
                 'title' => __('Edit Event', 'partyminder'),
                 'content' => '[partyminder_event_edit_form]',
-                'slug' => 'edit-event'
+                'slug' => 'edit-event',
+                'description' => __('Update your event details, manage guest lists, and edit event information.', 'partyminder')
             )
         );
         
@@ -153,19 +157,30 @@ class PartyMinder_Activator {
             $existing_page = $page_id ? get_post($page_id) : null;
             
             if (!$existing_page || $existing_page->post_status !== 'publish') {
-                // Create the page
+                // Create the page with shortcode content for theme integration
+                $page_content = $page['content'];
+                
+                // Add introductory content for better theme integration
+                if ($key === 'events') {
+                    $page_content = '<p>' . $page['description'] . '</p>' . "\n\n" . $page_content;
+                } elseif ($key === 'create-event') {
+                    $page_content = '<p>' . $page['description'] . '</p>' . "\n\n" . $page_content;
+                }
+                
                 $page_data = array(
                     'post_title' => $page['title'],
-                    'post_content' => $page['content'],
+                    'post_content' => $page_content,
                     'post_status' => 'publish',
                     'post_type' => 'page',
                     'post_name' => $page['slug'],
                     'post_author' => 1,
                     'comment_status' => 'closed',
                     'ping_status' => 'closed',
+                    'post_excerpt' => $page['description'],
                     'meta_input' => array(
-                        '_partyminder_page' => true,
-                        '_wp_page_template' => 'page-partyminder-' . $key . '.php'
+                        '_partyminder_page' => $key,
+                        '_partyminder_page_type' => $key,
+                        // Remove custom page template - let theme handle it
                     )
                 );
                 

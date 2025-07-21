@@ -71,9 +71,11 @@ class PartyMinder {
         add_action('init', array($this, 'init'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_public_scripts'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+        
+        // Template system - theme integration
+        add_action('template_redirect', array($this, 'handle_custom_pages'));
         add_action('template_redirect', array($this, 'handle_form_submissions'));
         add_filter('single_template', array($this, 'load_event_template'));
-        add_filter('page_template', array($this, 'load_page_template'));
         
         // Register shortcodes early
         add_action('wp_loaded', array($this, 'register_shortcodes'));
@@ -81,7 +83,10 @@ class PartyMinder {
         // Page routing and URL handling
         add_action('init', array($this, 'add_rewrite_rules'));
         add_filter('query_vars', array($this, 'add_query_vars'));
-        add_action('template_redirect', array($this, 'handle_page_routing'));
+        
+        // Theme integration hooks
+        add_filter('body_class', array($this, 'add_body_classes'));
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_page_specific_assets'));
         
         // SEO and structured data
         add_action('wp_head', array($this, 'add_structured_data'));
@@ -351,15 +356,17 @@ class PartyMinder {
         // Check if we're on the dedicated page
         $on_dedicated_page = $this->is_on_dedicated_page('create-event');
         
-        // If on dedicated page, the full page template handles everything
+        // If on dedicated page, content injection handles everything
         if ($on_dedicated_page) {
             return '';
         }
         
-        // Otherwise, provide simplified embedded version
+        // Otherwise, provide simplified embedded version with link to full page
         ob_start();
-        echo '<div class="partyminder-shortcode-wrapper">';
-        echo '<p><a href="' . esc_url(self::get_create_event_url()) . '" class="pm-button">' . __('Create Event', 'partyminder') . '</a></p>';
+        echo '<div class="partyminder-shortcode-wrapper" style="padding: 20px; text-align: center; background: #f9f9f9; border-radius: 8px; margin: 20px 0;">';
+        echo '<h3>' . esc_html($atts['title']) . '</h3>';
+        echo '<p>' . __('Create and manage your events with our full-featured event creation tool.', 'partyminder') . '</p>';
+        echo '<a href="' . esc_url(self::get_create_event_url()) . '" class="pm-button" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">' . __('Create Event', 'partyminder') . '</a>';
         echo '</div>';
         return ob_get_clean();
     }
@@ -383,14 +390,19 @@ class PartyMinder {
         // Check if we're on the dedicated page
         $on_dedicated_page = $this->is_on_dedicated_page('events');
         
-        // If on dedicated page, the full page template handles everything
+        // If on dedicated page, content injection handles everything
         if ($on_dedicated_page) {
             return '';
         }
         
         // Otherwise, provide simplified embedded version
         ob_start();
-        include PARTYMINDER_PLUGIN_DIR . 'templates/events-list.php';
+        echo '<div class="partyminder-shortcode-wrapper" style="padding: 20px; background: #f9f9f9; border-radius: 8px; margin: 20px 0;">';
+        echo '<h3>' . __('Upcoming Events', 'partyminder') . '</h3>';
+        echo '<p>' . __('Check out all upcoming events and RSVP to join the fun!', 'partyminder') . '</p>';
+        echo '<a href="' . esc_url(self::get_events_page_url()) . '" class="pm-button" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; margin-right: 10px;">' . __('View All Events', 'partyminder') . '</a>';
+        echo '<a href="' . esc_url(self::get_create_event_url()) . '" class="pm-button" style="background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">' . __('Create Event', 'partyminder') . '</a>';
+        echo '</div>';
         return ob_get_clean();
     }
     
@@ -402,15 +414,17 @@ class PartyMinder {
         // Check if we're on the dedicated page
         $on_dedicated_page = $this->is_on_dedicated_page('my-events');
         
-        // If on dedicated page, the full page template handles everything
+        // If on dedicated page, content injection handles everything
         if ($on_dedicated_page) {
             return '';
         }
         
         // Otherwise, provide simplified embedded version
         ob_start();
-        echo '<div class="partyminder-shortcode-wrapper">';
-        echo '<p><a href="' . esc_url(self::get_my_events_url()) . '" class="pm-button">' . __('View My Events', 'partyminder') . '</a></p>';
+        echo '<div class="partyminder-shortcode-wrapper" style="padding: 20px; text-align: center; background: #f9f9f9; border-radius: 8px; margin: 20px 0;">';
+        echo '<h3>' . __('My Events Dashboard', 'partyminder') . '</h3>';
+        echo '<p>' . __('Manage your created events and RSVPs in one convenient place.', 'partyminder') . '</p>';
+        echo '<a href="' . esc_url(self::get_my_events_url()) . '" class="pm-button" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">' . __('View My Events', 'partyminder') . '</a>';
         echo '</div>';
         return ob_get_clean();
     }
@@ -423,7 +437,7 @@ class PartyMinder {
         // Check if we're on the dedicated page
         $on_dedicated_page = $this->is_on_dedicated_page('edit-event');
         
-        // If on dedicated page, the full page template handles everything
+        // If on dedicated page, content injection handles everything
         if ($on_dedicated_page) {
             return '';
         }
@@ -432,13 +446,15 @@ class PartyMinder {
         $event_id = $atts['event_id'];
         if ($event_id) {
             ob_start();
-            echo '<div class="partyminder-shortcode-wrapper">';
-            echo '<p><a href="' . esc_url(self::get_edit_event_url($event_id)) . '" class="pm-button">' . __('Edit Event', 'partyminder') . '</a></p>';
+            echo '<div class="partyminder-shortcode-wrapper" style="padding: 20px; text-align: center; background: #f9f9f9; border-radius: 8px; margin: 20px 0;">';
+            echo '<h3>' . __('Edit Event', 'partyminder') . '</h3>';
+            echo '<p>' . __('Use our full-featured editor to update your event details.', 'partyminder') . '</p>';
+            echo '<a href="' . esc_url(self::get_edit_event_url($event_id)) . '" class="pm-button" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">' . __('Edit Event', 'partyminder') . '</a>';
             echo '</div>';
             return ob_get_clean();
         }
         
-        return '<p>' . __('Event ID required for editing.', 'partyminder') . '</p>';
+        return '<div class="partyminder-shortcode-wrapper" style="padding: 20px; text-align: center; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; margin: 20px 0;"><p>' . __('Event ID required for editing.', 'partyminder') . '</p></div>';
     }
     
     public function add_rewrite_rules() {
@@ -541,6 +557,13 @@ class PartyMinder {
             return false;
         }
         
+        // Check by page meta for the new system
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        if ($page_type === $page_key) {
+            return true;
+        }
+        
+        // Fallback: Check by stored page ID (for backward compatibility)
         $page_id = get_option('partyminder_page_' . $page_key);
         return $page_id && $post->ID == $page_id;
     }
@@ -784,6 +807,257 @@ class PartyMinder {
         }
         
         return $title_parts;
+    }
+    
+    /**
+     * Handle custom pages with theme integration
+     */
+    public function handle_custom_pages() {
+        global $post;
+        
+        if (!is_page() || !$post) {
+            return;
+        }
+        
+        // Check if this is one of our custom pages
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        
+        if (!$page_type) {
+            return;
+        }
+        
+        // Set up content injection based on page type
+        switch ($page_type) {
+            case 'events':
+                add_filter('the_content', array($this, 'inject_events_content'));
+                add_filter('body_class', array($this, 'add_events_body_class'));
+                break;
+                
+            case 'create-event':
+                add_filter('the_content', array($this, 'inject_create_event_content'));
+                add_filter('body_class', array($this, 'add_create_event_body_class'));
+                break;
+                
+            case 'my-events':
+                add_filter('the_content', array($this, 'inject_my_events_content'));
+                add_filter('body_class', array($this, 'add_my_events_body_class'));
+                break;
+                
+            case 'edit-event':
+                // Handle event ID parameter
+                if (!get_query_var('event_id') && isset($_GET['event_id'])) {
+                    set_query_var('event_id', intval($_GET['event_id']));
+                }
+                add_filter('the_content', array($this, 'inject_edit_event_content'));
+                add_filter('body_class', array($this, 'add_edit_event_body_class'));
+                break;
+        }
+    }
+    
+    /**
+     * Inject events page content
+     */
+    public function inject_events_content($content) {
+        global $post;
+        
+        if (!is_page() || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+        
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        if ($page_type !== 'events') {
+            return $content;
+        }
+        
+        ob_start();
+        
+        // Use theme-friendly wrapper
+        echo '<div class="partyminder-content partyminder-events-page">';
+        
+        // Include the events template without get_header/get_footer
+        $atts = array(
+            'limit' => 10,
+            'show_past' => false
+        );
+        include PARTYMINDER_PLUGIN_DIR . 'templates/events-list-content.php';
+        
+        echo '</div>';
+        
+        return ob_get_clean();
+    }
+    
+    /**
+     * Inject create event content
+     */
+    public function inject_create_event_content($content) {
+        global $post;
+        
+        if (!is_page() || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+        
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        if ($page_type !== 'create-event') {
+            return $content;
+        }
+        
+        ob_start();
+        
+        echo '<div class="partyminder-content partyminder-create-event-page">';
+        
+        // Include create event template
+        include PARTYMINDER_PLUGIN_DIR . 'templates/create-event-content.php';
+        
+        echo '</div>';
+        
+        return ob_get_clean();
+    }
+    
+    /**
+     * Inject my events content
+     */
+    public function inject_my_events_content($content) {
+        global $post;
+        
+        if (!is_page() || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+        
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        if ($page_type !== 'my-events') {
+            return $content;
+        }
+        
+        ob_start();
+        
+        echo '<div class="partyminder-content partyminder-my-events-page">';
+        
+        // Include my events template
+        $atts = array('show_past' => false);
+        include PARTYMINDER_PLUGIN_DIR . 'templates/my-events-content.php';
+        
+        echo '</div>';
+        
+        return ob_get_clean();
+    }
+    
+    /**
+     * Inject edit event content
+     */
+    public function inject_edit_event_content($content) {
+        global $post;
+        
+        if (!is_page() || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+        
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        if ($page_type !== 'edit-event') {
+            return $content;
+        }
+        
+        ob_start();
+        
+        echo '<div class="partyminder-content partyminder-edit-event-page">';
+        
+        // Include edit event template
+        include PARTYMINDER_PLUGIN_DIR . 'templates/edit-event-content.php';
+        
+        echo '</div>';
+        
+        return ob_get_clean();
+    }
+    
+    /**
+     * Add body classes for PartyMinder pages
+     */
+    public function add_body_classes($classes) {
+        global $post;
+        
+        if (!is_page() || !$post) {
+            return $classes;
+        }
+        
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        
+        if ($page_type) {
+            $classes[] = 'partyminder-page';
+            $classes[] = 'partyminder-' . $page_type . '-page';
+            
+            // Add responsive class
+            $classes[] = 'partyminder-responsive';
+            
+            // Add theme compatibility class
+            $theme = get_template();
+            $classes[] = 'partyminder-theme-' . sanitize_html_class($theme);
+        }
+        
+        return $classes;
+    }
+    
+    /**
+     * Add specific body classes for events page
+     */
+    public function add_events_body_class($classes) {
+        $classes[] = 'partyminder-events-listing';
+        return $classes;
+    }
+    
+    /**
+     * Add specific body classes for create event page
+     */
+    public function add_create_event_body_class($classes) {
+        $classes[] = 'partyminder-event-creation';
+        return $classes;
+    }
+    
+    /**
+     * Add specific body classes for my events page
+     */
+    public function add_my_events_body_class($classes) {
+        $classes[] = 'partyminder-user-dashboard';
+        return $classes;
+    }
+    
+    /**
+     * Add specific body classes for edit event page
+     */
+    public function add_edit_event_body_class($classes) {
+        $classes[] = 'partyminder-event-editing';
+        return $classes;
+    }
+    
+    /**
+     * Enqueue page-specific assets
+     */
+    public function enqueue_page_specific_assets() {
+        global $post;
+        
+        if (!is_page() || !$post) {
+            return;
+        }
+        
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        
+        if ($page_type) {
+            // Add theme compatibility CSS
+            wp_enqueue_style(
+                'partyminder-theme-integration',
+                PARTYMINDER_PLUGIN_URL . 'assets/css/theme-integration.css',
+                array(),
+                PARTYMINDER_VERSION
+            );
+            
+            // Add page-specific CSS
+            if (file_exists(PARTYMINDER_PLUGIN_DIR . 'assets/css/page-' . $page_type . '.css')) {
+                wp_enqueue_style(
+                    'partyminder-page-' . $page_type,
+                    PARTYMINDER_PLUGIN_URL . 'assets/css/page-' . $page_type . '.css',
+                    array('partyminder-theme-integration'),
+                    PARTYMINDER_VERSION
+                );
+            }
+        }
     }
     
 }
