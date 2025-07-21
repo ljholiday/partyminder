@@ -1,5 +1,13 @@
 <?php
-get_header(); 
+/**
+ * Single Event Content Template - Content Only
+ * For theme integration via the_content filter
+ */
+
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 // Get event data
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
@@ -16,10 +24,8 @@ if (!$event) {
     echo '<p>Event ID: ' . get_the_ID() . '</p>';
     echo '<p>Post Type: ' . get_post_type() . '</p>';
     echo '</div>';
-    get_footer();
     return;
 }
-
 
 // Get styling options
 $primary_color = get_option('partyminder_primary_color', '#667eea');
@@ -92,7 +98,7 @@ $is_past = $event_date < new DateTime();
             <div class="meta-item">
                 <span>👥</span>
                 <span>
-                    <?php echo $event->guest_stats->confirmed; ?> confirmed
+                    <?php echo $event->guest_stats->confirmed ?? 0; ?> confirmed
                     <?php if ($event->guest_limit > 0): ?>
                         of <?php echo $event->guest_limit; ?> max
                     <?php endif; ?>
@@ -124,16 +130,16 @@ $is_past = $event_date < new DateTime();
         
         <div class="event-stats">
             <div class="stat-item">
-                <div class="stat-number"><?php echo $event->guest_stats->confirmed; ?></div>
+                <div class="stat-number"><?php echo $event->guest_stats->confirmed ?? 0; ?></div>
                 <div class="stat-label">Confirmed</div>
             </div>
             <div class="stat-item">
-                <div class="stat-number"><?php echo $event->guest_stats->pending; ?></div>
+                <div class="stat-number"><?php echo $event->guest_stats->pending ?? 0; ?></div>
                 <div class="stat-label">Pending</div>
             </div>
-            <?php if ($event->guest_stats->maybe > 0): ?>
+            <?php if (($event->guest_stats->maybe ?? 0) > 0): ?>
             <div class="stat-item">
-                <div class="stat-number"><?php echo $event->guest_stats->maybe; ?></div>
+                <div class="stat-number"><?php echo $event->guest_stats->maybe ?? 0; ?></div>
                 <div class="stat-label">Maybe</div>
             </div>
             <?php endif; ?>
@@ -209,5 +215,3 @@ function shareEvent() {
     }
 }
 </script>
-
-<?php get_footer(); ?>

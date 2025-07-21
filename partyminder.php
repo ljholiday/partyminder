@@ -75,7 +75,7 @@ class PartyMinder {
         // Template system - theme integration
         add_action('template_redirect', array($this, 'handle_custom_pages'));
         add_action('template_redirect', array($this, 'handle_form_submissions'));
-        add_filter('single_template', array($this, 'load_event_template'));
+        add_filter('the_content', array($this, 'inject_event_content'));
         
         // Register shortcodes early
         add_action('wp_loaded', array($this, 'register_shortcodes'));
@@ -462,6 +462,12 @@ class PartyMinder {
         add_rewrite_rule('^events/([0-9]+)/?$', 'index.php?post_type=party_event&p=$matches[1]', 'top');
         add_rewrite_rule('^events/([^/]+)/?$', 'index.php?post_type=party_event&name=$matches[1]', 'top');
         add_rewrite_rule('^edit-event/([0-9]+)/?$', 'index.php?pagename=edit-event&event_id=$matches[1]', 'top');
+        
+        // Force flush rewrite rules if needed
+        if (get_option('partyminder_flush_rules')) {
+            flush_rewrite_rules();
+            delete_option('partyminder_flush_rules');
+        }
     }
     
     public function add_query_vars($vars) {
@@ -641,41 +647,26 @@ class PartyMinder {
         return $this->event_manager->create_event($event_data);
     }
     
-    public function load_event_template($template) {
+    public function inject_event_content($content) {
         global $post;
         
-        if ($post && $post->post_type == 'party_event') {
-            $plugin_template = PARTYMINDER_PLUGIN_DIR . 'templates/single-event.php';
-            if (file_exists($plugin_template)) {
-                return $plugin_template;
-            }
+        // Only on single party_event posts
+        if (!is_single() || !$post || $post->post_type !== 'party_event') {
+            return $content;
         }
         
-        return $template;
-    }
-    
-    public function load_page_template($template) {
-        global $post;
-        
-        if (!is_page() || !$post) {
-            return $template;
+        // Only inject on the main query and avoid infinite loops
+        if (!is_main_query() || is_admin()) {
+            return $content;
         }
         
-        // Check if this is one of our dedicated pages
-        $page_keys = array('events', 'create-event', 'my-events', 'edit-event');
+        // Load the single event content
+        ob_start();
+        include PARTYMINDER_PLUGIN_DIR . 'templates/single-event-content.php';
+        $event_content = ob_get_clean();
         
-        foreach ($page_keys as $key) {
-            $page_id = get_option('partyminder_page_' . $key);
-            if ($page_id && $post->ID == $page_id) {
-                $plugin_template = PARTYMINDER_PLUGIN_DIR . 'templates/page-' . $key . '.php';
-                if (file_exists($plugin_template)) {
-                    return $plugin_template;
-                }
-                break;
-            }
-        }
-        
-        return $template;
+        // Return the event content instead of the original post content
+        return $event_content;
     }
     
     public function add_structured_data() {
