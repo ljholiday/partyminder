@@ -73,9 +73,19 @@ class PartyMinder {
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         add_action('template_redirect', array($this, 'handle_form_submissions'));
         add_filter('single_template', array($this, 'load_event_template'));
+        add_filter('page_template', array($this, 'load_page_template'));
         
         // Register shortcodes early
         add_action('wp_loaded', array($this, 'register_shortcodes'));
+        
+        // Page routing and URL handling
+        add_action('init', array($this, 'add_rewrite_rules'));
+        add_filter('query_vars', array($this, 'add_query_vars'));
+        add_action('template_redirect', array($this, 'handle_page_routing'));
+        
+        // SEO and structured data
+        add_action('wp_head', array($this, 'add_structured_data'));
+        add_filter('document_title_parts', array($this, 'modify_page_titles'));
         
         // AJAX handlers
         add_action('wp_ajax_partyminder_create_event', array($this, 'ajax_create_event'));
@@ -338,8 +348,19 @@ class PartyMinder {
             'title' => __('Create Your Event', 'partyminder')
         ), $atts);
         
+        // Check if we're on the dedicated page
+        $on_dedicated_page = $this->is_on_dedicated_page('create-event');
+        
+        // If on dedicated page, the full page template handles everything
+        if ($on_dedicated_page) {
+            return '';
+        }
+        
+        // Otherwise, provide simplified embedded version
         ob_start();
-        include PARTYMINDER_PLUGIN_DIR . 'templates/event-form.php';
+        echo '<div class="partyminder-shortcode-wrapper">';
+        echo '<p><a href="' . esc_url(self::get_create_event_url()) . '" class="pm-button">' . __('Create Event', 'partyminder') . '</a></p>';
+        echo '</div>';
         return ob_get_clean();
     }
     
@@ -359,6 +380,15 @@ class PartyMinder {
             'show_past' => false
         ), $atts);
         
+        // Check if we're on the dedicated page
+        $on_dedicated_page = $this->is_on_dedicated_page('events');
+        
+        // If on dedicated page, the full page template handles everything
+        if ($on_dedicated_page) {
+            return '';
+        }
+        
+        // Otherwise, provide simplified embedded version
         ob_start();
         include PARTYMINDER_PLUGIN_DIR . 'templates/events-list.php';
         return ob_get_clean();
@@ -369,8 +399,19 @@ class PartyMinder {
             'show_past' => false
         ), $atts);
         
+        // Check if we're on the dedicated page
+        $on_dedicated_page = $this->is_on_dedicated_page('my-events');
+        
+        // If on dedicated page, the full page template handles everything
+        if ($on_dedicated_page) {
+            return '';
+        }
+        
+        // Otherwise, provide simplified embedded version
         ob_start();
-        include PARTYMINDER_PLUGIN_DIR . 'templates/my-events.php';
+        echo '<div class="partyminder-shortcode-wrapper">';
+        echo '<p><a href="' . esc_url(self::get_my_events_url()) . '" class="pm-button">' . __('View My Events', 'partyminder') . '</a></p>';
+        echo '</div>';
         return ob_get_clean();
     }
     
@@ -379,9 +420,129 @@ class PartyMinder {
             'event_id' => intval($_GET['event_id'] ?? 0)
         ), $atts);
         
-        ob_start();
-        include PARTYMINDER_PLUGIN_DIR . 'templates/event-edit-form.php';
-        return ob_get_clean();
+        // Check if we're on the dedicated page
+        $on_dedicated_page = $this->is_on_dedicated_page('edit-event');
+        
+        // If on dedicated page, the full page template handles everything
+        if ($on_dedicated_page) {
+            return '';
+        }
+        
+        // Otherwise, provide simplified embedded version
+        $event_id = $atts['event_id'];
+        if ($event_id) {
+            ob_start();
+            echo '<div class="partyminder-shortcode-wrapper">';
+            echo '<p><a href="' . esc_url(self::get_edit_event_url($event_id)) . '" class="pm-button">' . __('Edit Event', 'partyminder') . '</a></p>';
+            echo '</div>';
+            return ob_get_clean();
+        }
+        
+        return '<p>' . __('Event ID required for editing.', 'partyminder') . '</p>';
+    }
+    
+    public function add_rewrite_rules() {
+        // Add rewrite rules for clean URLs
+        add_rewrite_rule('^events/([0-9]+)/?$', 'index.php?post_type=party_event&p=$matches[1]', 'top');
+        add_rewrite_rule('^events/([^/]+)/?$', 'index.php?post_type=party_event&name=$matches[1]', 'top');
+        add_rewrite_rule('^edit-event/([0-9]+)/?$', 'index.php?pagename=edit-event&event_id=$matches[1]', 'top');
+    }
+    
+    public function add_query_vars($vars) {
+        $vars[] = 'event_id';
+        $vars[] = 'action';
+        $vars[] = 'pm_success';
+        $vars[] = 'pm_error';
+        return $vars;
+    }
+    
+    public function handle_page_routing() {
+        global $wp_query;
+        
+        // Get the current page
+        $current_page = get_queried_object();
+        
+        if (!is_page() || !$current_page) {
+            return;
+        }
+        
+        // Check if this is one of our dedicated pages
+        $page_keys = array('events', 'create-event', 'my-events', 'edit-event');
+        $current_page_key = null;
+        
+        foreach ($page_keys as $key) {
+            $page_id = get_option('partyminder_page_' . $key);
+            if ($page_id && $current_page->ID == $page_id) {
+                $current_page_key = $key;
+                break;
+            }
+        }
+        
+        if (!$current_page_key) {
+            return;
+        }
+        
+        // Handle page-specific logic
+        switch ($current_page_key) {
+            case 'edit-event':
+                // Ensure event_id is available for edit page
+                if (!get_query_var('event_id') && isset($_GET['event_id'])) {
+                    set_query_var('event_id', intval($_GET['event_id']));
+                }
+                break;
+                
+            case 'my-events':
+                // Check if user should see this page
+                if (!is_user_logged_in() && !isset($_GET['email'])) {
+                    // Optionally redirect to login or show guest access form
+                }
+                break;
+        }
+        
+        // Set page-specific variables for templates
+        set_query_var('partyminder_page', $current_page_key);
+    }
+    
+    public static function get_page_url($page_key, $args = array()) {
+        $page_id = get_option('partyminder_page_' . $page_key);
+        if (!$page_id) {
+            return home_url('/' . $page_key . '/');
+        }
+        
+        $url = get_permalink($page_id);
+        
+        if (!empty($args)) {
+            $url = add_query_arg($args, $url);
+        }
+        
+        return $url;
+    }
+    
+    public static function get_events_page_url() {
+        return self::get_page_url('events');
+    }
+    
+    public static function get_create_event_url() {
+        return self::get_page_url('create-event');
+    }
+    
+    public static function get_my_events_url() {
+        return self::get_page_url('my-events');
+    }
+    
+    public static function get_edit_event_url($event_id) {
+        return self::get_page_url('edit-event', array('event_id' => $event_id));
+    }
+    
+    private function is_on_dedicated_page($page_key) {
+        global $post;
+        
+        if (!is_page() || !$post) {
+            return false;
+        }
+        
+        $page_id = get_option('partyminder_page_' . $page_key);
+        return $page_id && $post->ID == $page_id;
     }
     
     public function handle_form_submissions() {
@@ -429,7 +590,7 @@ class PartyMinder {
                     ), 60);
                     
                     // Redirect to prevent resubmission
-                    wp_redirect(add_query_arg('partyminder_created', 1, wp_get_referer()));
+                    wp_redirect(add_query_arg('partyminder_created', 1, self::get_create_event_url()));
                     exit;
                 } else {
                     // Store error for template
@@ -468,6 +629,161 @@ class PartyMinder {
         }
         
         return $template;
+    }
+    
+    public function load_page_template($template) {
+        global $post;
+        
+        if (!is_page() || !$post) {
+            return $template;
+        }
+        
+        // Check if this is one of our dedicated pages
+        $page_keys = array('events', 'create-event', 'my-events', 'edit-event');
+        
+        foreach ($page_keys as $key) {
+            $page_id = get_option('partyminder_page_' . $key);
+            if ($page_id && $post->ID == $page_id) {
+                $plugin_template = PARTYMINDER_PLUGIN_DIR . 'templates/page-' . $key . '.php';
+                if (file_exists($plugin_template)) {
+                    return $plugin_template;
+                }
+                break;
+            }
+        }
+        
+        return $template;
+    }
+    
+    public function add_structured_data() {
+        global $post;
+        
+        // Add structured data for individual events
+        if (is_singular('party_event')) {
+            require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+            $event_manager = new PartyMinder_Event_Manager();
+            $event = $event_manager->get_event($post->ID);
+            
+            if ($event) {
+                $structured_data = array(
+                    '@context' => 'https://schema.org',
+                    '@type' => 'Event',
+                    'name' => $event->title,
+                    'description' => $event->description ?: $event->excerpt,
+                    'startDate' => date('c', strtotime($event->event_date)),
+                    'url' => get_permalink($event->ID),
+                    'eventStatus' => 'https://schema.org/EventScheduled',
+                    'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
+                    'organizer' => array(
+                        '@type' => 'Person',
+                        'email' => $event->host_email
+                    )
+                );
+                
+                if ($event->venue_info) {
+                    $structured_data['location'] = array(
+                        '@type' => 'Place',
+                        'name' => $event->venue_info
+                    );
+                }
+                
+                if ($event->guest_stats) {
+                    $structured_data['maximumAttendeeCapacity'] = $event->guest_limit ?: 100;
+                    $structured_data['attendeeCount'] = $event->guest_stats->confirmed;
+                }
+                
+                echo '<script type="application/ld+json">' . wp_json_encode($structured_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
+            }
+        }
+        
+        // Add structured data for events pages
+        if (is_page()) {
+            $page_keys = array('events', 'create-event', 'my-events');
+            
+            foreach ($page_keys as $key) {
+                $page_id = get_option('partyminder_page_' . $key);
+                if ($page_id && $post->ID == $page_id && $key === 'events') {
+                    // Add breadcrumb and website structured data for events page
+                    $structured_data = array(
+                        '@context' => 'https://schema.org',
+                        '@type' => 'CollectionPage',
+                        'name' => get_the_title(),
+                        'description' => 'Discover and RSVP to exciting events in your area.',
+                        'url' => get_permalink(),
+                        'breadcrumb' => array(
+                            '@type' => 'BreadcrumbList',
+                            'itemListElement' => array(
+                                array(
+                                    '@type' => 'ListItem',
+                                    'position' => 1,
+                                    'name' => 'Home',
+                                    'item' => home_url()
+                                ),
+                                array(
+                                    '@type' => 'ListItem',
+                                    'position' => 2,
+                                    'name' => 'Events',
+                                    'item' => get_permalink()
+                                )
+                            )
+                        )
+                    );
+                    
+                    echo '<script type="application/ld+json">' . wp_json_encode($structured_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
+                    break;
+                }
+            }
+        }
+    }
+    
+    public function modify_page_titles($title_parts) {
+        global $post;
+        
+        if (!is_page() || !$post) {
+            return $title_parts;
+        }
+        
+        // Modify titles for our dedicated pages
+        $page_keys = array('events', 'create-event', 'my-events', 'edit-event');
+        
+        foreach ($page_keys as $key) {
+            $page_id = get_option('partyminder_page_' . $key);
+            if ($page_id && $post->ID == $page_id) {
+                switch ($key) {
+                    case 'events':
+                        $title_parts['title'] = __('Upcoming Events - Find Amazing Parties Near You', 'partyminder');
+                        break;
+                    case 'create-event':
+                        $title_parts['title'] = __('Create Your Event - Host an Amazing Party', 'partyminder');
+                        break;
+                    case 'my-events':
+                        if (is_user_logged_in()) {
+                            $user = wp_get_current_user();
+                            $title_parts['title'] = sprintf(__('%s\'s Events Dashboard', 'partyminder'), $user->display_name);
+                        } else {
+                            $title_parts['title'] = __('My Events Dashboard', 'partyminder');
+                        }
+                        break;
+                    case 'edit-event':
+                        if (isset($_GET['event_id'])) {
+                            require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+                            $event_manager = new PartyMinder_Event_Manager();
+                            $event = $event_manager->get_event(intval($_GET['event_id']));
+                            if ($event) {
+                                $title_parts['title'] = sprintf(__('Edit %s - Update Event Details', 'partyminder'), $event->title);
+                            } else {
+                                $title_parts['title'] = __('Edit Event - Update Event Details', 'partyminder');
+                            }
+                        } else {
+                            $title_parts['title'] = __('Edit Event - Update Event Details', 'partyminder');
+                        }
+                        break;
+                }
+                break;
+            }
+        }
+        
+        return $title_parts;
     }
     
 }

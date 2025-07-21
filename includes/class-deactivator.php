@@ -58,7 +58,23 @@ class PartyMinder_Deactivator {
         // Clean up post meta
         $wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE post_id NOT IN (SELECT id FROM {$wpdb->posts})");
         
+        // Delete created pages
+        self::delete_pages();
+        
         // Delete plugin options
         $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE 'partyminder_%'");
+    }
+    
+    private static function delete_pages() {
+        $page_keys = array('events', 'create-event', 'my-events', 'edit-event');
+        
+        foreach ($page_keys as $key) {
+            $page_id = get_option('partyminder_page_' . $key);
+            if ($page_id) {
+                // Force delete the page (bypass trash)
+                wp_delete_post($page_id, true);
+                delete_option('partyminder_page_' . $key);
+            }
+        }
     }
 }

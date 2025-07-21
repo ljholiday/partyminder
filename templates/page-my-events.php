@@ -1,8 +1,15 @@
 <?php
+/**
+ * Template for My Events Page
+ * Displays user's created events and RSVPs
+ */
+
 // Prevent direct access
 if (!defined('ABSPATH')) {
     exit;
 }
+
+get_header(); 
 
 // Load required classes
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
@@ -11,8 +18,8 @@ require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
 $event_manager = new PartyMinder_Event_Manager();
 $guest_manager = new PartyMinder_Guest_Manager();
 
-// Get shortcode attributes
-$show_past = filter_var($atts['show_past'] ?? false, FILTER_VALIDATE_BOOLEAN);
+// Get page attributes
+$show_past = filter_var($_GET['show_past'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
 // Get current user info
 $current_user = wp_get_current_user();
@@ -106,12 +113,25 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     padding: 20px;
 }
 
+.page-breadcrumb {
+    margin-bottom: 20px;
+}
+
+.page-breadcrumb a {
+    color: var(--pm-primary);
+    text-decoration: none;
+}
+
+.page-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
 .my-events-header {
     text-align: center;
     margin-bottom: 40px;
 }
 
-.my-events-header h2 {
+.my-events-header h1 {
     font-size: 2.5em;
     margin-bottom: 10px;
     color: var(--pm-primary);
@@ -273,6 +293,9 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     font-size: 0.9em;
     transition: background 0.3s ease;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .pm-button:hover {
@@ -287,6 +310,18 @@ $button_style = get_option('partyminder_button_style', 'rounded');
 .pm-button-small {
     padding: 6px 12px;
     font-size: 0.8em;
+}
+
+.pm-button.style-rounded {
+    border-radius: 6px;
+}
+
+.pm-button.style-pill {
+    border-radius: 25px;
+}
+
+.pm-button.style-square {
+    border-radius: 0;
 }
 
 .no-events {
@@ -332,19 +367,55 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     border-radius: 4px;
     width: 250px;
 }
+
+.quick-actions {
+    margin: 40px 0;
+}
+
+.quick-actions-grid {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .email-form {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .email-form input {
+        width: 100%;
+        max-width: 300px;
+    }
+}
 </style>
 
 <div class="partyminder-my-events">
     
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb">
+        <a href="<?php echo home_url(); ?>"><?php _e('Home', 'partyminder'); ?></a> 
+        &raquo; <a href="<?php echo PartyMinder::get_events_page_url(); ?>"><?php _e('Events', 'partyminder'); ?></a>
+        &raquo; <?php _e('My Events', 'partyminder'); ?>
+    </div>
+    
     <!-- Header -->
     <div class="my-events-header">
-        <h2>
+        <h1>
             <?php if (is_user_logged_in()): ?>
                 <?php printf(__('👋 Hi %s, here are your events', 'partyminder'), esc_html($current_user->display_name)); ?>
             <?php else: ?>
                 <?php _e('🎉 My Events', 'partyminder'); ?>
             <?php endif; ?>
-        </h2>
+        </h1>
         <p>
             <?php if ($show_past): ?>
                 <?php _e('All your events and RSVPs', 'partyminder'); ?>
@@ -360,6 +431,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
         <h3><?php _e('🔐 Login to See Your Events', 'partyminder'); ?></h3>
         <p><?php _e('Log in to see events you\'ve created and your RSVPs.', 'partyminder'); ?></p>
         <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-button">
+            <span>🔐</span>
             <?php _e('Login', 'partyminder'); ?>
         </a>
     </div>
@@ -432,6 +504,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
 
                         <div class="event-actions">
                             <a href="<?php echo get_permalink($event->ID); ?>" class="pm-button pm-button-small">
+                                <span>👀</span>
                                 <?php _e('View Event', 'partyminder'); ?>
                             </a>
                             <a href="<?php echo PartyMinder::get_edit_event_url($event->ID); ?>" class="pm-button pm-button-secondary pm-button-small">
@@ -500,10 +573,12 @@ $button_style = get_option('partyminder_button_style', 'rounded');
 
                         <div class="event-actions">
                             <a href="<?php echo get_permalink($event->ID); ?>" class="pm-button pm-button-small">
+                                <span>👀</span>
                                 <?php _e('View Event', 'partyminder'); ?>
                             </a>
                             <?php if (!$is_past): ?>
                             <a href="<?php echo get_permalink($event->ID); ?>#rsvp" class="pm-button pm-button-secondary pm-button-small">
+                                <span>📝</span>
                                 <?php _e('Update RSVP', 'partyminder'); ?>
                             </a>
                             <?php endif; ?>
@@ -539,17 +614,23 @@ $button_style = get_option('partyminder_button_style', 'rounded');
             <h3 class="section-title"><?php _e('⚡ Quick Actions', 'partyminder'); ?></h3>
         </div>
         
-        <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+        <div class="quick-actions-grid">
             <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-button">
-                <span style="margin-right: 8px;">✨</span>
+                <span>✨</span>
                 <?php _e('Create New Event', 'partyminder'); ?>
             </a>
-            <a href="<?php echo get_permalink() . '?show_past=1'; ?>" class="pm-button pm-button-secondary">
-                <span style="margin-right: 8px;">📅</span>
+            <a href="<?php echo add_query_arg('show_past', $show_past ? '' : '1'); ?>" class="pm-button pm-button-secondary">
+                <span>📅</span>
                 <?php echo $show_past ? __('Hide Past Events', 'partyminder') : __('Show Past Events', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo PartyMinder::get_events_page_url(); ?>" class="pm-button pm-button-secondary">
+                <span>🎉</span>
+                <?php _e('Browse All Events', 'partyminder'); ?>
             </a>
         </div>
     </div>
     <?php endif; ?>
 
 </div>
+
+<?php get_footer(); ?>

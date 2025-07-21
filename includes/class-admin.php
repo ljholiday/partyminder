@@ -162,7 +162,7 @@ class PartyMinder_Admin {
                                     <div class="date-month"><?php echo date('M', strtotime($event->event_date)); ?></div>
                                 </div>
                                 <div class="event-details">
-                                    <h3><a href="<?php echo add_query_arg('event_id', $event->ID, home_url('/edit-event/')); ?>"><?php echo esc_html($event->title); ?></a></h3>
+                                    <h3><a href="<?php echo PartyMinder::get_edit_event_url($event->ID); ?>"><?php echo esc_html($event->title); ?></a></h3>
                                     <div class="event-meta">
                                         <span><?php echo date('g:i A', strtotime($event->event_date)); ?></span>
                                         <span><?php echo $event->guest_stats->confirmed; ?> confirmed</span>
@@ -263,8 +263,8 @@ class PartyMinder_Admin {
                 <div class="notice notice-success">
                     <p><strong><?php _e('Event created successfully!', 'partyminder'); ?></strong></p>
                     <p>
-                        <a href="<?php echo add_query_arg('event_id', $event_id, home_url('/edit-event/')); ?>" class="button button-primary"><?php _e('Edit Event', 'partyminder'); ?></a>
-                        <a href="<?php echo home_url('/my-events/'); ?>" class="button"><?php _e('View My Events', 'partyminder'); ?></a>
+                        <a href="<?php echo PartyMinder::get_edit_event_url($event_id); ?>" class="button button-primary"><?php _e('Edit Event', 'partyminder'); ?></a>
+                        <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="button"><?php _e('View My Events', 'partyminder'); ?></a>
                     </p>
                 </div>
             <?php else: ?>

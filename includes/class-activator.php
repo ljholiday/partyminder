@@ -11,6 +11,9 @@ class PartyMinder_Activator {
         // Set default options
         self::set_default_options();
         
+        // Create dedicated pages
+        self::create_pages();
+        
         // Flush rewrite rules only on activation
         flush_rewrite_rules();
         
@@ -118,5 +121,81 @@ class PartyMinder_Activator {
         add_option('partyminder_secondary_color', '#764ba2');
         add_option('partyminder_button_style', 'rounded');
         add_option('partyminder_form_layout', 'card');
+    }
+    
+    private static function create_pages() {
+        $pages = array(
+            'events' => array(
+                'title' => __('Events', 'partyminder'),
+                'content' => '[partyminder_events_list]',
+                'slug' => 'events'
+            ),
+            'create-event' => array(
+                'title' => __('Create Event', 'partyminder'),
+                'content' => '[partyminder_event_form]',
+                'slug' => 'create-event'
+            ),
+            'my-events' => array(
+                'title' => __('My Events', 'partyminder'),
+                'content' => '[partyminder_my_events]',
+                'slug' => 'my-events'
+            ),
+            'edit-event' => array(
+                'title' => __('Edit Event', 'partyminder'),
+                'content' => '[partyminder_event_edit_form]',
+                'slug' => 'edit-event'
+            )
+        );
+        
+        foreach ($pages as $key => $page) {
+            // Check if page already exists
+            $page_id = get_option('partyminder_page_' . $key);
+            $existing_page = $page_id ? get_post($page_id) : null;
+            
+            if (!$existing_page || $existing_page->post_status !== 'publish') {
+                // Create the page
+                $page_data = array(
+                    'post_title' => $page['title'],
+                    'post_content' => $page['content'],
+                    'post_status' => 'publish',
+                    'post_type' => 'page',
+                    'post_name' => $page['slug'],
+                    'post_author' => 1,
+                    'comment_status' => 'closed',
+                    'ping_status' => 'closed',
+                    'meta_input' => array(
+                        '_partyminder_page' => true,
+                        '_wp_page_template' => 'page-partyminder-' . $key . '.php'
+                    )
+                );
+                
+                $page_id = wp_insert_post($page_data);
+                
+                if (!is_wp_error($page_id)) {
+                    update_option('partyminder_page_' . $key, $page_id);
+                    
+                    // Set SEO-friendly meta data
+                    switch ($key) {
+                        case 'events':
+                            update_post_meta($page_id, '_yoast_wpseo_title', __('Upcoming Events - Find Amazing Parties Near You', 'partyminder'));
+                            update_post_meta($page_id, '_yoast_wpseo_metadesc', __('Discover and RSVP to exciting events in your area. Join the community and never miss a great party!', 'partyminder'));
+                            break;
+                        case 'create-event':
+                            update_post_meta($page_id, '_yoast_wpseo_title', __('Create Your Event - Host an Amazing Party', 'partyminder'));
+                            update_post_meta($page_id, '_yoast_wpseo_metadesc', __('Plan and host your perfect event with our easy-to-use event creation tools. Invite guests and manage RSVPs effortlessly.', 'partyminder'));
+                            break;
+                        case 'my-events':
+                            update_post_meta($page_id, '_yoast_wpseo_title', __('My Events Dashboard - Manage Your Events', 'partyminder'));
+                            update_post_meta($page_id, '_yoast_wpseo_metadesc', __('View and manage all your created events and RSVPs in one convenient dashboard.', 'partyminder'));
+                            break;
+                        case 'edit-event':
+                            update_post_meta($page_id, '_yoast_wpseo_title', __('Edit Event - Update Your Event Details', 'partyminder'));
+                            update_post_meta($page_id, '_yoast_wpseo_metadesc', __('Update your event details, manage guest lists, and edit event information.', 'partyminder'));
+                            update_post_meta($page_id, '_yoast_wpseo_meta-robots-noindex', '1'); // Don't index edit pages
+                            break;
+                    }
+                }
+            }
+        }
     }
 }

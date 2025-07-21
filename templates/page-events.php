@@ -1,12 +1,15 @@
 <?php
+/**
+ * Template for Events Page
+ * Displays all public events
+ */
+
 // Prevent direct access
 if (!defined('ABSPATH')) {
     exit;
 }
 
-// Get shortcode attributes with defaults
-$limit = intval($atts['limit'] ?? 10);
-$show_past = filter_var($atts['show_past'] ?? false, FILTER_VALIDATE_BOOLEAN);
+get_header(); 
 
 // Load required classes
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
@@ -15,7 +18,11 @@ require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
 $event_manager = new PartyMinder_Event_Manager();
 $guest_manager = new PartyMinder_Guest_Manager();
 
-// Get events using our custom method
+// Get page attributes
+$show_past = isset($_GET['show_past']) ? filter_var($_GET['show_past'], FILTER_VALIDATE_BOOLEAN) : false;
+$limit = isset($_GET['limit']) ? intval($_GET['limit']) : 10;
+
+// Get events
 if ($show_past) {
     // Get all events
     global $wpdb;
@@ -32,15 +39,7 @@ if ($show_past) {
          LIMIT %d",
         $limit
     ));
-} else {
-    // Get upcoming events only
-    $upcoming_events = $event_manager->get_upcoming_events($limit);
-    $events = $upcoming_events;
     
-}
-
-// If we got results from the direct query, convert them to event objects
-if (isset($results) && !empty($results)) {
     $events = array();
     foreach ($results as $result) {
         $event = $event_manager->get_event($result->ID);
@@ -48,6 +47,9 @@ if (isset($results) && !empty($results)) {
             $events[] = $event;
         }
     }
+} else {
+    // Get upcoming events only
+    $events = $event_manager->get_upcoming_events($limit);
 }
 
 // Get styling options
@@ -73,12 +75,77 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     margin-bottom: 40px;
 }
 
-.events-header h2 {
+.events-header h1 {
     font-size: 2.5em;
     margin-bottom: 10px;
     color: var(--pm-primary);
 }
 
+.events-breadcrumb {
+    margin-bottom: 20px;
+}
+
+.events-breadcrumb a {
+    color: var(--pm-primary);
+    text-decoration: none;
+}
+
+.events-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.events-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.events-filter {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.pm-button {
+    background: var(--pm-primary);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: background 0.3s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pm-button:hover {
+    opacity: 0.9;
+    color: white;
+}
+
+.pm-button-secondary {
+    background: #6c757d;
+}
+
+.pm-button.style-rounded {
+    border-radius: 6px;
+}
+
+.pm-button.style-pill {
+    border-radius: 25px;
+}
+
+.pm-button.style-square {
+    border-radius: 0;
+}
+
+/* Include existing events grid styles */
 .events-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -157,27 +224,6 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     flex-wrap: wrap;
 }
 
-.pm-button {
-    background: var(--pm-primary);
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 0.9em;
-    transition: background 0.3s ease;
-    cursor: pointer;
-}
-
-.pm-button:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.pm-button-secondary {
-    background: #6c757d;
-}
-
 .pm-button-small {
     padding: 8px 16px;
     font-size: 0.85em;
@@ -193,56 +239,64 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     font-size: 4em;
     margin-bottom: 20px;
 }
-
-.events-stats {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    margin: 20px 0;
-    flex-wrap: wrap;
-}
-
-.stat-item {
-    text-align: center;
-}
-
-.stat-number {
-    font-size: 2em;
-    font-weight: bold;
-    color: var(--pm-primary);
-}
-
-.stat-label {
-    color: #666;
-    font-size: 0.9em;
-}
 </style>
 
 <div class="partyminder-events-container">
     
-    <!-- Events Header -->
+    <!-- Breadcrumb -->
+    <div class="events-breadcrumb">
+        <a href="<?php echo home_url(); ?>"><?php _e('Home', 'partyminder'); ?></a> 
+        &raquo; <?php _e('Events', 'partyminder'); ?>
+    </div>
+    
+    <!-- Page Header -->
     <div class="events-header">
-        <h2 class="events-title">
+        <h1>
             <?php if ($show_past): ?>
                 <?php _e('All Events', 'partyminder'); ?>
             <?php else: ?>
                 <?php _e('🎉 Upcoming Events', 'partyminder'); ?>
             <?php endif; ?>
-        </h2>
+        </h1>
         
-        <p class="events-description">
+        <p>
             <?php if ($show_past): ?>
                 <?php _e('Browse through our collection of events and gatherings.', 'partyminder'); ?>
             <?php else: ?>
                 <?php _e('Discover amazing events happening near you. Join the community!', 'partyminder'); ?>
             <?php endif; ?>
         </p>
+    </div>
+    
+    <!-- Page Actions -->
+    <div class="events-actions">
+        <div class="events-filter">
+            <a href="<?php echo remove_query_arg('show_past'); ?>" class="pm-button pm-button-secondary style-<?php echo esc_attr($button_style); ?> <?php echo !$show_past ? 'active' : ''; ?>">
+                <span>📅</span>
+                <?php _e('Upcoming Events', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo add_query_arg('show_past', '1'); ?>" class="pm-button pm-button-secondary style-<?php echo esc_attr($button_style); ?> <?php echo $show_past ? 'active' : ''; ?>">
+                <span>📚</span>
+                <?php _e('Past Events', 'partyminder'); ?>
+            </a>
+        </div>
         
-        <div class="events-stats">
-            <span class="stat-item">
-                <span class="stat-number"><?php echo count($events); ?></span>
-                <span class="stat-label"><?php _e('Events', 'partyminder'); ?></span>
-            </span>
+        <div class="events-cta">
+            <?php if (is_user_logged_in()): ?>
+                <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-button style-<?php echo esc_attr($button_style); ?>">
+                    <span>✨</span>
+                    <?php _e('Create Event', 'partyminder'); ?>
+                </a>
+                <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-button pm-button-secondary style-<?php echo esc_attr($button_style); ?>">
+                    <span>👤</span>
+                    <?php _e('My Events', 'partyminder'); ?>
+                </a>
+            <?php else: ?>
+                <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-button style-<?php echo esc_attr($button_style); ?>">
+                    <span>🔐</span>
+                    <?php _e('Login to Create Events', 'partyminder'); ?>
+                </a>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -262,19 +316,6 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                     <?php if (has_post_thumbnail($event->ID)): ?>
                     <div class="event-image">
                         <?php echo get_the_post_thumbnail($event->ID, 'medium'); ?>
-                        <?php if ($is_past): ?>
-                            <div class="event-overlay past-overlay">
-                                <span class="overlay-text"><?php _e('Past Event', 'partyminder'); ?></span>
-                            </div>
-                        <?php elseif ($is_today): ?>
-                            <div class="event-overlay today-overlay">
-                                <span class="overlay-text"><?php _e('Today!', 'partyminder'); ?></span>
-                            </div>
-                        <?php elseif ($is_tomorrow): ?>
-                            <div class="event-overlay tomorrow-overlay">
-                                <span class="overlay-text"><?php _e('Tomorrow', 'partyminder'); ?></span>
-                            </div>
-                        <?php endif; ?>
                     </div>
                     <?php endif; ?>
                     
@@ -342,7 +383,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                         <div class="event-actions">
                             <?php if ($is_past): ?>
                                 <a href="<?php echo get_permalink($event->ID); ?>" class="pm-button pm-button-secondary pm-button-small style-<?php echo esc_attr($button_style); ?>">
-                                    <span class="button-icon">📖</span>
+                                    <span>📖</span>
                                     <?php _e('View Details', 'partyminder'); ?>
                                 </a>
                             <?php else: ?>
@@ -351,7 +392,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                                 ?>
                                 
                                 <a href="<?php echo get_permalink($event->ID); ?>" class="pm-button pm-button-primary pm-button-small style-<?php echo esc_attr($button_style); ?>">
-                                    <span class="button-icon">💌</span>
+                                    <span>💌</span>
                                     <?php if ($is_full): ?>
                                         <?php _e('Join Waitlist', 'partyminder'); ?>
                                     <?php else: ?>
@@ -362,51 +403,15 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                                 <button type="button" class="pm-button pm-button-secondary pm-button-small share-event style-<?php echo esc_attr($button_style); ?>" 
                                         data-url="<?php echo esc_url(get_permalink($event->ID)); ?>" 
                                         data-title="<?php echo esc_attr($event->title); ?>">
-                                    <span class="button-icon">📤</span>
+                                    <span>📤</span>
                                     <?php _e('Share', 'partyminder'); ?>
                                 </button>
                             <?php endif; ?>
                         </div>
                     </div>
-                    
-                    <?php if ($event->guest_stats->confirmed > 0): ?>
-                    <div class="event-guests">
-                        <div class="guests-preview">
-                            <?php
-                            $confirmed_guests = $guest_manager->get_event_guests($event->ID, 'confirmed');
-                            $guests_to_show = array_slice($confirmed_guests, 0, 5);
-                            ?>
-                            
-                            <div class="guest-avatars">
-                                <?php foreach ($guests_to_show as $guest): ?>
-                                    <div class="guest-avatar" title="<?php echo esc_attr($guest->name); ?>">
-                                        <?php echo strtoupper(substr($guest->name, 0, 1)); ?>
-                                    </div>
-                                <?php endforeach; ?>
-                                
-                                <?php if (count($confirmed_guests) > 5): ?>
-                                    <div class="guest-avatar more-guests">
-                                        +<?php echo count($confirmed_guests) - 5; ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>
-        
-        <!-- Load More (if needed) -->
-        <?php if (count($events) >= $limit): ?>
-        <div class="events-pagination">
-            <button type="button" class="pm-button pm-button-secondary load-more-events style-<?php echo esc_attr($button_style); ?>" 
-                    data-page="2" data-limit="<?php echo esc_attr($limit); ?>">
-                <span class="button-icon">⬇️</span>
-                <?php _e('Load More Events', 'partyminder'); ?>
-            </button>
-        </div>
-        <?php endif; ?>
         
     <?php else: ?>
         <!-- No Events Found -->
@@ -420,10 +425,10 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                     <p><?php _e('There are no upcoming events scheduled. Check back soon!', 'partyminder'); ?></p>
                 <?php endif; ?>
                 
-                <?php if (current_user_can('publish_posts')): ?>
+                <?php if (is_user_logged_in()): ?>
                 <div class="no-events-actions">
-                    <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-button pm-button-primary style-<?php echo esc_attr($button_style); ?>">
-                        <span class="button-icon">✨</span>
+                    <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-button style-<?php echo esc_attr($button_style); ?>">
+                        <span>✨</span>
                         <?php _e('Create First Event', 'partyminder'); ?>
                     </a>
                 </div>
@@ -431,27 +436,6 @@ $button_style = get_option('partyminder_button_style', 'rounded');
             </div>
         </div>
     <?php endif; ?>
-
-    <!-- Newsletter Signup -->
-    <div class="events-newsletter">
-        <div class="newsletter-content">
-            <h3><?php _e('Stay Updated', 'partyminder'); ?></h3>
-            <p><?php _e('Get notified about new events in your area.', 'partyminder'); ?></p>
-            
-            <form class="newsletter-form" id="events-newsletter-form">
-                <div class="form-group">
-                    <input type="email" placeholder="<?php esc_attr_e('Enter your email', 'partyminder'); ?>" required />
-                    <button type="submit" class="pm-button pm-button-primary style-<?php echo esc_attr($button_style); ?>">
-                        <span class="button-icon">📧</span>
-                        <?php _e('Subscribe', 'partyminder'); ?>
-                    </button>
-                </div>
-                <small class="newsletter-disclaimer">
-                    <?php _e('We respect your privacy. Unsubscribe anytime.', 'partyminder'); ?>
-                </small>
-            </form>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -477,67 +461,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    // Load more events
-    const loadMoreBtn = document.querySelector('.load-more-events');
-    if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', function() {
-            const page = parseInt(this.dataset.page);
-            const limit = parseInt(this.dataset.limit);
-            
-            this.disabled = true;
-            this.textContent = '<?php _e("Loading...", "partyminder"); ?>';
-            
-            // AJAX call to load more events
-            fetch(partyminder_ajax.ajax_url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
-                    action: 'partyminder_load_more_events',
-                    nonce: partyminder_ajax.nonce,
-                    page: page,
-                    limit: limit
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.data.html) {
-                    document.querySelector('.events-grid').insertAdjacentHTML('beforeend', data.data.html);
-                    
-                    if (data.data.has_more) {
-                        this.dataset.page = page + 1;
-                        this.disabled = false;
-                        this.innerHTML = '<span class="button-icon">⬇️</span> <?php _e("Load More Events", "partyminder"); ?>';
-                    } else {
-                        this.style.display = 'none';
-                    }
-                } else {
-                    this.style.display = 'none';
-                }
-            })
-            .catch(() => {
-                this.disabled = false;
-                this.innerHTML = '<span class="button-icon">⬇️</span> <?php _e("Load More Events", "partyminder"); ?>';
-            });
-        });
-    }
-    
-    // Newsletter signup
-    document.getElementById('events-newsletter-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const email = this.querySelector('input[type="email"]').value;
-        const button = this.querySelector('button');
-        
-        button.disabled = true;
-        button.textContent = '<?php _e("Subscribing...", "partyminder"); ?>';
-        
-        // Simple success message for demo
-        setTimeout(() => {
-            this.innerHTML = '<div class="newsletter-success">✅ <?php _e("Thank you for subscribing!", "partyminder"); ?></div>';
-        }, 1000);
-    });
 });
 </script>
+
+<?php get_footer(); ?>
