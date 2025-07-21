@@ -493,15 +493,7 @@
     border-bottom: none;
 }
 
-/* Custom Post Type List Tables */
-.post-type-party_event .wp-list-table th {
-    background: var(--pm-background);
-    font-weight: 600;
-}
-
-.post-type-party_event .wp-list-table tr:hover {
-    background: rgba(102, 126, 234, 0.05);
-}
+/* Custom post type styles removed - now using pages */
 
 /* Responsive Admin */
 @media (max-width: 1200px) {

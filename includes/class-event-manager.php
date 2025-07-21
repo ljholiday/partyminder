@@ -110,40 +110,6 @@ class PartyMinder_Event_Manager {
         return $event;
     }
     
-    public function migrate_events_to_pages() {
-        global $wpdb;
-        
-        // Find all party_event posts
-        $party_events = get_posts(array(
-            'post_type' => 'party_event',
-            'post_status' => 'any',
-            'numberposts' => -1
-        ));
-        
-        $migrated = 0;
-        
-        foreach ($party_events as $event_post) {
-            // Convert to page
-            $wpdb->update(
-                $wpdb->posts,
-                array('post_type' => 'page'),
-                array('ID' => $event_post->ID),
-                array('%s'),
-                array('%d')
-            );
-            
-            // Add PartyMinder meta
-            update_post_meta($event_post->ID, '_partyminder_event', 'true');
-            update_post_meta($event_post->ID, '_partyminder_event_type', 'single_event');
-            
-            $migrated++;
-        }
-        
-        // Clean up rewrite rules
-        flush_rewrite_rules();
-        
-        return $migrated;
-    }
     
     public function get_upcoming_events($limit = 10) {
         global $wpdb;
@@ -195,14 +161,19 @@ class PartyMinder_Event_Manager {
     
     // Admin meta boxes
     public function add_meta_boxes() {
-        add_meta_box(
-            'partyminder_event_details',
-            __('Event Details', 'partyminder'),
-            array($this, 'event_details_meta_box'),
-            'page',
-            'normal',
-            'high'
-        );
+        global $post;
+        
+        // Only add meta box to PartyMinder event pages
+        if ($post && get_post_meta($post->ID, '_partyminder_event', true)) {
+            add_meta_box(
+                'partyminder_event_details',
+                __('Event Details', 'partyminder'),
+                array($this, 'event_details_meta_box'),
+                'page',
+                'normal',
+                'high'
+            );
+        }
     }
     
     public function event_details_meta_box($post) {
@@ -307,42 +278,7 @@ class PartyMinder_Event_Manager {
         }
     }
     
-    // Admin columns
-    public function add_columns($columns) {
-        $new_columns = array();
-        $new_columns['cb'] = $columns['cb'];
-        $new_columns['title'] = $columns['title'];
-        $new_columns['event_date'] = __('Event Date', 'partyminder');
-        $new_columns['guests'] = __('Guests', 'partyminder');
-        $new_columns['venue'] = __('Venue', 'partyminder');
-        $new_columns['date'] = $columns['date'];
-        
-        return $new_columns;
-    }
-    
-    public function populate_columns($column, $post_id) {
-        $event = $this->get_event($post_id);
-        if (!$event) return;
-        
-        switch ($column) {
-            case 'event_date':
-                if ($event->event_date) {
-                    echo date('M j, Y g:i A', strtotime($event->event_date));
-                }
-                break;
-                
-            case 'guests':
-                printf('%d confirmed', $event->guest_stats->confirmed);
-                if ($event->guest_limit > 0) {
-                    printf(' / %d max', $event->guest_limit);
-                }
-                break;
-                
-            case 'venue':
-                echo esc_html($event->venue_info);
-                break;
-        }
-    }
+    // Admin columns no longer needed since we use pages now
     
     public function update_event($event_id, $event_data) {
         global $wpdb;

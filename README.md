@@ -167,11 +167,11 @@ Display a list of events.
 
 ### Single Event Display
 
-PartyMinder automatically handles single event pages, but you can customize the display by creating a `single-party_event.php` template in your theme.
+PartyMinder now uses standard WordPress pages for events. Events integrate seamlessly with your theme's page templates. You can create custom page templates for enhanced styling if needed.
 
 ### Archive Page
 
-Create an `archive-party_event.php` template to customize the events archive page.
+Events are displayed using the built-in events list shortcode `[partyminder_events_list]` on dedicated pages rather than archive pages.
 
 ### Custom Styling
 
@@ -215,13 +215,13 @@ AI usage tracking and cost management.
 - `partyminder_rsvp_form_fields` - Modify RSVP form fields
 - `partyminder_ai_prompt` - Modify AI prompts before sending
 
-### Custom Post Types
+### Page-Based Events
 
-**Party Event (`party_event`)**
-- Supports: title, editor, thumbnail, excerpt, custom-fields
-- Public: true
-- Has archive: true
-- Rewrite slug: 'events'
+**Event Pages**
+- Uses standard WordPress pages with meta data
+- Full theme integration and compatibility
+- SEO-optimized URLs
+- Compatible with page builders
 
 ### API Usage
 

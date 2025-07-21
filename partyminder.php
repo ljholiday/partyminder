@@ -82,8 +82,7 @@ class PartyMinder {
         // Register shortcodes early
         add_action('wp_loaded', array($this, 'register_shortcodes'));
         
-        // Temporary migration trigger
-        add_action('init', array($this, 'handle_migration'));
+        // Migration code removed - not needed for new installations
         
         // Page routing and URL handling
         add_action('init', array($this, 'add_rewrite_rules'));
@@ -196,7 +195,6 @@ class PartyMinder {
         // Ensure event manager is available
         if (!$this->event_manager) {
             $this->load_dependencies();
-            $this->register_post_types();
             $this->event_manager = new PartyMinder_Event_Manager();
         }
         
@@ -616,7 +614,6 @@ class PartyMinder {
         // Ensure dependencies are loaded
         if (!$this->event_manager) {
             $this->load_dependencies();
-            $this->register_post_types(); // Ensure post type is registered
             $this->event_manager = new PartyMinder_Event_Manager();
         }
         
@@ -656,16 +653,6 @@ class PartyMinder {
     
     // Removed all post metadata suppression - no longer needed with pages
     
-    public function handle_migration() {
-        // Run migration if requested
-        if (isset($_GET['partyminder_migrate']) && $_GET['partyminder_migrate'] == '1' && current_user_can('manage_options')) {
-            require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
-            $event_manager = new PartyMinder_Event_Manager();
-            $migrated = $event_manager->migrate_events_to_pages();
-            
-            wp_die("Migration complete! Converted $migrated events from posts to pages. <a href='" . home_url() . "'>Return to site</a>");
-        }
-    }
     
     public function add_structured_data() {
         global $post;
