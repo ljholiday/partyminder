@@ -33,29 +33,25 @@ try {
         $wpdb->query("DROP TABLE IF EXISTS `$table`");
     }
 
-    // 2. Delete custom post type posts and their meta
-    $post_types = array('party_event');
-    
-    foreach ($post_types as $post_type) {
-        // Get all posts of this type
-        $posts = get_posts(array(
-            'post_type' => $post_type,
-            'post_status' => 'any',
-            'numberposts' => -1,
-            'fields' => 'ids'
-        ));
+    // 2. Delete PartyMinder event pages and their meta
+    $event_pages = $wpdb->get_results(
+        "SELECT p.ID FROM {$wpdb->posts} p 
+         INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id 
+         WHERE p.post_type = 'page' 
+         AND pm.meta_key = '_partyminder_event' 
+         AND pm.meta_value = 'true'"
+    );
 
-        // Delete each post and its meta
-        foreach ($posts as $post_id) {
-            // Delete post meta
-            $wpdb->delete($wpdb->postmeta, array('post_id' => $post_id));
-            
-            // Delete the post
-            $wpdb->delete($wpdb->posts, array('ID' => $post_id));
-            
-            // Delete any comments on the post
-            $wpdb->delete($wpdb->comments, array('comment_post_ID' => $post_id));
-        }
+    // Delete each event page and its meta
+    foreach ($event_pages as $page) {
+        // Delete post meta
+        $wpdb->delete($wpdb->postmeta, array('post_id' => $page->ID));
+        
+        // Delete the page
+        $wpdb->delete($wpdb->posts, array('ID' => $page->ID));
+        
+        // Delete any comments on the page
+        $wpdb->delete($wpdb->comments, array('comment_post_ID' => $page->ID));
     }
 
     // 3. Clean up orphaned post meta

@@ -25,7 +25,10 @@ if ($show_past) {
     $results = $wpdb->get_results($wpdb->prepare(
         "SELECT p.ID FROM $posts_table p 
          INNER JOIN $events_table e ON p.ID = e.post_id 
-         WHERE p.post_type = 'party_event' 
+         INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+         WHERE p.post_type = 'page'
+         AND pm.meta_key = '_partyminder_event'
+         AND pm.meta_value = 'true'
          AND p.post_status = 'publish' 
          AND e.event_status = 'active'
          ORDER BY e.event_date DESC 

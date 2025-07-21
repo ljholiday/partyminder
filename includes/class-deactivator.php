@@ -52,8 +52,18 @@ class PartyMinder_Deactivator {
             $wpdb->query("DROP TABLE IF EXISTS $table");
         }
         
-        // Delete custom post types
-        $wpdb->delete($wpdb->posts, array('post_type' => 'party_event'));
+        // Delete pages that are PartyMinder events
+        $event_pages = $wpdb->get_results(
+            "SELECT p.ID FROM {$wpdb->posts} p 
+             INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id 
+             WHERE p.post_type = 'page' 
+             AND pm.meta_key = '_partyminder_event' 
+             AND pm.meta_value = 'true'"
+        );
+        
+        foreach ($event_pages as $page) {
+            wp_delete_post($page->ID, true);
+        }
         
         // Clean up post meta
         $wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE post_id NOT IN (SELECT id FROM {$wpdb->posts})");

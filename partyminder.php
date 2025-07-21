@@ -77,8 +77,13 @@ class PartyMinder {
         add_action('template_redirect', array($this, 'handle_form_submissions'));
         add_filter('the_content', array($this, 'inject_event_content'));
         
+        // No longer need post meta suppression - using pages now
+        
         // Register shortcodes early
         add_action('wp_loaded', array($this, 'register_shortcodes'));
+        
+        // Temporary migration trigger
+        add_action('init', array($this, 'handle_migration'));
         
         // Page routing and URL handling
         add_action('init', array($this, 'add_rewrite_rules'));
@@ -115,8 +120,7 @@ class PartyMinder {
         // Load text domain
         load_plugin_textdomain('partyminder', false, dirname(plugin_basename(__FILE__)) . '/languages');
         
-        // Create custom post types
-        $this->register_post_types();
+        // No longer registering custom post types - using pages now
         
         // Initialize managers
         $this->event_manager = new PartyMinder_Event_Manager();
@@ -129,31 +133,7 @@ class PartyMinder {
         }
     }
     
-    public function register_post_types() {
-        // Party Event Post Type
-        register_post_type('party_event', array(
-            'labels' => array(
-                'name' => __('Party Events', 'partyminder'),
-                'singular_name' => __('Party Event', 'partyminder'),
-                'add_new' => __('Add New Event', 'partyminder'),
-                'add_new_item' => __('Add New Party Event', 'partyminder'),
-                'edit_item' => __('Edit Event', 'partyminder'),
-                'new_item' => __('New Event', 'partyminder'),
-                'view_item' => __('View Event', 'partyminder'),
-                'search_items' => __('Search Events', 'partyminder'),
-                'not_found' => __('No events found', 'partyminder'),
-                'not_found_in_trash' => __('No events found in trash', 'partyminder')
-            ),
-            'public' => true,
-            'has_archive' => false,
-            'supports' => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
-            'menu_icon' => 'dashicons-calendar-alt',
-            'rewrite' => array('slug' => 'events'),
-            'show_in_rest' => true,
-            'menu_position' => 20,
-            'capability_type' => 'post'
-        ));
-    }
+    // Removed custom post type - now using regular pages
     
     public function enqueue_public_scripts() {
         wp_enqueue_style('partyminder-public', PARTYMINDER_PLUGIN_URL . 'assets/css/public.css', array(), PARTYMINDER_VERSION);
@@ -458,9 +438,9 @@ class PartyMinder {
     }
     
     public function add_rewrite_rules() {
-        // Add rewrite rules for clean URLs
-        add_rewrite_rule('^events/([0-9]+)/?$', 'index.php?post_type=party_event&p=$matches[1]', 'top');
-        add_rewrite_rule('^events/([^/]+)/?$', 'index.php?post_type=party_event&name=$matches[1]', 'top');
+        // Add rewrite rules for clean URLs - now using pages instead of custom post type
+        add_rewrite_rule('^events/([0-9]+)/?$', 'index.php?page_id=$matches[1]', 'top');
+        add_rewrite_rule('^events/([^/]+)/?$', 'index.php?pagename=$matches[1]', 'top');
         add_rewrite_rule('^edit-event/([0-9]+)/?$', 'index.php?pagename=edit-event&event_id=$matches[1]', 'top');
         
         // Force flush rewrite rules if needed
@@ -650,8 +630,13 @@ class PartyMinder {
     public function inject_event_content($content) {
         global $post;
         
-        // Only on single party_event posts
-        if (!is_single() || !$post || $post->post_type !== 'party_event') {
+        // Only on single pages that are PartyMinder events
+        if (!is_page() || !$post) {
+            return $content;
+        }
+        
+        // Check if this is a PartyMinder event page
+        if (!get_post_meta($post->ID, '_partyminder_event', true)) {
             return $content;
         }
         
@@ -669,11 +654,24 @@ class PartyMinder {
         return $event_content;
     }
     
+    // Removed all post metadata suppression - no longer needed with pages
+    
+    public function handle_migration() {
+        // Run migration if requested
+        if (isset($_GET['partyminder_migrate']) && $_GET['partyminder_migrate'] == '1' && current_user_can('manage_options')) {
+            require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+            $event_manager = new PartyMinder_Event_Manager();
+            $migrated = $event_manager->migrate_events_to_pages();
+            
+            wp_die("Migration complete! Converted $migrated events from posts to pages. <a href='" . home_url() . "'>Return to site</a>");
+        }
+    }
+    
     public function add_structured_data() {
         global $post;
         
-        // Add structured data for individual events
-        if (is_singular('party_event')) {
+        // Add structured data for PartyMinder event pages
+        if (is_page() && $post && get_post_meta($post->ID, '_partyminder_event', true)) {
             require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
             $event_manager = new PartyMinder_Event_Manager();
             $event = $event_manager->get_event($post->ID);

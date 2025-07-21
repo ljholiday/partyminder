@@ -5,8 +5,7 @@ class PartyMinder_Event_Manager {
     public function __construct() {
         add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
         add_action('save_post', array($this, 'save_meta_data'));
-        add_filter('manage_party_event_posts_columns', array($this, 'add_columns'));
-        add_action('manage_party_event_posts_custom_column', array($this, 'populate_columns'), 10, 2);
+        // Column management hooks no longer needed since we're using pages now
     }
     
     public function create_event($event_data) {
@@ -17,13 +16,17 @@ class PartyMinder_Event_Manager {
             return new WP_Error('missing_data', __('Event title and date are required', 'partyminder'));
         }
         
-        // Create WordPress post
+        // Create WordPress page
         $post_data = array(
             'post_title' => sanitize_text_field($event_data['title']),
             'post_content' => wp_kses_post($event_data['description'] ?? ''),
             'post_status' => 'publish',
-            'post_type' => 'party_event',
-            'post_author' => get_current_user_id() ?: 1
+            'post_type' => 'page',
+            'post_author' => get_current_user_id() ?: 1,
+            'meta_input' => array(
+                '_partyminder_event' => 'true',
+                '_partyminder_event_type' => 'single_event'
+            )
         );
         
         $post_id = wp_insert_post($post_data);
@@ -62,7 +65,12 @@ class PartyMinder_Event_Manager {
         global $wpdb;
         
         $post = get_post($event_id);
-        if (!$post || $post->post_type !== 'party_event') {
+        if (!$post || $post->post_type !== 'page') {
+            return null;
+        }
+        
+        // Check if this page is a PartyMinder event
+        if (!get_post_meta($event_id, '_partyminder_event', true)) {
             return null;
         }
         
@@ -102,6 +110,41 @@ class PartyMinder_Event_Manager {
         return $event;
     }
     
+    public function migrate_events_to_pages() {
+        global $wpdb;
+        
+        // Find all party_event posts
+        $party_events = get_posts(array(
+            'post_type' => 'party_event',
+            'post_status' => 'any',
+            'numberposts' => -1
+        ));
+        
+        $migrated = 0;
+        
+        foreach ($party_events as $event_post) {
+            // Convert to page
+            $wpdb->update(
+                $wpdb->posts,
+                array('post_type' => 'page'),
+                array('ID' => $event_post->ID),
+                array('%s'),
+                array('%d')
+            );
+            
+            // Add PartyMinder meta
+            update_post_meta($event_post->ID, '_partyminder_event', 'true');
+            update_post_meta($event_post->ID, '_partyminder_event_type', 'single_event');
+            
+            $migrated++;
+        }
+        
+        // Clean up rewrite rules
+        flush_rewrite_rules();
+        
+        return $migrated;
+    }
+    
     public function get_upcoming_events($limit = 10) {
         global $wpdb;
         
@@ -111,8 +154,11 @@ class PartyMinder_Event_Manager {
         $results = $wpdb->get_results($wpdb->prepare(
             "SELECT p.ID FROM $posts_table p 
              INNER JOIN $events_table e ON p.ID = e.post_id 
-             WHERE p.post_type = 'party_event' 
+             INNER JOIN $wpdb->postmeta pm ON p.ID = pm.post_id
+             WHERE p.post_type = 'page' 
              AND p.post_status = 'publish' 
+             AND pm.meta_key = '_partyminder_event'
+             AND pm.meta_value = 'true'
              AND e.event_date >= CURDATE()
              AND e.event_status = 'active'
              ORDER BY e.event_date ASC 
@@ -153,7 +199,7 @@ class PartyMinder_Event_Manager {
             'partyminder_event_details',
             __('Event Details', 'partyminder'),
             array($this, 'event_details_meta_box'),
-            'party_event',
+            'page',
             'normal',
             'high'
         );

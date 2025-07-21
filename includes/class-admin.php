@@ -85,7 +85,16 @@ class PartyMinder_Admin {
         $ai_assistant = new PartyMinder_AI_Assistant();
         
         // Get stats
-        $total_events = wp_count_posts('party_event')->publish ?? 0;
+        // Count events using our meta query since they're now pages
+        global $wpdb;
+        $total_events = $wpdb->get_var(
+            "SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p 
+             INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id 
+             WHERE p.post_type = 'page' 
+             AND p.post_status = 'publish'
+             AND pm.meta_key = '_partyminder_event' 
+             AND pm.meta_value = 'true'"
+        ) ?? 0;
         $upcoming_events = $event_manager->get_upcoming_events(5);
         $ai_usage = $ai_assistant->get_monthly_usage();
         
@@ -143,7 +152,7 @@ class PartyMinder_Admin {
                             <?php _e('AI Assistant', 'partyminder'); ?>
                         </a>
                         
-                        <a href="<?php echo admin_url('edit.php?post_type=party_event'); ?>" class="button button-secondary">
+                        <a href="<?php echo admin_url('edit.php?post_type=page&meta_key=_partyminder_event&meta_value=true'); ?>" class="button button-secondary">
                             <span class="dashicons dashicons-calendar-alt"></span>
                             <?php _e('View All Events', 'partyminder'); ?>
                         </a>
