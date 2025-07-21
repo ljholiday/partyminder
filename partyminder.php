@@ -436,9 +436,8 @@ class PartyMinder {
     }
     
     public function add_rewrite_rules() {
-        // Add rewrite rules for clean URLs - now using pages instead of custom post type
-        add_rewrite_rule('^events/([0-9]+)/?$', 'index.php?page_id=$matches[1]', 'top');
-        add_rewrite_rule('^events/([^/]+)/?$', 'index.php?pagename=$matches[1]', 'top');
+        // Add rewrite rules for custom table events
+        add_rewrite_rule('^events/([^/]+)/?$', 'index.php?partyminder_event_slug=$matches[1]', 'top');
         add_rewrite_rule('^edit-event/([0-9]+)/?$', 'index.php?pagename=edit-event&event_id=$matches[1]', 'top');
         
         // Force flush rewrite rules if needed
@@ -453,6 +452,7 @@ class PartyMinder {
         $vars[] = 'action';
         $vars[] = 'pm_success';
         $vars[] = 'pm_error';
+        $vars[] = 'partyminder_event_slug';
         return $vars;
     }
     
@@ -624,16 +624,47 @@ class PartyMinder {
         return $this->event_manager->create_event($event_data);
     }
     
-    public function inject_event_content($content) {
-        global $post;
+    public function handle_custom_pages() {
+        global $wp_query;
         
-        // Only on single pages that are PartyMinder events
-        if (!is_page() || !$post) {
-            return $content;
+        // Check if this is an event page
+        $event_slug = get_query_var('partyminder_event_slug');
+        
+        if ($event_slug) {
+            // Load event from custom table
+            if (!$this->event_manager) {
+                $this->load_dependencies();
+                $this->event_manager = new PartyMinder_Event_Manager();
+            }
+            
+            $event = $this->event_manager->get_event_by_slug($event_slug);
+            
+            if (!$event) {
+                // Event not found - show 404
+                $wp_query->set_404();
+                status_header(404);
+                return;
+            }
+            
+            // Set up the page for template
+            $wp_query->is_page = true;
+            $wp_query->is_singular = true;
+            $wp_query->is_single = false;
+            $wp_query->is_home = false;
+            $wp_query->is_archive = false;
+            $wp_query->is_category = false;
+            
+            // Store event data for template use
+            $GLOBALS['partyminder_current_event'] = $event;
+            
+            // Add to head for SEO
+            add_action('wp_head', array($this, 'add_event_seo_tags'));
         }
-        
-        // Check if this is a PartyMinder event page
-        if (!get_post_meta($post->ID, '_partyminder_event', true)) {
+    }
+    
+    public function inject_event_content($content) {
+        // Check if this is a custom event page
+        if (!isset($GLOBALS['partyminder_current_event'])) {
             return $content;
         }
         
@@ -647,8 +678,26 @@ class PartyMinder {
         include PARTYMINDER_PLUGIN_DIR . 'templates/single-event-content.php';
         $event_content = ob_get_clean();
         
-        // Return the event content instead of the original post content
         return $event_content;
+    }
+    
+    public function add_event_seo_tags() {
+        if (!isset($GLOBALS['partyminder_current_event'])) {
+            return;
+        }
+        
+        $event = $GLOBALS['partyminder_current_event'];
+        
+        echo '<title>' . esc_html($event->meta_title ?: $event->title) . '</title>' . "\n";
+        echo '<meta name="description" content="' . esc_attr($event->meta_description ?: $event->excerpt) . '">' . "\n";
+        echo '<meta property="og:title" content="' . esc_attr($event->title) . '">' . "\n";
+        echo '<meta property="og:description" content="' . esc_attr($event->excerpt) . '">' . "\n";
+        echo '<meta property="og:type" content="event">' . "\n";
+        echo '<meta property="event:start_time" content="' . esc_attr($event->event_date) . '">' . "\n";
+        
+        if ($event->venue_info) {
+            echo '<meta property="event:location" content="' . esc_attr($event->venue_info) . '">' . "\n";
+        }
     }
     
     // Removed all post metadata suppression - no longer needed with pages

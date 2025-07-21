@@ -3,9 +3,7 @@
 class PartyMinder_Event_Manager {
     
     public function __construct() {
-        add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
-        add_action('save_post', array($this, 'save_meta_data'));
-        // Column management hooks no longer needed since we're using pages now
+        // No more WordPress post/page hooks needed - pure custom table system
     }
     
     public function create_event($event_data) {
@@ -16,96 +14,91 @@ class PartyMinder_Event_Manager {
             return new WP_Error('missing_data', __('Event title and date are required', 'partyminder'));
         }
         
-        // Create WordPress page
-        $post_data = array(
-            'post_title' => sanitize_text_field($event_data['title']),
-            'post_content' => wp_kses_post($event_data['description'] ?? ''),
-            'post_status' => 'publish',
-            'post_type' => 'page',
-            'post_author' => get_current_user_id() ?: 1,
-            'meta_input' => array(
-                '_partyminder_event' => 'true',
-                '_partyminder_event_type' => 'single_event'
-            )
-        );
+        // Generate unique slug
+        $slug = $this->generate_unique_slug($event_data['title']);
         
-        $post_id = wp_insert_post($post_data);
-        
-        if (is_wp_error($post_id)) {
-            return $post_id;
-        }
-        
-        // Insert extended event data
+        // Insert event data directly to custom table
         $events_table = $wpdb->prefix . 'partyminder_events';
         $result = $wpdb->insert(
             $events_table,
             array(
-                'post_id' => $post_id,
+                'title' => sanitize_text_field($event_data['title']),
+                'slug' => $slug,
+                'description' => wp_kses_post($event_data['description'] ?? ''),
+                'excerpt' => wp_trim_words(wp_kses_post($event_data['description'] ?? ''), 25),
                 'event_date' => sanitize_text_field($event_data['event_date']),
                 'event_time' => sanitize_text_field($event_data['event_time'] ?? ''),
                 'guest_limit' => intval($event_data['guest_limit'] ?? 0),
                 'venue_info' => sanitize_text_field($event_data['venue'] ?? ''),
                 'host_email' => sanitize_email($event_data['host_email'] ?? ''),
                 'host_notes' => wp_kses_post($event_data['host_notes'] ?? ''),
-                'event_status' => 'active'
+                'event_status' => 'active',
+                'author_id' => get_current_user_id() ?: 1,
+                'meta_title' => sanitize_text_field($event_data['title']),
+                'meta_description' => wp_trim_words(wp_kses_post($event_data['description'] ?? ''), 20)
             ),
-            array('%d', '%s', '%s', '%d', '%s', '%s', '%s', '%s')
+            array('%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s')
         );
         
         if ($result === false) {
-            wp_delete_post($post_id, true);
-            $error_msg = $wpdb->last_error ? $wpdb->last_error : __('Failed to create event data', 'partyminder');
+            $error_msg = $wpdb->last_error ? $wpdb->last_error : __('Failed to create event', 'partyminder');
             return new WP_Error('creation_failed', $error_msg);
         }
         
-        return $post_id;
+        return $wpdb->insert_id;
+    }
+    
+    private function generate_unique_slug($title) {
+        global $wpdb;
+        
+        $base_slug = sanitize_title($title);
+        $slug = $base_slug;
+        $counter = 1;
+        
+        $events_table = $wpdb->prefix . 'partyminder_events';
+        
+        while ($wpdb->get_var($wpdb->prepare("SELECT id FROM $events_table WHERE slug = %s", $slug))) {
+            $slug = $base_slug . '-' . $counter;
+            $counter++;
+        }
+        
+        return $slug;
     }
     
     public function get_event($event_id) {
         global $wpdb;
         
-        $post = get_post($event_id);
-        if (!$post || $post->post_type !== 'page') {
-            return null;
-        }
-        
-        // Check if this page is a PartyMinder event
-        if (!get_post_meta($event_id, '_partyminder_event', true)) {
-            return null;
-        }
-        
         $events_table = $wpdb->prefix . 'partyminder_events';
-        $event_data = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM $events_table WHERE post_id = %d",
+        $event = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM $events_table WHERE id = %d",
             $event_id
         ));
         
-        if (!$event_data) {
+        if (!$event) {
             return null;
         }
         
-        // Combine data
-        $event = new stdClass();
-        $event->ID = $post->ID;
-        $event->title = $post->post_title;
-        $event->description = $post->post_content;
-        $event->excerpt = $post->post_excerpt;
-        $event->status = $post->post_status;
-        $event->author_id = $post->post_author;
-        $event->created_date = $post->post_date;
-        
-        // Extended data
-        $event->event_date = $event_data->event_date;
-        $event->event_time = $event_data->event_time;
-        $event->guest_limit = $event_data->guest_limit;
-        $event->venue_info = $event_data->venue_info;
-        $event->host_email = $event_data->host_email;
-        $event->host_notes = $event_data->host_notes;
-        $event->ai_plan = $event_data->ai_plan;
-        $event->event_status = $event_data->event_status;
-        
         // Get guest stats
         $event->guest_stats = $this->get_guest_stats($event_id);
+        
+        return $event;
+    }
+    
+    public function get_event_by_slug($slug) {
+        global $wpdb;
+        
+        $events_table = $wpdb->prefix . 'partyminder_events';
+        $event = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM $events_table WHERE slug = %s AND event_status = 'active'",
+            $slug
+        ));
+        
+        if (!$event) {
+            return null;
+        }
+        
+        // Get guest stats
+        $event->guest_stats = $this->get_guest_stats($event->id);
         
         return $event;
     }
@@ -115,29 +108,22 @@ class PartyMinder_Event_Manager {
         global $wpdb;
         
         $events_table = $wpdb->prefix . 'partyminder_events';
-        $posts_table = $wpdb->posts;
         
         $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT p.ID FROM $posts_table p 
-             INNER JOIN $events_table e ON p.ID = e.post_id 
-             INNER JOIN $wpdb->postmeta pm ON p.ID = pm.post_id
-             WHERE p.post_type = 'page' 
-             AND p.post_status = 'publish' 
-             AND pm.meta_key = '_partyminder_event'
-             AND pm.meta_value = 'true'
-             AND e.event_date >= CURDATE()
-             AND e.event_status = 'active'
-             ORDER BY e.event_date ASC 
+            "SELECT * FROM $events_table 
+             WHERE event_date >= CURDATE()
+             AND event_status = 'active'
+             ORDER BY event_date ASC 
              LIMIT %d",
             $limit
         ));
         
-        $events = array();
-        foreach ($results as $result) {
-            $events[] = $this->get_event($result->ID);
+        // Add guest stats to each event
+        foreach ($results as $event) {
+            $event->guest_stats = $this->get_guest_stats($event->id);
         }
         
-        return $events;
+        return $results;
     }
     
     private function get_guest_stats($event_id) {

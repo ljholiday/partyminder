@@ -39,6 +39,15 @@ class PartyMinder_Admin {
         
         add_submenu_page(
             'partyminder',
+            __('All Events', 'partyminder'),
+            __('All Events', 'partyminder'),
+            'manage_options',
+            'partyminder-events',
+            array($this, 'events_page')
+        );
+        
+        add_submenu_page(
+            'partyminder',
             __('AI Assistant', 'partyminder'),
             __('AI Assistant', 'partyminder'),
             'manage_options',
@@ -85,16 +94,10 @@ class PartyMinder_Admin {
         $ai_assistant = new PartyMinder_AI_Assistant();
         
         // Get stats
-        // Count events using our meta query since they're now pages
+        // Count events from custom table
         global $wpdb;
-        $total_events = $wpdb->get_var(
-            "SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p 
-             INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id 
-             WHERE p.post_type = 'page' 
-             AND p.post_status = 'publish'
-             AND pm.meta_key = '_partyminder_event' 
-             AND pm.meta_value = 'true'"
-        ) ?? 0;
+        $events_table = $wpdb->prefix . 'partyminder_events';
+        $total_events = $wpdb->get_var("SELECT COUNT(*) FROM $events_table WHERE event_status = 'active'") ?? 0;
         $upcoming_events = $event_manager->get_upcoming_events(5);
         $ai_usage = $ai_assistant->get_monthly_usage();
         
@@ -152,7 +155,7 @@ class PartyMinder_Admin {
                             <?php _e('AI Assistant', 'partyminder'); ?>
                         </a>
                         
-                        <a href="<?php echo admin_url('edit.php?post_type=page&meta_key=_partyminder_event&meta_value=true'); ?>" class="button button-secondary">
+                        <a href="<?php echo admin_url('admin.php?page=partyminder-events'); ?>" class="button button-secondary">
                             <span class="dashicons dashicons-calendar-alt"></span>
                             <?php _e('View All Events', 'partyminder'); ?>
                         </a>
@@ -219,6 +222,82 @@ class PartyMinder_Admin {
                     </div>
                 </div>
             </div>
+        </div>
+        <?php
+    }
+    
+    public function events_page() {
+        $event_manager = new PartyMinder_Event_Manager();
+        
+        // Get all events from custom table
+        global $wpdb;
+        $events_table = $wpdb->prefix . 'partyminder_events';
+        $events = $wpdb->get_results("SELECT * FROM $events_table ORDER BY event_date DESC");
+        
+        // Add guest stats to each event
+        foreach ($events as $event) {
+            $event->guest_stats = $event_manager->get_guest_stats($event->id);
+        }
+        
+        ?>
+        <div class="wrap">
+            <h1><?php _e('All Events', 'partyminder'); ?></h1>
+            
+            <a href="<?php echo admin_url('admin.php?page=partyminder-create'); ?>" class="page-title-action">
+                <?php _e('Add New Event', 'partyminder'); ?>
+            </a>
+            
+            <?php if (empty($events)): ?>
+                <div class="no-events">
+                    <p><?php _e('No events found.', 'partyminder'); ?></p>
+                    <a href="<?php echo admin_url('admin.php?page=partyminder-create'); ?>" class="button button-primary">
+                        <?php _e('Create Your First Event', 'partyminder'); ?>
+                    </a>
+                </div>
+            <?php else: ?>
+                <table class="wp-list-table widefat fixed striped">
+                    <thead>
+                        <tr>
+                            <th><?php _e('Title', 'partyminder'); ?></th>
+                            <th><?php _e('Event Date', 'partyminder'); ?></th>
+                            <th><?php _e('Venue', 'partyminder'); ?></th>
+                            <th><?php _e('Guests', 'partyminder'); ?></th>
+                            <th><?php _e('Status', 'partyminder'); ?></th>
+                            <th><?php _e('Actions', 'partyminder'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($events as $event): ?>
+                            <tr>
+                                <td>
+                                    <strong><?php echo esc_html($event->title); ?></strong>
+                                    <div class="row-actions">
+                                        <span class="view">
+                                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" target="_blank">
+                                                <?php _e('View', 'partyminder'); ?>
+                                            </a>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td><?php echo date('M j, Y g:i A', strtotime($event->event_date)); ?></td>
+                                <td><?php echo esc_html($event->venue_info); ?></td>
+                                <td>
+                                    <?php echo $event->guest_stats->confirmed; ?> confirmed
+                                    <?php if ($event->guest_limit > 0): ?>
+                                        / <?php echo $event->guest_limit; ?> max
+                                    <?php endif; ?>
+                                </td>
+                                <td><?php echo esc_html($event->event_status); ?></td>
+                                <td>
+                                    <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="button button-small" target="_blank">
+                                        <?php _e('View', 'partyminder'); ?>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
         </div>
         <?php
     }

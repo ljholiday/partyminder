@@ -27,11 +27,14 @@ class PartyMinder_Activator {
 
         $charset_collate = $wpdb->get_charset_collate();
 
-        // Events table for extended event data
+        // Events table - self-contained, no posts/pages needed
         $events_table = $wpdb->prefix . 'partyminder_events';
         $events_sql = "CREATE TABLE $events_table (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
-            post_id bigint(20) UNSIGNED NOT NULL,
+            title varchar(255) NOT NULL,
+            slug varchar(255) NOT NULL,
+            description longtext,
+            excerpt text,
             event_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
             event_time varchar(20) DEFAULT '',
             guest_limit int(11) DEFAULT 0,
@@ -40,12 +43,17 @@ class PartyMinder_Activator {
             host_notes text,
             ai_plan longtext,
             event_status varchar(20) DEFAULT 'active',
+            author_id bigint(20) UNSIGNED DEFAULT 1,
+            featured_image varchar(255) DEFAULT '',
+            meta_title varchar(255) DEFAULT '',
+            meta_description text DEFAULT '',
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
-            KEY post_id (post_id),
+            UNIQUE KEY slug (slug),
             KEY event_date (event_date),
-            KEY event_status (event_status)
+            KEY event_status (event_status),
+            KEY author_id (author_id)
         ) $charset_collate;";
 
         // Guests table for RSVP management
