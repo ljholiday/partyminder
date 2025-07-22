@@ -55,6 +55,29 @@ class PartyMinder_Admin {
             array($this, 'ai_page')
         );
         
+        // Communities menu (only if feature is enabled)
+        if (PartyMinder_Feature_Flags::show_communities_in_admin()) {
+            add_submenu_page(
+                'partyminder',
+                __('Communities', 'partyminder'),
+                __('Communities', 'partyminder'),
+                'manage_options',
+                'partyminder-communities',
+                array($this, 'communities_page')
+            );
+            
+            if (PartyMinder_Feature_Flags::is_communities_enabled()) {
+                add_submenu_page(
+                    'partyminder',
+                    __('Community Members', 'partyminder'),
+                    __('Members', 'partyminder'),
+                    'manage_options',
+                    'partyminder-members',
+                    array($this, 'members_page')
+                );
+            }
+        }
+        
         add_submenu_page(
             'partyminder',
             __('Settings', 'partyminder'),
@@ -80,6 +103,12 @@ class PartyMinder_Admin {
         register_setting('partyminder_feature_settings', 'partyminder_enable_public_events');
         register_setting('partyminder_feature_settings', 'partyminder_demo_mode');
         register_setting('partyminder_feature_settings', 'partyminder_track_analytics');
+        
+        // Communities Feature Settings
+        register_setting('partyminder_communities_settings', 'partyminder_enable_communities');
+        register_setting('partyminder_communities_settings', 'partyminder_enable_at_protocol');
+        register_setting('partyminder_communities_settings', 'partyminder_communities_require_approval');
+        register_setting('partyminder_communities_settings', 'partyminder_max_communities_per_user');
         
         // Style Settings
         register_setting('partyminder_style_settings', 'partyminder_primary_color');
@@ -608,6 +637,12 @@ class PartyMinder_Admin {
             update_option('partyminder_button_style', sanitize_text_field($_POST['button_style']));
             update_option('partyminder_form_layout', sanitize_text_field($_POST['form_layout']));
             
+            // Communities settings
+            update_option('partyminder_enable_communities', isset($_POST['enable_communities']));
+            update_option('partyminder_enable_at_protocol', isset($_POST['enable_at_protocol']));
+            update_option('partyminder_communities_require_approval', isset($_POST['communities_require_approval']));
+            update_option('partyminder_max_communities_per_user', intval($_POST['max_communities_per_user']));
+            
             echo '<div class="notice notice-success"><p>' . __('Settings saved!', 'partyminder') . '</p></div>';
         }
         
@@ -727,6 +762,58 @@ class PartyMinder_Admin {
                     </tr>
                 </table>
                 
+                <!-- Communities Settings Section -->
+                <h2><?php _e('Communities & AT Protocol', 'partyminder'); ?></h2>
+                <table class="form-table">
+                    <tr>
+                        <th><?php _e('Communities Feature', 'partyminder'); ?></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="enable_communities" value="1" 
+                                       <?php checked(get_option('partyminder_enable_communities', false)); ?> />
+                                <?php _e('Enable communities feature', 'partyminder'); ?>
+                            </label>
+                            <p class="description">
+                                <?php _e('⚠️ FEATURE FLAG: Communities feature is disabled by default for safe deployment. Enable only when ready to use.', 'partyminder'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><?php _e('AT Protocol Integration', 'partyminder'); ?></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="enable_at_protocol" value="1" 
+                                       <?php checked(get_option('partyminder_enable_at_protocol', false)); ?> />
+                                <?php _e('Enable AT Protocol DID generation', 'partyminder'); ?>
+                            </label>
+                            <p class="description">
+                                <?php _e('⚠️ FEATURE FLAG: AT Protocol integration is disabled by default. Enable for federated identity features.', 'partyminder'); ?>
+                            </p>
+                        </td>
+                    </tr>
+                    <?php if (PartyMinder_Feature_Flags::is_communities_enabled()): ?>
+                    <tr>
+                        <th><?php _e('Community Approval', 'partyminder'); ?></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="communities_require_approval" value="1" 
+                                       <?php checked(get_option('partyminder_communities_require_approval', true)); ?> />
+                                <?php _e('Require admin approval for new communities', 'partyminder'); ?>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="max_communities_per_user"><?php _e('Max Communities per User', 'partyminder'); ?></label></th>
+                        <td>
+                            <input type="number" id="max_communities_per_user" name="max_communities_per_user" 
+                                   value="<?php echo esc_attr(get_option('partyminder_max_communities_per_user', 10)); ?>" 
+                                   min="1" max="50" />
+                            <p class="description"><?php _e('Maximum number of communities each user can create.', 'partyminder'); ?></p>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                </table>
+                
                 <?php submit_button(); ?>
             </form>
         </div>
@@ -743,5 +830,262 @@ class PartyMinder_Admin {
                 echo '</p></div>';
             }
         }
+    }
+    
+    /**
+     * Communities admin page
+     */
+    public function communities_page() {
+        global $wpdb;
+        ?>
+        <div class="wrap">
+            <h1><?php _e('Communities Management', 'partyminder'); ?></h1>
+            
+            <?php if (!PartyMinder_Feature_Flags::is_communities_enabled()): ?>
+                <div class="notice notice-warning">
+                    <p>
+                        <strong><?php _e('Communities Feature Disabled', 'partyminder'); ?></strong><br>
+                        <?php printf(
+                            __('The communities feature is currently disabled. <a href="%s">Enable it in settings</a> to start using communities.', 'partyminder'),
+                            admin_url('admin.php?page=partyminder-settings')
+                        ); ?>
+                    </p>
+                </div>
+                
+                <div class="communities-preview">
+                    <h2><?php _e('Communities Feature Preview', 'partyminder'); ?></h2>
+                    <p><?php _e('Communities allow members to create overlapping groups for different purposes:', 'partyminder'); ?></p>
+                    <ul>
+                        <li><?php _e('🏢 Work communities for office events', 'partyminder'); ?></li>
+                        <li><?php _e('⛪ Church or religious communities', 'partyminder'); ?></li>
+                        <li><?php _e('👨‍👩‍👧‍👦 Family and friend groups', 'partyminder'); ?></li>
+                        <li><?php _e('🌍 Global communities across multiple sites', 'partyminder'); ?></li>
+                    </ul>
+                    <p><?php _e('Each community gets its own AT Protocol DID for cross-site compatibility and member identity portability.', 'partyminder'); ?></p>
+                </div>
+                
+            <?php else: ?>
+                <?php
+                // Communities are enabled - show management interface
+                $community_manager = new PartyMinder_Community_Manager();
+                $communities = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}partyminder_communities ORDER BY created_at DESC LIMIT 20");
+                ?>
+                
+                <div class="communities-stats">
+                    <h2><?php _e('Community Statistics', 'partyminder'); ?></h2>
+                    <?php
+                    global $wpdb;
+                    $communities_table = $wpdb->prefix . 'partyminder_communities';
+                    $members_table = $wpdb->prefix . 'partyminder_community_members';
+                    
+                    $total_communities = $wpdb->get_var("SELECT COUNT(*) FROM $communities_table WHERE is_active = 1");
+                    $total_members = $wpdb->get_var("SELECT COUNT(DISTINCT user_id) FROM $members_table WHERE status = 'active'");
+                    $active_communities = $wpdb->get_var("SELECT COUNT(*) FROM $communities_table WHERE is_active = 1 AND member_count > 1");
+                    ?>
+                    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 20px 0;">
+                        <div class="stat-card" style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px;">
+                            <h3 style="margin: 0; font-size: 2em; color: #667eea;"><?php echo $total_communities; ?></h3>
+                            <p style="margin: 5px 0 0 0;"><?php _e('Total Communities', 'partyminder'); ?></p>
+                        </div>
+                        <div class="stat-card" style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px;">
+                            <h3 style="margin: 0; font-size: 2em; color: #28a745;"><?php echo $total_members; ?></h3>
+                            <p style="margin: 5px 0 0 0;"><?php _e('Community Members', 'partyminder'); ?></p>
+                        </div>
+                        <div class="stat-card" style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px;">
+                            <h3 style="margin: 0; font-size: 2em; color: #764ba2;"><?php echo $active_communities; ?></h3>
+                            <p style="margin: 5px 0 0 0;"><?php _e('Active Communities', 'partyminder'); ?></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="communities-list">
+                    <h2><?php _e('Recent Communities', 'partyminder'); ?></h2>
+                    
+                    <?php if (empty($communities)): ?>
+                        <div class="no-communities">
+                            <p><?php _e('No communities created yet.', 'partyminder'); ?></p>
+                            <p><?php _e('Communities will appear here once users start creating them.', 'partyminder'); ?></p>
+                        </div>
+                    <?php else: ?>
+                        <table class="wp-list-table widefat fixed striped">
+                            <thead>
+                                <tr>
+                                    <th><?php _e('Community', 'partyminder'); ?></th>
+                                    <th><?php _e('Creator', 'partyminder'); ?></th>
+                                    <th><?php _e('Members', 'partyminder'); ?></th>
+                                    <th><?php _e('Privacy', 'partyminder'); ?></th>
+                                    <th><?php _e('Created', 'partyminder'); ?></th>
+                                    <th><?php _e('AT Protocol DID', 'partyminder'); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($communities as $community): ?>
+                                    <?php $creator = get_user_by('id', $community->creator_id); ?>
+                                    <tr>
+                                        <td>
+                                            <strong><?php echo esc_html($community->name); ?></strong><br>
+                                            <small style="color: #666;"><?php echo esc_html($community->description); ?></small>
+                                        </td>
+                                        <td>
+                                            <?php echo $creator ? esc_html($creator->display_name) : esc_html($community->creator_email); ?>
+                                        </td>
+                                        <td><?php echo (int) $community->member_count; ?></td>
+                                        <td>
+                                            <span class="privacy-badge" style="padding: 2px 8px; border-radius: 10px; font-size: 0.8em; <?php echo $community->privacy === 'public' ? 'background: #d4edda; color: #155724;' : 'background: #f8d7da; color: #721c24;'; ?>">
+                                                <?php echo esc_html(ucfirst($community->privacy)); ?>
+                                            </span>
+                                        </td>
+                                        <td><?php echo date('M j, Y', strtotime($community->created_at)); ?></td>
+                                        <td>
+                                            <?php if ($community->at_protocol_did): ?>
+                                                <code style="font-size: 0.8em;"><?php echo esc_html($community->at_protocol_did); ?></code>
+                                            <?php else: ?>
+                                                <span style="color: #666;">—</span>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+                </div>
+                
+                <?php if (PartyMinder_Feature_Flags::is_at_protocol_enabled()): ?>
+                    <div class="at-protocol-tools">
+                        <h2><?php _e('AT Protocol Tools', 'partyminder'); ?></h2>
+                        <p><?php _e('Advanced tools for managing AT Protocol integration.', 'partyminder'); ?></p>
+                        
+                        <div class="button-group">
+                            <button type="button" class="button" onclick="bulkCreateDIDs()">
+                                <?php _e('Bulk Create DIDs for Existing Users', 'partyminder'); ?>
+                            </button>
+                            <button type="button" class="button" onclick="syncATProtocol()">
+                                <?php _e('Sync AT Protocol Data', 'partyminder'); ?>
+                            </button>
+                        </div>
+                        
+                        <script>
+                        function bulkCreateDIDs() {
+                            if (confirm('<?php _e('This will create AT Protocol DIDs for all existing users. Continue?', 'partyminder'); ?>')) {
+                                // TODO: Implement bulk DID creation
+                                alert('<?php _e('Feature coming soon!', 'partyminder'); ?>');
+                            }
+                        }
+                        
+                        function syncATProtocol() {
+                            if (confirm('<?php _e('This will sync all member identities with AT Protocol. Continue?', 'partyminder'); ?>')) {
+                                // TODO: Implement AT Protocol sync
+                                alert('<?php _e('Feature coming soon!', 'partyminder'); ?>');
+                            }
+                        }
+                        </script>
+                    </div>
+                <?php endif; ?>
+                
+            <?php endif; ?>
+        </div>
+        <?php
+    }
+    
+    /**
+     * Members admin page
+     */
+    public function members_page() {
+        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
+            wp_redirect(admin_url('admin.php?page=partyminder-communities'));
+            exit;
+        }
+        
+        $identity_manager = new PartyMinder_Member_Identity_Manager();
+        $member_stats = $identity_manager->get_member_stats();
+        ?>
+        <div class="wrap">
+            <h1><?php _e('Community Members', 'partyminder'); ?></h1>
+            
+            <div class="member-stats">
+                <h2><?php _e('Member Identity Statistics', 'partyminder'); ?></h2>
+                <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 20px 0;">
+                    <div class="stat-card" style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px;">
+                        <h3 style="margin: 0; font-size: 2em; color: #667eea;"><?php echo $member_stats['total_identities']; ?></h3>
+                        <p style="margin: 5px 0 0 0;"><?php _e('Total Identities', 'partyminder'); ?></p>
+                    </div>
+                    <div class="stat-card" style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px;">
+                        <h3 style="margin: 0; font-size: 2em; color: #28a745;"><?php echo $member_stats['verified_identities']; ?></h3>
+                        <p style="margin: 5px 0 0 0;"><?php _e('Verified', 'partyminder'); ?></p>
+                    </div>
+                    <div class="stat-card" style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px;">
+                        <h3 style="margin: 0; font-size: 2em; color: #764ba2;"><?php echo $member_stats['synced_identities']; ?></h3>
+                        <p style="margin: 5px 0 0 0;"><?php _e('Synced', 'partyminder'); ?></p>
+                    </div>
+                    <div class="stat-card" style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px;">
+                        <h3 style="margin: 0; font-size: 2em; color: #dc3545;"><?php echo $member_stats['sync_pending']; ?></h3>
+                        <p style="margin: 5px 0 0 0;"><?php _e('Sync Pending', 'partyminder'); ?></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recent-members">
+                <h2><?php _e('Recent Member Identities', 'partyminder'); ?></h2>
+                <?php
+                global $wpdb;
+                $identities_table = $wpdb->prefix . 'partyminder_member_identities';
+                $recent_identities = $wpdb->get_results("SELECT * FROM $identities_table ORDER BY created_at DESC LIMIT 20");
+                ?>
+                
+                <?php if (empty($recent_identities)): ?>
+                    <div class="no-identities">
+                        <p><?php _e('No member identities created yet.', 'partyminder'); ?></p>
+                        <p><?php _e('Member identities will be created automatically when AT Protocol is enabled and users log in.', 'partyminder'); ?></p>
+                    </div>
+                <?php else: ?>
+                    <table class="wp-list-table widefat fixed striped">
+                        <thead>
+                            <tr>
+                                <th><?php _e('Member', 'partyminder'); ?></th>
+                                <th><?php _e('AT Protocol DID', 'partyminder'); ?></th>
+                                <th><?php _e('Handle', 'partyminder'); ?></th>
+                                <th><?php _e('Status', 'partyminder'); ?></th>
+                                <th><?php _e('Last Sync', 'partyminder'); ?></th>
+                                <th><?php _e('Created', 'partyminder'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($recent_identities as $identity): ?>
+                                <tr>
+                                    <td>
+                                        <strong><?php echo esc_html($identity->display_name); ?></strong><br>
+                                        <small style="color: #666;"><?php echo esc_html($identity->email); ?></small>
+                                    </td>
+                                    <td>
+                                        <code style="font-size: 0.8em;"><?php echo esc_html($identity->at_protocol_did); ?></code>
+                                    </td>
+                                    <td>
+                                        <?php if ($identity->at_protocol_handle): ?>
+                                            <code style="font-size: 0.8em;"><?php echo esc_html($identity->at_protocol_handle); ?></code>
+                                        <?php else: ?>
+                                            <span style="color: #666;">—</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge" style="padding: 2px 8px; border-radius: 10px; font-size: 0.8em; <?php echo $identity->is_verified ? 'background: #d4edda; color: #155724;' : 'background: #fff3cd; color: #856404;'; ?>">
+                                            <?php echo $identity->is_verified ? __('Verified', 'partyminder') : __('Pending', 'partyminder'); ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <?php if ($identity->last_sync_at): ?>
+                                            <?php echo human_time_diff(strtotime($identity->last_sync_at), current_time('timestamp')) . ' ' . __('ago', 'partyminder'); ?>
+                                        <?php else: ?>
+                                            <span style="color: #666;"><?php _e('Never', 'partyminder'); ?></span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?php echo date('M j, Y', strtotime($identity->created_at)); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php
     }
 }

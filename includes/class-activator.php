@@ -190,6 +190,9 @@ class PartyMinder_Activator {
         dbDelta($replies_sql);
         dbDelta($follows_sql);
         
+        // Communities and AT Protocol tables (safe to create even if features disabled)
+        self::create_communities_tables();
+        
         // Create default conversation topics
         self::create_default_conversation_topics();
     }
@@ -212,6 +215,12 @@ class PartyMinder_Activator {
         add_option('partyminder_enable_public_events', true);
         add_option('partyminder_demo_mode', true);
         add_option('partyminder_track_analytics', true);
+        
+        // Communities Feature Flags - DISABLED BY DEFAULT FOR SAFE DEPLOYMENT
+        add_option('partyminder_enable_communities', false);
+        add_option('partyminder_enable_at_protocol', false);
+        add_option('partyminder_communities_require_approval', true);
+        add_option('partyminder_max_communities_per_user', 10);
         
         // Styling options
         add_option('partyminder_primary_color', '#667eea');
@@ -251,6 +260,12 @@ class PartyMinder_Activator {
                 'content' => '[partyminder_conversations]',
                 'slug' => 'conversations',
                 'description' => __('Connect, share tips, and plan amazing gatherings with the community.', 'partyminder')
+            ),
+            'communities' => array(
+                'title' => __('Communities', 'partyminder'),
+                'content' => '[partyminder_communities]',
+                'slug' => 'communities',
+                'description' => __('Join communities of fellow hosts and guests to plan events together.', 'partyminder')
             )
         );
         
@@ -314,6 +329,10 @@ class PartyMinder_Activator {
                         case 'conversations':
                             update_post_meta($page_id, '_yoast_wpseo_title', __('Community Conversations - Connect & Share', 'partyminder'));
                             update_post_meta($page_id, '_yoast_wpseo_metadesc', __('Join community conversations about hosting tips, recipes, party planning and more. Connect with fellow party hosts and guests.', 'partyminder'));
+                            break;
+                        case 'communities':
+                            update_post_meta($page_id, '_yoast_wpseo_title', __('Communities - Join Groups & Plan Together', 'partyminder'));
+                            update_post_meta($page_id, '_yoast_wpseo_metadesc', __('Join communities of fellow hosts and guests. Create work, family, or hobby groups to plan events together with shared interests.', 'partyminder'));
                             break;
                     }
                 }
@@ -392,5 +411,166 @@ class PartyMinder_Activator {
                 array('%s', '%s', '%s', '%s', '%d', '%d', '%s')
             );
         }
+    }
+    
+    private static function create_communities_tables() {
+        global $wpdb;
+        
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        // Communities table
+        $communities_table = $wpdb->prefix . 'partyminder_communities';
+        $communities_sql = "CREATE TABLE $communities_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            name varchar(255) NOT NULL,
+            slug varchar(255) NOT NULL,
+            description text,
+            type varchar(50) DEFAULT 'standard',
+            privacy varchar(20) DEFAULT 'public',
+            member_count int(11) DEFAULT 0,
+            event_count int(11) DEFAULT 0,
+            creator_id bigint(20) UNSIGNED NOT NULL,
+            creator_email varchar(100) NOT NULL,
+            featured_image varchar(255) DEFAULT '',
+            settings longtext DEFAULT '',
+            at_protocol_did varchar(255) DEFAULT '',
+            at_protocol_handle varchar(255) DEFAULT '',
+            at_protocol_data longtext DEFAULT '',
+            is_active tinyint(1) DEFAULT 1,
+            requires_approval tinyint(1) DEFAULT 0,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY slug (slug),
+            UNIQUE KEY at_protocol_did (at_protocol_did),
+            KEY creator_id (creator_id),
+            KEY privacy (privacy),
+            KEY type (type),
+            KEY is_active (is_active)
+        ) $charset_collate;";
+        
+        // Community members table
+        $members_table = $wpdb->prefix . 'partyminder_community_members';
+        $members_sql = "CREATE TABLE $members_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            community_id mediumint(9) NOT NULL,
+            user_id bigint(20) UNSIGNED NOT NULL,
+            email varchar(100) NOT NULL,
+            display_name varchar(100) NOT NULL,
+            role varchar(50) DEFAULT 'member',
+            permissions longtext DEFAULT '',
+            status varchar(20) DEFAULT 'active',
+            at_protocol_did varchar(255) DEFAULT '',
+            joined_at datetime DEFAULT CURRENT_TIMESTAMP,
+            last_seen_at datetime DEFAULT CURRENT_TIMESTAMP,
+            invitation_data longtext DEFAULT '',
+            PRIMARY KEY (id),
+            KEY community_id (community_id),
+            KEY user_id (user_id),
+            KEY email (email),
+            KEY role (role),
+            KEY status (status),
+            KEY at_protocol_did (at_protocol_did),
+            UNIQUE KEY unique_member (community_id, user_id, email)
+        ) $charset_collate;";
+        
+        // Community events table (extends regular events with community context)
+        $community_events_table = $wpdb->prefix . 'partyminder_community_events';
+        $community_events_sql = "CREATE TABLE $community_events_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            community_id mediumint(9) NOT NULL,
+            event_id mediumint(9) NOT NULL,
+            organizer_member_id mediumint(9) NOT NULL,
+            visibility varchar(20) DEFAULT 'community',
+            member_permissions varchar(50) DEFAULT 'view_rsvp',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY community_id (community_id),
+            KEY event_id (event_id),
+            KEY organizer_member_id (organizer_member_id),
+            KEY visibility (visibility),
+            UNIQUE KEY unique_community_event (community_id, event_id)
+        ) $charset_collate;";
+        
+        // Member identity table (for AT Protocol DIDs and cross-site identity)
+        $identities_table = $wpdb->prefix . 'partyminder_member_identities';
+        $identities_sql = "CREATE TABLE $identities_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) UNSIGNED NOT NULL,
+            email varchar(100) NOT NULL,
+            display_name varchar(100) NOT NULL,
+            at_protocol_did varchar(255) NOT NULL,
+            at_protocol_handle varchar(255) DEFAULT '',
+            at_protocol_pds varchar(255) DEFAULT '',
+            at_protocol_data longtext DEFAULT '',
+            public_key longtext DEFAULT '',
+            private_key_encrypted longtext DEFAULT '',
+            cross_site_data longtext DEFAULT '',
+            is_verified tinyint(1) DEFAULT 0,
+            last_sync_at datetime DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY user_id (user_id),
+            UNIQUE KEY email (email),
+            UNIQUE KEY at_protocol_did (at_protocol_did),
+            KEY at_protocol_handle (at_protocol_handle),
+            KEY is_verified (is_verified)
+        ) $charset_collate;";
+        
+        // Community invitations table
+        $invitations_table = $wpdb->prefix . 'partyminder_community_invitations';
+        $invitations_sql = "CREATE TABLE $invitations_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            community_id mediumint(9) NOT NULL,
+            invited_by_member_id mediumint(9) NOT NULL,
+            invited_email varchar(100) NOT NULL,
+            invited_user_id bigint(20) UNSIGNED DEFAULT NULL,
+            invitation_token varchar(64) NOT NULL,
+            message text DEFAULT '',
+            status varchar(20) DEFAULT 'pending',
+            expires_at datetime NOT NULL,
+            responded_at datetime DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY community_id (community_id),
+            KEY invited_by_member_id (invited_by_member_id),
+            KEY invited_email (invited_email),
+            KEY invited_user_id (invited_user_id),
+            KEY status (status),
+            KEY expires_at (expires_at),
+            UNIQUE KEY invitation_token (invitation_token)
+        ) $charset_collate;";
+        
+        // AT Protocol sync log (for tracking federation state)
+        $sync_log_table = $wpdb->prefix . 'partyminder_at_protocol_sync';
+        $sync_log_sql = "CREATE TABLE $sync_log_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            entity_type varchar(50) NOT NULL,
+            entity_id mediumint(9) NOT NULL,
+            sync_type varchar(50) NOT NULL,
+            at_protocol_uri varchar(255) DEFAULT '',
+            sync_status varchar(20) DEFAULT 'pending',
+            sync_data longtext DEFAULT '',
+            error_message text DEFAULT '',
+            attempts int(11) DEFAULT 0,
+            last_attempt_at datetime DEFAULT NULL,
+            synced_at datetime DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY entity_type (entity_type),
+            KEY entity_id (entity_id),
+            KEY sync_type (sync_type),
+            KEY sync_status (sync_status),
+            KEY at_protocol_uri (at_protocol_uri)
+        ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($communities_sql);
+        dbDelta($members_sql);
+        dbDelta($community_events_sql);
+        dbDelta($identities_sql);
+        dbDelta($invitations_sql);
+        dbDelta($sync_log_sql);
     }
 }
