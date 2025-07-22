@@ -24,11 +24,11 @@ class PartyMinder_Deactivator {
         $events_table = $wpdb->prefix . 'partyminder_events';
         
         if ($wpdb->get_var("SHOW TABLES LIKE '$events_table'") == $events_table) {
-            $events = $wpdb->get_results("SELECT post_id FROM $events_table");
+            $events = $wpdb->get_results("SELECT id FROM $events_table");
             
             foreach ($events as $event) {
-                wp_clear_scheduled_hook('partyminder_event_reminder_' . $event->post_id);
-                wp_clear_scheduled_hook('partyminder_event_followup_' . $event->post_id);
+                wp_clear_scheduled_hook('partyminder_event_reminder_' . $event->id);
+                wp_clear_scheduled_hook('partyminder_event_followup_' . $event->id);
             }
         }
     }
@@ -52,21 +52,7 @@ class PartyMinder_Deactivator {
             $wpdb->query("DROP TABLE IF EXISTS $table");
         }
         
-        // Delete pages that are PartyMinder events
-        $event_pages = $wpdb->get_results(
-            "SELECT p.ID FROM {$wpdb->posts} p 
-             INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id 
-             WHERE p.post_type = 'page' 
-             AND pm.meta_key = '_partyminder_event' 
-             AND pm.meta_value = 'true'"
-        );
-        
-        foreach ($event_pages as $page) {
-            wp_delete_post($page->ID, true);
-        }
-        
-        // Clean up post meta
-        $wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE post_id NOT IN (SELECT id FROM {$wpdb->posts})");
+        // No need to clean up posts/post meta - we use pure custom tables now
         
         // Delete created pages
         self::delete_pages();

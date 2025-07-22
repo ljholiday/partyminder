@@ -28,7 +28,6 @@ $current_user = wp_get_current_user();
 $can_edit = false;
 
 if (current_user_can('edit_posts') || 
-    (is_user_logged_in() && isset($event->post_author) && $current_user->ID == $event->post_author) ||
     (is_user_logged_in() && $current_user->ID == $event->author_id) ||
     ($current_user->user_email == $event->host_email)) {
     $can_edit = true;
