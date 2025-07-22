@@ -99,10 +99,99 @@ class PartyMinder_Activator {
             KEY created_at (created_at)
         ) $charset_collate;";
 
+        // Conversation topics table
+        $topics_table = $wpdb->prefix . 'partyminder_conversation_topics';
+        $topics_sql = "CREATE TABLE $topics_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            name varchar(255) NOT NULL,
+            slug varchar(255) NOT NULL,
+            description text,
+            icon varchar(10) DEFAULT '',
+            sort_order int(11) DEFAULT 0,
+            is_active tinyint(1) DEFAULT 1,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY slug (slug),
+            KEY sort_order (sort_order),
+            KEY is_active (is_active)
+        ) $charset_collate;";
+
+        // Conversations table
+        $conversations_table = $wpdb->prefix . 'partyminder_conversations';
+        $conversations_sql = "CREATE TABLE $conversations_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            topic_id mediumint(9) NOT NULL,
+            event_id mediumint(9) DEFAULT NULL,
+            title varchar(255) NOT NULL,
+            slug varchar(255) NOT NULL,
+            content longtext NOT NULL,
+            author_id bigint(20) UNSIGNED NOT NULL,
+            author_name varchar(100) NOT NULL,
+            author_email varchar(100) NOT NULL,
+            is_pinned tinyint(1) DEFAULT 0,
+            is_locked tinyint(1) DEFAULT 0,
+            reply_count int(11) DEFAULT 0,
+            last_reply_date datetime DEFAULT CURRENT_TIMESTAMP,
+            last_reply_author varchar(100) DEFAULT '',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY topic_id (topic_id),
+            KEY event_id (event_id),
+            KEY author_id (author_id),
+            KEY is_pinned (is_pinned),
+            KEY last_reply_date (last_reply_date),
+            UNIQUE KEY slug (slug)
+        ) $charset_collate;";
+
+        // Conversation replies table
+        $replies_table = $wpdb->prefix . 'partyminder_conversation_replies';
+        $replies_sql = "CREATE TABLE $replies_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            conversation_id mediumint(9) NOT NULL,
+            parent_reply_id mediumint(9) DEFAULT NULL,
+            content longtext NOT NULL,
+            author_id bigint(20) UNSIGNED NOT NULL,
+            author_name varchar(100) NOT NULL,
+            author_email varchar(100) NOT NULL,
+            depth_level int(11) DEFAULT 0,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY conversation_id (conversation_id),
+            KEY parent_reply_id (parent_reply_id),
+            KEY author_id (author_id),
+            KEY created_at (created_at)
+        ) $charset_collate;";
+
+        // Conversation follows table
+        $follows_table = $wpdb->prefix . 'partyminder_conversation_follows';
+        $follows_sql = "CREATE TABLE $follows_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            conversation_id mediumint(9) NOT NULL,
+            user_id bigint(20) UNSIGNED NOT NULL,
+            email varchar(100) NOT NULL,
+            last_read_at datetime DEFAULT CURRENT_TIMESTAMP,
+            notification_frequency varchar(20) DEFAULT 'immediate',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY conversation_id (conversation_id),
+            KEY user_id (user_id),
+            KEY email (email),
+            UNIQUE KEY unique_follow (conversation_id, user_id, email)
+        ) $charset_collate;";
+
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($events_sql);
         dbDelta($guests_sql);
         dbDelta($ai_sql);
+        dbDelta($topics_sql);
+        dbDelta($conversations_sql);
+        dbDelta($replies_sql);
+        dbDelta($follows_sql);
+        
+        // Create default conversation topics
+        self::create_default_conversation_topics();
     }
 
     private static function set_default_options() {
@@ -156,6 +245,12 @@ class PartyMinder_Activator {
                 'content' => '[partyminder_event_edit_form]',
                 'slug' => 'edit-event',
                 'description' => __('Update your event details, manage guest lists, and edit event information.', 'partyminder')
+            ),
+            'conversations' => array(
+                'title' => __('Community Conversations', 'partyminder'),
+                'content' => '[partyminder_conversations]',
+                'slug' => 'conversations',
+                'description' => __('Connect, share tips, and plan amazing gatherings with the community.', 'partyminder')
             )
         );
         
@@ -216,9 +311,86 @@ class PartyMinder_Activator {
                             update_post_meta($page_id, '_yoast_wpseo_metadesc', __('Update your event details, manage guest lists, and edit event information.', 'partyminder'));
                             update_post_meta($page_id, '_yoast_wpseo_meta-robots-noindex', '1'); // Don't index edit pages
                             break;
+                        case 'conversations':
+                            update_post_meta($page_id, '_yoast_wpseo_title', __('Community Conversations - Connect & Share', 'partyminder'));
+                            update_post_meta($page_id, '_yoast_wpseo_metadesc', __('Join community conversations about hosting tips, recipes, party planning and more. Connect with fellow party hosts and guests.', 'partyminder'));
+                            break;
                     }
                 }
             }
+        }
+    }
+    
+    private static function create_default_conversation_topics() {
+        global $wpdb;
+        
+        $topics_table = $wpdb->prefix . 'partyminder_conversation_topics';
+        
+        // Check if topics already exist
+        $existing_count = $wpdb->get_var("SELECT COUNT(*) FROM $topics_table");
+        if ($existing_count > 0) {
+            return; // Topics already exist
+        }
+        
+        $default_topics = array(
+            array(
+                'name' => __('Welcome & Introductions', 'partyminder'),
+                'slug' => 'welcome-introductions',
+                'description' => __('Introduce yourself to the community and welcome new members.', 'partyminder'),
+                'icon' => '👋',
+                'sort_order' => 10
+            ),
+            array(
+                'name' => __('Hosting Tips & Questions', 'partyminder'),
+                'slug' => 'hosting-tips',
+                'description' => __('Share hosting wisdom and get help with your hosting challenges.', 'partyminder'),
+                'icon' => '🍽️',
+                'sort_order' => 20
+            ),
+            array(
+                'name' => __('Recipes & Food Ideas', 'partyminder'),
+                'slug' => 'recipes-food',
+                'description' => __('Share your favorite party recipes and discover new food ideas.', 'partyminder'),
+                'icon' => '🍳',
+                'sort_order' => 30
+            ),
+            array(
+                'name' => __('Party Planning & Themes', 'partyminder'),
+                'slug' => 'party-planning',
+                'description' => __('Brainstorm creative party themes and planning strategies.', 'partyminder'),
+                'icon' => '🎨',
+                'sort_order' => 40
+            ),
+            array(
+                'name' => __('Venue & Setup Ideas', 'partyminder'),
+                'slug' => 'venue-setup',
+                'description' => __('Share venue recommendations and setup inspiration.', 'partyminder'),
+                'icon' => '🏠',
+                'sort_order' => 50
+            ),
+            array(
+                'name' => __('General Community Chat', 'partyminder'),
+                'slug' => 'general-chat',
+                'description' => __('Casual conversations and community discussions.', 'partyminder'),
+                'icon' => '💡',
+                'sort_order' => 60
+            )
+        );
+        
+        foreach ($default_topics as $topic) {
+            $wpdb->insert(
+                $topics_table,
+                array(
+                    'name' => $topic['name'],
+                    'slug' => $topic['slug'],
+                    'description' => $topic['description'],
+                    'icon' => $topic['icon'],
+                    'sort_order' => $topic['sort_order'],
+                    'is_active' => 1,
+                    'created_at' => current_time('mysql')
+                ),
+                array('%s', '%s', '%s', '%s', '%d', '%d', '%s')
+            );
         }
     }
 }

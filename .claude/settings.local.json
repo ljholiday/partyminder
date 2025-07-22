@@ -3,7 +3,8 @@
     "allow": [
       "Bash(rm:*)",
       "Bash(wp db query:*)",
-      "Bash(php:*)"
+      "Bash(php:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

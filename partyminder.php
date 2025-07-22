@@ -63,6 +63,7 @@ class PartyMinder {
     private function load_dependencies() {
         require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
         require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
+        require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-manager.php';
         require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-ai-assistant.php';
         require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-admin.php';
     }
@@ -114,6 +115,7 @@ class PartyMinder {
         add_shortcode('partyminder_rsvp_form', array($this, 'rsvp_form_shortcode'));
         add_shortcode('partyminder_events_list', array($this, 'events_list_shortcode'));
         add_shortcode('partyminder_my_events', array($this, 'my_events_shortcode'));
+        add_shortcode('partyminder_conversations', array($this, 'conversations_shortcode'));
     }
     
     public function init() {
@@ -123,6 +125,7 @@ class PartyMinder {
         // Initialize managers
         $this->event_manager = new PartyMinder_Event_Manager();
         $this->guest_manager = new PartyMinder_Guest_Manager();
+        $this->conversation_manager = new PartyMinder_Conversation_Manager();
         $this->ai_assistant = new PartyMinder_AI_Assistant();
         
         
@@ -410,6 +413,27 @@ class PartyMinder {
         return ob_get_clean();
     }
     
+    public function conversations_shortcode($atts) {
+        $atts = shortcode_atts(array(), $atts);
+        
+        // Check if we're on the dedicated page
+        $on_dedicated_page = $this->is_on_dedicated_page('conversations');
+        
+        // If on dedicated page, content injection handles everything
+        if ($on_dedicated_page) {
+            return '';
+        }
+        
+        // Otherwise, provide simplified embedded version
+        ob_start();
+        echo '<div class="partyminder-shortcode-wrapper" style="padding: 20px; text-align: center; background: #f9f9f9; border-radius: 8px; margin: 20px 0;">';
+        echo '<h3>' . __('Community Conversations', 'partyminder') . '</h3>';
+        echo '<p>' . __('Connect with fellow hosts and guests, share tips, and plan amazing gatherings together.', 'partyminder') . '</p>';
+        echo '<a href="' . esc_url(self::get_conversations_url()) . '" class="pm-button" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">' . __('Join Conversations', 'partyminder') . '</a>';
+        echo '</div>';
+        return ob_get_clean();
+    }
+    
     public function event_edit_form_shortcode($atts) {
         $atts = shortcode_atts(array(
             'event_id' => intval($_GET['event_id'] ?? 0)
@@ -525,6 +549,10 @@ class PartyMinder {
     
     public static function get_edit_event_url($event_id) {
         return self::get_page_url('edit-event', array('event_id' => $event_id));
+    }
+    
+    public static function get_conversations_url() {
+        return self::get_page_url('conversations');
     }
     
     private function is_on_dedicated_page($page_key) {
@@ -751,6 +779,11 @@ class PartyMinder {
                 }
                 add_filter('the_content', array($this, 'inject_edit_event_content'));
                 add_filter('body_class', array($this, 'add_edit_event_body_class'));
+                break;
+                
+            case 'conversations':
+                add_filter('the_content', array($this, 'inject_conversations_content'));
+                add_filter('body_class', array($this, 'add_conversations_body_class'));
                 break;
         }
     }
@@ -1187,6 +1220,33 @@ class PartyMinder {
     }
     
     /**
+     * Inject conversations content
+     */
+    public function inject_conversations_content($content) {
+        global $post;
+        
+        if (!is_page() || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+        
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        if ($page_type !== 'conversations') {
+            return $content;
+        }
+        
+        ob_start();
+        
+        echo '<div class="partyminder-content partyminder-conversations-page">';
+        
+        // Include conversations template
+        include PARTYMINDER_PLUGIN_DIR . 'templates/conversations-content.php';
+        
+        echo '</div>';
+        
+        return ob_get_clean();
+    }
+    
+    /**
      * Add body classes for PartyMinder pages
      */
     public function add_body_classes($classes) {
@@ -1242,6 +1302,14 @@ class PartyMinder {
      */
     public function add_edit_event_body_class($classes) {
         $classes[] = 'partyminder-event-editing';
+        return $classes;
+    }
+    
+    /**
+     * Add specific body classes for conversations page
+     */
+    public function add_conversations_body_class($classes) {
+        $classes[] = 'partyminder-conversations';
         return $classes;
     }
     
