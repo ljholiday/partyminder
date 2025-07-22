@@ -174,7 +174,7 @@ class PartyMinder_Admin {
                                     <div class="date-month"><?php echo date('M', strtotime($event->event_date)); ?></div>
                                 </div>
                                 <div class="event-details">
-                                    <h3><a href="<?php echo PartyMinder::get_edit_event_url($event->ID); ?>"><?php echo esc_html($event->title); ?></a></h3>
+                                    <h3><a href="<?php echo home_url('/events/' . $event->slug); ?>"><?php echo esc_html($event->title); ?></a></h3>
                                     <div class="event-meta">
                                         <span><?php echo date('g:i A', strtotime($event->event_date)); ?></span>
                                         <span><?php echo $event->guest_stats->confirmed; ?> confirmed</span>
@@ -337,7 +337,6 @@ class PartyMinder_Admin {
                 
                 if (!is_wp_error($event_id)) {
                     $event_created = true;
-                    $event_url = get_edit_post_link($event_id);
                 } else {
                     $form_errors[] = $event_id->get_error_message();
                 }
@@ -351,8 +350,8 @@ class PartyMinder_Admin {
                 <div class="notice notice-success">
                     <p><strong><?php _e('Event created successfully!', 'partyminder'); ?></strong></p>
                     <p>
-                        <a href="<?php echo PartyMinder::get_edit_event_url($event_id); ?>" class="button button-primary"><?php _e('Edit Event', 'partyminder'); ?></a>
-                        <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="button"><?php _e('View My Events', 'partyminder'); ?></a>
+                        <a href="<?php echo admin_url('admin.php?page=partyminder-events'); ?>" class="button button-primary"><?php _e('View All Events', 'partyminder'); ?></a>
+                        <a href="<?php echo admin_url('admin.php?page=partyminder-create'); ?>" class="button"><?php _e('Create Another Event', 'partyminder'); ?></a>
                     </p>
                 </div>
             <?php else: ?>

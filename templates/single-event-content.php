@@ -9,20 +9,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Get event data
-require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
-require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
-
-$event_manager = new PartyMinder_Event_Manager();
-$guest_manager = new PartyMinder_Guest_Manager();
-
-$event = $event_manager->get_event(get_the_ID());
+// Get event data from global variable set by main plugin
+$event = $GLOBALS['partyminder_current_event'] ?? null;
 
 if (!$event) {
     echo '<div style="padding: 20px; background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; margin: 20px;">';
     echo '<h3>Event Not Found</h3>';
-    echo '<p>Event ID: ' . get_the_ID() . '</p>';
-    echo '<p>Post Type: ' . get_post_type() . '</p>';
+    echo '<p>No event data available</p>';
     echo '</div>';
     return;
 }
@@ -107,9 +100,9 @@ $is_past = $event_date < new DateTime();
         </div>
     </div>
     
-    <?php if (has_post_thumbnail()): ?>
+    <?php if ($event->featured_image): ?>
     <div class="event-image">
-        <?php the_post_thumbnail('large'); ?>
+        <img src="<?php echo esc_url($event->featured_image); ?>" alt="<?php echo esc_attr($event->title); ?>" style="max-width: 100%; height: auto;">
     </div>
     <?php endif; ?>
     
@@ -169,7 +162,7 @@ $is_past = $event_date < new DateTime();
     <?php if (!$is_past): ?>
     <!-- RSVP Form Section -->
     <div class="event-rsvp" id="rsvp">
-        <?php echo do_shortcode('[partyminder_rsvp_form event_id="' . $event->ID . '"]'); ?>
+        <?php echo do_shortcode('[partyminder_rsvp_form event_id="' . $event->id . '"]'); ?>
     </div>
     <?php endif; ?>
     
@@ -183,7 +176,7 @@ $is_past = $event_date < new DateTime();
             </tr>
             <tr>
                 <td><strong>Created:</strong></td>
-                <td><?php echo date('F j, Y', strtotime($event->created_date)); ?></td>
+                <td><?php echo date('F j, Y', strtotime($event->created_at)); ?></td>
             </tr>
             <?php if ($event->guest_limit > 0): ?>
             <tr>

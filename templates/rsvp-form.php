@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Get event ID from shortcode attributes or URL parameter
-$event_id = intval($atts['event_id'] ?? $_GET['event_id'] ?? get_the_ID());
+$event_id = intval($atts['event_id'] ?? $_GET['event_id'] ?? 0);
 
 if (!$event_id) {
     echo '<div class="partyminder-error">' . __('No event specified.', 'partyminder') . '</div>';

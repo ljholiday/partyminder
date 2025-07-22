@@ -11,7 +11,7 @@ class PartyMinder_Activator {
         // Set default options
         self::set_default_options();
         
-        // Create dedicated pages
+        // Create dedicated pages for shortcode usage
         self::create_pages();
         
         // Flush rewrite rules only on activation

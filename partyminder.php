@@ -201,10 +201,12 @@ class PartyMinder {
         $event_id = $this->event_manager->create_event($event_data);
         
         if (!is_wp_error($event_id)) {
+            // Get the created event to get its slug
+            $created_event = $this->event_manager->get_event($event_id);
             wp_send_json_success(array(
                 'event_id' => $event_id,
                 'message' => __('Event created successfully!', 'partyminder'),
-                'event_url' => get_permalink($event_id)
+                'event_url' => home_url('/events/' . $created_event->slug)
             ));
         } else {
             wp_send_json_error($event_id->get_error_message());
@@ -236,7 +238,7 @@ class PartyMinder {
         $can_edit = false;
         
         if (current_user_can('edit_posts') || 
-            (is_user_logged_in() && $current_user->ID == $event->post_author) ||
+            (is_user_logged_in() && $current_user->ID == $event->author_id) ||
             ($current_user->user_email == $event->host_email)) {
             $can_edit = true;
         }
@@ -263,7 +265,6 @@ class PartyMinder {
         
         // Prepare update data
         $event_data = array(
-            'ID' => $event_id,
             'title' => sanitize_text_field($_POST['event_title']),
             'description' => wp_kses_post($_POST['event_description']),
             'event_date' => sanitize_text_field($_POST['event_date']),
@@ -277,10 +278,12 @@ class PartyMinder {
         $result = $event_manager->update_event($event_id, $event_data);
         
         if (!is_wp_error($result)) {
+            // Get the updated event to get its slug
+            $updated_event = $event_manager->get_event($event_id);
             wp_send_json_success(array(
                 'event_id' => $event_id,
                 'message' => __('Event updated successfully!', 'partyminder'),
-                'event_url' => get_permalink($event_id)
+                'event_url' => home_url('/events/' . $updated_event->slug)
             ));
         } else {
             wp_send_json_error($result->get_error_message());
@@ -591,9 +594,10 @@ class PartyMinder {
                 
                 if (!is_wp_error($event_id)) {
                     // Store success data in session or transient for the template
+                    $created_event = $this->event_manager->get_event($event_id);
                     set_transient('partyminder_event_created_' . get_current_user_id(), array(
                         'event_id' => $event_id,
-                        'event_url' => get_permalink($event_id)
+                        'event_url' => home_url('/events/' . $created_event->slug)
                     ), 60);
                     
                     // Redirect to prevent resubmission
@@ -625,7 +629,7 @@ class PartyMinder {
     }
     
     public function handle_custom_pages() {
-        global $wp_query;
+        global $wp_query, $post;
         
         // Check if this is an event page
         $event_slug = get_query_var('partyminder_event_slug');
@@ -659,6 +663,45 @@ class PartyMinder {
             
             // Add to head for SEO
             add_action('wp_head', array($this, 'add_event_seo_tags'));
+            return;
+        }
+        
+        if (!is_page() || !$post) {
+            return;
+        }
+        
+        // Check if this is one of our custom pages
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        
+        if (!$page_type) {
+            return;
+        }
+        
+        // Set up content injection based on page type
+        switch ($page_type) {
+            case 'events':
+                add_filter('the_content', array($this, 'inject_events_content'));
+                add_filter('body_class', array($this, 'add_events_body_class'));
+                break;
+                
+            case 'create-event':
+                add_filter('the_content', array($this, 'inject_create_event_content'));
+                add_filter('body_class', array($this, 'add_create_event_body_class'));
+                break;
+                
+            case 'my-events':
+                add_filter('the_content', array($this, 'inject_my_events_content'));
+                add_filter('body_class', array($this, 'add_my_events_body_class'));
+                break;
+                
+            case 'edit-event':
+                // Handle event ID parameter
+                if (!get_query_var('event_id') && isset($_GET['event_id'])) {
+                    set_query_var('event_id', intval($_GET['event_id']));
+                }
+                add_filter('the_content', array($this, 'inject_edit_event_content'));
+                add_filter('body_class', array($this, 'add_edit_event_body_class'));
+                break;
         }
     }
     
@@ -834,50 +877,6 @@ class PartyMinder {
         return $title_parts;
     }
     
-    /**
-     * Handle custom pages with theme integration
-     */
-    public function handle_custom_pages() {
-        global $post;
-        
-        if (!is_page() || !$post) {
-            return;
-        }
-        
-        // Check if this is one of our custom pages
-        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
-        
-        if (!$page_type) {
-            return;
-        }
-        
-        // Set up content injection based on page type
-        switch ($page_type) {
-            case 'events':
-                add_filter('the_content', array($this, 'inject_events_content'));
-                add_filter('body_class', array($this, 'add_events_body_class'));
-                break;
-                
-            case 'create-event':
-                add_filter('the_content', array($this, 'inject_create_event_content'));
-                add_filter('body_class', array($this, 'add_create_event_body_class'));
-                break;
-                
-            case 'my-events':
-                add_filter('the_content', array($this, 'inject_my_events_content'));
-                add_filter('body_class', array($this, 'add_my_events_body_class'));
-                break;
-                
-            case 'edit-event':
-                // Handle event ID parameter
-                if (!get_query_var('event_id') && isset($_GET['event_id'])) {
-                    set_query_var('event_id', intval($_GET['event_id']));
-                }
-                add_filter('the_content', array($this, 'inject_edit_event_content'));
-                add_filter('body_class', array($this, 'add_edit_event_body_class'));
-                break;
-        }
-    }
     
     /**
      * Inject events page content
