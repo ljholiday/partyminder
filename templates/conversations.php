@@ -114,6 +114,11 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     display: flex;
     align-items: center;
     justify-content: space-between;
+    transition: background 0.2s ease;
+}
+
+.topic-header:hover {
+    background: #e9ecef;
 }
 
 .topic-info {
@@ -357,7 +362,196 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     background: #6c757d;
 }
 
+/* Modal Styles */
+.partyminder-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.partyminder-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.partyminder-modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.partyminder-modal-overlay.active .partyminder-modal-content {
+    transform: scale(1);
+}
+
+.modal-header {
+    padding: 20px 30px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: var(--pm-primary);
+    color: white;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.3em;
+}
+
+.modal-header p {
+    margin: 5px 0 0 0;
+    opacity: 0.9;
+    font-size: 0.9em;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s ease;
+}
+
+.close-modal:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+.conversation-form .form-row {
+    margin-bottom: 20px;
+}
+
+.conversation-form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.conversation-form input,
+.conversation-form textarea,
+.conversation-form select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.conversation-form input:focus,
+.conversation-form textarea:focus,
+.conversation-form select:focus {
+    outline: none;
+    border-color: var(--pm-primary);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.conversation-form input.error,
+.conversation-form textarea.error {
+    border-color: #ef4444;
+}
+
+.field-error {
+    color: #ef4444;
+    font-size: 0.85em;
+    margin-top: 4px;
+    display: block;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.pm-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.pm-button-primary {
+    background: var(--pm-primary);
+    color: white;
+}
+
+.pm-button-primary:hover {
+    opacity: 0.9;
+    color: white;
+}
+
+.pm-button-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.pm-button-secondary:hover {
+    opacity: 0.9;
+    color: white;
+}
+
+.pm-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.button-spinner {
+    display: none;
+}
+
 @media (max-width: 768px) {
+    .partyminder-modal-content {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .modal-header,
+    .modal-body {
+        padding: 20px;
+    }
+    
     .conversations-header h1 {
         font-size: 2em;
     }
@@ -374,6 +568,14 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     
     .community-stats {
         grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .pm-button {
+        justify-content: center;
     }
 }
 </style>
@@ -400,13 +602,15 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     ?>
                     <div class="topic-section">
                         <div class="topic-header">
-                            <div class="topic-info">
-                                <span class="topic-icon"><?php echo esc_html($topic->icon); ?></span>
-                                <div>
-                                    <h3 class="topic-name"><?php echo esc_html($topic->name); ?></h3>
-                                    <p class="topic-description"><?php echo esc_html($topic->description); ?></p>
+                            <a href="<?php echo home_url('/conversations/' . $topic->slug); ?>" style="text-decoration: none; color: inherit; display: flex; align-items: center; flex: 1;">
+                                <div class="topic-info" style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                    <span class="topic-icon"><?php echo esc_html($topic->icon); ?></span>
+                                    <div>
+                                        <h3 class="topic-name"><?php echo esc_html($topic->name); ?></h3>
+                                        <p class="topic-description"><?php echo esc_html($topic->description); ?></p>
+                                    </div>
                                 </div>
-                            </div>
+                            </a>
                             <span class="conversation-count"><?php echo count($topic_conversations); ?></span>
                         </div>
                         
@@ -415,7 +619,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                                 <?php foreach ($topic_conversations as $conversation): ?>
                                     <li class="conversation-item">
                                         <div class="conversation-main">
-                                            <a href="#" class="conversation-title">
+                                            <a href="<?php echo home_url('/conversations/' . $topic->slug . '/' . $conversation->slug); ?>" class="conversation-title">
                                                 <?php if ($conversation->is_pinned): ?>
                                                     <span class="pinned-badge"><?php _e('Pinned', 'partyminder'); ?></span>
                                                 <?php endif; ?>
@@ -438,7 +642,9 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         <?php else: ?>
                             <div class="no-conversations">
                                 <p><?php _e('No conversations yet in this topic.', 'partyminder'); ?></p>
-                                <a href="#" class="start-conversation-btn">
+                                <a href="#" class="start-conversation-btn" 
+                                   data-topic-id="<?php echo esc_attr($topic->id); ?>"
+                                   data-topic-name="<?php echo esc_attr($topic->name); ?>">
                                     <?php _e('Start the Conversation', 'partyminder'); ?>
                                 </a>
                             </div>
@@ -517,7 +723,8 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 </div>
                 <div class="activity-card-content">
                     <div class="quick-actions">
-                        <a href="#" class="action-button">
+                        <a href="#" class="action-button start-conversation-btn" 
+                           data-topic-id="" data-topic-name="">
                             <span>💬</span>
                             <?php _e('Start New Conversation', 'partyminder'); ?>
                         </a>

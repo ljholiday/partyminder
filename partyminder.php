@@ -105,6 +105,10 @@ class PartyMinder {
         add_action('wp_ajax_nopriv_partyminder_update_event', array($this, 'ajax_update_event'));
         add_action('wp_ajax_partyminder_rsvp', array($this, 'ajax_rsvp'));
         add_action('wp_ajax_nopriv_partyminder_rsvp', array($this, 'ajax_rsvp'));
+        add_action('wp_ajax_partyminder_create_conversation', array($this, 'ajax_create_conversation'));
+        add_action('wp_ajax_nopriv_partyminder_create_conversation', array($this, 'ajax_create_conversation'));
+        add_action('wp_ajax_partyminder_add_reply', array($this, 'ajax_add_reply'));
+        add_action('wp_ajax_nopriv_partyminder_add_reply', array($this, 'ajax_add_reply'));
         add_action('wp_ajax_partyminder_generate_ai_plan', array($this, 'ajax_generate_ai_plan'));
     }
     
@@ -141,9 +145,15 @@ class PartyMinder {
         wp_enqueue_style('partyminder-public', PARTYMINDER_PLUGIN_URL . 'assets/css/public.css', array(), PARTYMINDER_VERSION);
         wp_enqueue_script('partyminder-public', PARTYMINDER_PLUGIN_URL . 'assets/js/public.js', array('jquery'), PARTYMINDER_VERSION, true);
         
+        $current_user = wp_get_current_user();
         wp_localize_script('partyminder-public', 'partyminder_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('partyminder_nonce'),
+            'current_user' => array(
+                'id' => $current_user->ID,
+                'name' => $current_user->display_name,
+                'email' => $current_user->user_email
+            ),
             'strings' => array(
                 'loading' => __('Loading...', 'partyminder'),
                 'error' => __('An error occurred. Please try again.', 'partyminder'),
@@ -331,6 +341,121 @@ class PartyMinder {
         wp_send_json_success($plan);
     }
     
+    public function ajax_create_conversation() {
+        check_ajax_referer('partyminder_nonce', 'nonce');
+        
+        // Get current user info
+        $current_user = wp_get_current_user();
+        $user_email = '';
+        $user_name = '';
+        $user_id = 0;
+        
+        if (is_user_logged_in()) {
+            $user_email = $current_user->user_email;
+            $user_name = $current_user->display_name;
+            $user_id = $current_user->ID;
+        } else {
+            // Allow non-logged-in users if they provide email and name
+            $user_email = sanitize_email($_POST['guest_email'] ?? '');
+            $user_name = sanitize_text_field($_POST['guest_name'] ?? '');
+            if (empty($user_email) || empty($user_name)) {
+                wp_send_json_error(__('Please provide your name and email to start a conversation.', 'partyminder'));
+            }
+        }
+        
+        // Validate input
+        $topic_id = intval($_POST['topic_id'] ?? 0);
+        $title = sanitize_text_field($_POST['title'] ?? '');
+        $content = wp_kses_post($_POST['content'] ?? '');
+        
+        if (empty($topic_id) || empty($title) || empty($content)) {
+            wp_send_json_error(__('Please fill in all required fields.', 'partyminder'));
+        }
+        
+        // Create conversation
+        if (!$this->conversation_manager) {
+            $this->load_dependencies();
+            $this->conversation_manager = new PartyMinder_Conversation_Manager();
+        }
+        
+        $conversation_data = array(
+            'topic_id' => $topic_id,
+            'title' => $title,
+            'content' => $content,
+            'author_id' => $user_id,
+            'author_name' => $user_name,
+            'author_email' => $user_email
+        );
+        
+        $conversation_id = $this->conversation_manager->create_conversation($conversation_data);
+        
+        if ($conversation_id) {
+            wp_send_json_success(array(
+                'conversation_id' => $conversation_id,
+                'message' => __('Conversation started successfully!', 'partyminder')
+            ));
+        } else {
+            wp_send_json_error(__('Failed to create conversation. Please try again.', 'partyminder'));
+        }
+    }
+    
+    public function ajax_add_reply() {
+        check_ajax_referer('partyminder_nonce', 'nonce');
+        
+        // Get current user info
+        $current_user = wp_get_current_user();
+        $user_email = '';
+        $user_name = '';
+        $user_id = 0;
+        
+        if (is_user_logged_in()) {
+            $user_email = $current_user->user_email;
+            $user_name = $current_user->display_name;
+            $user_id = $current_user->ID;
+        } else {
+            // Allow non-logged-in users if they provide email and name
+            $user_email = sanitize_email($_POST['guest_email'] ?? '');
+            $user_name = sanitize_text_field($_POST['guest_name'] ?? '');
+            if (empty($user_email) || empty($user_name)) {
+                wp_send_json_error(__('Please provide your name and email to reply.', 'partyminder'));
+            }
+        }
+        
+        // Validate input
+        $conversation_id = intval($_POST['conversation_id'] ?? 0);
+        $parent_reply_id = intval($_POST['parent_reply_id'] ?? 0) ?: null;
+        $content = wp_kses_post($_POST['content'] ?? '');
+        
+        if (empty($conversation_id) || empty($content)) {
+            wp_send_json_error(__('Please provide a message to reply.', 'partyminder'));
+        }
+        
+        // Add reply
+        if (!$this->conversation_manager) {
+            $this->load_dependencies();
+            $this->conversation_manager = new PartyMinder_Conversation_Manager();
+        }
+        
+        $reply_data = array(
+            'content' => $content,
+            'author_id' => $user_id,
+            'author_name' => $user_name,
+            'author_email' => $user_email,
+            'parent_reply_id' => $parent_reply_id
+        );
+        
+        $reply_id = $this->conversation_manager->add_reply($conversation_id, $reply_data);
+        
+        if ($reply_id) {
+            wp_send_json_success(array(
+                'reply_id' => $reply_id,
+                'message' => __('Reply added successfully!', 'partyminder')
+            ));
+        } else {
+            wp_send_json_error(__('Failed to add reply. Please try again.', 'partyminder'));
+        }
+    }
+    
     // Shortcodes
     public function event_form_shortcode($atts) {
         $atts = shortcode_atts(array(
@@ -466,9 +591,15 @@ class PartyMinder {
         // Add rewrite rule to catch individual events and route them to the events page
         add_rewrite_rule('^events/([^/]+)/?$', 'index.php?pagename=events&event_slug=$matches[1]', 'top');
         
-        // Add the event_slug query var
+        // Add conversation routing
+        add_rewrite_rule('^conversations/([^/]+)/?$', 'index.php?pagename=conversations&conversation_topic=$matches[1]', 'top');
+        add_rewrite_rule('^conversations/([^/]+)/([^/]+)/?$', 'index.php?pagename=conversations&conversation_topic=$matches[1]&conversation_slug=$matches[2]', 'top');
+        
+        // Add query vars
         add_filter('query_vars', function($vars) {
             $vars[] = 'event_slug';
+            $vars[] = 'conversation_topic';
+            $vars[] = 'conversation_slug';
             return $vars;
         });
     }
@@ -782,8 +913,23 @@ class PartyMinder {
                 break;
                 
             case 'conversations':
-                add_filter('the_content', array($this, 'inject_conversations_content'));
-                add_filter('body_class', array($this, 'add_conversations_body_class'));
+                // Handle conversation routing
+                $topic_slug = get_query_var('conversation_topic');
+                $conversation_slug = get_query_var('conversation_slug');
+                
+                if ($conversation_slug) {
+                    // Individual conversation view
+                    add_filter('the_content', array($this, 'inject_single_conversation_content'));
+                    add_filter('body_class', array($this, 'add_single_conversation_body_class'));
+                } elseif ($topic_slug) {
+                    // Topic view
+                    add_filter('the_content', array($this, 'inject_topic_conversations_content'));
+                    add_filter('body_class', array($this, 'add_topic_conversations_body_class'));
+                } else {
+                    // Main conversations page
+                    add_filter('the_content', array($this, 'inject_conversations_content'));
+                    add_filter('body_class', array($this, 'add_conversations_body_class'));
+                }
                 break;
         }
     }
@@ -1247,6 +1393,60 @@ class PartyMinder {
     }
     
     /**
+     * Inject topic conversations content
+     */
+    public function inject_topic_conversations_content($content) {
+        global $post;
+        
+        if (!is_page() || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+        
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        if ($page_type !== 'conversations') {
+            return $content;
+        }
+        
+        ob_start();
+        
+        echo '<div class="partyminder-content partyminder-topic-conversations-page">';
+        
+        // Include topic conversations template
+        include PARTYMINDER_PLUGIN_DIR . 'templates/topic-conversations-content.php';
+        
+        echo '</div>';
+        
+        return ob_get_clean();
+    }
+    
+    /**
+     * Inject single conversation content
+     */
+    public function inject_single_conversation_content($content) {
+        global $post;
+        
+        if (!is_page() || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+        
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        if ($page_type !== 'conversations') {
+            return $content;
+        }
+        
+        ob_start();
+        
+        echo '<div class="partyminder-content partyminder-single-conversation-page">';
+        
+        // Include single conversation template
+        include PARTYMINDER_PLUGIN_DIR . 'templates/single-conversation-content.php';
+        
+        echo '</div>';
+        
+        return ob_get_clean();
+    }
+    
+    /**
      * Add body classes for PartyMinder pages
      */
     public function add_body_classes($classes) {
@@ -1314,6 +1514,24 @@ class PartyMinder {
     }
     
     /**
+     * Add specific body classes for topic conversations page
+     */
+    public function add_topic_conversations_body_class($classes) {
+        $classes[] = 'partyminder-conversations';
+        $classes[] = 'partyminder-topic-conversations';
+        return $classes;
+    }
+    
+    /**
+     * Add specific body classes for single conversation page
+     */
+    public function add_single_conversation_body_class($classes) {
+        $classes[] = 'partyminder-conversations';
+        $classes[] = 'partyminder-single-conversation';
+        return $classes;
+    }
+    
+    /**
      * Enqueue page-specific assets
      */
     public function enqueue_page_specific_assets() {
@@ -1341,6 +1559,17 @@ class PartyMinder {
                     PARTYMINDER_PLUGIN_URL . 'assets/css/page-' . $page_type . '.css',
                     array('partyminder-theme-integration'),
                     PARTYMINDER_VERSION
+                );
+            }
+            
+            // Add page-specific JavaScript
+            if ($page_type === 'conversations') {
+                wp_enqueue_script(
+                    'partyminder-conversations',
+                    PARTYMINDER_PLUGIN_URL . 'assets/js/conversations.js',
+                    array('jquery', 'partyminder-public'),
+                    PARTYMINDER_VERSION,
+                    true
                 );
             }
         }

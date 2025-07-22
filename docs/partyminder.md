@@ -1,5 +1,18 @@
 # Party Minder
 
+
+Conversation topics. Configure and adjust the default conversation topics.
+
+Provide an option for newest first and set as default.
+
+In local, change Local Sites to local-sites.
+
+Review css again. Ensure only necessary inline style. All other style goes
+in the style system.
+
+## Claude Code Instructions
+Add instructions for handling style. Ensure only necessary inline style. All other style goes
+
 PartyMinder WordPress Plugin: Migration from Custom Post Types to Pages
 
   Executive Summary
