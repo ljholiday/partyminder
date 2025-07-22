@@ -53,7 +53,7 @@ $current_user = wp_get_current_user();
 $can_edit = false;
 
 if (current_user_can('edit_posts') || 
-    (is_user_logged_in() && $current_user->ID == $event->post_author) ||
+    (is_user_logged_in() && $current_user->ID == $event->author_id) ||
     ($current_user->user_email == $event->host_email)) {
     $can_edit = true;
 }
@@ -64,7 +64,7 @@ if (!$can_edit) {
         <div class="error-wrapper">
             <h3><?php _e('Access Denied', 'partyminder'); ?></h3>
             <p><?php _e('You do not have permission to edit this event.', 'partyminder'); ?></p>
-            <a href="<?php echo get_permalink($event->ID); ?>" class="pm-button">
+            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button">
                 <?php _e('View Event', 'partyminder'); ?>
             </a>
         </div>
@@ -155,7 +155,7 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
             <h3><?php _e('✅ Event Updated Successfully!', 'partyminder'); ?></h3>
             <p><?php _e('Your event changes have been saved.', 'partyminder'); ?></p>
             <div class="success-actions">
-                <a href="<?php echo get_permalink($event->ID); ?>" class="pm-button pm-button-primary">
+                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-primary">
                     <span>👀</span>
                     <?php _e('View Event', 'partyminder'); ?>
                 </a>
@@ -163,7 +163,7 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
                     <span>📋</span>
                     <?php _e('My Events', 'partyminder'); ?>
                 </a>
-                <button type="button" onclick="navigator.share({title: 'Check out this event!', url: '<?php echo esc_js(get_permalink($event->ID)); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js(get_permalink($event->ID)); ?>')" class="pm-button pm-button-secondary">
+                <button type="button" onclick="navigator.share({title: 'Check out this event!', url: '<?php echo esc_js(home_url('/events/' . $event->slug)); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js(home_url('/events/' . $event->slug)); ?>')" class="pm-button pm-button-secondary">
                     <span>📤</span>
                     <?php _e('Share Event', 'partyminder'); ?>
                 </button>
@@ -255,7 +255,7 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
                     <span>💾</span>
                     <?php _e('Update Event', 'partyminder'); ?>
                 </button>
-                <a href="<?php echo get_permalink($event->ID); ?>" class="pm-button pm-button-secondary">
+                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-secondary">
                     <span>👀</span>
                     <?php _e('View Event', 'partyminder'); ?>
                 </a>

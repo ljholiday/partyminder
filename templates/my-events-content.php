@@ -139,7 +139,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     <div class="login-prompt">
         <h3><?php _e('🔐 Login to See Your Events', 'partyminder'); ?></h3>
         <p><?php _e('Log in to see events you\'ve created and your RSVPs.', 'partyminder'); ?></p>
-        <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-button">
+        <a href="<?php echo wp_login_url(get_permalink(get_the_ID())); ?>" class="pm-button">
             <?php _e('Login', 'partyminder'); ?>
         </a>
     </div>
@@ -214,7 +214,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                             <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-small">
                                 <?php _e('View Event', 'partyminder'); ?>
                             </a>
-                            <a href="<?php echo admin_url('admin.php?page=partyminder-events'); ?>" class="pm-button pm-button-secondary pm-button-small">
+                            <a href="<?php echo PartyMinder::get_edit_event_url($event->id); ?>" class="pm-button pm-button-secondary pm-button-small">
                                 <span>✏️</span>
                                 <?php _e('Edit', 'partyminder'); ?>
                             </a>
@@ -324,7 +324,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                 <span class="action-icon">✨</span>
                 <?php _e('Create New Event', 'partyminder'); ?>
             </a>
-            <a href="<?php echo get_permalink() . '?show_past=1'; ?>" class="pm-button pm-button-secondary">
+            <a href="<?php echo get_permalink(get_the_ID()) . '?show_past=1'; ?>" class="pm-button pm-button-secondary">
                 <span class="action-icon">📅</span>
                 <?php echo $show_past ? __('Hide Past Events', 'partyminder') : __('Show Past Events', 'partyminder'); ?>
             </a>

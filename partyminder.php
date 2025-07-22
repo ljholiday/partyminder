@@ -119,12 +119,16 @@ class PartyMinder {
         // Load text domain
         load_plugin_textdomain('partyminder', false, dirname(plugin_basename(__FILE__)) . '/languages');
         
-        // No longer registering custom post types - using pages now
+        // Register custom post type for events
+        $this->register_event_post_type();
         
         // Initialize managers
         $this->event_manager = new PartyMinder_Event_Manager();
         $this->guest_manager = new PartyMinder_Guest_Manager();
         $this->ai_assistant = new PartyMinder_AI_Assistant();
+        
+        // Run migration if needed
+        $this->maybe_run_migration();
         
         // Initialize admin
         if (is_admin()) {
@@ -132,7 +136,59 @@ class PartyMinder {
         }
     }
     
-    // Removed custom post type - now using regular pages
+    public function register_event_post_type() {
+        $labels = array(
+            'name' => __('Events', 'partyminder'),
+            'singular_name' => __('Event', 'partyminder'),
+            'menu_name' => __('Party Events', 'partyminder'),
+            'add_new' => __('Add New Event', 'partyminder'),
+            'add_new_item' => __('Add New Event', 'partyminder'),
+            'edit_item' => __('Edit Event', 'partyminder'),
+            'new_item' => __('New Event', 'partyminder'),
+            'view_item' => __('View Event', 'partyminder'),
+            'search_items' => __('Search Events', 'partyminder'),
+            'not_found' => __('No events found', 'partyminder'),
+            'not_found_in_trash' => __('No events found in trash', 'partyminder'),
+        );
+
+        $args = array(
+            'labels' => $labels,
+            'public' => true,
+            'publicly_queryable' => true,
+            'show_ui' => false, // Hide from admin menu - we'll manage through our custom admin
+            'show_in_menu' => false,
+            'show_in_admin_bar' => false,
+            'show_in_nav_menus' => false,
+            'query_var' => true,
+            'rewrite' => array('slug' => 'events', 'with_front' => false),
+            'capability_type' => 'post',
+            'has_archive' => true,
+            'hierarchical' => false,
+            'menu_position' => null,
+            'supports' => array('title', 'editor', 'excerpt', 'thumbnail', 'author'),
+            'show_in_rest' => false, // Keep out of block editor for now
+        );
+
+        register_post_type('partyminder_event', $args);
+    }
+    
+    public function maybe_run_migration() {
+        // Check if migration has already been run
+        $migration_version = get_option('partyminder_migration_version', '0.0.0');
+        
+        if (version_compare($migration_version, '1.0.0', '<')) {
+            // Run migration to custom post types
+            $migrated_count = $this->event_manager->migrate_existing_events();
+            
+            // Update migration version
+            update_option('partyminder_migration_version', '1.0.0');
+            
+            // Log migration result
+            if ($migrated_count > 0) {
+                error_log("PartyMinder: Migrated {$migrated_count} events to custom post types");
+            }
+        }
+    }
     
     public function enqueue_public_scripts() {
         wp_enqueue_style('partyminder-public', PARTYMINDER_PLUGIN_URL . 'assets/css/public.css', array(), PARTYMINDER_VERSION);
@@ -650,13 +706,43 @@ class PartyMinder {
                 return;
             }
             
-            // Set up the page for template
-            $wp_query->is_page = true;
-            $wp_query->is_singular = true;
-            $wp_query->is_single = false;
-            $wp_query->is_home = false;
-            $wp_query->is_archive = false;
-            $wp_query->is_category = false;
+            // If event has a linked WordPress post, use it directly
+            if ($event->post_id) {
+                $wp_post = get_post($event->post_id);
+                if ($wp_post && $wp_post->post_status === 'publish') {
+                    // Set up the real post for template
+                    $wp_query->is_page = false;
+                    $wp_query->is_singular = true;
+                    $wp_query->is_single = true;
+                    $wp_query->is_home = false;
+                    $wp_query->is_archive = false;
+                    $wp_query->is_category = false;
+                    
+                    // Set the real post as the current post
+                    $wp_query->post = $wp_post;
+                    $wp_query->posts = array($wp_post);
+                    $wp_query->queried_object = $wp_post;
+                    $wp_query->queried_object_id = $wp_post->ID;
+                    $wp_query->found_posts = 1;
+                    $wp_query->post_count = 1;
+                    $wp_query->current_post = -1;
+                    $wp_query->in_the_loop = false;
+                    
+                    // Set the global post
+                    $post = $wp_post;
+                    $GLOBALS['post'] = $wp_post;
+                } else {
+                    // Post not found or not published - show 404
+                    $wp_query->set_404();
+                    status_header(404);
+                    return;
+                }
+            } else {
+                // No linked post - this shouldn't happen with new events, show 404
+                $wp_query->set_404();
+                status_header(404);
+                return;
+            }
             
             // Store event data for template use
             $GLOBALS['partyminder_current_event'] = $event;
@@ -749,11 +835,9 @@ class PartyMinder {
     public function add_structured_data() {
         global $post;
         
-        // Add structured data for PartyMinder event pages
-        if (is_page() && $post && get_post_meta($post->ID, '_partyminder_event', true)) {
-            require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
-            $event_manager = new PartyMinder_Event_Manager();
-            $event = $event_manager->get_event($post->ID);
+        // Add structured data for PartyMinder custom event pages
+        if (isset($GLOBALS['partyminder_current_event'])) {
+            $event = $GLOBALS['partyminder_current_event'];
             
             if ($event) {
                 $structured_data = array(
@@ -762,7 +846,7 @@ class PartyMinder {
                     'name' => $event->title,
                     'description' => $event->description ?: $event->excerpt,
                     'startDate' => date('c', strtotime($event->event_date)),
-                    'url' => get_permalink($event->ID),
+                    'url' => home_url('/events/' . $event->slug),
                     'eventStatus' => 'https://schema.org/EventScheduled',
                     'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
                     'organizer' => array(
@@ -829,6 +913,13 @@ class PartyMinder {
     
     public function modify_page_titles($title_parts) {
         global $post;
+        
+        // Handle custom event page titles
+        if (isset($GLOBALS['partyminder_current_event'])) {
+            $event = $GLOBALS['partyminder_current_event'];
+            $title_parts['title'] = $event->meta_title ?: $event->title;
+            return $title_parts;
+        }
         
         if (!is_page() || !$post) {
             return $title_parts;

@@ -27,10 +27,11 @@ class PartyMinder_Activator {
 
         $charset_collate = $wpdb->get_charset_collate();
 
-        // Events table - self-contained, no posts/pages needed
+        // Events table - linked to WordPress posts for theme compatibility
         $events_table = $wpdb->prefix . 'partyminder_events';
         $events_sql = "CREATE TABLE $events_table (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
+            post_id bigint(20) UNSIGNED DEFAULT NULL,
             title varchar(255) NOT NULL,
             slug varchar(255) NOT NULL,
             description longtext,
@@ -51,6 +52,7 @@ class PartyMinder_Activator {
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             UNIQUE KEY slug (slug),
+            KEY post_id (post_id),
             KEY event_date (event_date),
             KEY event_status (event_status),
             KEY author_id (author_id)

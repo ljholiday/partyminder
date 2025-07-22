@@ -15,42 +15,27 @@ require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
 $event_manager = new PartyMinder_Event_Manager();
 $guest_manager = new PartyMinder_Guest_Manager();
 
-// Get events using our custom method
-if ($show_past) {
-    // Get all events
-    global $wpdb;
-    $events_table = $wpdb->prefix . 'partyminder_events';
-    $posts_table = $wpdb->posts;
-    
-    $results = $wpdb->get_results($wpdb->prepare(
-        "SELECT p.ID FROM $posts_table p 
-         INNER JOIN $events_table e ON p.ID = e.post_id 
-         INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-         WHERE p.post_type = 'page'
-         AND pm.meta_key = '_partyminder_event'
-         AND pm.meta_value = 'true'
-         AND p.post_status = 'publish' 
-         AND e.event_status = 'active'
-         ORDER BY e.event_date DESC 
-         LIMIT %d",
-        $limit
-    ));
-} else {
-    // Get upcoming events only
-    $upcoming_events = $event_manager->get_upcoming_events($limit);
-    $events = $upcoming_events;
-    
+// Get events from custom table
+global $wpdb;
+$events_table = $wpdb->prefix . 'partyminder_events';
+
+$where_clause = "WHERE event_status = 'active'";
+if (!$show_past) {
+    // Default: show upcoming events only
+    $where_clause .= " AND event_date >= CURDATE()";
 }
 
-// If we got results from the direct query, convert them to event objects
-if (isset($results) && !empty($results)) {
-    $events = array();
-    foreach ($results as $result) {
-        $event = $event_manager->get_event($result->ID);
-        if ($event) {
-            $events[] = $event;
-        }
-    }
+$events = $wpdb->get_results($wpdb->prepare(
+    "SELECT * FROM $events_table 
+     $where_clause
+     ORDER BY event_date ASC 
+     LIMIT %d",
+    $limit
+));
+
+// Add guest stats to each event
+foreach ($events as $event) {
+    $event->guest_stats = $event_manager->get_guest_stats($event->id);
 }
 
 // Get styling options
@@ -262,9 +247,9 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                 
                 <div class="event-card <?php echo $is_past ? 'past-event' : ''; ?>">
                     
-                    <?php if (has_post_thumbnail($event->ID)): ?>
+                    <?php if ($event->featured_image): ?>
                     <div class="event-image">
-                        <?php echo get_the_post_thumbnail($event->ID, 'medium'); ?>
+                        <?php echo '<img src="' . esc_url($event->featured_image) . '" alt="' . esc_attr($event->title) . '" style="max-width: 100%; height: auto;">'; ?>
                         <?php if ($is_past): ?>
                             <div class="event-overlay past-overlay">
                                 <span class="overlay-text"><?php _e('Past Event', 'partyminder'); ?></span>
@@ -284,7 +269,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                     <div class="event-content">
                         <div class="event-header">
                             <h3 class="event-title">
-                                <a href="<?php echo get_permalink($event->ID); ?>"><?php echo esc_html($event->title); ?></a>
+                                <a href="<?php echo home_url('/events/' . $event->slug); ?>"><?php echo esc_html($event->title); ?></a>
                             </h3>
                             
                             <div class="event-meta">
@@ -344,7 +329,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                         
                         <div class="event-actions">
                             <?php if ($is_past): ?>
-                                <a href="<?php echo get_permalink($event->ID); ?>" class="pm-button pm-button-secondary pm-button-small style-<?php echo esc_attr($button_style); ?>">
+                                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-secondary pm-button-small style-<?php echo esc_attr($button_style); ?>">
                                     <span class="button-icon">📖</span>
                                     <?php _e('View Details', 'partyminder'); ?>
                                 </a>
@@ -353,7 +338,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                                 $is_full = $event->guest_limit > 0 && $event->guest_stats->confirmed >= $event->guest_limit;
                                 ?>
                                 
-                                <a href="<?php echo get_permalink($event->ID); ?>" class="pm-button pm-button-primary pm-button-small style-<?php echo esc_attr($button_style); ?>">
+                                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-primary pm-button-small style-<?php echo esc_attr($button_style); ?>">
                                     <span class="button-icon">💌</span>
                                     <?php if ($is_full): ?>
                                         <?php _e('Join Waitlist', 'partyminder'); ?>
@@ -363,7 +348,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                                 </a>
                                 
                                 <button type="button" class="pm-button pm-button-secondary pm-button-small share-event style-<?php echo esc_attr($button_style); ?>" 
-                                        data-url="<?php echo esc_url(get_permalink($event->ID)); ?>" 
+                                        data-url="<?php echo esc_url(home_url('/events/' . $event->slug)); ?>" 
                                         data-title="<?php echo esc_attr($event->title); ?>">
                                     <span class="button-icon">📤</span>
                                     <?php _e('Share', 'partyminder'); ?>
@@ -376,7 +361,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                     <div class="event-guests">
                         <div class="guests-preview">
                             <?php
-                            $confirmed_guests = $guest_manager->get_event_guests($event->ID, 'confirmed');
+                            $confirmed_guests = $guest_manager->get_event_guests($event->id, 'confirmed');
                             $guests_to_show = array_slice($confirmed_guests, 0, 5);
                             ?>
                             

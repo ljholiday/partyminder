@@ -30,31 +30,22 @@ $created_events = array();
 if (is_user_logged_in()) {
     global $wpdb;
     $events_table = $wpdb->prefix . 'partyminder_events';
-    $posts_table = $wpdb->posts;
     
-    $query = "SELECT p.ID FROM $posts_table p 
-              INNER JOIN $events_table e ON p.ID = e.post_id 
-              INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-              WHERE p.post_type = 'page'
-              AND pm.meta_key = '_partyminder_event'
-              AND pm.meta_value = 'true'
-              AND p.post_status = 'publish' 
-              AND p.post_author = %d 
-              AND e.event_status = 'active'";
+    $query = "SELECT * FROM $events_table 
+              WHERE author_id = %d 
+              AND event_status = 'active'";
     
     if (!$show_past) {
-        $query .= " AND e.event_date >= CURDATE()";
+        $query .= " AND event_date >= CURDATE()";
     }
     
-    $query .= " ORDER BY e.event_date " . ($show_past ? "DESC" : "ASC");
+    $query .= " ORDER BY event_date " . ($show_past ? "DESC" : "ASC");
     
-    $results = $wpdb->get_results($wpdb->prepare($query, $current_user->ID));
+    $created_events = $wpdb->get_results($wpdb->prepare($query, $current_user->ID));
     
-    foreach ($results as $result) {
-        $event = $event_manager->get_event($result->ID);
-        if ($event) {
-            $created_events[] = $event;
-        }
+    // Add guest stats to each event
+    foreach ($created_events as $event) {
+        $event->guest_stats = $event_manager->get_guest_stats($event->id);
     }
 }
 
@@ -64,17 +55,10 @@ if ($user_email) {
     global $wpdb;
     $guests_table = $wpdb->prefix . 'partyminder_guests';
     $events_table = $wpdb->prefix . 'partyminder_events';
-    $posts_table = $wpdb->posts;
     
-    $query = "SELECT DISTINCT p.ID, g.status as rsvp_status FROM $posts_table p 
-              INNER JOIN $events_table e ON p.ID = e.post_id 
+    $query = "SELECT DISTINCT e.*, g.status as rsvp_status FROM $events_table e 
               INNER JOIN $guests_table g ON e.id = g.event_id 
-              INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-              WHERE p.post_type = 'page'
-              AND pm.meta_key = '_partyminder_event'
-              AND pm.meta_value = 'true'
-              AND p.post_status = 'publish' 
-              AND g.email = %s 
+              WHERE g.email = %s 
               AND e.event_status = 'active'";
     
     if (!$show_past) {
@@ -83,14 +67,12 @@ if ($user_email) {
     
     $query .= " ORDER BY e.event_date " . ($show_past ? "DESC" : "ASC");
     
-    $results = $wpdb->get_results($wpdb->prepare($query, $user_email));
+    $rsvp_events = $wpdb->get_results($wpdb->prepare($query, $user_email));
     
-    foreach ($results as $result) {
-        $event = $event_manager->get_event($result->ID);
-        if ($event) {
-            $event->user_rsvp_status = $result->rsvp_status;
-            $rsvp_events[] = $event;
-        }
+    // Add guest stats to each event and preserve RSVP status
+    foreach ($rsvp_events as $event) {
+        $event->guest_stats = $event_manager->get_guest_stats($event->id);
+        // RSVP status is already in $event->rsvp_status from the query
     }
 }
 
@@ -365,7 +347,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     <div class="login-prompt">
         <h3><?php _e('🔐 Login to See Your Events', 'partyminder'); ?></h3>
         <p><?php _e('Log in to see events you\'ve created and your RSVPs.', 'partyminder'); ?></p>
-        <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-button">
+        <a href="<?php echo wp_login_url(get_permalink(get_the_ID())); ?>" class="pm-button">
             <?php _e('Login', 'partyminder'); ?>
         </a>
     </div>
@@ -401,7 +383,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                     
                     <div class="event-content">
                         <h4 class="event-title">
-                            <a href="<?php echo get_permalink($event->ID); ?>"><?php echo esc_html($event->title); ?></a>
+                            <a href="<?php echo home_url('/events/' . $event->slug); ?>"><?php echo esc_html($event->title); ?></a>
                         </h4>
                         
                         <div class="event-meta">
@@ -437,10 +419,10 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                         </div>
 
                         <div class="event-actions">
-                            <a href="<?php echo get_permalink($event->ID); ?>" class="pm-button pm-button-small">
+                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-small">
                                 <?php _e('View Event', 'partyminder'); ?>
                             </a>
-                            <a href="<?php echo PartyMinder::get_edit_event_url($event->ID); ?>" class="pm-button pm-button-secondary pm-button-small">
+                            <a href="<?php echo PartyMinder::get_edit_event_url($event->id); ?>" class="pm-button pm-button-secondary pm-button-small">
                                 <span>✏️</span>
                                 <?php _e('Edit', 'partyminder'); ?>
                             </a>
@@ -480,7 +462,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                     
                     <div class="event-content">
                         <h4 class="event-title">
-                            <a href="<?php echo get_permalink($event->ID); ?>"><?php echo esc_html($event->title); ?></a>
+                            <a href="<?php echo home_url('/events/' . $event->slug); ?>"><?php echo esc_html($event->title); ?></a>
                         </h4>
                         
                         <div class="event-meta">
@@ -505,11 +487,11 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                         </div>
 
                         <div class="event-actions">
-                            <a href="<?php echo get_permalink($event->ID); ?>" class="pm-button pm-button-small">
+                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-small">
                                 <?php _e('View Event', 'partyminder'); ?>
                             </a>
                             <?php if (!$is_past): ?>
-                            <a href="<?php echo get_permalink($event->ID); ?>#rsvp" class="pm-button pm-button-secondary pm-button-small">
+                            <a href="<?php echo home_url('/events/' . $event->slug); ?>#rsvp" class="pm-button pm-button-secondary pm-button-small">
                                 <?php _e('Update RSVP', 'partyminder'); ?>
                             </a>
                             <?php endif; ?>
@@ -550,7 +532,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                 <span style="margin-right: 8px;">✨</span>
                 <?php _e('Create New Event', 'partyminder'); ?>
             </a>
-            <a href="<?php echo get_permalink() . '?show_past=1'; ?>" class="pm-button pm-button-secondary">
+            <a href="<?php echo get_permalink(get_the_ID()) . '?show_past=1'; ?>" class="pm-button pm-button-secondary">
                 <span style="margin-right: 8px;">📅</span>
                 <?php echo $show_past ? __('Hide Past Events', 'partyminder') : __('Show Past Events', 'partyminder'); ?>
             </a>
