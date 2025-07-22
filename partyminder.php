@@ -72,10 +72,12 @@ class PartyMinder {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_public_scripts'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         
-        // Template system - theme integration
-        add_action('template_redirect', array($this, 'handle_custom_pages'));
+        // Template system - theme integration - run earlier
+        add_action('wp', array($this, 'handle_custom_pages'), 5);
         add_action('template_redirect', array($this, 'handle_form_submissions'));
-        add_filter('the_content', array($this, 'inject_event_content'));
+        
+        // Handle individual event pages through content injection
+        add_action('wp', array($this, 'detect_individual_event_page'), 5);
         
         // No longer need post meta suppression - using pages now
         
@@ -84,9 +86,8 @@ class PartyMinder {
         
         // Migration code removed - not needed for new installations
         
-        // Page routing and URL handling
-        add_action('init', array($this, 'add_rewrite_rules'));
-        add_filter('query_vars', array($this, 'add_query_vars'));
+        // Add simple rewrite rule for individual events on the events page
+        add_action('init', array($this, 'add_event_rewrite_rules'));
         
         // Theme integration hooks
         add_filter('body_class', array($this, 'add_body_classes'));
@@ -437,25 +438,15 @@ class PartyMinder {
         return '<div class="partyminder-shortcode-wrapper" style="padding: 20px; text-align: center; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; margin: 20px 0;"><p>' . __('Event ID required for editing.', 'partyminder') . '</p></div>';
     }
     
-    public function add_rewrite_rules() {
-        // Add rewrite rules for custom table events
-        add_rewrite_rule('^events/([^/]+)/?$', 'index.php?partyminder_event_slug=$matches[1]', 'top');
-        add_rewrite_rule('^edit-event/([0-9]+)/?$', 'index.php?pagename=edit-event&event_id=$matches[1]', 'top');
+    public function add_event_rewrite_rules() {
+        // Add rewrite rule to catch individual events and route them to the events page
+        add_rewrite_rule('^events/([^/]+)/?$', 'index.php?pagename=events&event_slug=$matches[1]', 'top');
         
-        // Force flush rewrite rules if needed
-        if (get_option('partyminder_flush_rules')) {
-            flush_rewrite_rules();
-            delete_option('partyminder_flush_rules');
-        }
-    }
-    
-    public function add_query_vars($vars) {
-        $vars[] = 'event_id';
-        $vars[] = 'action';
-        $vars[] = 'pm_success';
-        $vars[] = 'pm_error';
-        $vars[] = 'partyminder_event_slug';
-        return $vars;
+        // Add the event_slug query var
+        add_filter('query_vars', function($vars) {
+            $vars[] = 'event_slug';
+            return $vars;
+        });
     }
     
     public function handle_page_routing() {
@@ -649,29 +640,36 @@ class PartyMinder {
                 return;
             }
             
-            // Create a minimal post object for WordPress template compatibility
-            $fake_post = new stdClass();
-            $fake_post->ID = 999999 + $event->id; // Unique ID that won't conflict
-            $fake_post->post_author = $event->author_id;
-            $fake_post->post_date = $event->created_at;
-            $fake_post->post_date_gmt = get_gmt_from_date($event->created_at);
-            $fake_post->post_content = $event->description;
-            $fake_post->post_title = $event->title;
-            $fake_post->post_excerpt = $event->excerpt;
-            $fake_post->post_status = 'publish';
-            $fake_post->comment_status = 'closed';
-            $fake_post->ping_status = 'closed';
-            $fake_post->post_password = '';
-            $fake_post->post_name = $event->slug;
-            $fake_post->post_modified = $event->updated_at;
-            $fake_post->post_modified_gmt = get_gmt_from_date($event->updated_at);
-            $fake_post->post_parent = 0;
-            $fake_post->guid = home_url('/events/' . $event->slug);
-            $fake_post->menu_order = 0;
-            $fake_post->post_type = 'partyminder_event';
-            $fake_post->post_mime_type = '';
-            $fake_post->comment_count = 0;
-            $fake_post->filter = 'raw';
+            // Create a complete post object for WordPress template compatibility
+            $fake_post_data = array(
+                'ID' => 999999 + $event->id, // Unique ID that won't conflict
+                'post_author' => $event->author_id,
+                'post_date' => $event->created_at,
+                'post_date_gmt' => get_gmt_from_date($event->created_at),
+                'post_content' => $event->description,
+                'post_title' => $event->title,
+                'post_excerpt' => $event->excerpt,
+                'post_status' => 'publish',
+                'comment_status' => 'closed',
+                'ping_status' => 'closed',
+                'post_password' => '',
+                'post_name' => $event->slug,
+                'post_modified' => $event->updated_at,
+                'post_modified_gmt' => get_gmt_from_date($event->updated_at),
+                'post_parent' => 0,
+                'guid' => home_url('/events/' . $event->slug),
+                'menu_order' => 0,
+                'post_type' => 'page',  // Use 'page' to avoid post type issues
+                'post_mime_type' => '',
+                'comment_count' => 0,
+                'filter' => 'raw',
+                'post_content_filtered' => '',
+                'to_ping' => '',
+                'pinged' => ''
+            );
+            
+            // Create proper WP_Post object
+            $fake_post = new WP_Post((object) $fake_post_data);
             
             // Set up WordPress query for single event page
             $wp_query->is_page = false;
@@ -702,6 +700,16 @@ class PartyMinder {
             // Add template filters for theme integration
             add_filter('template_include', array($this, 'event_template_include'));
             add_filter('single_template', array($this, 'event_single_template'));
+            
+            // Prevent WordPress from trying to load post data from database
+            add_filter('get_post_metadata', array($this, 'prevent_fake_post_meta'), 10, 4);
+            
+            // Additional safeguards for WordPress core functions
+            add_filter('get_post', array($this, 'ensure_fake_post_exists'), 10, 2);
+            add_filter('posts_results', array($this, 'ensure_posts_array'), 10, 2);
+            
+            // Override WordPress globals early to prevent null post issues
+            add_action('wp', array($this, 'ensure_global_post_setup'), 1);
             
             // Add to head for SEO
             add_action('wp_head', array($this, 'add_event_seo_tags'));
@@ -747,24 +755,6 @@ class PartyMinder {
         }
     }
     
-    public function inject_event_content($content) {
-        // Check if this is a custom event page
-        if (!isset($GLOBALS['partyminder_current_event'])) {
-            return $content;
-        }
-        
-        // Only inject on the main query and avoid infinite loops
-        if (!is_main_query() || is_admin()) {
-            return $content;
-        }
-        
-        // Load the single event content
-        ob_start();
-        include PARTYMINDER_PLUGIN_DIR . 'templates/single-event-content.php';
-        $event_content = ob_get_clean();
-        
-        return $event_content;
-    }
     
     public function add_event_seo_tags() {
         if (!isset($GLOBALS['partyminder_current_event'])) {
@@ -953,7 +943,134 @@ class PartyMinder {
         return $this->event_template_include($template);
     }
     
+    public function prevent_fake_post_meta($value, $object_id, $meta_key, $single) {
+        // Prevent meta queries for our fake post IDs
+        if ($object_id >= 999999 && isset($GLOBALS['partyminder_current_event'])) {
+            return array(); // Return empty array to prevent database queries
+        }
+        return $value;
+    }
     
+    public function ensure_fake_post_exists($post, $post_id) {
+        // If WordPress is looking for our fake post, return the global post
+        if ($post_id >= 999999 && isset($GLOBALS['post']) && $GLOBALS['post']->ID == $post_id) {
+            return $GLOBALS['post'];
+        }
+        return $post;
+    }
+    
+    public function ensure_posts_array($posts, $query) {
+        // Ensure we have posts in the array for our event pages
+        if (isset($GLOBALS['partyminder_current_event']) && empty($posts) && isset($GLOBALS['post'])) {
+            return array($GLOBALS['post']);
+        }
+        return $posts;
+    }
+    
+    public function ensure_global_post_setup() {
+        // Make sure our fake post is properly set up everywhere WordPress might look
+        if (isset($GLOBALS['partyminder_current_event']) && isset($GLOBALS['post'])) {
+            global $wp_query;
+            
+            // Ensure the post is converted to a proper WP_Post object
+            if (!($GLOBALS['post'] instanceof WP_Post)) {
+                $GLOBALS['post'] = new WP_Post($GLOBALS['post']);
+            }
+            
+            // Ensure query objects are properly set
+            if ($wp_query->post && !($wp_query->post instanceof WP_Post)) {
+                $wp_query->post = new WP_Post($wp_query->post);
+            }
+            
+            if (isset($wp_query->posts[0]) && !($wp_query->posts[0] instanceof WP_Post)) {
+                $wp_query->posts[0] = new WP_Post($wp_query->posts[0]);
+            }
+            
+            if ($wp_query->queried_object && !($wp_query->queried_object instanceof WP_Post)) {
+                $wp_query->queried_object = new WP_Post($wp_query->queried_object);
+            }
+        }
+    }
+    
+    public function detect_individual_event_page() {
+        // Check if we're on the events page with an event slug
+        if (is_page() && get_post_field('post_name') === 'events') {
+            $event_slug = get_query_var('event_slug');
+            
+            if (!empty($event_slug)) {
+                // This is an individual event URL
+                $event = $this->get_event_by_slug($event_slug);
+                
+                if ($event) {
+                    // Set up global event data for content injection
+                    $GLOBALS['partyminder_current_event'] = $event;
+                    $GLOBALS['partyminder_is_single_event'] = true;
+                    
+                    // Modify the page title and content
+                    add_filter('the_title', array($this, 'inject_event_title'), 10, 2);
+                    add_filter('the_content', array($this, 'inject_event_content'), 10);
+                    add_filter('wp_title', array($this, 'inject_event_wp_title'), 10, 3);
+                    add_filter('document_title_parts', array($this, 'inject_event_document_title'));
+                } else {
+                    // Event not found - show 404
+                    global $wp_query;
+                    $wp_query->set_404();
+                    status_header(404);
+                }
+            }
+        }
+    }
+    
+    public function inject_event_title($title, $id = null) {
+        if (isset($GLOBALS['partyminder_is_single_event']) && 
+            isset($GLOBALS['partyminder_current_event']) && 
+            ($id === get_the_ID() || is_null($id))) {
+            return $GLOBALS['partyminder_current_event']->title;
+        }
+        return $title;
+    }
+    
+    public function inject_event_content($content) {
+        if (isset($GLOBALS['partyminder_is_single_event']) && in_the_loop() && is_main_query()) {
+            ob_start();
+            include PARTYMINDER_PLUGIN_DIR . 'templates/single-event-content.php';
+            return ob_get_clean();
+        }
+        return $content;
+    }
+    
+    public function inject_event_wp_title($title, $sep, $seplocation) {
+        if (isset($GLOBALS['partyminder_is_single_event']) && isset($GLOBALS['partyminder_current_event'])) {
+            return $GLOBALS['partyminder_current_event']->title . ' ' . $sep . ' ' . get_bloginfo('name');
+        }
+        return $title;
+    }
+    
+    public function inject_event_document_title($title_parts) {
+        if (isset($GLOBALS['partyminder_is_single_event']) && isset($GLOBALS['partyminder_current_event'])) {
+            $title_parts['title'] = $GLOBALS['partyminder_current_event']->title;
+        }
+        return $title_parts;
+    }
+    
+    private function get_event_by_slug($slug) {
+        global $wpdb;
+        $events_table = $wpdb->prefix . 'partyminder_events';
+        
+        $event = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM $events_table WHERE slug = %s AND event_status = 'active'",
+            $slug
+        ));
+        
+        if ($event) {
+            // Add guest stats
+            require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+            $event_manager = new PartyMinder_Event_Manager();
+            $event->guest_stats = $event_manager->get_guest_stats($event->id);
+        }
+        
+        return $event;
+    }
     
     /**
      * Inject events page content

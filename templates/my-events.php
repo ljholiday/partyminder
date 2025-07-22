@@ -447,7 +447,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                 <?php
                 $event_date = new DateTime($event->event_date);
                 $is_past = $event_date < new DateTime();
-                $badge_class = 'badge-' . $event->user_rsvp_status;
+                $badge_class = 'badge-' . $event->rsvp_status;
                 $badge_text = array(
                     'confirmed' => __('Going', 'partyminder'),
                     'maybe' => __('Maybe', 'partyminder'),
@@ -457,7 +457,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                 ?>
                 <div class="my-event-card">
                     <div class="event-badge <?php echo esc_attr($badge_class); ?>">
-                        <?php echo esc_html($badge_text[$event->user_rsvp_status] ?? __('RSVP\'d', 'partyminder')); ?>
+                        <?php echo esc_html($badge_text[$event->rsvp_status] ?? __('RSVP\'d', 'partyminder')); ?>
                     </div>
                     
                     <div class="event-content">
