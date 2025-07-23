@@ -162,6 +162,10 @@ class PartyMinder {
         if (is_admin()) {
             add_action('wp_ajax_partyminder_admin_delete_event', array($this, 'ajax_admin_delete_event'));
         }
+        
+        // Override default WordPress login behavior
+        add_action('login_init', array($this, 'redirect_to_custom_login'));
+        add_filter('wp_login_url', array($this, 'custom_login_url'), 10, 2);
     }
     
     public function register_shortcodes() {
@@ -174,6 +178,7 @@ class PartyMinder {
         add_shortcode('partyminder_my_events', array($this, 'my_events_shortcode'));
         add_shortcode('partyminder_conversations', array($this, 'conversations_shortcode'));
         add_shortcode('partyminder_profile', array($this, 'profile_shortcode'));
+        add_shortcode('partyminder_login', array($this, 'login_shortcode'));
         
         // Communities shortcode (only if feature enabled)
         if (PartyMinder_Feature_Flags::is_communities_enabled()) {
@@ -1468,6 +1473,27 @@ class PartyMinder {
         return ob_get_clean();
     }
     
+    public function login_shortcode($atts) {
+        $atts = shortcode_atts(array(), $atts);
+        
+        // Check if we're on the dedicated page
+        $on_dedicated_page = $this->is_on_dedicated_page('login');
+        
+        // If on dedicated page, content injection handles everything
+        if ($on_dedicated_page) {
+            return '';
+        }
+        
+        // Otherwise, provide simplified embedded version
+        ob_start();
+        echo '<div class="partyminder-shortcode-wrapper">';
+        echo '<h3>' . __('PartyMinder Login', 'partyminder') . '</h3>';
+        echo '<p>' . __('Sign in to access all features and manage your events.', 'partyminder') . '</p>';
+        echo '<a href="' . esc_url(self::get_login_url()) . '" class="pm-button">' . __('Sign In', 'partyminder') . '</a>';
+        echo '</div>';
+        return ob_get_clean();
+    }
+    
     public function add_event_rewrite_rules() {
         // Add rewrite rule to catch individual events and route them to the events page
         add_rewrite_rule('^events/join/?$', 'index.php?pagename=events&event_action=join', 'top');
@@ -1583,6 +1609,10 @@ class PartyMinder {
     
     public static function get_conversations_url() {
         return self::get_page_url('conversations');
+    }
+    
+    public static function get_login_url() {
+        return self::get_page_url('login');
     }
     
     public static function get_communities_url() {
@@ -1834,6 +1864,11 @@ class PartyMinder {
                 }
                 add_filter('the_content', array($this, 'inject_profile_content'));
                 add_filter('body_class', array($this, 'add_profile_body_class'));
+                break;
+                
+            case 'login':
+                add_filter('the_content', array($this, 'inject_login_content'));
+                add_filter('body_class', array($this, 'add_login_body_class'));
                 break;
                 
             case 'conversations':
@@ -2357,6 +2392,34 @@ class PartyMinder {
     }
     
     /**
+     * Inject login content
+     */
+    public function inject_login_content($content) {
+        global $post;
+        
+        if (!is_page() || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+        
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        if ($page_type !== 'login') {
+            return $content;
+        }
+        
+        ob_start();
+        
+        echo '<div class="partyminder-content partyminder-login-page">';
+        
+        // Include login template
+        $atts = array();
+        include PARTYMINDER_PLUGIN_DIR . 'templates/login-content.php';
+        
+        echo '</div>';
+        
+        return ob_get_clean();
+    }
+    
+    /**
      * Inject profile content
      */
     public function inject_profile_content($content) {
@@ -2525,6 +2588,14 @@ class PartyMinder {
      */
     public function add_edit_event_body_class($classes) {
         $classes[] = 'partyminder-event-editing';
+        return $classes;
+    }
+    
+    /**
+     * Add specific body classes for login page
+     */
+    public function add_login_body_class($classes) {
+        $classes[] = 'partyminder-login';
         return $classes;
     }
     
@@ -2815,6 +2886,55 @@ class PartyMinder {
         wp_send_json_success(array(
             'message' => __('Event deleted successfully.', 'partyminder')
         ));
+    }
+    
+    /**
+     * Redirect WordPress login to custom login page
+     */
+    public function redirect_to_custom_login() {
+        // Don't redirect if we're already on our custom login page
+        if (strpos($_SERVER['REQUEST_URI'], '/login') !== false) {
+            return;
+        }
+        
+        // Don't redirect admin login or AJAX requests
+        if (is_admin() || defined('DOING_AJAX')) {
+            return;
+        }
+        
+        // Don't redirect if it's a logout action
+        if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+            return;
+        }
+        
+        // Redirect to our custom login page
+        $custom_login_url = self::get_login_url();
+        
+        // Preserve redirect_to parameter
+        if (isset($_GET['redirect_to'])) {
+            $custom_login_url = add_query_arg('redirect_to', urlencode($_GET['redirect_to']), $custom_login_url);
+        }
+        
+        wp_redirect($custom_login_url);
+        exit;
+    }
+    
+    /**
+     * Override wp_login_url to use custom login page
+     */
+    public function custom_login_url($login_url, $redirect) {
+        // Don't override admin login
+        if (is_admin()) {
+            return $login_url;
+        }
+        
+        $custom_login_url = self::get_login_url();
+        
+        if ($redirect) {
+            $custom_login_url = add_query_arg('redirect_to', urlencode($redirect), $custom_login_url);
+        }
+        
+        return $custom_login_url;
     }
     
 }

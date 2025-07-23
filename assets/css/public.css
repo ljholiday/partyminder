@@ -2402,3 +2402,273 @@
     color: var(--pm-text);
     font-weight: 500;
 }
+
+/* =============================================================================
+   LOGIN PAGE STYLES
+   ============================================================================= */
+
+.partyminder-login-content {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    color: var(--pm-text);
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Login Container */
+.partyminder-login-content .login-container {
+    background: var(--pm-white);
+    border-radius: var(--pm-radius-lg);
+    box-shadow: var(--pm-shadow-lg);
+    overflow: hidden;
+}
+
+/* Login Header */
+.partyminder-login-content .login-header {
+    text-align: center;
+    padding: 40px 40px 30px;
+    background: linear-gradient(135deg, var(--pm-primary)10, var(--pm-secondary)10);
+    border-bottom: 1px solid var(--pm-border);
+}
+
+.partyminder-login-content .login-header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+    color: var(--pm-primary);
+}
+
+.partyminder-login-content .login-header p {
+    font-size: 1.1rem;
+    color: var(--pm-text-light);
+    margin: 0;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Forms Container */
+.partyminder-login-content .login-forms-container {
+    padding: 40px;
+}
+
+.partyminder-login-content .login-form h2 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin: 0 0 30px 0;
+    color: var(--pm-text);
+    text-align: center;
+}
+
+/* Form Styling */
+.partyminder-login-content .partyminder-form .form-group {
+    margin-bottom: 20px;
+}
+
+.partyminder-login-content .partyminder-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.partyminder-login-content .partyminder-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--pm-text);
+}
+
+.partyminder-login-content .partyminder-form input[type="text"],
+.partyminder-login-content .partyminder-form input[type="email"],
+.partyminder-login-content .partyminder-form input[type="password"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid var(--pm-border);
+    border-radius: var(--pm-radius);
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+    background: var(--pm-white);
+}
+
+.partyminder-login-content .partyminder-form input[type="text"]:focus,
+.partyminder-login-content .partyminder-form input[type="email"]:focus,
+.partyminder-login-content .partyminder-form input[type="password"]:focus {
+    outline: none;
+    border-color: var(--pm-primary);
+    box-shadow: 0 0 0 3px var(--pm-primary)20;
+}
+
+.partyminder-login-content .partyminder-form .checkbox-label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.partyminder-login-content .partyminder-form .checkbox-label input[type="checkbox"] {
+    margin-right: 10px;
+    width: auto;
+}
+
+/* Form Actions */
+.partyminder-login-content .form-actions {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.partyminder-login-content .pm-button-large {
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    width: 100%;
+    max-width: 300px;
+}
+
+.partyminder-login-content .pm-button-large span {
+    margin-right: 8px;
+}
+
+/* Form Toggle */
+.partyminder-login-content .form-toggle {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--pm-border);
+}
+
+.partyminder-login-content .form-toggle p {
+    margin: 5px 0;
+    color: var(--pm-text-light);
+}
+
+.partyminder-login-content .form-toggle a {
+    color: var(--pm-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: opacity 0.2s ease;
+}
+
+.partyminder-login-content .form-toggle a:hover {
+    opacity: 0.8;
+}
+
+/* Features Preview */
+.partyminder-login-content .login-features {
+    padding: 40px;
+    background: var(--pm-background);
+    border-top: 1px solid var(--pm-border);
+}
+
+.partyminder-login-content .login-features h3 {
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0 0 30px 0;
+    color: var(--pm-text);
+}
+
+.partyminder-login-content .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+}
+
+.partyminder-login-content .feature-card {
+    text-align: center;
+    padding: 20px;
+    background: var(--pm-white);
+    border-radius: var(--pm-radius);
+    box-shadow: var(--pm-shadow);
+    transition: transform 0.2s ease;
+}
+
+.partyminder-login-content .feature-card:hover {
+    transform: translateY(-2px);
+}
+
+.partyminder-login-content .feature-card .feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.partyminder-login-content .feature-card h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+    color: var(--pm-text);
+}
+
+.partyminder-login-content .feature-card p {
+    font-size: 0.9rem;
+    color: var(--pm-text-light);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Error and Success Messages */
+.partyminder-login-content .partyminder-errors,
+.partyminder-login-content .partyminder-success {
+    margin: 20px 40px;
+    padding: 15px 20px;
+    border-radius: var(--pm-radius);
+}
+
+.partyminder-login-content .partyminder-errors {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+}
+
+.partyminder-login-content .partyminder-success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+}
+
+.partyminder-login-content .partyminder-errors h4 {
+    margin: 0 0 10px 0;
+    font-weight: 600;
+}
+
+.partyminder-login-content .partyminder-errors ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .partyminder-login-content {
+        padding: 15px;
+    }
+    
+    .partyminder-login-content .login-header {
+        padding: 30px 20px 25px;
+    }
+    
+    .partyminder-login-content .login-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .partyminder-login-content .login-forms-container {
+        padding: 30px 20px;
+    }
+    
+    .partyminder-login-content .partyminder-form .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .partyminder-login-content .features-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .partyminder-login-content .login-features {
+        padding: 30px 20px;
+    }
+    
+    .partyminder-login-content .partyminder-errors,
+    .partyminder-login-content .partyminder-success {
+        margin: 20px 15px;
+    }
+}

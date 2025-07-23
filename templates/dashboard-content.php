@@ -190,11 +190,11 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <h3><?php _e('🔐 Get Started', 'partyminder'); ?></h3>
                 <div class="login-prompt">
                     <p><?php _e('Log in to access all features and manage your events.', 'partyminder'); ?></p>
-                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-button">
+                    <a href="<?php echo esc_url(PartyMinder::get_login_url()); ?>" class="pm-button">
                         <?php _e('Login', 'partyminder'); ?>
                     </a>
                     <?php if (get_option('users_can_register')): ?>
-                    <a href="<?php echo wp_registration_url(); ?>" class="pm-button pm-button-secondary">
+                    <a href="<?php echo esc_url(add_query_arg('action', 'register', PartyMinder::get_login_url())); ?>" class="pm-button pm-button-secondary">
                         <?php _e('Register', 'partyminder'); ?>
                     </a>
                     <?php endif; ?>

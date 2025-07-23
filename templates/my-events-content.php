@@ -148,7 +148,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     <div class="login-prompt">
         <h3><?php _e('🔐 Login to See Your Events', 'partyminder'); ?></h3>
         <p><?php _e('Log in to see events you\'ve created and your RSVPs.', 'partyminder'); ?></p>
-        <a href="<?php echo wp_login_url(get_permalink(get_the_ID())); ?>" class="pm-button">
+        <a href="<?php echo esc_url(add_query_arg('redirect_to', get_permalink(get_the_ID()), PartyMinder::get_login_url())); ?>" class="pm-button">
             <?php _e('Login', 'partyminder'); ?>
         </a>
     </div>

@@ -284,6 +284,12 @@ class PartyMinder_Activator {
                 'content' => '[partyminder_profile]',
                 'slug' => 'profile',
                 'description' => __('Manage your PartyMinder profile, preferences, and hosting reputation.', 'partyminder')
+            ),
+            'login' => array(
+                'title' => __('Login', 'partyminder'),
+                'content' => '[partyminder_login]',
+                'slug' => 'login',
+                'description' => __('Sign in to your PartyMinder account to manage events and connect with the community.', 'partyminder')
             )
         );
         
@@ -355,6 +361,11 @@ class PartyMinder_Activator {
                         case 'communities':
                             update_post_meta($page_id, '_yoast_wpseo_title', __('Communities - Join Groups & Plan Together', 'partyminder'));
                             update_post_meta($page_id, '_yoast_wpseo_metadesc', __('Join communities of fellow hosts and guests. Create work, family, or hobby groups to plan events together with shared interests.', 'partyminder'));
+                            break;
+                        case 'login':
+                            update_post_meta($page_id, '_yoast_wpseo_title', __('Sign In - PartyMinder Login', 'partyminder'));
+                            update_post_meta($page_id, '_yoast_wpseo_metadesc', __('Sign in to your PartyMinder account to manage events, join conversations, and connect with the community.', 'partyminder'));
+                            update_post_meta($page_id, '_yoast_wpseo_meta-robots-noindex', '1'); // Don't index login pages
                             break;
                     }
                 }
