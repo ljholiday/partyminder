@@ -261,7 +261,7 @@
             }
 
             // Action buttons
-            planHtml += '<div class="ai-plan-actions" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #ddd;">';
+            planHtml += '<div class="ai-plan-actions">';
             planHtml += '<button type="button" class="button button-secondary copy-ai-plan">📋 Copy Plan</button> ';
             planHtml += '<button type="button" class="button button-primary save-ai-plan" data-event-id="0">💾 Save to Event</button>';
             planHtml += '</div>';

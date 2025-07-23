@@ -272,7 +272,7 @@
         $field.siblings('.field-error').remove();
         
         // Add new error message
-        $field.after('<div class="field-error" style="color: #ef4444; font-size: 0.85em; margin-top: 4px;">' + message + '</div>');
+        $field.after('<div class="field-error">' + message + '</div>');
     };
 
     /**
@@ -290,7 +290,7 @@
         // Create or update error container
         let $errorContainer = $('.partyminder-form-errors');
         if (!$errorContainer.length) {
-            $errorContainer = $('<div class="partyminder-form-errors" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 15px; margin-bottom: 20px; border-radius: 6px;"></div>');
+            $errorContainer = $('<div class="partyminder-form-errors"></div>');
             $('.partyminder-form').prepend($errorContainer);
         }
         
@@ -414,7 +414,7 @@
             },
             success: function(response) {
                 if (response.success) {
-                    $form.html('<div class="newsletter-success" style="color: #10b981; font-weight: 600; text-align: center;">✅ Thank you for subscribing!</div>');
+                    $form.html('<div class="newsletter-success">✅ Thank you for subscribing!</div>');
                 } else {
                     PartyMinder.showNotification(response.data || 'Subscription failed. Please try again.', 'error');
                     $button.prop('disabled', false).html(originalText);

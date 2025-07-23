@@ -155,7 +155,7 @@
                                 <button type="button" class="pm-button pm-button-secondary close-modal">Cancel</button>
                                 <button type="submit" class="pm-button pm-button-primary">
                                     <span class="button-text">Start Conversation</span>
-                                    <span class="button-spinner" style="display: none;">Starting...</span>
+                                    <span class="button-spinner">Starting...</span>
                                 </button>
                             </div>
                         </form>

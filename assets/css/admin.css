@@ -615,3 +615,10 @@
 .pm-text-success { color: var(--pm-success); }
 .pm-text-error { color: var(--pm-error); }
 .pm-text-warning { color: var(--pm-warning); }
+
+/* AI Plan Actions */
+.ai-plan-actions {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}

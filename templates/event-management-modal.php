@@ -355,7 +355,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         </div>
                     </div>
                     
-                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <div class="management-actions">
                         <a href="#" class="management-btn management-btn-primary" id="edit-event-btn">
                             <span>✏️</span> <?php _e('Edit Event Details', 'partyminder'); ?>
                         </a>
@@ -367,12 +367,12 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         </button>
                     </div>
                     
-                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef;">
-                        <h4 style="color: #dc3545; margin-bottom: 15px;"><?php _e('Danger Zone', 'partyminder'); ?></h4>
-                        <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">
+                    <div class="danger-zone">
+                        <h4><?php _e('Danger Zone', 'partyminder'); ?></h4>
+                        <p>
                             <?php _e('Once you delete an event, there is no going back. All RSVPs, invitations, and related data will be permanently deleted.', 'partyminder'); ?>
                         </p>
-                        <button class="management-btn" id="delete-event-btn" style="background: #dc3545; color: white;">
+                        <button class="management-btn danger" id="delete-event-btn">
                             <span>🗑️</span> <?php _e('Delete Event', 'partyminder'); ?>
                         </button>
                     </div>
@@ -413,7 +413,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         </button>
                     </form>
                     
-                    <div style="margin-top: 30px;">
+                    <div class="invitations-section">
                         <h4><?php _e('Pending Invitations', 'partyminder'); ?></h4>
                         <div id="invitations-list">
                             <div class="placeholder-content">

@@ -30,6 +30,24 @@
     padding: 20px;
 }
 
+/* Shortcode wrapper styles */
+.partyminder-shortcode-wrapper {
+    padding: 20px;
+    text-align: center;
+    background: var(--wp--preset--color--background, #f9f9f9);
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.partyminder-shortcode-wrapper.warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+}
+
+.partyminder-shortcode-wrapper .pm-button.success {
+    background: var(--wp--preset--color--tertiary, #28a745);
+}
+
 /* Button Styles */
 .pm-button {
     display: inline-flex;
@@ -98,6 +116,11 @@
 
 .button-icon {
     font-size: 1.1em;
+}
+
+/* JavaScript-generated element styles */
+.button-spinner {
+    display: none;
 }
 
 /* Form Styles */
@@ -210,6 +233,22 @@
 .form-group select.error,
 .form-group textarea.error {
     border-color: var(--pm-error);
+}
+
+/* Form validation styles */
+.field-error {
+    color: var(--pm-error);
+    font-size: 0.85em;
+    margin-top: 4px;
+}
+
+.partyminder-form-errors {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 6px;
 }
 
 .form-actions {
@@ -606,6 +645,12 @@
     display: block;
 }
 
+.newsletter-success {
+    color: var(--pm-success);
+    font-weight: 600;
+    text-align: center;
+}
+
 /* Guest List Preview */
 .guest-list-preview {
     background: var(--pm-white);
@@ -625,6 +670,53 @@
     display: flex;
     gap: 30px;
     margin-bottom: 20px;
+}
+
+/* Conversations & Management Styles */
+.reply-count.new {
+    background: var(--pm-success) !important;
+    color: var(--wp--preset--color--background, #ffffff);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+}
+
+.management-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.danger-zone {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.danger-zone h4 {
+    color: var(--pm-error);
+    margin-bottom: 15px;
+}
+
+.danger-zone p {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 15px;
+}
+
+.management-btn.danger {
+    background: var(--pm-error);
+    color: var(--wp--preset--color--background, #ffffff);
+}
+
+.invitations-section {
+    margin-top: 30px;
+}
+
+/* Communities disabled state */
+.partyminder-communities-disabled {
+    text-align: center;
+    padding: 60px 20px;
 }
 
 /* Responsive Design */

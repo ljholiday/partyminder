@@ -336,7 +336,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                                     <?php echo $conversation->reply_count === 1 ? __('reply', 'partyminder') : __('replies', 'partyminder'); ?>
                                 </div>
                             <?php else: ?>
-                                <div class="reply-count" style="background: #28a745;">
+                                <div class="reply-count new">
                                     <?php _e('New', 'partyminder'); ?>
                                 </div>
                             <?php endif; ?>
