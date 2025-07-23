@@ -7,6 +7,9 @@ How, exactly, is this going to make any money?
 
 ### Next
 
+**AT Protocol Tools section appears** on Communities page or not. I do not see an AT Protocol
+Tools section.
+
 Get an explanation of this.
      // Prevent direct access
      if (!defined('ABSPATH')) {

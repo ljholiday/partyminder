@@ -504,6 +504,13 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     </div>
 </div>
 
+<?php 
+// Include community management modal for admins
+if ($is_member && $user_role === 'admin') {
+    include PARTYMINDER_PLUGIN_DIR . 'templates/community-management-modal.php';
+}
+?>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Join community button with AJAX
@@ -565,12 +572,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Manage community button
+    // Manage community button - show management modal
     const manageBtn = document.querySelector('.manage-community-btn');
-    if (manageBtn) {
+    if (manageBtn && typeof window.showCommunityManagementModal === 'function') {
         manageBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            alert('<?php _e('Community management interface coming soon!', 'partyminder'); ?>');
+            
+            // Pass community data to the modal
+            const communityData = {
+                name: '<?php echo esc_js($community->name); ?>',
+                description: '<?php echo esc_js($community->description); ?>',
+                privacy: '<?php echo esc_js($community->privacy); ?>',
+                id: <?php echo intval($community->id); ?>
+            };
+            
+            window.showCommunityManagementModal(communityData);
         });
     }
 });
