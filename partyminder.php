@@ -1194,6 +1194,7 @@ class PartyMinder {
         // Add community routing (only if communities enabled)
         if (PartyMinder_Feature_Flags::is_communities_enabled()) {
             add_rewrite_rule('^communities/?$', 'index.php?pagename=communities', 'top');
+            add_rewrite_rule('^communities/join/?$', 'index.php?pagename=communities&community_action=join', 'top');
             add_rewrite_rule('^communities/([^/]+)/?$', 'index.php?pagename=communities&community_slug=$matches[1]', 'top');
             add_rewrite_rule('^communities/([^/]+)/events/?$', 'index.php?pagename=communities&community_slug=$matches[1]&community_view=events', 'top');
             add_rewrite_rule('^communities/([^/]+)/members/?$', 'index.php?pagename=communities&community_slug=$matches[1]&community_view=members', 'top');
@@ -1206,6 +1207,7 @@ class PartyMinder {
             $vars[] = 'conversation_slug';
             $vars[] = 'community_slug';
             $vars[] = 'community_view';
+            $vars[] = 'community_action';
             return $vars;
         });
     }
@@ -2183,6 +2185,16 @@ class PartyMinder {
         $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
         if ($page_type !== 'communities') {
             return $content;
+        }
+        
+        // Check if this is an invitation acceptance page
+        $community_action = get_query_var('community_action');
+        if ($community_action === 'join') {
+            ob_start();
+            echo '<div class="partyminder-content partyminder-communities-join-page">';
+            include PARTYMINDER_PLUGIN_DIR . 'templates/community-invitation-accept.php';
+            echo '</div>';
+            return ob_get_clean();
         }
         
         ob_start();
