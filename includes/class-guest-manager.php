@@ -78,6 +78,15 @@ class PartyMinder_Guest_Manager {
             // Send confirmation email
             $this->send_rsvp_confirmation($guest_id, $rsvp_data['event_id'], $rsvp_data['status']);
             
+            // Update profile stats for confirmed RSVP
+            if ($rsvp_data['status'] === 'confirmed' && class_exists('PartyMinder_Profile_Manager')) {
+                // Get user ID from email if they're a registered user
+                $user = get_user_by('email', $rsvp_data['email']);
+                if ($user) {
+                    PartyMinder_Profile_Manager::increment_events_attended($user->ID);
+                }
+            }
+            
             return array(
                 'success' => true,
                 'message' => $this->get_rsvp_success_message($rsvp_data['status']),

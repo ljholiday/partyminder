@@ -331,6 +331,10 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                 <span class="action-icon">✨</span>
                 <?php _e('Create New Event', 'partyminder'); ?>
             </a>
+            <a href="<?php echo PartyMinder::get_profile_url(); ?>" class="pm-button pm-button-secondary">
+                <span class="action-icon">👤</span>
+                <?php _e('My Profile', 'partyminder'); ?>
+            </a>
             <a href="<?php echo get_permalink(get_the_ID()) . '?show_past=1'; ?>" class="pm-button pm-button-secondary">
                 <span class="action-icon">📅</span>
                 <?php echo $show_past ? __('Hide Past Events', 'partyminder') : __('Show Past Events', 'partyminder'); ?>

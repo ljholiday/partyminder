@@ -45,7 +45,15 @@ class PartyMinder_Event_Manager {
             return new WP_Error('creation_failed', $error_msg);
         }
         
-        return $wpdb->insert_id;
+        $event_id = $wpdb->insert_id;
+        
+        // Update profile stats for event creation
+        if (class_exists('PartyMinder_Profile_Manager')) {
+            $author_id = intval($event_data['author_id'] ?? get_current_user_id());
+            PartyMinder_Profile_Manager::increment_events_hosted($author_id);
+        }
+        
+        return $event_id;
     }
     
     private function generate_unique_slug($title) {

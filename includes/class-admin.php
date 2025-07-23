@@ -188,6 +188,11 @@ class PartyMinder_Admin {
                             <span class="dashicons dashicons-calendar-alt"></span>
                             <?php _e('View All Events', 'partyminder'); ?>
                         </a>
+                        
+                        <a href="<?php echo esc_url(PartyMinder::get_profile_url()); ?>" class="button button-secondary">
+                            <span class="dashicons dashicons-admin-users"></span>
+                            <?php _e('My Profile', 'partyminder'); ?>
+                        </a>
                     </div>
                 </div>
                 

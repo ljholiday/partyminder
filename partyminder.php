@@ -35,6 +35,17 @@ require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-deactivator.php';
 register_activation_hook(__FILE__, array('PartyMinder_Activator', 'activate'));
 register_deactivation_hook(__FILE__, array('PartyMinder_Deactivator', 'deactivate'));
 
+// Disable WordPress magic quotes for cleaner data handling
+add_action('init', function() {
+    if (function_exists('wp_magic_quotes')) {
+        // Remove magic quotes from all input data
+        $_GET = array_map('stripslashes_deep', $_GET);
+        $_POST = array_map('stripslashes_deep', $_POST);
+        $_COOKIE = array_map('stripslashes_deep', $_COOKIE);
+        $_REQUEST = array_map('stripslashes_deep', $_REQUEST);
+    }
+}, 1);
+
 // Initialize plugin
 add_action('plugins_loaded', array('PartyMinder', 'get_instance'));
 
@@ -67,6 +78,7 @@ class PartyMinder {
         require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-ai-assistant.php';
         require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-admin.php';
         require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-feature-flags.php';
+        require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-profile-manager.php';
         
         // Load communities features only if enabled
         if (PartyMinder_Feature_Flags::is_communities_enabled()) {
@@ -160,6 +172,7 @@ class PartyMinder {
         add_shortcode('partyminder_events_list', array($this, 'events_list_shortcode'));
         add_shortcode('partyminder_my_events', array($this, 'my_events_shortcode'));
         add_shortcode('partyminder_conversations', array($this, 'conversations_shortcode'));
+        add_shortcode('partyminder_profile', array($this, 'profile_shortcode'));
         
         // Communities shortcode (only if feature enabled)
         if (PartyMinder_Feature_Flags::is_communities_enabled()) {
@@ -1410,6 +1423,29 @@ class PartyMinder {
         return '<div class="partyminder-shortcode-wrapper warning"><p>' . __('Event ID required for editing.', 'partyminder') . '</p></div>';
     }
     
+    public function profile_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'user' => get_current_user_id()
+        ), $atts);
+        
+        // Check if we're on the dedicated page
+        $on_dedicated_page = $this->is_on_dedicated_page('profile');
+        
+        // If on dedicated page, content injection handles everything
+        if ($on_dedicated_page) {
+            return '';
+        }
+        
+        // Otherwise, provide simplified embedded version
+        ob_start();
+        echo '<div class="partyminder-shortcode-wrapper">';
+        echo '<h3>' . __('My Profile', 'partyminder') . '</h3>';
+        echo '<p>' . __('Manage your PartyMinder profile, preferences, and hosting reputation.', 'partyminder') . '</p>';
+        echo '<a href="' . esc_url(self::get_profile_url()) . '" class="pm-button">' . __('View Profile', 'partyminder') . '</a>';
+        echo '</div>';
+        return ob_get_clean();
+    }
+    
     public function add_event_rewrite_rules() {
         // Add rewrite rule to catch individual events and route them to the events page
         add_rewrite_rule('^events/join/?$', 'index.php?pagename=events&event_action=join', 'top');
@@ -1525,6 +1561,13 @@ class PartyMinder {
     
     public static function get_communities_url() {
         return self::get_page_url('communities');
+    }
+    
+    public static function get_profile_url($user_id = null) {
+        if ($user_id && $user_id !== get_current_user_id()) {
+            return self::get_page_url('profile', array('user' => $user_id));
+        }
+        return self::get_page_url('profile');
     }
     
     private function is_on_dedicated_page($page_key) {
@@ -1751,6 +1794,15 @@ class PartyMinder {
                 }
                 add_filter('the_content', array($this, 'inject_edit_event_content'));
                 add_filter('body_class', array($this, 'add_edit_event_body_class'));
+                break;
+                
+            case 'profile':
+                // Handle user parameter for viewing other profiles
+                if (!get_query_var('user') && isset($_GET['user'])) {
+                    set_query_var('user', intval($_GET['user']));
+                }
+                add_filter('the_content', array($this, 'inject_profile_content'));
+                add_filter('body_class', array($this, 'add_profile_body_class'));
                 break;
                 
             case 'conversations':
@@ -2246,6 +2298,33 @@ class PartyMinder {
     }
     
     /**
+     * Inject profile content
+     */
+    public function inject_profile_content($content) {
+        global $post;
+        
+        if (!is_page() || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+        
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        if ($page_type !== 'profile') {
+            return $content;
+        }
+        
+        ob_start();
+        
+        echo '<div class="partyminder-content partyminder-profile-page">';
+        
+        // Include profile template
+        include PARTYMINDER_PLUGIN_DIR . 'templates/profile-content.php';
+        
+        echo '</div>';
+        
+        return ob_get_clean();
+    }
+    
+    /**
      * Inject conversations content
      */
     public function inject_conversations_content($content) {
@@ -2382,6 +2461,20 @@ class PartyMinder {
      */
     public function add_edit_event_body_class($classes) {
         $classes[] = 'partyminder-event-editing';
+        return $classes;
+    }
+    
+    /**
+     * Add specific body classes for profile page
+     */
+    public function add_profile_body_class($classes) {
+        $classes[] = 'partyminder-profile';
+        $user_id = get_query_var('user', get_current_user_id());
+        if ($user_id && $user_id !== get_current_user_id()) {
+            $classes[] = 'partyminder-profile-view';
+        } else {
+            $classes[] = 'partyminder-profile-edit';
+        }
         return $classes;
     }
     

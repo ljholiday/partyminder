@@ -193,6 +193,9 @@ class PartyMinder_Activator {
         // Event invitations table
         self::create_event_invitations_table();
         
+        // User profiles table
+        self::create_user_profiles_table();
+        
         // Communities and AT Protocol tables (safe to create even if features disabled)
         self::create_communities_tables();
         
@@ -269,6 +272,12 @@ class PartyMinder_Activator {
                 'content' => '[partyminder_communities]',
                 'slug' => 'communities',
                 'description' => __('Join communities of fellow hosts and guests to plan events together.', 'partyminder')
+            ),
+            'profile' => array(
+                'title' => __('My Profile', 'partyminder'),
+                'content' => '[partyminder_profile]',
+                'slug' => 'profile',
+                'description' => __('Manage your PartyMinder profile, preferences, and hosting reputation.', 'partyminder')
             )
         );
         
@@ -416,6 +425,51 @@ class PartyMinder_Activator {
         }
     }
     
+    private static function create_user_profiles_table() {
+        global $wpdb;
+        
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        // User profiles table
+        $profiles_table = $wpdb->prefix . 'partyminder_user_profiles';
+        $profiles_sql = "CREATE TABLE $profiles_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) UNSIGNED NOT NULL,
+            display_name varchar(255) DEFAULT '',
+            bio text DEFAULT '',
+            location varchar(255) DEFAULT '',
+            profile_image varchar(255) DEFAULT '',
+            website_url varchar(255) DEFAULT '',
+            social_links longtext DEFAULT '',
+            hosting_preferences longtext DEFAULT '',
+            notification_preferences longtext DEFAULT '',
+            privacy_settings longtext DEFAULT '',
+            events_hosted int(11) DEFAULT 0,
+            events_attended int(11) DEFAULT 0,
+            host_rating decimal(3,2) DEFAULT 0.00,
+            host_reviews_count int(11) DEFAULT 0,
+            favorite_event_types longtext DEFAULT '',
+            available_times longtext DEFAULT '',
+            dietary_restrictions text DEFAULT '',
+            accessibility_needs text DEFAULT '',
+            is_verified tinyint(1) DEFAULT 0,
+            is_active tinyint(1) DEFAULT 1,
+            last_active datetime DEFAULT CURRENT_TIMESTAMP,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY user_id (user_id),
+            KEY display_name (display_name),
+            KEY location (location),
+            KEY is_verified (is_verified),
+            KEY is_active (is_active),
+            KEY last_active (last_active)
+        ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($profiles_sql);
+    }
+
     private static function create_communities_tables() {
         global $wpdb;
         
