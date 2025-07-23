@@ -306,6 +306,19 @@ class PartyMinder_Admin {
                                                 <?php _e('View', 'partyminder'); ?>
                                             </a>
                                         </span>
+                                        <span class="edit"> | 
+                                            <a href="<?php echo PartyMinder::get_edit_event_url($event->id); ?>">
+                                                <?php _e('Edit', 'partyminder'); ?>
+                                            </a>
+                                        </span>
+                                        <span class="delete"> | 
+                                            <a href="#" class="delete-event-link" 
+                                               data-event-id="<?php echo esc_attr($event->id); ?>"
+                                               data-event-title="<?php echo esc_attr($event->title); ?>"
+                                               style="color: #dc3545;">
+                                                <?php _e('Delete', 'partyminder'); ?>
+                                            </a>
+                                        </span>
                                     </div>
                                 </td>
                                 <td><?php echo date('M j, Y g:i A', strtotime($event->event_date)); ?></td>
@@ -328,6 +341,66 @@ class PartyMinder_Admin {
                 </table>
             <?php endif; ?>
         </div>
+        
+        <script>
+        jQuery(document).ready(function($) {
+            // Handle delete event clicks
+            $('.delete-event-link').on('click', function(e) {
+                e.preventDefault();
+                
+                const eventId = $(this).data('event-id');
+                const eventTitle = $(this).data('event-title');
+                const deleteLink = $(this);
+                const row = deleteLink.closest('tr');
+                
+                const confirmMessage = '<?php _e('Are you sure you want to delete', 'partyminder'); ?> "' + eventTitle + '"?\n\n<?php _e('This action cannot be undone. All RSVPs, invitations, and related data will be permanently deleted.', 'partyminder'); ?>';
+                
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
+                
+                // Show loading state
+                deleteLink.text('<?php _e('Deleting...', 'partyminder'); ?>').css('color', '#666');
+                
+                $.ajax({
+                    url: partyminder_admin.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'partyminder_admin_delete_event',
+                        event_id: eventId,
+                        nonce: partyminder_admin.event_nonce
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Remove the row with animation
+                            row.fadeOut(300, function() {
+                                $(this).remove();
+                                
+                                // Check if table is now empty
+                                if ($('.wp-list-table tbody tr').length === 0) {
+                                    location.reload();
+                                }
+                            });
+                            
+                            // Show success message
+                            $('<div class="notice notice-success is-dismissible"><p>' + response.data.message + '</p></div>')
+                                .insertAfter('.wrap h1')
+                                .delay(3000)
+                                .fadeOut();
+                        } else {
+                            alert(response.data || '<?php _e('Error deleting event', 'partyminder'); ?>');
+                            deleteLink.text('<?php _e('Delete', 'partyminder'); ?>').css('color', '#dc3545');
+                        }
+                    },
+                    error: function() {
+                        alert('<?php _e('Network error. Please try again.', 'partyminder'); ?>');
+                        deleteLink.text('<?php _e('Delete', 'partyminder'); ?>').css('color', '#dc3545');
+                    }
+                });
+            });
+        });
+        </script>
+        
         <?php
     }
     
@@ -352,13 +425,13 @@ class PartyMinder_Admin {
             // If no errors, create the event
             if (empty($form_errors)) {
                 $event_data = array(
-                    'title' => sanitize_text_field($_POST['event_title']),
-                    'description' => wp_kses_post($_POST['event_description']),
+                    'title' => sanitize_text_field(wp_unslash($_POST['event_title'])),
+                    'description' => wp_kses_post(wp_unslash($_POST['event_description'])),
                     'event_date' => sanitize_text_field($_POST['event_date']),
                     'venue' => sanitize_text_field($_POST['venue_info']),
                     'guest_limit' => intval($_POST['guest_limit']),
                     'host_email' => sanitize_email($_POST['host_email']),
-                    'host_notes' => wp_kses_post($_POST['host_notes'])
+                    'host_notes' => wp_kses_post(wp_unslash($_POST['host_notes']))
                 );
                 
                 $event_manager = new PartyMinder_Event_Manager();

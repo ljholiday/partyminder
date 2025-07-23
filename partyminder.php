@@ -136,6 +136,19 @@ class PartyMinder {
             add_action('wp_ajax_partyminder_send_invitation', array($this, 'ajax_send_invitation'));
             add_action('wp_ajax_partyminder_get_community_invitations', array($this, 'ajax_get_community_invitations'));
             add_action('wp_ajax_partyminder_cancel_invitation', array($this, 'ajax_cancel_invitation'));
+            
+            // Event invitation AJAX handlers
+            add_action('wp_ajax_partyminder_send_event_invitation', array($this, 'ajax_send_event_invitation'));
+            add_action('wp_ajax_partyminder_get_event_invitations', array($this, 'ajax_get_event_invitations'));
+            add_action('wp_ajax_partyminder_cancel_event_invitation', array($this, 'ajax_cancel_event_invitation'));
+            add_action('wp_ajax_partyminder_get_event_stats', array($this, 'ajax_get_event_stats'));
+            add_action('wp_ajax_partyminder_get_event_guests', array($this, 'ajax_get_event_guests'));
+            add_action('wp_ajax_partyminder_delete_event', array($this, 'ajax_delete_event'));
+        }
+        
+        // Admin AJAX handlers (always available for admins)
+        if (is_admin()) {
+            add_action('wp_ajax_partyminder_admin_delete_event', array($this, 'ajax_admin_delete_event'));
         }
     }
     
@@ -193,6 +206,7 @@ class PartyMinder {
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('partyminder_nonce'),
             'community_nonce' => wp_create_nonce('partyminder_community_action'),
+            'event_nonce' => wp_create_nonce('partyminder_event_action'),
             'current_user' => array(
                 'id' => $current_user->ID,
                 'name' => $current_user->display_name,
@@ -216,7 +230,8 @@ class PartyMinder {
             
             wp_localize_script('partyminder-admin', 'partyminder_admin', array(
                 'ajax_url' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('partyminder_admin_nonce')
+                'nonce' => wp_create_nonce('partyminder_admin_nonce'),
+                'event_nonce' => wp_create_nonce('partyminder_event_action')
             ));
         }
     }
@@ -243,13 +258,13 @@ class PartyMinder {
         }
         
         $event_data = array(
-            'title' => sanitize_text_field($_POST['event_title']),
-            'description' => wp_kses_post($_POST['event_description']),
+            'title' => sanitize_text_field(wp_unslash($_POST['event_title'])),
+            'description' => wp_kses_post(wp_unslash($_POST['event_description'])),
             'event_date' => sanitize_text_field($_POST['event_date']),
             'venue' => sanitize_text_field($_POST['venue_info']),
             'guest_limit' => intval($_POST['guest_limit']),
             'host_email' => sanitize_email($_POST['host_email']),
-            'host_notes' => wp_kses_post($_POST['host_notes'])
+            'host_notes' => wp_kses_post(wp_unslash($_POST['host_notes']))
         );
         
         // Ensure event manager is available
@@ -325,13 +340,13 @@ class PartyMinder {
         
         // Prepare update data
         $event_data = array(
-            'title' => sanitize_text_field($_POST['event_title']),
-            'description' => wp_kses_post($_POST['event_description']),
+            'title' => sanitize_text_field(wp_unslash($_POST['event_title'])),
+            'description' => wp_kses_post(wp_unslash($_POST['event_description'])),
             'event_date' => sanitize_text_field($_POST['event_date']),
             'venue' => sanitize_text_field($_POST['venue_info']),
             'guest_limit' => intval($_POST['guest_limit']),
             'host_email' => sanitize_email($_POST['host_email']),
-            'host_notes' => wp_kses_post($_POST['host_notes'])
+            'host_notes' => wp_kses_post(wp_unslash($_POST['host_notes']))
         );
         
         // Update the event
@@ -1026,6 +1041,218 @@ class PartyMinder {
         ));
     }
     
+    public function ajax_send_event_invitation() {
+        check_ajax_referer('partyminder_event_action', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(__('You must be logged in.', 'partyminder'));
+            return;
+        }
+        
+        $event_id = intval($_POST['event_id']);
+        $email = sanitize_email($_POST['email']);
+        $message = sanitize_textarea_field($_POST['message'] ?? '');
+        
+        if (!$event_id || !$email) {
+            wp_send_json_error(__('Missing required data.', 'partyminder'));
+            return;
+        }
+        
+        require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+        $event_manager = new PartyMinder_Event_Manager();
+        $result = $event_manager->send_event_invitation($event_id, $email, $message);
+        
+        if (is_wp_error($result)) {
+            wp_send_json_error($result->get_error_message());
+            return;
+        }
+        
+        $message = $result['email_sent'] 
+            ? __('Invitation sent successfully!', 'partyminder')
+            : __('Invitation created but email delivery failed. Please contact the guest directly.', 'partyminder');
+            
+        wp_send_json_success(array(
+            'message' => $message,
+            'invitation_id' => $result['invitation_id']
+        ));
+    }
+    
+    public function ajax_get_event_invitations() {
+        check_ajax_referer('partyminder_event_action', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(__('You must be logged in.', 'partyminder'));
+            return;
+        }
+        
+        $event_id = intval($_POST['event_id']);
+        
+        if (!$event_id) {
+            wp_send_json_error(__('Missing event ID.', 'partyminder'));
+            return;
+        }
+        
+        require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+        $event_manager = new PartyMinder_Event_Manager();
+        
+        // Check if user is event host
+        $event = $event_manager->get_event($event_id);
+        if (!$event) {
+            wp_send_json_error(__('Event not found.', 'partyminder'));
+            return;
+        }
+        
+        $current_user = wp_get_current_user();
+        if ($event->author_id != $current_user->ID && !current_user_can('edit_others_posts')) {
+            wp_send_json_error(__('Only the event host can view invitations.', 'partyminder'));
+            return;
+        }
+        
+        $invitations = $event_manager->get_event_invitations($event_id);
+        
+        if (is_wp_error($invitations)) {
+            wp_send_json_error($invitations->get_error_message());
+            return;
+        }
+        
+        wp_send_json_success(array(
+            'invitations' => $invitations
+        ));
+    }
+    
+    public function ajax_cancel_event_invitation() {
+        check_ajax_referer('partyminder_event_action', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(__('You must be logged in.', 'partyminder'));
+            return;
+        }
+        
+        $event_id = intval($_POST['event_id']);
+        $invitation_id = intval($_POST['invitation_id']);
+        
+        if (!$event_id || !$invitation_id) {
+            wp_send_json_error(__('Missing required data.', 'partyminder'));
+            return;
+        }
+        
+        require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+        $event_manager = new PartyMinder_Event_Manager();
+        $result = $event_manager->cancel_event_invitation($event_id, $invitation_id);
+        
+        if (is_wp_error($result)) {
+            wp_send_json_error($result->get_error_message());
+            return;
+        }
+        
+        wp_send_json_success(array(
+            'message' => __('Invitation cancelled successfully.', 'partyminder')
+        ));
+    }
+    
+    public function ajax_get_event_stats() {
+        check_ajax_referer('partyminder_event_action', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(__('You must be logged in.', 'partyminder'));
+            return;
+        }
+        
+        $event_id = intval($_POST['event_id']);
+        
+        if (!$event_id) {
+            wp_send_json_error(__('Missing event ID.', 'partyminder'));
+            return;
+        }
+        
+        require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+        $event_manager = new PartyMinder_Event_Manager();
+        
+        // Check if user is event host
+        $event = $event_manager->get_event($event_id);
+        if (!$event) {
+            wp_send_json_error(__('Event not found.', 'partyminder'));
+            return;
+        }
+        
+        $current_user = wp_get_current_user();
+        if ($event->author_id != $current_user->ID && !current_user_can('edit_others_posts')) {
+            wp_send_json_error(__('Only the event host can view statistics.', 'partyminder'));
+            return;
+        }
+        
+        global $wpdb;
+        $guests_table = $wpdb->prefix . 'partyminder_guests';
+        $invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
+        
+        // Get RSVP stats
+        $total_rsvps = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM $guests_table WHERE event_id = %d",
+            $event_id
+        ));
+        
+        $attending_count = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM $guests_table WHERE event_id = %d AND status = 'attending'",
+            $event_id
+        ));
+        
+        $pending_invites = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM $invitations_table WHERE event_id = %d AND status = 'pending' AND expires_at > NOW()",
+            $event_id
+        ));
+        
+        wp_send_json_success(array(
+            'total_rsvps' => (int) $total_rsvps,
+            'attending_count' => (int) $attending_count,
+            'pending_invites' => (int) $pending_invites,
+            'edit_url' => self::get_edit_event_url($event_id)
+        ));
+    }
+    
+    public function ajax_get_event_guests() {
+        check_ajax_referer('partyminder_event_action', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(__('You must be logged in.', 'partyminder'));
+            return;
+        }
+        
+        $event_id = intval($_POST['event_id']);
+        
+        if (!$event_id) {
+            wp_send_json_error(__('Missing event ID.', 'partyminder'));
+            return;
+        }
+        
+        require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+        $event_manager = new PartyMinder_Event_Manager();
+        
+        // Check if user is event host
+        $event = $event_manager->get_event($event_id);
+        if (!$event) {
+            wp_send_json_error(__('Event not found.', 'partyminder'));
+            return;
+        }
+        
+        $current_user = wp_get_current_user();
+        if ($event->author_id != $current_user->ID && !current_user_can('edit_others_posts')) {
+            wp_send_json_error(__('Only the event host can view the guest list.', 'partyminder'));
+            return;
+        }
+        
+        global $wpdb;
+        $guests_table = $wpdb->prefix . 'partyminder_guests';
+        
+        $guests = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM $guests_table WHERE event_id = %d ORDER BY rsvp_date DESC",
+            $event_id
+        ));
+        
+        wp_send_json_success(array(
+            'guests' => $guests ?: array()
+        ));
+    }
+    
     // Shortcodes
     public function event_form_shortcode($atts) {
         $atts = shortcode_atts(array(
@@ -1185,6 +1412,7 @@ class PartyMinder {
     
     public function add_event_rewrite_rules() {
         // Add rewrite rule to catch individual events and route them to the events page
+        add_rewrite_rule('^events/join/?$', 'index.php?pagename=events&event_action=join', 'top');
         add_rewrite_rule('^events/([^/]+)/?$', 'index.php?pagename=events&event_slug=$matches[1]', 'top');
         
         // Add conversation routing
@@ -1203,6 +1431,7 @@ class PartyMinder {
         // Add query vars
         add_filter('query_vars', function($vars) {
             $vars[] = 'event_slug';
+            $vars[] = 'event_action';
             $vars[] = 'conversation_topic';
             $vars[] = 'conversation_slug';
             $vars[] = 'community_slug';
@@ -1342,13 +1571,13 @@ class PartyMinder {
             // If no errors, create the event
             if (empty($form_errors)) {
                 $event_data = array(
-                    'title' => sanitize_text_field($_POST['event_title']),
-                    'description' => wp_kses_post($_POST['event_description']),
+                    'title' => sanitize_text_field(wp_unslash($_POST['event_title'])),
+                    'description' => wp_kses_post(wp_unslash($_POST['event_description'])),
                     'event_date' => sanitize_text_field($_POST['event_date']),
                     'venue' => sanitize_text_field($_POST['venue_info']),
                     'guest_limit' => intval($_POST['guest_limit']),
                     'host_email' => sanitize_email($_POST['host_email']),
-                    'host_notes' => wp_kses_post($_POST['host_notes'])
+                    'host_notes' => wp_kses_post(wp_unslash($_POST['host_notes']))
                 );
                 
                 $event_id = $this->create_event_via_form($event_data);
@@ -1907,6 +2136,16 @@ class PartyMinder {
             return $content;
         }
         
+        // Check if this is an event invitation acceptance page
+        $event_action = get_query_var('event_action');
+        if ($event_action === 'join') {
+            ob_start();
+            echo '<div class="partyminder-content partyminder-events-join-page">';
+            include PARTYMINDER_PLUGIN_DIR . 'templates/event-invitation-accept.php';
+            echo '</div>';
+            return ob_get_clean();
+        }
+        
         ob_start();
         
         // Use theme-friendly wrapper
@@ -2358,6 +2597,69 @@ class PartyMinder {
                 );
             }
         }
+    }
+    
+    public function ajax_delete_event() {
+        check_ajax_referer('partyminder_event_action', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(__('You must be logged in.', 'partyminder'));
+            return;
+        }
+        
+        $event_id = intval($_POST['event_id']);
+        
+        if (!$event_id) {
+            wp_send_json_error(__('Missing event ID.', 'partyminder'));
+            return;
+        }
+        
+        require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+        $event_manager = new PartyMinder_Event_Manager();
+        
+        // Delete the event (includes permission checking)
+        $result = $event_manager->delete_event($event_id);
+        
+        if (is_wp_error($result)) {
+            wp_send_json_error($result->get_error_message());
+            return;
+        }
+        
+        wp_send_json_success(array(
+            'message' => __('Event deleted successfully.', 'partyminder'),
+            'redirect_url' => home_url('/my-events')
+        ));
+    }
+    
+    public function ajax_admin_delete_event() {
+        check_ajax_referer('partyminder_event_action', 'nonce');
+        
+        if (!current_user_can('delete_others_posts')) {
+            wp_send_json_error(__('You do not have permission to delete events.', 'partyminder'));
+            return;
+        }
+        
+        $event_id = intval($_POST['event_id']);
+        
+        if (!$event_id) {
+            wp_send_json_error(__('Missing event ID.', 'partyminder'));
+            return;
+        }
+        
+        require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+        $event_manager = new PartyMinder_Event_Manager();
+        
+        // Delete the event (will bypass permission checking since user is admin)
+        $result = $event_manager->delete_event($event_id);
+        
+        if (is_wp_error($result)) {
+            wp_send_json_error($result->get_error_message());
+            return;
+        }
+        
+        wp_send_json_success(array(
+            'message' => __('Event deleted successfully.', 'partyminder')
+        ));
     }
     
 }

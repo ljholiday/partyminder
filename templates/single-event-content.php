@@ -36,6 +36,53 @@ $is_past = $event_date < new DateTime();
     --pm-primary: <?php echo esc_attr($primary_color); ?>;
     --pm-secondary: <?php echo esc_attr($secondary_color); ?>;
 }
+
+.partyminder-single-event .event-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.partyminder-single-event .pm-button {
+    background: var(--pm-primary);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    font-size: 1em;
+}
+
+.partyminder-single-event .pm-button:hover {
+    opacity: 0.9;
+    color: white;
+}
+
+.partyminder-single-event .pm-button-secondary {
+    background: #6c757d;
+}
+
+.partyminder-single-event .manage-event-btn {
+    background: var(--pm-primary);
+}
+
+@media (max-width: 768px) {
+    .partyminder-single-event .event-actions {
+        flex-direction: column;
+    }
+    
+    .partyminder-single-event .pm-button {
+        width: 100%;
+        justify-content: center;
+    }
+}
 </style>
 
 <div class="partyminder-single-event">
@@ -142,15 +189,34 @@ $is_past = $event_date < new DateTime();
             <div class="event-actions">
                 <?php 
                 $is_full = $event->guest_limit > 0 && $event->guest_stats->confirmed >= $event->guest_limit;
+                $current_user = wp_get_current_user();
+                $is_event_host = (is_user_logged_in() && $current_user->ID == $event->author_id) || 
+                                ($current_user->user_email == $event->host_email) ||
+                                current_user_can('edit_others_posts');
                 ?>
                 
-                <a href="#rsvp" class="pm-button pm-button-primary">
-                    <?php if ($is_full): ?>
-                        🎟️ Join Waitlist
-                    <?php else: ?>
-                        💌 RSVP Now
-                    <?php endif; ?>
-                </a>
+                <?php if ($is_event_host): ?>
+                    <button class="pm-button pm-button-primary manage-event-btn" 
+                            data-event-id="<?php echo esc_attr($event->id); ?>"
+                            data-event-title="<?php echo esc_attr($event->title); ?>"
+                            data-event-slug="<?php echo esc_attr($event->slug); ?>">
+                        <span>⚙️</span>
+                        <?php _e('Manage Event', 'partyminder'); ?>
+                    </button>
+                    
+                    <a href="<?php echo PartyMinder::get_edit_event_url($event->id); ?>" class="pm-button pm-button-secondary">
+                        <span>✏️</span>
+                        <?php _e('Edit Details', 'partyminder'); ?>
+                    </a>
+                <?php else: ?>
+                    <a href="#rsvp" class="pm-button pm-button-primary">
+                        <?php if ($is_full): ?>
+                            🎟️ Join Waitlist
+                        <?php else: ?>
+                            💌 RSVP Now
+                        <?php endif; ?>
+                    </a>
+                <?php endif; ?>
                 
                 <button type="button" class="pm-button pm-button-secondary" onclick="shareEvent()">
                     📤 Share Event
@@ -188,6 +254,18 @@ $is_past = $event_date < new DateTime();
     </div>
 </div>
 
+<?php
+// Include event management modal if user is the event host
+$current_user = wp_get_current_user();
+$is_event_host = (is_user_logged_in() && $current_user->ID == $event->author_id) || 
+                ($current_user->user_email == $event->host_email) ||
+                current_user_can('edit_others_posts');
+
+if ($is_event_host) {
+    include PARTYMINDER_PLUGIN_DIR . 'templates/event-management-modal.php';
+}
+?>
+
 <script>
 function shareEvent() {
     const url = window.location.href;
@@ -207,4 +285,29 @@ function shareEvent() {
         window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(title), '_blank');
     }
 }
+
+<?php if ($is_event_host): ?>
+// Handle manage event button clicks
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.manage-event-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Get event data from button attributes
+            const eventData = {
+                id: this.getAttribute('data-event-id'),
+                title: this.getAttribute('data-event-title'),
+                slug: this.getAttribute('data-event-slug')
+            };
+            
+            // Show the management modal
+            if (typeof window.showEventManagementModal === 'function') {
+                window.showEventManagementModal(eventData);
+            } else {
+                console.error('Event management modal not loaded');
+            }
+        });
+    });
+});
+<?php endif; ?>
 </script>

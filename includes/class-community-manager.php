@@ -54,7 +54,7 @@ class PartyMinder_Community_Manager {
             array(
                 'name' => sanitize_text_field($community_data['name']),
                 'slug' => $slug,
-                'description' => wp_kses_post($community_data['description'] ?? ''),
+                'description' => wp_kses_post(wp_unslash($community_data['description'] ?? '')),
                 'type' => sanitize_text_field($community_data['type'] ?? 'standard'),
                 'privacy' => sanitize_text_field($community_data['privacy'] ?? 'public'),
                 'creator_id' => $current_user->ID,
