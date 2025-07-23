@@ -129,6 +129,13 @@ class PartyMinder {
             add_action('wp_ajax_nopriv_partyminder_join_community', array($this, 'ajax_join_community'));
             add_action('wp_ajax_partyminder_leave_community', array($this, 'ajax_leave_community'));
             add_action('wp_ajax_partyminder_create_community', array($this, 'ajax_create_community'));
+            add_action('wp_ajax_partyminder_update_community', array($this, 'ajax_update_community'));
+            add_action('wp_ajax_partyminder_get_community_members', array($this, 'ajax_get_community_members'));
+            add_action('wp_ajax_partyminder_update_member_role', array($this, 'ajax_update_member_role'));
+            add_action('wp_ajax_partyminder_remove_member', array($this, 'ajax_remove_member'));
+            add_action('wp_ajax_partyminder_send_invitation', array($this, 'ajax_send_invitation'));
+            add_action('wp_ajax_partyminder_get_community_invitations', array($this, 'ajax_get_community_invitations'));
+            add_action('wp_ajax_partyminder_cancel_invitation', array($this, 'ajax_cancel_invitation'));
         }
     }
     
@@ -681,6 +688,342 @@ class PartyMinder {
         } else {
             wp_send_json_error(__('Failed to create community. Please try again.', 'partyminder'));
         }
+    }
+    
+    public function ajax_update_community() {
+        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
+            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
+            return;
+        }
+        
+        check_ajax_referer('partyminder_community_action', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(__('You must be logged in.', 'partyminder'));
+            return;
+        }
+        
+        $community_id = intval($_POST['community_id']);
+        $current_user = wp_get_current_user();
+        
+        if (!$community_id) {
+            wp_send_json_error(__('Invalid community.', 'partyminder'));
+            return;
+        }
+        
+        $community_manager = new PartyMinder_Community_Manager();
+        
+        // Check if user is admin of this community
+        $user_role = $community_manager->get_member_role($community_id, $current_user->ID);
+        if ($user_role !== 'admin') {
+            wp_send_json_error(__('You do not have permission to manage this community.', 'partyminder'));
+            return;
+        }
+        
+        // Update community settings
+        $update_data = array();
+        
+        if (isset($_POST['description'])) {
+            $update_data['description'] = wp_kses_post($_POST['description']);
+        }
+        
+        if (isset($_POST['privacy']) && in_array($_POST['privacy'], array('public', 'private'))) {
+            $update_data['privacy'] = sanitize_text_field($_POST['privacy']);
+        }
+        
+        if (empty($update_data)) {
+            wp_send_json_error(__('No data to update.', 'partyminder'));
+            return;
+        }
+        
+        $result = $community_manager->update_community($community_id, $update_data);
+        
+        if ($result) {
+            wp_send_json_success(array(
+                'message' => __('Community settings updated successfully!', 'partyminder')
+            ));
+        } else {
+            wp_send_json_error(__('Failed to update community settings.', 'partyminder'));
+        }
+    }
+    
+    public function ajax_get_community_members() {
+        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
+            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
+            return;
+        }
+        
+        check_ajax_referer('partyminder_community_action', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(__('You must be logged in.', 'partyminder'));
+            return;
+        }
+        
+        $community_id = intval($_POST['community_id']);
+        $current_user = wp_get_current_user();
+        
+        if (!$community_id) {
+            wp_send_json_error(__('Invalid community.', 'partyminder'));
+            return;
+        }
+        
+        $community_manager = new PartyMinder_Community_Manager();
+        
+        // Check if user is member of this community
+        if (!$community_manager->is_member($community_id, $current_user->ID)) {
+            wp_send_json_error(__('You must be a member to view the member list.', 'partyminder'));
+            return;
+        }
+        
+        $members = $community_manager->get_community_members($community_id);
+        $user_role = $community_manager->get_member_role($community_id, $current_user->ID);
+        
+        wp_send_json_success(array(
+            'members' => $members,
+            'user_role' => $user_role,
+            'can_manage' => $user_role === 'admin'
+        ));
+    }
+    
+    public function ajax_update_member_role() {
+        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
+            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
+            return;
+        }
+        
+        check_ajax_referer('partyminder_community_action', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(__('You must be logged in.', 'partyminder'));
+            return;
+        }
+        
+        $community_id = intval($_POST['community_id']);
+        $member_user_id = intval($_POST['member_user_id']);
+        $new_role = sanitize_text_field($_POST['new_role']);
+        $current_user = wp_get_current_user();
+        
+        if (!$community_id || !$member_user_id || !$new_role) {
+            wp_send_json_error(__('Missing required data.', 'partyminder'));
+            return;
+        }
+        
+        if (!in_array($new_role, array('admin', 'moderator', 'member'))) {
+            wp_send_json_error(__('Invalid role.', 'partyminder'));
+            return;
+        }
+        
+        $community_manager = new PartyMinder_Community_Manager();
+        
+        // Check if current user is admin
+        $user_role = $community_manager->get_member_role($community_id, $current_user->ID);
+        if ($user_role !== 'admin') {
+            wp_send_json_error(__('Only administrators can change member roles.', 'partyminder'));
+            return;
+        }
+        
+        // Don't allow changing your own role if you're the only admin
+        if ($member_user_id == $current_user->ID && $new_role !== 'admin') {
+            $admin_count = $community_manager->get_admin_count($community_id);
+            if ($admin_count <= 1) {
+                wp_send_json_error(__('You cannot remove your admin role as you are the only administrator.', 'partyminder'));
+                return;
+            }
+        }
+        
+        $result = $community_manager->update_member_role($community_id, $member_user_id, $new_role);
+        
+        if ($result) {
+            $member = get_user_by('id', $member_user_id);
+            wp_send_json_success(array(
+                'message' => sprintf(__('%s role updated to %s', 'partyminder'), $member->display_name, $new_role)
+            ));
+        } else {
+            wp_send_json_error(__('Failed to update member role.', 'partyminder'));
+        }
+    }
+    
+    public function ajax_remove_member() {
+        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
+            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
+            return;
+        }
+        
+        check_ajax_referer('partyminder_community_action', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(__('You must be logged in.', 'partyminder'));
+            return;
+        }
+        
+        $community_id = intval($_POST['community_id']);
+        $member_user_id = intval($_POST['member_user_id']);
+        $current_user = wp_get_current_user();
+        
+        if (!$community_id || !$member_user_id) {
+            wp_send_json_error(__('Missing required data.', 'partyminder'));
+            return;
+        }
+        
+        $community_manager = new PartyMinder_Community_Manager();
+        
+        // Check if current user is admin
+        $user_role = $community_manager->get_member_role($community_id, $current_user->ID);
+        if ($user_role !== 'admin') {
+            wp_send_json_error(__('Only administrators can remove members.', 'partyminder'));
+            return;
+        }
+        
+        // Don't allow removing yourself if you're the only admin
+        if ($member_user_id == $current_user->ID) {
+            $admin_count = $community_manager->get_admin_count($community_id);
+            if ($admin_count <= 1) {
+                wp_send_json_error(__('You cannot remove yourself as you are the only administrator.', 'partyminder'));
+                return;
+            }
+        }
+        
+        // Get member ID from the community members table
+        global $wpdb;
+        $members_table = $wpdb->prefix . 'partyminder_community_members';
+        $member = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM $members_table WHERE community_id = %d AND user_id = %d AND status = 'active'",
+            $community_id,
+            $member_user_id
+        ));
+        
+        if (!$member) {
+            wp_send_json_error(__('Member not found.', 'partyminder'));
+            return;
+        }
+        
+        $result = $community_manager->remove_member($community_id, $member->id);
+        
+        if ($result) {
+            $member = get_user_by('id', $member_user_id);
+            wp_send_json_success(array(
+                'message' => sprintf(__('%s has been removed from the community', 'partyminder'), $member->display_name)
+            ));
+        } else {
+            wp_send_json_error(__('Failed to remove member.', 'partyminder'));
+        }
+    }
+    
+    public function ajax_send_invitation() {
+        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
+            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
+            return;
+        }
+        
+        check_ajax_referer('partyminder_community_action', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(__('You must be logged in.', 'partyminder'));
+            return;
+        }
+        
+        $community_id = intval($_POST['community_id']);
+        $email = sanitize_email($_POST['email']);
+        $message = sanitize_textarea_field($_POST['message'] ?? '');
+        
+        if (!$community_id || !$email) {
+            wp_send_json_error(__('Missing required data.', 'partyminder'));
+            return;
+        }
+        
+        $community_manager = new PartyMinder_Community_Manager();
+        $result = $community_manager->send_invitation($community_id, $email, $message);
+        
+        if (is_wp_error($result)) {
+            wp_send_json_error($result->get_error_message());
+            return;
+        }
+        
+        $message = $result['email_sent'] 
+            ? __('Invitation sent successfully!', 'partyminder')
+            : __('Invitation created but email delivery failed. Please contact the user directly.', 'partyminder');
+            
+        wp_send_json_success(array(
+            'message' => $message,
+            'invitation_id' => $result['invitation_id']
+        ));
+    }
+    
+    public function ajax_get_community_invitations() {
+        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
+            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
+            return;
+        }
+        
+        check_ajax_referer('partyminder_community_action', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(__('You must be logged in.', 'partyminder'));
+            return;
+        }
+        
+        $community_id = intval($_POST['community_id']);
+        
+        if (!$community_id) {
+            wp_send_json_error(__('Missing community ID.', 'partyminder'));
+            return;
+        }
+        
+        $community_manager = new PartyMinder_Community_Manager();
+        
+        // Check if user is admin
+        $current_user = wp_get_current_user();
+        $user_role = $community_manager->get_member_role($community_id, $current_user->ID);
+        if ($user_role !== 'admin') {
+            wp_send_json_error(__('Only administrators can view invitations.', 'partyminder'));
+            return;
+        }
+        
+        $invitations = $community_manager->get_community_invitations($community_id);
+        
+        if (is_wp_error($invitations)) {
+            wp_send_json_error($invitations->get_error_message());
+            return;
+        }
+        
+        wp_send_json_success(array(
+            'invitations' => $invitations
+        ));
+    }
+    
+    public function ajax_cancel_invitation() {
+        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
+            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
+            return;
+        }
+        
+        check_ajax_referer('partyminder_community_action', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(__('You must be logged in.', 'partyminder'));
+            return;
+        }
+        
+        $community_id = intval($_POST['community_id']);
+        $invitation_id = intval($_POST['invitation_id']);
+        
+        if (!$community_id || !$invitation_id) {
+            wp_send_json_error(__('Missing required data.', 'partyminder'));
+            return;
+        }
+        
+        $community_manager = new PartyMinder_Community_Manager();
+        $result = $community_manager->cancel_invitation($community_id, $invitation_id);
+        
+        if (is_wp_error($result)) {
+            wp_send_json_error($result->get_error_message());
+            return;
+        }
+        
+        wp_send_json_success(array(
+            'message' => __('Invitation cancelled successfully.', 'partyminder')
+        ));
     }
     
     // Shortcodes
