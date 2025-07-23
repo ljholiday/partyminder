@@ -1,15 +1,16 @@
 /* PartyMinder Admin Styles */
 
 :root {
-    --pm-primary: #667eea;
-    --pm-secondary: #764ba2;
-    --pm-success: #10b981;
+    /* Use WordPress theme colors when available, fallback to plugin defaults */
+    --pm-primary: var(--wp--preset--color--primary, #667eea);
+    --pm-secondary: var(--wp--preset--color--secondary, #764ba2);
+    --pm-success: var(--wp--preset--color--tertiary, #10b981);
     --pm-warning: #f59e0b;
     --pm-error: #ef4444;
-    --pm-text: #1e293b;
-    --pm-text-light: #6b7280;
-    --pm-border: #e5e7eb;
-    --pm-background: #f8fafc;
+    --pm-text: var(--wp--preset--color--foreground, #1e293b);
+    --pm-text-light: var(--wp--preset--color--contrast, #6b7280);
+    --pm-border: var(--wp--preset--color--base, #e5e7eb);
+    --pm-background: var(--wp--preset--color--background, #f8fafc);
     --pm-white: #ffffff;
     --pm-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     --pm-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);

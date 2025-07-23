@@ -178,10 +178,51 @@
     font-family: inherit;
 }
 
-/* Customizer theme compatibility */
+/* Enhanced WordPress theme color integration */
 .partyminder-content .pm-button {
     background-color: var(--wp--preset--color--primary, #667eea);
     color: var(--wp--preset--color--background, #ffffff);
+}
+
+.partyminder-content .pm-button-secondary {
+    background-color: var(--wp--preset--color--background, #ffffff);
+    color: var(--wp--preset--color--primary, #667eea);
+    border: 2px solid var(--wp--preset--color--primary, #667eea);
+}
+
+/* Use theme colors for text elements */
+.partyminder-content h1,
+.partyminder-content h2,
+.partyminder-content h3,
+.partyminder-content h4,
+.partyminder-content h5,
+.partyminder-content h6 {
+    color: var(--wp--preset--color--foreground, #1e293b);
+}
+
+.partyminder-content p,
+.partyminder-content .meta-item {
+    color: var(--wp--preset--color--contrast, #666);
+}
+
+/* Use theme colors for cards and containers */
+.partyminder-content .event-card,
+.partyminder-content .my-event-card,
+.partyminder-content .partyminder-form {
+    background-color: var(--wp--preset--color--base, #ffffff);
+    border: 1px solid var(--wp--preset--color--contrast, #e5e7eb);
+}
+
+/* Success/Error states with theme color variations */
+.partyminder-content .partyminder-success {
+    background-color: var(--wp--preset--color--tertiary, #10b981);
+    color: var(--wp--preset--color--background, #ffffff);
+}
+
+.partyminder-content .partyminder-errors {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+    color: var(--wp--preset--color--foreground, #721c24);
 }
 
 /* Dark mode support */
