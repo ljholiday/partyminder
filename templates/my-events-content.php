@@ -116,6 +116,15 @@ $button_style = get_option('partyminder_button_style', 'rounded');
 
 <div class="partyminder-my-events-content">
     
+    <!-- Dashboard Link -->
+    <div class="partyminder-breadcrumb">
+        <a href="<?php echo esc_url(PartyMinder::get_dashboard_url()); ?>" class="breadcrumb-link">
+            🏠 <?php _e('Dashboard', 'partyminder'); ?>
+        </a>
+        <span class="breadcrumb-separator">→</span>
+        <span class="breadcrumb-current"><?php _e('My Events', 'partyminder'); ?></span>
+    </div>
+    
     <!-- Header -->
     <div class="my-events-header">
         <h2>

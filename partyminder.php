@@ -166,6 +166,7 @@ class PartyMinder {
     
     public function register_shortcodes() {
         // Shortcodes
+        add_shortcode('partyminder_dashboard', array($this, 'dashboard_shortcode'));
         add_shortcode('partyminder_event_form', array($this, 'event_form_shortcode'));
         add_shortcode('partyminder_event_edit_form', array($this, 'event_edit_form_shortcode'));
         add_shortcode('partyminder_rsvp_form', array($this, 'rsvp_form_shortcode'));
@@ -1267,6 +1268,27 @@ class PartyMinder {
     }
     
     // Shortcodes
+    public function dashboard_shortcode($atts) {
+        $atts = shortcode_atts(array(), $atts);
+        
+        // Check if we're on the dedicated page
+        $on_dedicated_page = $this->is_on_dedicated_page('dashboard');
+        
+        // If on dedicated page, content injection handles everything
+        if ($on_dedicated_page) {
+            return '';
+        }
+        
+        // Otherwise, provide simplified embedded version
+        ob_start();
+        echo '<div class="partyminder-shortcode-wrapper">';
+        echo '<h3>' . __('PartyMinder Dashboard', 'partyminder') . '</h3>';
+        echo '<p>' . __('Your central hub for managing events, conversations, and connections.', 'partyminder') . '</p>';
+        echo '<a href="' . esc_url(self::get_dashboard_url()) . '" class="pm-button">' . __('Go to Dashboard', 'partyminder') . '</a>';
+        echo '</div>';
+        return ob_get_clean();
+    }
+    
     public function event_form_shortcode($atts) {
         $atts = shortcode_atts(array(
             'title' => __('Create Your Event', 'partyminder')
@@ -1539,6 +1561,10 @@ class PartyMinder {
         return $url;
     }
     
+    public static function get_dashboard_url() {
+        return self::get_page_url('dashboard');
+    }
+    
     public static function get_events_page_url() {
         return self::get_page_url('events');
     }
@@ -1772,6 +1798,11 @@ class PartyMinder {
         
         // Set up content injection based on page type
         switch ($page_type) {
+            case 'dashboard':
+                add_filter('the_content', array($this, 'inject_dashboard_content'));
+                add_filter('body_class', array($this, 'add_dashboard_body_class'));
+                break;
+                
             case 'events':
                 add_filter('the_content', array($this, 'inject_events_content'));
                 add_filter('body_class', array($this, 'add_events_body_class'));
@@ -2243,6 +2274,34 @@ class PartyMinder {
     }
     
     /**
+     * Inject dashboard content
+     */
+    public function inject_dashboard_content($content) {
+        global $post;
+        
+        if (!is_page() || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+        
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        if ($page_type !== 'dashboard') {
+            return $content;
+        }
+        
+        ob_start();
+        
+        echo '<div class="partyminder-content partyminder-dashboard-page">';
+        
+        // Include dashboard template
+        $atts = array();
+        include PARTYMINDER_PLUGIN_DIR . 'templates/dashboard-content.php';
+        
+        echo '</div>';
+        
+        return ob_get_clean();
+    }
+    
+    /**
      * Inject my events content
      */
     public function inject_my_events_content($content) {
@@ -2435,6 +2494,11 @@ class PartyMinder {
     /**
      * Add specific body classes for events page
      */
+    public function add_dashboard_body_class($classes) {
+        $classes[] = 'partyminder-dashboard';
+        return $classes;
+    }
+    
     public function add_events_body_class($classes) {
         $classes[] = 'partyminder-events-listing';
         return $classes;

@@ -237,6 +237,12 @@ class PartyMinder_Activator {
     
     private static function create_pages() {
         $pages = array(
+            'dashboard' => array(
+                'title' => __('Dashboard', 'partyminder'),
+                'content' => '[partyminder_dashboard]',
+                'slug' => 'dashboard',
+                'description' => __('Your PartyMinder home - manage events, join conversations, and discover new connections.', 'partyminder')
+            ),
             'events' => array(
                 'title' => __('Events', 'partyminder'),
                 'content' => '[partyminder_events_list]',
@@ -321,6 +327,10 @@ class PartyMinder_Activator {
                     
                     // Set SEO-friendly meta data
                     switch ($key) {
+                        case 'dashboard':
+                            update_post_meta($page_id, '_yoast_wpseo_title', __('PartyMinder Dashboard - Your Social Event Hub', 'partyminder'));
+                            update_post_meta($page_id, '_yoast_wpseo_metadesc', __('Your personal dashboard for managing events, joining conversations, and connecting with fellow hosts and party-goers.', 'partyminder'));
+                            break;
                         case 'events':
                             update_post_meta($page_id, '_yoast_wpseo_title', __('Upcoming Events - Find Amazing Parties Near You', 'partyminder'));
                             update_post_meta($page_id, '_yoast_wpseo_metadesc', __('Discover and RSVP to exciting events in your area. Join the community and never miss a great party!', 'partyminder'));

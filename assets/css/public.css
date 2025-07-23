@@ -2032,3 +2032,373 @@
         text-align: center;
     }
 }
+
+/* =============================================================================
+   DASHBOARD STYLES
+   ============================================================================= */
+
+.partyminder-dashboard-content {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    color: var(--pm-text);
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Dashboard Header */
+.partyminder-dashboard-content .dashboard-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 40px 20px;
+    border-radius: var(--pm-radius-lg);
+    background: linear-gradient(135deg, var(--pm-primary)10, var(--pm-secondary)10);
+    border: 1px solid var(--pm-border);
+}
+
+.partyminder-dashboard-content .dashboard-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    color: var(--pm-primary);
+}
+
+.partyminder-dashboard-content .dashboard-header p {
+    font-size: 1.1rem;
+    color: var(--pm-text-light);
+    margin: 0;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Two-Column Layout */
+.partyminder-dashboard-content .dashboard-layout {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 30px;
+    align-items: start;
+}
+
+/* Main Column (Conversations) */
+.partyminder-dashboard-content .dashboard-main {
+    background: var(--pm-white);
+    border-radius: var(--pm-radius-lg);
+    box-shadow: var(--pm-shadow);
+    overflow: hidden;
+}
+
+.partyminder-dashboard-content .main-section {
+    padding: 30px;
+}
+
+.partyminder-dashboard-content .section-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.partyminder-dashboard-content .section-header h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+    color: var(--pm-text);
+}
+
+.partyminder-dashboard-content .section-header p {
+    color: var(--pm-text-light);
+    margin: 0;
+    font-size: 1rem;
+}
+
+.partyminder-dashboard-content .conversations-embed {
+    margin-bottom: 30px;
+}
+
+.partyminder-dashboard-content .conversations-placeholder {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--pm-text-light);
+}
+
+.partyminder-dashboard-content .conversations-placeholder .placeholder-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.partyminder-dashboard-content .conversations-placeholder h3 {
+    font-size: 1.4rem;
+    margin: 0 0 10px 0;
+    color: var(--pm-text);
+}
+
+.partyminder-dashboard-content .section-footer {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid var(--pm-border);
+}
+
+/* Sidebar */
+.partyminder-dashboard-content .dashboard-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.partyminder-dashboard-content .sidebar-section {
+    background: var(--pm-white);
+    border-radius: var(--pm-radius-lg);
+    box-shadow: var(--pm-shadow);
+    overflow: hidden;
+}
+
+.partyminder-dashboard-content .sidebar-section h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    padding: 20px 20px 15px;
+    color: var(--pm-text);
+    border-bottom: 1px solid var(--pm-border);
+}
+
+/* Quick Navigation */
+.partyminder-dashboard-content .quick-nav {
+    padding: 0;
+}
+
+.partyminder-dashboard-content .quick-nav .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: var(--pm-text);
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid var(--pm-border);
+}
+
+.partyminder-dashboard-content .quick-nav .nav-item:last-child {
+    border-bottom: none;
+}
+
+.partyminder-dashboard-content .quick-nav .nav-item:hover {
+    background: var(--pm-primary)15;
+    border-left-color: var(--pm-primary);
+}
+
+.partyminder-dashboard-content .quick-nav .nav-item .nav-icon {
+    font-size: 1.5rem;
+    margin-right: 15px;
+    color: var(--pm-primary);
+    min-width: 24px;
+}
+
+.partyminder-dashboard-content .quick-nav .nav-item .nav-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.partyminder-dashboard-content .quick-nav .nav-item .nav-desc {
+    font-size: 0.9rem;
+    color: var(--pm-text-light);
+}
+
+/* Login Prompt */
+.partyminder-dashboard-content .login-prompt {
+    padding: 20px;
+    text-align: center;
+}
+
+.partyminder-dashboard-content .login-prompt p {
+    margin-bottom: 20px;
+    color: var(--pm-text-light);
+}
+
+.partyminder-dashboard-content .login-prompt .pm-button {
+    margin: 5px;
+}
+
+/* Profile Summary */
+.partyminder-dashboard-content .profile-summary {
+    padding: 20px;
+}
+
+.partyminder-dashboard-content .profile-avatar {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.partyminder-dashboard-content .profile-avatar img,
+.partyminder-dashboard-content .profile-avatar .avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.partyminder-dashboard-content .profile-avatar .avatar-placeholder {
+    background: var(--pm-primary);
+    color: var(--pm-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0 auto;
+}
+
+.partyminder-dashboard-content .profile-info {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.partyminder-dashboard-content .profile-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--pm-text);
+}
+
+.partyminder-dashboard-content .profile-location {
+    color: var(--pm-text-light);
+    font-size: 0.9rem;
+}
+
+.partyminder-dashboard-content .profile-stats {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 15px;
+    border-top: 1px solid var(--pm-border);
+}
+
+.partyminder-dashboard-content .profile-stats .stat {
+    text-align: center;
+}
+
+.partyminder-dashboard-content .profile-stats .stat-number {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--pm-primary);
+}
+
+.partyminder-dashboard-content .profile-stats .stat-label {
+    font-size: 0.8rem;
+    color: var(--pm-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Recent Activity */
+.partyminder-dashboard-content .recent-activity {
+    padding: 20px 0;
+}
+
+.partyminder-dashboard-content .activity-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--pm-border);
+}
+
+.partyminder-dashboard-content .activity-item:last-child {
+    border-bottom: none;
+}
+
+.partyminder-dashboard-content .activity-item .activity-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--pm-primary);
+    color: var(--pm-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 1.1rem;
+}
+
+.partyminder-dashboard-content .activity-content .activity-title a {
+    color: var(--pm-text);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.partyminder-dashboard-content .activity-content .activity-title a:hover {
+    color: var(--pm-primary);
+}
+
+.partyminder-dashboard-content .activity-content .activity-meta {
+    font-size: 0.8rem;
+    color: var(--pm-text-light);
+    margin-top: 2px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .partyminder-dashboard-content .dashboard-layout {
+        grid-template-columns: 1fr 300px;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .partyminder-dashboard-content {
+        padding: 15px;
+    }
+    
+    .partyminder-dashboard-content .dashboard-header {
+        padding: 30px 15px;
+        margin-bottom: 30px;
+    }
+    
+    .partyminder-dashboard-content .dashboard-header h1 {
+        font-size: 2rem;
+    }
+    
+    .partyminder-dashboard-content .dashboard-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .partyminder-dashboard-content .main-section {
+        padding: 20px;
+    }
+    
+    .partyminder-dashboard-content .quick-nav .nav-item {
+        padding: 12px 15px;
+    }
+    
+    .partyminder-dashboard-content .quick-nav .nav-item .nav-icon {
+        margin-right: 12px;
+    }
+}
+
+/* =============================================================================
+   BREADCRUMB NAVIGATION
+   ============================================================================= */
+
+.partyminder-breadcrumb {
+    margin-bottom: 20px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--pm-border);
+    font-size: 0.9rem;
+}
+
+.partyminder-breadcrumb .breadcrumb-link {
+    color: var(--pm-primary);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.partyminder-breadcrumb .breadcrumb-link:hover {
+    opacity: 0.8;
+}
+
+.partyminder-breadcrumb .breadcrumb-separator {
+    margin: 0 8px;
+    color: var(--pm-text-light);
+}
+
+.partyminder-breadcrumb .breadcrumb-current {
+    color: var(--pm-text);
+    font-weight: 500;
+}
