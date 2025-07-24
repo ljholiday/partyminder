@@ -7,36 +7,26 @@ How, exactly, is this going to make any money?
 
 ### Next
 
+When someone accepts a community or event invitation they should be required to create an
+account and provide a basic set of informaion on their profile. They should be able to view
+and edit their profile.
+Is there a reason to allow them to use their existing AT DID from blue sky or should we keep
+them on our system?
+
 **AT Protocol Tools section appears** on Communities page or not. I do not see an AT Protocol
 Tools section.
 
-Get an explanation of this.
-     // Prevent direct access
-     if (!defined('ABSPATH')) {
-         exit;
-     }
-
 Add a choice to use an existing DID.
+
+Build a community management system. Members can create communities. Members can add other members to their communities. Members communitites can overlap.  Communities have community permissions that do not override member permissions.  Inner circle, friends, work, church, global, etc. Communities can span sites.  Members can discover members on other sites. Connections are persistent.  Conversation topics. Configure and adjust the default conversation topics.
+
+
 
 Members need to be able to invite guests while creating, viewing, and editing an event.
 
 I would like to be able to delete events both in the admin backend and as the event creator in
 the front end.
 
-Let's build a community network with event planning mvp for now. Leave the gates open for restaurant and global features. But get this developed and on a website today.
-
-Start Simple, Scale Smart:
-
-Implement AT Protocol DIDs but begin with single-site communities
-Build the permission system (member > community hierarchy) from day one
-Design database schema for global scale but populate locally first
-Community DIDs immediately, but cross-site discovery comes in v2
-
-MVP Member Flow:
-
-Member joins with DID (future-proofs their identity)
-Creates/joins local communities first
-Foundation exists for cross-site expansion when ready
 
 
 
@@ -49,15 +39,11 @@ Foundation exists for cross-site expansion when ready
 
 ### Backlog
 
-Have the plug in create an instructions page that the site admin can include in their own navigation.
 
-Build a community management system. Members can create communities. Members can
-add other members to their communities. Members communitites can overlap.
-Communities have community permissions that do not override member permissions.
-Inner circle, friends, work, church, global, etc. Communities can span sites.
-Members can discover members on other sites. Connections are persistent.
 
-Conversation topics. Configure and adjust the default conversation topics.
+Have the plugin create an instructions page that the site admin can include in their own navigation.
+
+
 
 Provide an option for newest first and set as default.
 

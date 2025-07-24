@@ -20,10 +20,6 @@ if (!$event) {
     return;
 }
 
-// Get styling options
-$primary_color = get_option('partyminder_primary_color', '#667eea');
-$secondary_color = get_option('partyminder_secondary_color', '#764ba2');
-$button_style = get_option('partyminder_button_style', 'rounded');
 
 $event_date = new DateTime($event->event_date);
 $is_today = $event_date->format('Y-m-d') === date('Y-m-d');
@@ -31,162 +27,125 @@ $is_tomorrow = $event_date->format('Y-m-d') === date('Y-m-d', strtotime('+1 day'
 $is_past = $event_date < new DateTime();
 ?>
 
-<style>
-:root {
-    --pm-primary: <?php echo esc_attr($primary_color); ?>;
-    --pm-secondary: <?php echo esc_attr($secondary_color); ?>;
-}
 
-.partyminder-single-event .event-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 20px;
-}
-
-.partyminder-single-event .pm-button {
-    background: var(--pm-primary);
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-    font-size: 1em;
-}
-
-.partyminder-single-event .pm-button:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.partyminder-single-event .pm-button-secondary {
-    background: #6c757d;
-}
-
-.partyminder-single-event .manage-event-btn {
-    background: var(--pm-primary);
-}
-
-@media (max-width: 768px) {
-    .partyminder-single-event .event-actions {
-        flex-direction: column;
-    }
-    
-    .partyminder-single-event .pm-button {
-        width: 100%;
-        justify-content: center;
-    }
-}
-</style>
-
-<div class="partyminder-single-event">
-    <div class="event-header">
-        <h1 class="event-title"><?php echo esc_html($event->title); ?></h1>
-        
-        <?php if ($is_past): ?>
-            <div class="event-status">
-                <span class="past-event">
+<div class="partyminder-content pm-container">
+    <div class="pm-card">
+        <div class="pm-card-header">
+            <h1 class="pm-title-primary pm-m-0"><?php echo esc_html($event->title); ?></h1>
+            
+            <?php if ($is_past): ?>
+                <div class="pm-badge pm-badge-warning">
                     📅 Past Event
-                </span>
-            </div>
-        <?php elseif ($is_today): ?>
-            <div class="event-status">
-                <span class="today-event">
+                </div>
+            <?php elseif ($is_today): ?>
+                <div class="pm-badge pm-badge-success">
                     🎉 Today!
-                </span>
-            </div>
-        <?php elseif ($is_tomorrow): ?>
-            <div class="event-status">
-                <span class="tomorrow-event">
+                </div>
+            <?php elseif ($is_tomorrow): ?>
+                <div class="pm-badge pm-badge-primary">
                     ⏰ Tomorrow
-                </span>
-            </div>
-        <?php endif; ?>
-        
-        <div class="event-meta">
-            <div class="meta-item">
-                <span>📅</span>
-                <span>
-                    <?php if ($is_today): ?>
-                        <?php _e('Today', 'partyminder'); ?>
-                    <?php elseif ($is_tomorrow): ?>
-                        <?php _e('Tomorrow', 'partyminder'); ?>
-                    <?php else: ?>
-                        <?php echo $event_date->format('l, F j, Y'); ?>
-                    <?php endif; ?>
-                </span>
-            </div>
-            
-            <div class="meta-item">
-                <span>🕐</span>
-                <span><?php echo $event_date->format('g:i A'); ?></span>
-            </div>
-            
-            <?php if ($event->venue_info): ?>
-            <div class="meta-item">
-                <span>📍</span>
-                <span><?php echo esc_html($event->venue_info); ?></span>
-            </div>
+                </div>
             <?php endif; ?>
-            
-            <div class="meta-item">
-                <span>👥</span>
-                <span>
-                    <?php echo $event->guest_stats->confirmed ?? 0; ?> confirmed
-                    <?php if ($event->guest_limit > 0): ?>
-                        of <?php echo $event->guest_limit; ?> max
-                    <?php endif; ?>
-                </span>
+        </div>
+        
+        <div class="pm-card-body">
+            <div class="pm-grid pm-grid-4 pm-mb-4">
+                <div class="pm-meta-item">
+                    <span>📅</span>
+                    <span>
+                        <?php if ($is_today): ?>
+                            <?php _e('Today', 'partyminder'); ?>
+                        <?php elseif ($is_tomorrow): ?>
+                            <?php _e('Tomorrow', 'partyminder'); ?>
+                        <?php else: ?>
+                            <?php echo $event_date->format('l, F j, Y'); ?>
+                        <?php endif; ?>
+                    </span>
+                </div>
+                
+                <div class="pm-meta-item">
+                    <span>🕐</span>
+                    <span><?php echo $event_date->format('g:i A'); ?></span>
+                </div>
+                
+                <?php if ($event->venue_info): ?>
+                <div class="pm-meta-item">
+                    <span>📍</span>
+                    <span><?php echo esc_html($event->venue_info); ?></span>
+                </div>
+                <?php endif; ?>
+                
+                <div class="pm-meta-item">
+                    <span>👥</span>
+                    <span>
+                        <?php echo $event->guest_stats->confirmed ?? 0; ?> confirmed
+                        <?php if ($event->guest_limit > 0): ?>
+                            of <?php echo $event->guest_limit; ?> max
+                        <?php endif; ?>
+                    </span>
+                </div>
             </div>
         </div>
     </div>
     
     <?php if ($event->featured_image): ?>
-    <div class="event-image">
-        <img src="<?php echo esc_url($event->featured_image); ?>" alt="<?php echo esc_attr($event->title); ?>" style="max-width: 100%; height: auto;">
+    <div class="pm-card pm-mb-6">
+        <img src="<?php echo esc_url($event->featured_image); ?>" alt="<?php echo esc_attr($event->title); ?>" class="pm-w-full" style="height: auto; border-radius: var(--pm-radius);">
     </div>
     <?php endif; ?>
     
-    <div class="event-content">
+    <div class="pm-card pm-mb-6">
         <?php if ($event->description): ?>
-            <div class="event-description">
-                <h3>About This Event</h3>
+            <div class="pm-card-header">
+                <h3 class="pm-title-secondary pm-m-0">About This Event</h3>
+            </div>
+            <div class="pm-card-body">
                 <?php echo wpautop($event->description); ?>
             </div>
         <?php endif; ?>
         
         <?php if ($event->host_notes): ?>
-            <div class="host-notes">
-                <h3>Host Notes</h3>
+            <?php if ($event->description): ?>
+                <div class="pm-card-footer pm-border-top">
+            <?php else: ?>
+                <div class="pm-card-header">
+                    <h3 class="pm-title-secondary pm-m-0">Host Notes</h3>
+                </div>
+                <div class="pm-card-body">
+            <?php endif; ?>
+                <h4 class="pm-heading pm-heading-sm">Host Notes</h4>
                 <?php echo wpautop($event->host_notes); ?>
             </div>
         <?php endif; ?>
-        
-        <div class="event-stats">
-            <div class="stat-item">
-                <div class="stat-number"><?php echo $event->guest_stats->confirmed ?? 0; ?></div>
-                <div class="stat-label">Confirmed</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number"><?php echo $event->guest_stats->pending ?? 0; ?></div>
-                <div class="stat-label">Pending</div>
-            </div>
-            <?php if (($event->guest_stats->maybe ?? 0) > 0): ?>
-            <div class="stat-item">
-                <div class="stat-number"><?php echo $event->guest_stats->maybe ?? 0; ?></div>
-                <div class="stat-label">Maybe</div>
-            </div>
-            <?php endif; ?>
+    </div>
+    
+    <div class="pm-card pm-mb-6">
+        <div class="pm-card-header">
+            <h3 class="pm-title-secondary pm-m-0">Event Stats</h3>
         </div>
-        
-        <?php if (!$is_past): ?>
-            <div class="event-actions">
+        <div class="pm-card-body">
+            <div class="pm-grid pm-grid-4">
+                <div class="pm-stat">
+                    <div class="pm-stat-number pm-text-success"><?php echo $event->guest_stats->confirmed ?? 0; ?></div>
+                    <div class="pm-stat-label">Confirmed</div>
+                </div>
+                <div class="pm-stat">
+                    <div class="pm-stat-number pm-text-warning"><?php echo $event->guest_stats->pending ?? 0; ?></div>
+                    <div class="pm-stat-label">Pending</div>
+                </div>
+                <?php if (($event->guest_stats->maybe ?? 0) > 0): ?>
+                <div class="pm-stat">
+                    <div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->maybe ?? 0; ?></div>
+                    <div class="pm-stat-label">Maybe</div>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    
+    <?php if (!$is_past): ?>
+        <div class="pm-card pm-mb-6">
+            <div class="pm-card-body">
                 <?php 
                 $is_full = $event->guest_limit > 0 && $event->guest_stats->confirmed >= $event->guest_limit;
                 $current_user = wp_get_current_user();
@@ -195,62 +154,73 @@ $is_past = $event_date < new DateTime();
                                 current_user_can('edit_others_posts');
                 ?>
                 
-                <?php if ($is_event_host): ?>
-                    <button class="pm-button pm-button-primary manage-event-btn" 
-                            data-event-id="<?php echo esc_attr($event->id); ?>"
-                            data-event-title="<?php echo esc_attr($event->title); ?>"
-                            data-event-slug="<?php echo esc_attr($event->slug); ?>">
-                        <span>⚙️</span>
-                        <?php _e('Manage Event', 'partyminder'); ?>
-                    </button>
+                <div class="pm-flex pm-flex-center-gap" style="flex-wrap: wrap;">
+                    <?php if ($is_event_host): ?>
+                        <button class="pm-button pm-button-primary manage-event-btn" 
+                                data-event-id="<?php echo esc_attr($event->id); ?>"
+                                data-event-title="<?php echo esc_attr($event->title); ?>"
+                                data-event-slug="<?php echo esc_attr($event->slug); ?>">
+                            <span>⚙️</span>
+                            <?php _e('Manage Event', 'partyminder'); ?>
+                        </button>
+                        
+                        <a href="<?php echo PartyMinder::get_edit_event_url($event->id); ?>" class="pm-button pm-button-secondary">
+                            <span>✏️</span>
+                            <?php _e('Edit Details', 'partyminder'); ?>
+                        </a>
+                    <?php else: ?>
+                        <a href="#rsvp" class="pm-button pm-button-primary">
+                            <?php if ($is_full): ?>
+                                🎟️ Join Waitlist
+                            <?php else: ?>
+                                💌 RSVP Now
+                            <?php endif; ?>
+                        </a>
+                    <?php endif; ?>
                     
-                    <a href="<?php echo PartyMinder::get_edit_event_url($event->id); ?>" class="pm-button pm-button-secondary">
-                        <span>✏️</span>
-                        <?php _e('Edit Details', 'partyminder'); ?>
-                    </a>
-                <?php else: ?>
-                    <a href="#rsvp" class="pm-button pm-button-primary">
-                        <?php if ($is_full): ?>
-                            🎟️ Join Waitlist
-                        <?php else: ?>
-                            💌 RSVP Now
-                        <?php endif; ?>
-                    </a>
-                <?php endif; ?>
-                
-                <button type="button" class="pm-button pm-button-secondary" onclick="shareEvent()">
-                    📤 Share Event
-                </button>
+                    <button type="button" class="pm-button pm-button-secondary" onclick="shareEvent()">
+                        📤 Share Event
+                    </button>
+                </div>
             </div>
-        <?php endif; ?>
-    </div>
+        </div>
+    <?php endif; ?>
     
     <?php if (!$is_past): ?>
     <!-- RSVP Form Section -->
-    <div class="event-rsvp" id="rsvp">
-        <?php echo do_shortcode('[partyminder_rsvp_form event_id="' . $event->id . '"]'); ?>
+    <div class="pm-card pm-mb-6" id="rsvp">
+        <div class="pm-card-header">
+            <h3 class="pm-title-secondary pm-m-0">RSVP for this Event</h3>
+        </div>
+        <div class="pm-card-body">
+            <?php echo do_shortcode('[partyminder_rsvp_form event_id="' . $event->id . '"]'); ?>
+        </div>
     </div>
     <?php endif; ?>
     
     <!-- Event Details -->
-    <div class="event-details">
-        <h3>Event Details</h3>
-        <table>
-            <tr>
-                <td><strong>Host Email:</strong></td>
-                <td><?php echo esc_html($event->host_email); ?></td>
-            </tr>
-            <tr>
-                <td><strong>Created:</strong></td>
-                <td><?php echo date('F j, Y', strtotime($event->created_at)); ?></td>
-            </tr>
-            <?php if ($event->guest_limit > 0): ?>
-            <tr>
-                <td><strong>Guest Limit:</strong></td>
-                <td><?php echo $event->guest_limit; ?> people</td>
-            </tr>
-            <?php endif; ?>
-        </table>
+    <div class="pm-card pm-mb-6">
+        <div class="pm-card-header">
+            <h3 class="pm-title-secondary pm-m-0">Event Details</h3>
+        </div>
+        <div class="pm-card-body">
+            <div class="pm-grid pm-grid-3">
+                <div>
+                    <strong class="pm-text-primary">Host Email:</strong><br>
+                    <span class="pm-text-muted"><?php echo esc_html($event->host_email); ?></span>
+                </div>
+                <div>
+                    <strong class="pm-text-primary">Created:</strong><br>
+                    <span class="pm-text-muted"><?php echo date('F j, Y', strtotime($event->created_at)); ?></span>
+                </div>
+                <?php if ($event->guest_limit > 0): ?>
+                <div>
+                    <strong class="pm-text-primary">Guest Limit:</strong><br>
+                    <span class="pm-text-muted"><?php echo $event->guest_limit; ?> people</span>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
     </div>
 </div>
 

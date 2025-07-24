@@ -114,48 +114,26 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST
     }
 }
 
-// Get styling options
-$primary_color = get_option('partyminder_primary_color', '#667eea');
-$secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 ?>
 
-<style>
-/* Custom login page styles */
-.partyminder-login-content .login-header h1 {
-    color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-login-content .login-form .pm-button {
-    background: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-login-content .form-toggle a {
-    color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-login-content .social-login .social-button:hover {
-    background: <?php echo esc_attr($primary_color); ?>15;
-    border-color: <?php echo esc_attr($primary_color); ?>;
-}
-</style>
 
 <div class="partyminder-login-content">
     
-    <!-- Dashboard Link -->
-    <div class="partyminder-breadcrumb">
-        <a href="<?php echo esc_url(PartyMinder::get_dashboard_url()); ?>" class="breadcrumb-link">
+    <!-- Breadcrumb Navigation -->
+    <div class="pm-breadcrumb">
+        <a href="<?php echo esc_url(PartyMinder::get_dashboard_url()); ?>" class="pm-breadcrumb-link">
             🏠 <?php _e('Dashboard', 'partyminder'); ?>
         </a>
-        <span class="breadcrumb-separator">→</span>
-        <span class="breadcrumb-current"><?php echo $action === 'register' ? __('Register', 'partyminder') : __('Login', 'partyminder'); ?></span>
+        <span class="pm-breadcrumb-separator">→</span>
+        <span class="pm-breadcrumb-current"><?php echo $action === 'register' ? __('Register', 'partyminder') : __('Login', 'partyminder'); ?></span>
     </div>
     
-    <div class="login-container">
+    <div class="pm-container">
         
         <!-- Login Header -->
-        <div class="login-header">
-            <h1>🎉 <?php _e('Welcome to PartyMinder', 'partyminder'); ?></h1>
-            <p>
+        <div class="pm-card-header pm-text-center pm-mb-6">
+            <h1 class="pm-heading pm-heading-lg pm-text-primary">🎉 <?php _e('Welcome to PartyMinder', 'partyminder'); ?></h1>
+            <p class="pm-text-muted">
                 <?php if ($action === 'register'): ?>
                     <?php _e('Create your account to start hosting amazing events and connecting with your community.', 'partyminder'); ?>
                 <?php else: ?>
@@ -166,9 +144,9 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         
         <!-- Error Messages -->
         <?php if (!empty($errors)): ?>
-        <div class="partyminder-errors">
-            <h4><?php _e('Please fix the following errors:', 'partyminder'); ?></h4>
-            <ul>
+        <div class="pm-message pm-message-error pm-mb-4">
+            <h4 class="pm-heading pm-heading-sm pm-mb-2"><?php _e('Please fix the following errors:', 'partyminder'); ?></h4>
+            <ul style="margin: 0; padding-left: 20px;">
                 <?php foreach ($errors as $error): ?>
                     <li><?php echo esc_html($error); ?></li>
                 <?php endforeach; ?>
@@ -178,115 +156,119 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         
         <!-- Success Messages -->
         <?php if (!empty($messages)): ?>
-        <div class="partyminder-success">
+        <div class="pm-message pm-message-success pm-mb-4">
             <?php foreach ($messages as $message): ?>
-                <p><?php echo esc_html($message); ?></p>
+                <p class="pm-m-0"><?php echo esc_html($message); ?></p>
             <?php endforeach; ?>
         </div>
         <?php endif; ?>
         
-        <div class="login-forms-container">
+        <div class="pm-grid" style="max-width: 600px; margin: 0 auto;">
             
             <?php if ($action === 'register'): ?>
             <!-- Registration Form -->
-            <div class="login-form">
-                <h2><?php _e('Create Account', 'partyminder'); ?></h2>
-                
-                <form method="post" class="partyminder-form">
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2 class="pm-heading pm-heading-md"><?php _e('Create Account', 'partyminder'); ?></h2>
+                </div>
+                <div class="pm-card-body">
+                <form method="post" class="pm-form">
                     <?php wp_nonce_field('partyminder_register', 'partyminder_register_nonce'); ?>
                     
-                    <div class="form-group">
-                        <label for="display_name"><?php _e('Your Name', 'partyminder'); ?></label>
-                        <input type="text" id="display_name" name="display_name" 
+                    <div class="pm-form-group">
+                        <label for="display_name" class="pm-label"><?php _e('Your Name', 'partyminder'); ?></label>
+                        <input type="text" id="display_name" name="display_name" class="pm-input"
                                value="<?php echo esc_attr($_POST['display_name'] ?? ''); ?>" 
                                placeholder="<?php esc_attr_e('How should we address you?', 'partyminder'); ?>" required>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="username"><?php _e('Username', 'partyminder'); ?></label>
-                        <input type="text" id="username" name="username" 
+                    <div class="pm-form-group">
+                        <label for="username" class="pm-label"><?php _e('Username', 'partyminder'); ?></label>
+                        <input type="text" id="username" name="username" class="pm-input"
                                value="<?php echo esc_attr($_POST['username'] ?? ''); ?>" 
                                placeholder="<?php esc_attr_e('Choose a unique username', 'partyminder'); ?>" required>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="email"><?php _e('Email Address', 'partyminder'); ?></label>
-                        <input type="email" id="email" name="email" 
+                    <div class="pm-form-group">
+                        <label for="email" class="pm-label"><?php _e('Email Address', 'partyminder'); ?></label>
+                        <input type="email" id="email" name="email" class="pm-input"
                                value="<?php echo esc_attr($_POST['email'] ?? ''); ?>" 
                                placeholder="<?php esc_attr_e('your@email.com', 'partyminder'); ?>" required>
                     </div>
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="password"><?php _e('Password', 'partyminder'); ?></label>
-                            <input type="password" id="password" name="password" 
+                    <div class="pm-form-row">
+                        <div class="pm-form-group">
+                            <label for="password" class="pm-label"><?php _e('Password', 'partyminder'); ?></label>
+                            <input type="password" id="password" name="password" class="pm-input"
                                    placeholder="<?php esc_attr_e('At least 8 characters', 'partyminder'); ?>" required>
                         </div>
                         
-                        <div class="form-group">
-                            <label for="confirm_password"><?php _e('Confirm Password', 'partyminder'); ?></label>
-                            <input type="password" id="confirm_password" name="confirm_password" 
+                        <div class="pm-form-group">
+                            <label for="confirm_password" class="pm-label"><?php _e('Confirm Password', 'partyminder'); ?></label>
+                            <input type="password" id="confirm_password" name="confirm_password" class="pm-input"
                                    placeholder="<?php esc_attr_e('Repeat your password', 'partyminder'); ?>" required>
                         </div>
                     </div>
                     
-                    <div class="form-actions">
-                        <button type="submit" class="pm-button pm-button-primary pm-button-large">
+                    <div class="pm-text-center">
+                        <button type="submit" class="pm-button pm-button-primary pm-button-large pm-w-full">
                             <span>✨</span>
                             <?php _e('Create Account & Setup Profile', 'partyminder'); ?>
                         </button>
                     </div>
                 </form>
-                
-                <div class="form-toggle">
-                    <p><?php _e('Already have an account?', 'partyminder'); ?> 
-                       <a href="<?php echo esc_url(remove_query_arg('action')); ?>"><?php _e('Sign In', 'partyminder'); ?></a>
+                </div>
+                <div class="pm-card-footer pm-text-center">
+                    <p class="pm-text-muted"><?php _e('Already have an account?', 'partyminder'); ?> 
+                       <a href="<?php echo esc_url(remove_query_arg('action')); ?>" class="pm-text-primary"><?php _e('Sign In', 'partyminder'); ?></a>
                     </p>
                 </div>
             </div>
             
             <?php else: ?>
             <!-- Login Form -->
-            <div class="login-form">
-                <h2><?php _e('Sign In', 'partyminder'); ?></h2>
-                
-                <form method="post" class="partyminder-form">
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2 class="pm-heading pm-heading-md"><?php _e('Sign In', 'partyminder'); ?></h2>
+                </div>
+                <div class="pm-card-body">
+                <form method="post" class="pm-form">
                     <?php wp_nonce_field('partyminder_login', 'partyminder_login_nonce'); ?>
                     
-                    <div class="form-group">
-                        <label for="username"><?php _e('Username or Email', 'partyminder'); ?></label>
-                        <input type="text" id="username" name="username" 
+                    <div class="pm-form-group">
+                        <label for="username" class="pm-label"><?php _e('Username or Email', 'partyminder'); ?></label>
+                        <input type="text" id="username" name="username" class="pm-input"
                                value="<?php echo esc_attr($_POST['username'] ?? ''); ?>" 
                                placeholder="<?php esc_attr_e('Enter your username or email', 'partyminder'); ?>" required>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="password"><?php _e('Password', 'partyminder'); ?></label>
-                        <input type="password" id="password" name="password" 
+                    <div class="pm-form-group">
+                        <label for="password" class="pm-label"><?php _e('Password', 'partyminder'); ?></label>
+                        <input type="password" id="password" name="password" class="pm-input"
                                placeholder="<?php esc_attr_e('Enter your password', 'partyminder'); ?>" required>
                     </div>
                     
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="remember" value="1" 
+                    <div class="pm-form-group">
+                        <label class="pm-flex" style="align-items: center; cursor: pointer;">
+                            <input type="checkbox" name="remember" value="1" style="margin-right: 8px;"
                                    <?php checked(isset($_POST['remember'])); ?>>
-                            <?php _e('Remember me for 2 weeks', 'partyminder'); ?>
+                            <span class="pm-text-muted"><?php _e('Remember me for 2 weeks', 'partyminder'); ?></span>
                         </label>
                     </div>
                     
-                    <div class="form-actions">
-                        <button type="submit" class="pm-button pm-button-primary pm-button-large">
+                    <div class="pm-text-center">
+                        <button type="submit" class="pm-button pm-button-primary pm-button-large pm-w-full">
                             <span>🚪</span>
                             <?php _e('Sign In', 'partyminder'); ?>
                         </button>
                     </div>
                 </form>
-                
-                <div class="form-toggle">
-                    <p><?php _e('New to PartyMinder?', 'partyminder'); ?> 
-                       <a href="<?php echo esc_url(add_query_arg('action', 'register')); ?>"><?php _e('Create Account', 'partyminder'); ?></a>
+                </div>
+                <div class="pm-card-footer pm-text-center">
+                    <p class="pm-text-muted pm-mb-2"><?php _e('New to PartyMinder?', 'partyminder'); ?> 
+                       <a href="<?php echo esc_url(add_query_arg('action', 'register')); ?>" class="pm-text-primary"><?php _e('Create Account', 'partyminder'); ?></a>
                     </p>
-                    <p><a href="<?php echo wp_lostpassword_url(); ?>"><?php _e('Forgot your password?', 'partyminder'); ?></a></p>
+                    <p class="pm-m-0"><a href="<?php echo wp_lostpassword_url(); ?>" class="pm-text-primary"><?php _e('Forgot your password?', 'partyminder'); ?></a></p>
                 </div>
             </div>
             <?php endif; ?>
@@ -294,25 +276,29 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         </div>
         
         <!-- Features Preview -->
-        <div class="login-features">
-            <h3><?php _e('Join the PartyMinder Community', 'partyminder'); ?></h3>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🎪</div>
-                    <h4><?php _e('Host Events', 'partyminder'); ?></h4>
-                    <p><?php _e('Create and manage amazing parties with our easy-to-use tools.', 'partyminder'); ?></p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">💌</div>
-                    <h4><?php _e('RSVP & Attend', 'partyminder'); ?></h4>
-                    <p><?php _e('Discover local events and connect with your community.', 'partyminder'); ?></p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">💬</div>
-                    <h4><?php _e('Connect', 'partyminder'); ?></h4>
-                    <p><?php _e('Share tips, recipes, and stories with fellow party enthusiasts.', 'partyminder'); ?></p>
+        <div class="pm-card pm-mt-6">
+            <div class="pm-card-header pm-text-center">
+                <h3 class="pm-heading pm-heading-md"><?php _e('Join the PartyMinder Community', 'partyminder'); ?></h3>
+            </div>
+            <div class="pm-card-body">
+                <div class="pm-grid pm-grid-3">
+                    <div class="pm-text-center pm-p-4">
+                        <div style="font-size: 3rem; margin-bottom: 12px;">🎪</div>
+                        <h4 class="pm-heading pm-heading-sm pm-mb-2"><?php _e('Host Events', 'partyminder'); ?></h4>
+                        <p class="pm-text-muted pm-m-0"><?php _e('Create and manage amazing parties with our easy-to-use tools.', 'partyminder'); ?></p>
+                    </div>
+                    
+                    <div class="pm-text-center pm-p-4">
+                        <div style="font-size: 3rem; margin-bottom: 12px;">💌</div>
+                        <h4 class="pm-heading pm-heading-sm pm-mb-2"><?php _e('RSVP & Attend', 'partyminder'); ?></h4>
+                        <p class="pm-text-muted pm-m-0"><?php _e('Discover local events and connect with your community.', 'partyminder'); ?></p>
+                    </div>
+                    
+                    <div class="pm-text-center pm-p-4">
+                        <div style="font-size: 3rem; margin-bottom: 12px;">💬</div>
+                        <h4 class="pm-heading pm-heading-sm pm-mb-2"><?php _e('Connect', 'partyminder'); ?></h4>
+                        <p class="pm-text-muted pm-m-0"><?php _e('Share tips, recipes, and stories with fellow party enthusiasts.', 'partyminder'); ?></p>
+                    </div>
                 </div>
             </div>
         </div>

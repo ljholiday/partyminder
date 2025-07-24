@@ -228,9 +228,7 @@ class PartyMinder_Activator {
         add_option('partyminder_communities_require_approval', true);
         add_option('partyminder_max_communities_per_user', 10);
         
-        // Styling options
-        add_option('partyminder_primary_color', '#667eea');
-        add_option('partyminder_secondary_color', '#764ba2');
+        // UI options (removed color customization - now uses WordPress theme colors)
         add_option('partyminder_button_style', 'rounded');
         add_option('partyminder_form_layout', 'card');
     }

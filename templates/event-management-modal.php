@@ -9,415 +9,122 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Get styling options
-$primary_color = get_option('partyminder_primary_color', '#667eea');
-$secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 ?>
 
-<style>
-.event-management-modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 9999;
-    animation: fadeIn 0.3s ease;
-}
-
-.event-management-modal-overlay.active {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.event-management-modal {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 800px;
-    width: 95%;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: slideIn 0.3s ease;
-}
-
-.event-management-modal-header {
-    background: linear-gradient(135deg, <?php echo esc_attr($primary_color); ?>, <?php echo esc_attr($secondary_color); ?>);
-    color: white;
-    padding: 20px;
-    border-radius: 12px 12px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.event-management-modal-title {
-    font-size: 1.3em;
-    font-weight: bold;
-    margin: 0;
-    max-width: calc(100% - 50px);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-#modal-event-title {
-    font-weight: normal;
-}
-
-.event-management-modal-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.5em;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s ease;
-}
-
-.event-management-modal-close:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.event-management-modal-body {
-    padding: 0;
-}
-
-.management-tabs {
-    display: flex;
-    background: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.management-tab-btn {
-    flex: 1;
-    background: none;
-    border: none;
-    padding: 15px 20px;
-    cursor: pointer;
-    color: #666;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    border-bottom: 3px solid transparent;
-}
-
-.management-tab-btn:hover,
-.management-tab-btn.active {
-    color: <?php echo esc_attr($primary_color); ?>;
-    border-bottom-color: <?php echo esc_attr($primary_color); ?>;
-    background: white;
-}
-
-.management-tab-content {
-    padding: 30px;
-    min-height: 300px;
-}
-
-.management-tab-pane {
-    display: none;
-}
-
-.management-tab-pane.active {
-    display: block;
-}
-
-.management-form-group {
-    margin-bottom: 20px;
-}
-
-.management-form-label {
-    display: block;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 8px;
-}
-
-.management-form-input,
-.management-form-select,
-.management-form-textarea {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #e9ecef;
-    border-radius: 6px;
-    font-size: 1em;
-    transition: border-color 0.2s ease;
-    box-sizing: border-box;
-}
-
-.management-form-input:focus,
-.management-form-select:focus,
-.management-form-textarea:focus {
-    outline: none;
-    border-color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.management-form-help {
-    font-size: 0.85em;
-    color: #666;
-    margin-top: 5px;
-}
-
-.management-btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 1em;
-}
-
-.management-btn-primary {
-    background: <?php echo esc_attr($primary_color); ?>;
-    color: white;
-}
-
-.management-btn-primary:hover {
-    opacity: 0.9;
-}
-
-.management-btn-secondary {
-    background: #6c757d;
-    color: white;
-}
-
-.management-btn-secondary:hover {
-    opacity: 0.9;
-}
-
-.guest-list, .invitation-list {
-    margin-top: 20px;
-}
-
-.guest-item, .invitation-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    margin-bottom: 10px;
-}
-
-.guest-info, .invitation-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.guest-avatar, .invitation-avatar {
-    width: 40px;
-    height: 40px;
-    background: <?php echo esc_attr($primary_color); ?>;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-}
-
-.guest-details h4, .invitation-details h4 {
-    margin: 0 0 5px 0;
-    color: #333;
-}
-
-.guest-details small, .invitation-details small {
-    color: #666;
-}
-
-.guest-status {
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.8em;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.guest-status.attending {
-    background: #28a745;
-    color: white;
-}
-
-.guest-status.pending {
-    background: #ffc107;
-    color: #000;
-}
-
-.guest-status.declined {
-    background: #dc3545;
-    color: white;
-}
-
-.placeholder-content {
-    text-align: center;
-    padding: 40px 20px;
-    color: #666;
-}
-
-.event-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.stat-card {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.stat-number {
-    font-size: 2em;
-    font-weight: bold;
-    color: <?php echo esc_attr($primary_color); ?>;
-    margin-bottom: 5px;
-}
-
-.stat-label {
-    color: #666;
-    font-size: 0.9em;
-}
-
-@media (max-width: 768px) {
-    .event-management-modal {
-        width: 98%;
-        margin: 10px;
-    }
-    
-    .event-management-modal-body {
-        padding: 0;
-    }
-    
-    .management-tab-content {
-        padding: 20px;
-    }
-    
-    .management-tabs {
-        flex-direction: column;
-    }
-    
-    .event-stats {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-</style>
-
 <!-- Event Management Modal -->
-<div id="event-management-modal" class="event-management-modal-overlay">
-    <div class="event-management-modal">
-        <div class="event-management-modal-header">
-            <h3 class="event-management-modal-title">🎉 <span id="modal-event-title">Manage Event</span></h3>
-            <button type="button" class="event-management-modal-close" aria-label="<?php _e('Close', 'partyminder'); ?>">×</button>
+<div id="event-management-modal" class="pm-modal-overlay">
+    <div class="pm-modal">
+        <div class="pm-modal-header">
+            <h3 class="pm-modal-title">🎉 <span id="modal-event-title">Manage Event</span></h3>
+            <button type="button" class="event-management-modal-close pm-button pm-button-secondary" style="padding: 5px; border-radius: 50%; width: 35px; height: 35px;" aria-label="<?php _e('Close', 'partyminder'); ?>">×</button>
         </div>
         
-        <div class="event-management-modal-body">
-            <div class="management-tabs">
-                <button class="management-tab-btn active" data-tab="overview">
+        <div class="pm-modal-body">
+            <div class="pm-flex pm-flex-center-gap" style="background: var(--pm-surface); border-bottom: 1px solid var(--pm-border);">
+                <button class="management-tab-btn pm-button pm-button-secondary active" data-tab="overview" style="flex: 1; border-radius: 0; border-bottom: 3px solid var(--pm-primary);">
                     <?php _e('Overview', 'partyminder'); ?>
                 </button>
-                <button class="management-tab-btn" data-tab="guests">
+                <button class="management-tab-btn pm-button pm-button-secondary" data-tab="guests" style="flex: 1; border-radius: 0;">
                     <?php _e('Guest List', 'partyminder'); ?>
                 </button>
-                <button class="management-tab-btn" data-tab="invitations">
+                <button class="management-tab-btn pm-button pm-button-secondary" data-tab="invitations" style="flex: 1; border-radius: 0;">
                     <?php _e('Invitations', 'partyminder'); ?>
                 </button>
             </div>
             
-            <div class="management-tab-content">
+            <div style="padding: 30px; min-height: 300px;">
                 <!-- Overview Tab -->
                 <div id="overview-tab" class="management-tab-pane active">
-                    <h4><?php _e('Event Overview', 'partyminder'); ?></h4>
+                    <h4 class="pm-heading pm-heading-md pm-mb-4"><?php _e('Event Overview', 'partyminder'); ?></h4>
                     
-                    <div class="event-stats">
-                        <div class="stat-card">
-                            <div class="stat-number" id="total-rsvps">0</div>
-                            <div class="stat-label"><?php _e('Total RSVPs', 'partyminder'); ?></div>
+                    <div class="pm-grid pm-grid-3 pm-mb-6">
+                        <div class="pm-card">
+                            <div class="pm-card-body pm-stat">
+                                <div class="pm-stat-number pm-text-primary" id="total-rsvps">0</div>
+                                <div class="pm-stat-label"><?php _e('Total RSVPs', 'partyminder'); ?></div>
+                            </div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="attending-count">0</div>
-                            <div class="stat-label"><?php _e('Attending', 'partyminder'); ?></div>
+                        <div class="pm-card">
+                            <div class="pm-card-body pm-stat">
+                                <div class="pm-stat-number pm-text-success" id="attending-count">0</div>
+                                <div class="pm-stat-label"><?php _e('Attending', 'partyminder'); ?></div>
+                            </div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="pending-invites">0</div>
-                            <div class="stat-label"><?php _e('Pending Invites', 'partyminder'); ?></div>
+                        <div class="pm-card">
+                            <div class="pm-card-body pm-stat">
+                                <div class="pm-stat-number pm-text-warning" id="pending-invites">0</div>
+                                <div class="pm-stat-label"><?php _e('Pending Invites', 'partyminder'); ?></div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="management-actions">
-                        <a href="#" class="management-btn management-btn-primary" id="edit-event-btn">
+                    <div class="pm-flex pm-flex-center-gap" style="margin-bottom: 30px; flex-wrap: wrap;">
+                        <a href="#" class="pm-button pm-button-primary" id="edit-event-btn">
                             <span>✏️</span> <?php _e('Edit Event Details', 'partyminder'); ?>
                         </a>
-                        <button class="management-btn management-btn-secondary" onclick="switchToTab('invitations')">
+                        <button class="pm-button pm-button-secondary" onclick="switchToTab('invitations')">
                             <span>📧</span> <?php _e('Send Invitations', 'partyminder'); ?>
                         </button>
-                        <button class="management-btn management-btn-secondary" onclick="shareEvent()">
+                        <button class="pm-button pm-button-secondary" onclick="shareEvent()">
                             <span>📤</span> <?php _e('Share Event', 'partyminder'); ?>
                         </button>
                     </div>
                     
-                    <div class="danger-zone">
-                        <h4><?php _e('Danger Zone', 'partyminder'); ?></h4>
-                        <p>
-                            <?php _e('Once you delete an event, there is no going back. All RSVPs, invitations, and related data will be permanently deleted.', 'partyminder'); ?>
-                        </p>
-                        <button class="management-btn danger" id="delete-event-btn">
-                            <span>🗑️</span> <?php _e('Delete Event', 'partyminder'); ?>
-                        </button>
+                    <div class="pm-card" style="border-color: var(--pm-danger);">
+                        <div class="pm-card-header">
+                            <h4 class="pm-heading pm-heading-sm pm-text-danger pm-m-0"><?php _e('Danger Zone', 'partyminder'); ?></h4>
+                        </div>
+                        <div class="pm-card-body">
+                            <p class="pm-text-muted pm-mb-4">
+                                <?php _e('Once you delete an event, there is no going back. All RSVPs, invitations, and related data will be permanently deleted.', 'partyminder'); ?>
+                            </p>
+                            <button class="pm-button pm-button-danger" id="delete-event-btn">
+                                <span>🗑️</span> <?php _e('Delete Event', 'partyminder'); ?>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Guest List Tab -->
-                <div id="guests-tab" class="management-tab-pane">
-                    <h4><?php _e('Event Guest List', 'partyminder'); ?></h4>
+                <div id="guests-tab" class="management-tab-pane" style="display: none;">
+                    <h4 class="pm-heading pm-heading-md pm-mb-4"><?php _e('Event Guest List', 'partyminder'); ?></h4>
                     <div id="guests-list">
-                        <div class="placeholder-content">
-                            <p><?php _e('Loading guest list...', 'partyminder'); ?></p>
+                        <div class="pm-text-center pm-p-6 pm-placeholder">
+                            <p class="pm-text-muted"><?php _e('Loading guest list...', 'partyminder'); ?></p>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Invitations Tab -->
-                <div id="invitations-tab" class="management-tab-pane">
-                    <h4><?php _e('Send Event Invitations', 'partyminder'); ?></h4>
-                    <form id="send-invitation-form">
-                        <div class="management-form-group">
-                            <label class="management-form-label">
+                <div id="invitations-tab" class="management-tab-pane" style="display: none;">
+                    <h4 class="pm-heading pm-heading-md pm-mb-4"><?php _e('Send Event Invitations', 'partyminder'); ?></h4>
+                    <form id="send-invitation-form" class="pm-form">
+                        <div class="pm-form-group">
+                            <label class="pm-label">
                                 <?php _e('Email Address', 'partyminder'); ?>
                             </label>
-                            <input type="email" class="management-form-input" id="invitation-email" 
+                            <input type="email" class="pm-input" id="invitation-email" 
                                    placeholder="<?php _e('Enter email address...', 'partyminder'); ?>" required>
                         </div>
                         
-                        <div class="management-form-group">
-                            <label class="management-form-label">
+                        <div class="pm-form-group">
+                            <label class="pm-label">
                                 <?php _e('Personal Message (Optional)', 'partyminder'); ?>
                             </label>
-                            <textarea class="management-form-textarea" id="invitation-message" rows="3"
+                            <textarea class="pm-input pm-textarea" id="invitation-message" rows="3"
                                       placeholder="<?php _e('Add a personal message to your invitation...', 'partyminder'); ?>"></textarea>
                         </div>
                         
-                        <button type="submit" class="management-btn management-btn-primary">
+                        <button type="submit" class="pm-button pm-button-primary">
                             <?php _e('Send Invitation', 'partyminder'); ?>
                         </button>
                     </form>
                     
-                    <div class="invitations-section">
-                        <h4><?php _e('Pending Invitations', 'partyminder'); ?></h4>
+                    <div class="pm-mt-6">
+                        <h4 class="pm-heading pm-heading-md pm-mb-4"><?php _e('Pending Invitations', 'partyminder'); ?></h4>
                         <div id="invitations-list">
-                            <div class="placeholder-content">
-                                <p><?php _e('Loading pending invitations...', 'partyminder'); ?></p>
+                            <div class="pm-text-center pm-p-6 pm-placeholder">
+                                <p class="pm-text-muted"><?php _e('Loading pending invitations...', 'partyminder'); ?></p>
                             </div>
                         </div>
                     </div>
@@ -431,22 +138,35 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('event-management-modal');
     
+    // Ensure modal starts hidden
+    if (modal) {
+        modal.classList.remove('active');
+    }
+    
     // Show modal function
     function showEventManagementModal(eventData) {
+        if (!eventData || !eventData.id) {
+            console.error('No event data provided to modal');
+            return;
+        }
+        
         // Store event data globally for form submissions
         window.currentEventData = eventData;
         
         // Update modal title with event name
-        document.getElementById('modal-event-title').textContent = eventData.title;
+        const titleElement = document.getElementById('modal-event-title');
+        if (titleElement) {
+            titleElement.textContent = eventData.title || 'Manage Event';
+        }
         
-        // Update edit event link - we'll get this from PHP since we need the proper URL
-        // The edit button will be updated via AJAX when stats are loaded
-        
+        // Show modal
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
         
         // Load overview stats
-        loadEventStats(eventData.id);
+        if (eventData.id) {
+            loadEventStats(eventData.id);
+        }
     }
     
     // Hide modal function
@@ -539,6 +259,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Click outside modal to close
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             hideEventManagementModal();
@@ -624,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load event guests
     function loadEventGuests(eventId) {
         const guestsList = document.getElementById('guests-list');
-        guestsList.innerHTML = '<div class="placeholder-content"><p><?php _e('Loading guest list...', 'partyminder'); ?></p></div>';
+        guestsList.innerHTML = '<div class="pm-placeholder pm-text-center pm-p-6"><p><?php _e('Loading guest list...', 'partyminder'); ?></p></div>';
         
         jQuery.ajax({
             url: partyminder_ajax.ajax_url,
@@ -638,11 +359,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (response.success && response.data.guests) {
                     renderGuestsList(response.data.guests);
                 } else {
-                    guestsList.innerHTML = '<div class="placeholder-content"><p><?php _e('No guests yet.', 'partyminder'); ?></p></div>';
+                    guestsList.innerHTML = '<div class="pm-placeholder pm-text-center pm-p-6"><p><?php _e('No guests yet.', 'partyminder'); ?></p></div>';
                 }
             },
             error: function() {
-                guestsList.innerHTML = '<div class="placeholder-content"><p>' + partyminder_ajax.strings.error + '</p></div>';
+                guestsList.innerHTML = '<div class="pm-placeholder pm-text-center pm-p-6"><p>' + partyminder_ajax.strings.error + '</p></div>';
             }
         });
     }
@@ -650,7 +371,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load event invitations
     function loadEventInvitations(eventId) {
         const invitationsList = document.getElementById('invitations-list');
-        invitationsList.innerHTML = '<div class="placeholder-content"><p><?php _e('Loading pending invitations...', 'partyminder'); ?></p></div>';
+        invitationsList.innerHTML = '<div class="pm-placeholder pm-text-center pm-p-6"><p><?php _e('Loading pending invitations...', 'partyminder'); ?></p></div>';
         
         jQuery.ajax({
             url: partyminder_ajax.ajax_url,
@@ -664,11 +385,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (response.success && response.data.invitations) {
                     renderInvitationsList(response.data.invitations);
                 } else {
-                    invitationsList.innerHTML = '<div class="placeholder-content"><p><?php _e('No pending invitations.', 'partyminder'); ?></p></div>';
+                    invitationsList.innerHTML = '<div class="pm-placeholder pm-text-center pm-p-6"><p><?php _e('No pending invitations.', 'partyminder'); ?></p></div>';
                 }
             },
             error: function() {
-                invitationsList.innerHTML = '<div class="placeholder-content"><p>' + partyminder_ajax.strings.error + '</p></div>';
+                invitationsList.innerHTML = '<div class="pm-placeholder pm-text-center pm-p-6"><p>' + partyminder_ajax.strings.error + '</p></div>';
             }
         });
     }
@@ -678,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const guestsList = document.getElementById('guests-list');
         
         if (!guests || guests.length === 0) {
-            guestsList.innerHTML = '<div class="placeholder-content"><p><?php _e('No guests yet.', 'partyminder'); ?></p></div>';
+            guestsList.innerHTML = '<div class="pm-placeholder pm-text-center pm-p-6"><p><?php _e('No guests yet.', 'partyminder'); ?></p></div>';
             return;
         }
         
@@ -710,7 +431,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const invitationsList = document.getElementById('invitations-list');
         
         if (!invitations || invitations.length === 0) {
-            invitationsList.innerHTML = '<div class="placeholder-content"><p><?php _e('No pending invitations.', 'partyminder'); ?></p></div>';
+            invitationsList.innerHTML = '<div class="pm-placeholder pm-text-center pm-p-6"><p><?php _e('No pending invitations.', 'partyminder'); ?></p></div>';
             return;
         }
         

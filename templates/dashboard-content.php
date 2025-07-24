@@ -48,137 +48,110 @@ if ($user_logged_in) {
     ));
 }
 
-// Get styling options
-$primary_color = get_option('partyminder_primary_color', '#667eea');
-$secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 ?>
 
-<style>
-/* Dashboard-specific dynamic styles */
-.partyminder-dashboard-content .dashboard-header h1 {
-    color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-dashboard-content .quick-nav .nav-item:hover {
-    background: <?php echo esc_attr($primary_color); ?>15;
-    border-left-color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-dashboard-content .quick-nav .nav-item .nav-icon {
-    color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-dashboard-content .recent-activity .activity-item .activity-icon {
-    background: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-dashboard-content .pm-button {
-    background: <?php echo esc_attr($primary_color); ?>;
-}
-</style>
 
 <div class="partyminder-dashboard-content">
     
     <!-- Dashboard Header -->
-    <div class="dashboard-header">
+    <div class="pm-card-header pm-mb-6">
         <?php if ($user_logged_in): ?>
-            <h1><?php printf(__('👋 Welcome back, %s!', 'partyminder'), esc_html($current_user->display_name)); ?></h1>
-            <p><?php _e('Your social event hub for connecting, planning, and celebrating together.', 'partyminder'); ?></p>
+            <h1 class="pm-heading pm-heading-lg pm-text-primary"><?php printf(__('👋 Welcome back, %s!', 'partyminder'), esc_html($current_user->display_name)); ?></h1>
+            <p class="pm-text-muted"><?php _e('Your social event hub for connecting, planning, and celebrating together.', 'partyminder'); ?></p>
         <?php else: ?>
-            <h1><?php _e('🎉 Welcome to PartyMinder', 'partyminder'); ?></h1>
-            <p><?php _e('Your social event hub for connecting, planning, and celebrating together.', 'partyminder'); ?></p>
+            <h1 class="pm-heading pm-heading-lg pm-text-primary"><?php _e('🎉 Welcome to PartyMinder', 'partyminder'); ?></h1>
+            <p class="pm-text-muted"><?php _e('Your social event hub for connecting, planning, and celebrating together.', 'partyminder'); ?></p>
         <?php endif; ?>
     </div>
 
     <!-- Two-Column Layout -->
-    <div class="dashboard-layout">
+    <div class="pm-grid pm-grid-2">
         
         <!-- Main Column: Conversations -->
-        <div class="dashboard-main">
-            <div class="main-section">
-                <div class="section-header">
-                    <h2>💬 <?php _e('Community Conversations', 'partyminder'); ?></h2>
-                    <p><?php _e('Join the latest discussions about hosting, planning, and party tips.', 'partyminder'); ?></p>
-                </div>
+        <div class="pm-card">
+            <div class="pm-card-header">
+                <h2 class="pm-heading pm-heading-md">💬 <?php _e('Community Conversations', 'partyminder'); ?></h2>
+                <p class="pm-text-muted"><?php _e('Join the latest discussions about hosting, planning, and party tips.', 'partyminder'); ?></p>
+            </div>
+            <div class="pm-card-body">
                 
                 <!-- Conversations Content -->
-                <div class="conversations-embed">
-                    <?php
-                    // Include simplified conversations content for the dashboard
-                    $conversations_atts = array('limit' => 5, 'show_form' => false);
-                    
-                    // Check if conversations file exists
-                    $conversations_file = PARTYMINDER_PLUGIN_DIR . 'templates/conversations-content.php';
-                    if (file_exists($conversations_file)) {
-                        include $conversations_file;
-                    } else {
-                        // Fallback if conversations not available
-                        echo '<div class="conversations-placeholder">';
-                        echo '<div class="placeholder-icon">💭</div>';
-                        echo '<h3>' . __('Conversations Coming Soon', 'partyminder') . '</h3>';
-                        echo '<p>' . __('Community conversations will appear here when available.', 'partyminder') . '</p>';
-                        echo '<a href="' . esc_url(PartyMinder::get_conversations_url()) . '" class="pm-button pm-button-secondary">';
-                        echo __('View Conversations', 'partyminder');
-                        echo '</a>';
-                        echo '</div>';
-                    }
-                    ?>
-                </div>
+                <?php
+                // Include simplified conversations content for the dashboard
+                $conversations_atts = array('limit' => 5, 'show_form' => false);
                 
-                <div class="section-footer">
-                    <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-button pm-button-secondary">
-                        <?php _e('View All Conversations', 'partyminder'); ?>
-                    </a>
-                </div>
+                // Check if conversations file exists
+                $conversations_file = PARTYMINDER_PLUGIN_DIR . 'templates/conversations-content.php';
+                if (file_exists($conversations_file)) {
+                    include $conversations_file;
+                } else {
+                    // Fallback if conversations not available
+                    echo '<div class="pm-text-center pm-p-6">';
+                    echo '<div class="pm-mb-4" style="font-size: 3rem;">💭</div>';
+                    echo '<h3 class="pm-heading pm-heading-md pm-mb-2">' . __('Conversations Coming Soon', 'partyminder') . '</h3>';
+                    echo '<p class="pm-text-muted pm-mb-4">' . __('Community conversations will appear here when available.', 'partyminder') . '</p>';
+                    echo '<a href="' . esc_url(PartyMinder::get_conversations_url()) . '" class="pm-button pm-button-primary">';
+                    echo __('View Conversations', 'partyminder');
+                    echo '</a>';
+                    echo '</div>';
+                }
+                ?>
+            </div>
+            <div class="pm-card-footer pm-text-center">
+                <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-button pm-button-primary">
+                    <?php _e('View All Conversations', 'partyminder'); ?>
+                </a>
             </div>
         </div>
         
         <!-- Sidebar: Navigation & Quick Info -->
-        <div class="dashboard-sidebar">
+        <div class="pm-flex" style="flex-direction: column; gap: 20px;">
             
             <!-- Quick Navigation -->
-            <div class="sidebar-section">
-                <h3><?php _e('⚡ Quick Navigation', 'partyminder'); ?></h3>
-                <div class="quick-nav">
-                    <a href="<?php echo esc_url(PartyMinder::get_events_page_url()); ?>" class="nav-item">
-                        <span class="nav-icon">🎪</span>
-                        <div class="nav-content">
-                            <div class="nav-title"><?php _e('Browse Events', 'partyminder'); ?></div>
-                            <div class="nav-desc"><?php _e('Discover upcoming events', 'partyminder'); ?></div>
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h3 class="pm-heading pm-heading-sm">⚡ <?php _e('Quick Navigation', 'partyminder'); ?></h3>
+                </div>
+                <div class="pm-card-body pm-p-0">
+                    <a href="<?php echo esc_url(PartyMinder::get_events_page_url()); ?>" class="pm-flex pm-p-4 pm-border-bottom" style="align-items: center; text-decoration: none; color: inherit; transition: all 0.2s ease;" onmouseover="this.style.background='var(--pm-surface)'" onmouseout="this.style.background='transparent'">
+                        <span class="pm-text-primary" style="font-size: 1.5rem; margin-right: 12px;">🎪</span>
+                        <div>
+                            <div class="pm-heading pm-heading-sm pm-m-0"><?php _e('Browse Events', 'partyminder'); ?></div>
+                            <div class="pm-text-muted" style="font-size: 0.875rem;"><?php _e('Discover upcoming events', 'partyminder'); ?></div>
                         </div>
                     </a>
                     
-                    <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="nav-item">
-                        <span class="nav-icon">✨</span>
-                        <div class="nav-content">
-                            <div class="nav-title"><?php _e('Create Event', 'partyminder'); ?></div>
-                            <div class="nav-desc"><?php _e('Host your own party', 'partyminder'); ?></div>
+                    <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="pm-flex pm-p-4 pm-border-bottom" style="align-items: center; text-decoration: none; color: inherit; transition: all 0.2s ease;" onmouseover="this.style.background='var(--pm-surface)'" onmouseout="this.style.background='transparent'">
+                        <span class="pm-text-primary" style="font-size: 1.5rem; margin-right: 12px;">✨</span>
+                        <div>
+                            <div class="pm-heading pm-heading-sm pm-m-0"><?php _e('Create Event', 'partyminder'); ?></div>
+                            <div class="pm-text-muted" style="font-size: 0.875rem;"><?php _e('Host your own party', 'partyminder'); ?></div>
                         </div>
                     </a>
                     
-                    <a href="<?php echo esc_url(PartyMinder::get_my_events_url()); ?>" class="nav-item">
-                        <span class="nav-icon">📋</span>
-                        <div class="nav-content">
-                            <div class="nav-title"><?php _e('My Events', 'partyminder'); ?></div>
-                            <div class="nav-desc"><?php _e('Manage your events & RSVPs', 'partyminder'); ?></div>
+                    <a href="<?php echo esc_url(PartyMinder::get_my_events_url()); ?>" class="pm-flex pm-p-4 pm-border-bottom" style="align-items: center; text-decoration: none; color: inherit; transition: all 0.2s ease;" onmouseover="this.style.background='var(--pm-surface)'" onmouseout="this.style.background='transparent'">
+                        <span class="pm-text-primary" style="font-size: 1.5rem; margin-right: 12px;">📋</span>
+                        <div>
+                            <div class="pm-heading pm-heading-sm pm-m-0"><?php _e('My Events', 'partyminder'); ?></div>
+                            <div class="pm-text-muted" style="font-size: 0.875rem;"><?php _e('Manage your events & RSVPs', 'partyminder'); ?></div>
                         </div>
                     </a>
                     
                     <?php if ($user_logged_in): ?>
-                    <a href="<?php echo esc_url(PartyMinder::get_profile_url()); ?>" class="nav-item">
-                        <span class="nav-icon">👤</span>
-                        <div class="nav-content">
-                            <div class="nav-title"><?php _e('My Profile', 'partyminder'); ?></div>
-                            <div class="nav-desc"><?php _e('Update your preferences', 'partyminder'); ?></div>
+                    <a href="<?php echo esc_url(PartyMinder::get_profile_url()); ?>" class="pm-flex pm-p-4 pm-border-bottom" style="align-items: center; text-decoration: none; color: inherit; transition: all 0.2s ease;" onmouseover="this.style.background='var(--pm-surface)'" onmouseout="this.style.background='transparent'">
+                        <span class="pm-text-primary" style="font-size: 1.5rem; margin-right: 12px;">👤</span>
+                        <div>
+                            <div class="pm-heading pm-heading-sm pm-m-0"><?php _e('My Profile', 'partyminder'); ?></div>
+                            <div class="pm-text-muted" style="font-size: 0.875rem;"><?php _e('Update your preferences', 'partyminder'); ?></div>
                         </div>
                     </a>
                     <?php endif; ?>
                     
-                    <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="nav-item">
-                        <span class="nav-icon">💬</span>
-                        <div class="nav-content">
-                            <div class="nav-title"><?php _e('Conversations', 'partyminder'); ?></div>
-                            <div class="nav-desc"><?php _e('Connect with the community', 'partyminder'); ?></div>
+                    <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-flex pm-p-4" style="align-items: center; text-decoration: none; color: inherit; transition: all 0.2s ease;" onmouseover="this.style.background='var(--pm-surface)'" onmouseout="this.style.background='transparent'">
+                        <span class="pm-text-primary" style="font-size: 1.5rem; margin-right: 12px;">💬</span>
+                        <div>
+                            <div class="pm-heading pm-heading-sm pm-m-0"><?php _e('Conversations', 'partyminder'); ?></div>
+                            <div class="pm-text-muted" style="font-size: 0.875rem;"><?php _e('Connect with the community', 'partyminder'); ?></div>
                         </div>
                     </a>
                 </div>
@@ -186,15 +159,17 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             
             <!-- User Status / Login -->
             <?php if (!$user_logged_in): ?>
-            <div class="sidebar-section">
-                <h3><?php _e('🔐 Get Started', 'partyminder'); ?></h3>
-                <div class="login-prompt">
-                    <p><?php _e('Log in to access all features and manage your events.', 'partyminder'); ?></p>
-                    <a href="<?php echo esc_url(PartyMinder::get_login_url()); ?>" class="pm-button">
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h3 class="pm-heading pm-heading-sm">🔐 <?php _e('Get Started', 'partyminder'); ?></h3>
+                </div>
+                <div class="pm-card-body">
+                    <p class="pm-text-muted pm-mb-4"><?php _e('Log in to access all features and manage your events.', 'partyminder'); ?></p>
+                    <a href="<?php echo esc_url(PartyMinder::get_login_url()); ?>" class="pm-button pm-button-primary pm-w-full pm-mb-2">
                         <?php _e('Login', 'partyminder'); ?>
                     </a>
                     <?php if (get_option('users_can_register')): ?>
-                    <a href="<?php echo esc_url(add_query_arg('action', 'register', PartyMinder::get_login_url())); ?>" class="pm-button pm-button-secondary">
+                    <a href="<?php echo esc_url(add_query_arg('action', 'register', PartyMinder::get_login_url())); ?>" class="pm-button pm-button-secondary pm-w-full">
                         <?php _e('Register', 'partyminder'); ?>
                     </a>
                     <?php endif; ?>
@@ -203,32 +178,36 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             <?php else: ?>
             
             <!-- User Profile Summary -->
-            <div class="sidebar-section">
-                <h3><?php _e('👤 Your Profile', 'partyminder'); ?></h3>
-                <div class="profile-summary">
-                    <div class="profile-avatar">
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h3 class="pm-heading pm-heading-sm">👤 <?php _e('Your Profile', 'partyminder'); ?></h3>
+                </div>
+                <div class="pm-card-body">
+                    <div class="pm-flex pm-mb-4" style="align-items: center;">
+                        <div style="margin-right: 12px;">
                         <?php if ($profile_data && $profile_data['profile_image']): ?>
-                            <img src="<?php echo esc_url($profile_data['profile_image']); ?>" alt="<?php echo esc_attr($current_user->display_name); ?>">
+                            <img src="<?php echo esc_url($profile_data['profile_image']); ?>" alt="<?php echo esc_attr($current_user->display_name); ?>" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
                         <?php else: ?>
-                            <div class="avatar-placeholder">
+                            <div class="pm-flex pm-flex-center pm-rounded-full pm-text-primary" style="width: 48px; height: 48px; background: var(--pm-surface); border: 2px solid var(--pm-primary); font-weight: 600;">
                                 <?php echo strtoupper(substr($current_user->display_name, 0, 1)); ?>
                             </div>
                         <?php endif; ?>
-                    </div>
-                    <div class="profile-info">
-                        <div class="profile-name"><?php echo esc_html($current_user->display_name); ?></div>
-                        <?php if ($profile_data && $profile_data['location']): ?>
-                        <div class="profile-location">📍 <?php echo esc_html($profile_data['location']); ?></div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="profile-stats">
-                        <div class="stat">
-                            <span class="stat-number"><?php echo intval($profile_data['events_hosted'] ?? 0); ?></span>
-                            <span class="stat-label"><?php _e('Hosted', 'partyminder'); ?></span>
                         </div>
-                        <div class="stat">
-                            <span class="stat-number"><?php echo intval($profile_data['events_attended'] ?? 0); ?></span>
-                            <span class="stat-label"><?php _e('Attended', 'partyminder'); ?></span>
+                        <div>
+                            <div class="pm-heading pm-heading-sm pm-m-0"><?php echo esc_html($current_user->display_name); ?></div>
+                            <?php if ($profile_data && $profile_data['location']): ?>
+                            <div class="pm-text-muted" style="font-size: 0.875rem;">📍 <?php echo esc_html($profile_data['location']); ?></div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="pm-flex pm-flex-between pm-p-4 pm-bg-transparent pm-border pm-rounded">
+                        <div class="pm-text-center">
+                            <div class="pm-heading pm-heading-sm pm-text-primary pm-m-0"><?php echo intval($profile_data['events_hosted'] ?? 0); ?></div>
+                            <div class="pm-text-muted" style="font-size: 0.75rem;"><?php _e('Hosted', 'partyminder'); ?></div>
+                        </div>
+                        <div class="pm-text-center">
+                            <div class="pm-heading pm-heading-sm pm-text-primary pm-m-0"><?php echo intval($profile_data['events_attended'] ?? 0); ?></div>
+                            <div class="pm-text-muted" style="font-size: 0.75rem;"><?php _e('Attended', 'partyminder'); ?></div>
                         </div>
                     </div>
                 </div>
@@ -236,25 +215,27 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             
             <!-- Recent Activity -->
             <?php if (!empty($recent_events)): ?>
-            <div class="sidebar-section">
-                <h3><?php _e('📅 Recent Activity', 'partyminder'); ?></h3>
-                <div class="recent-activity">
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h3 class="pm-heading pm-heading-sm">📅 <?php _e('Recent Activity', 'partyminder'); ?></h3>
+                </div>
+                <div class="pm-card-body pm-p-0">
                     <?php foreach ($recent_events as $event): ?>
                     <?php
                     $event_date = new DateTime($event->event_date);
                     $is_future = $event_date > new DateTime();
                     ?>
-                    <div class="activity-item">
-                        <div class="activity-icon">
+                    <div class="pm-flex pm-p-4 pm-border-bottom" style="align-items: center;">
+                        <div class="pm-flex pm-flex-center pm-rounded-full pm-text-primary" style="width: 32px; height: 32px; background: var(--pm-primary); color: white; margin-right: 12px;">
                             <?php echo $event->relationship_type === 'created' ? '🎨' : '💌'; ?>
                         </div>
-                        <div class="activity-content">
-                            <div class="activity-title">
-                                <a href="<?php echo home_url('/events/' . $event->slug); ?>">
+                        <div style="flex: 1;">
+                            <div class="pm-heading pm-heading-sm pm-m-0">
+                                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-text-primary" style="text-decoration: none;">
                                     <?php echo esc_html($event->title); ?>
                                 </a>
                             </div>
-                            <div class="activity-meta">
+                            <div class="pm-text-muted" style="font-size: 0.875rem;">
                                 <?php if ($event->relationship_type === 'created'): ?>
                                     <?php _e('You created', 'partyminder'); ?>
                                 <?php else: ?>
