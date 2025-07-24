@@ -188,12 +188,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function switchToTab(targetTab) {
         // Update active tab button
-        tabBtns.forEach(b => b.classList.remove('active'));
-        modal.querySelector(`[data-tab="${targetTab}"]`).classList.add('active');
+        tabBtns.forEach(b => {
+            b.classList.remove('active');
+            b.style.borderBottom = '';
+        });
+        const activeBtn = modal.querySelector(`[data-tab="${targetTab}"]`);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+            activeBtn.style.borderBottom = '3px solid var(--pm-primary)';
+        }
         
-        // Update active tab pane
-        tabPanes.forEach(pane => pane.classList.remove('active'));
-        modal.querySelector('#' + targetTab + '-tab').classList.add('active');
+        // Update active tab pane - remove both display none and active class, then add active
+        tabPanes.forEach(pane => {
+            pane.classList.remove('active');
+            pane.style.display = 'none';
+        });
+        const activePane = modal.querySelector('#' + targetTab + '-tab');
+        if (activePane) {
+            activePane.style.display = 'block';
+            activePane.classList.add('active');
+        }
         
         // Load tab-specific content
         if (targetTab === 'guests' && window.currentEventData) {
