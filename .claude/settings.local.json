@@ -5,7 +5,8 @@
       "Bash(wp db query:*)",
       "Bash(php:*)",
       "Bash(grep:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }

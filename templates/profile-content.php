@@ -316,10 +316,14 @@ if (isset($errors) && !empty($errors)) {
                     <?php endif; ?>
                     
                     <?php if ($is_own_profile): ?>
-                        <div class="pm-mt-4">
+                        <div class="pm-mt-4 pm-flex pm-flex-center-gap" style="flex-wrap: wrap;">
                             <a href="<?php echo esc_url(add_query_arg('edit', '1', PartyMinder::get_profile_url())); ?>" class="pm-button pm-button-primary">
                                 <span class="dashicons dashicons-edit"></span>
                                 <?php _e('Edit Profile', 'partyminder'); ?>
+                            </a>
+                            <a href="<?php echo esc_url(PartyMinder::get_logout_url()); ?>" class="pm-button pm-button-secondary">
+                                <span>🚪</span>
+                                <?php _e('Logout', 'partyminder'); ?>
                             </a>
                         </div>
                     <?php endif; ?>

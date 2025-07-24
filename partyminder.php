@@ -163,7 +163,7 @@ class PartyMinder {
             add_action('wp_ajax_partyminder_admin_delete_event', array($this, 'ajax_admin_delete_event'));
         }
         
-        // Override default WordPress login behavior
+        // Override default WordPress login behavior (but preserve admin access)
         add_action('login_init', array($this, 'redirect_to_custom_login'));
         add_filter('wp_login_url', array($this, 'custom_login_url'), 10, 2);
     }
@@ -1615,6 +1615,13 @@ class PartyMinder {
         return self::get_page_url('login');
     }
     
+    public static function get_logout_url($redirect = '') {
+        if (empty($redirect)) {
+            $redirect = home_url();
+        }
+        return wp_logout_url($redirect);
+    }
+    
     public static function get_communities_url() {
         return self::get_page_url('communities');
     }
@@ -2897,8 +2904,15 @@ class PartyMinder {
             return;
         }
         
-        // Don't redirect admin login or AJAX requests
+        // Don't redirect admin login, AJAX requests, or direct wp-admin access
         if (is_admin() || defined('DOING_AJAX')) {
+            return;
+        }
+        
+        // Don't redirect if accessing wp-login.php directly for admin access
+        if (strpos($_SERVER['REQUEST_URI'], 'wp-login.php') !== false && 
+            isset($_GET['redirect_to']) && 
+            strpos($_GET['redirect_to'], 'wp-admin') !== false) {
             return;
         }
         
@@ -2923,8 +2937,8 @@ class PartyMinder {
      * Override wp_login_url to use custom login page
      */
     public function custom_login_url($login_url, $redirect) {
-        // Don't override admin login
-        if (is_admin()) {
+        // Don't override admin login or wp-admin redirects
+        if (is_admin() || (is_string($redirect) && strpos($redirect, 'wp-admin') !== false)) {
             return $login_url;
         }
         

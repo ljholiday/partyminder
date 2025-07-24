@@ -147,13 +147,22 @@ if ($user_logged_in) {
                     </a>
                     <?php endif; ?>
                     
-                    <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-flex pm-p-4" style="align-items: center; text-decoration: none; color: inherit; transition: all 0.2s ease;" onmouseover="this.style.background='var(--pm-surface)'" onmouseout="this.style.background='transparent'">
+                    <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-flex pm-p-4 pm-border-bottom" style="align-items: center; text-decoration: none; color: inherit; transition: all 0.2s ease;" onmouseover="this.style.background='var(--pm-surface)'" onmouseout="this.style.background='transparent'">
                         <span class="pm-text-primary" style="font-size: 1.5rem; margin-right: 12px;">💬</span>
                         <div>
                             <div class="pm-heading pm-heading-sm pm-m-0"><?php _e('Conversations', 'partyminder'); ?></div>
                             <div class="pm-text-muted" style="font-size: 0.875rem;"><?php _e('Connect with the community', 'partyminder'); ?></div>
                         </div>
                     </a>
+                    <?php if ($user_logged_in): ?>
+                    <a href="<?php echo esc_url(PartyMinder::get_logout_url()); ?>" class="pm-flex pm-p-4" style="align-items: center; text-decoration: none; color: inherit; transition: all 0.2s ease;" onmouseover="this.style.background='var(--pm-surface)'" onmouseout="this.style.background='transparent'">
+                        <span class="pm-text-danger" style="font-size: 1.5rem; margin-right: 12px;">🚪</span>
+                        <div>
+                            <div class="pm-heading pm-heading-sm pm-m-0"><?php _e('Logout', 'partyminder'); ?></div>
+                            <div class="pm-text-muted" style="font-size: 0.875rem;"><?php _e('Sign out of your account', 'partyminder'); ?></div>
+                        </div>
+                    </a>
+                    <?php endif; ?>
                 </div>
             </div>
             
