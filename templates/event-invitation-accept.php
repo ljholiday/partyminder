@@ -373,7 +373,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     <div class="login-prompt">
                         <h4><?php _e('Login Required', 'partyminder'); ?></h4>
                         <p><?php _e('You need to be logged in to RSVP to this event.', 'partyminder'); ?></p>
-                        <a href="<?php echo wp_login_url(home_url('/events/join?token=' . urlencode($token))); ?>" class="pm-button">
+                        <a href="<?php echo add_query_arg('redirect_to', urlencode(home_url('/events/join?token=' . urlencode($token))), PartyMinder::get_login_url()); ?>" class="pm-button">
                             <span>🔑</span> <?php _e('Login to RSVP', 'partyminder'); ?>
                         </a>
                     </div>

@@ -9,6 +9,14 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Check if user is logged in - redirect to login if not
+if (!is_user_logged_in()) {
+    $current_url = (is_ssl() ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    $login_url = add_query_arg('redirect_to', urlencode($current_url), PartyMinder::get_login_url());
+    wp_redirect($login_url);
+    exit;
+}
+
 // Check for event creation success
 $event_created = false;
 $form_errors = array();

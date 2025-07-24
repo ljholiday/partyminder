@@ -238,6 +238,33 @@ $button_style = get_option('partyminder_button_style', 'rounded');
         </div>
     <?php endif; ?>
 
+    <!-- Login Prompt for Non-Logged-In Users -->
+    <?php if (!is_user_logged_in()): ?>
+    <div class="pm-card pm-mt-6" style="background: linear-gradient(135deg, var(--pm-primary, #667eea), var(--pm-secondary, #764ba2)); color: white; text-align: center;">
+        <div class="pm-card-body pm-p-6">
+            <div style="font-size: 3rem; margin-bottom: 15px;">🎉</div>
+            <h3 class="pm-heading pm-heading-md pm-mb-4" style="color: white; margin: 0 0 15px 0;">
+                <?php _e('Ready to Join the Fun?', 'partyminder'); ?>
+            </h3>
+            <p style="margin-bottom: 20px; opacity: 0.9;">
+                <?php _e('Sign in to RSVP to events, connect with hosts, and never miss an amazing party!', 'partyminder'); ?>
+            </p>
+            <div class="pm-flex pm-flex-center-gap" style="justify-content: center; flex-wrap: wrap;">
+                <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="pm-button" style="background: white; color: var(--pm-primary, #667eea); font-weight: 600;">
+                    <span>🔑</span>
+                    <?php _e('Login', 'partyminder'); ?>
+                </a>
+                <?php if (get_option('users_can_register')): ?>
+                <a href="<?php echo add_query_arg(array('action' => 'register', 'redirect_to' => urlencode($_SERVER['REQUEST_URI'])), PartyMinder::get_login_url()); ?>" class="pm-button pm-button-secondary" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                    <span>✨</span>
+                    <?php _e('Sign Up', 'partyminder'); ?>
+                </a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
 </div>
 
 <script>

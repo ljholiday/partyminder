@@ -374,7 +374,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <?php _e('✨ Create Community', 'partyminder'); ?>
             </a>
         <?php elseif (!is_user_logged_in()): ?>
-            <a href="<?php echo wp_login_url(get_permalink()); ?>" class="create-community-btn">
+            <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="create-community-btn">
                 <?php _e('👋 Login to Join Communities', 'partyminder'); ?>
             </a>
         <?php endif; ?>

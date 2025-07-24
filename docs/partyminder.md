@@ -28,8 +28,7 @@ I would like to be able to delete events both in the admin backend and as the ev
 the front end.
 
 
-
-
+I'm using the dashboard page as the main page. I want visitors to the site to clearly see a login option, not down at the  │ │   bottom of the right column. I do want a logout option but think we should use an avatar for profile and logout options     │ │   just like all the big players. I think we need to think about overriding the theme header.    
 
 
 

@@ -642,11 +642,17 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         <?php else: ?>
                             <div class="no-conversations">
                                 <p><?php _e('No conversations yet in this topic.', 'partyminder'); ?></p>
+                                <?php if (is_user_logged_in()): ?>
                                 <a href="#" class="start-conversation-btn" 
                                    data-topic-id="<?php echo esc_attr($topic->id); ?>"
                                    data-topic-name="<?php echo esc_attr($topic->name); ?>">
                                     <?php _e('Start the Conversation', 'partyminder'); ?>
                                 </a>
+                                <?php else: ?>
+                                <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="start-conversation-btn">
+                                    <?php _e('Login to Start Conversation', 'partyminder'); ?>
+                                </a>
+                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -723,6 +729,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 </div>
                 <div class="activity-card-content">
                     <div class="quick-actions">
+                        <?php if (is_user_logged_in()): ?>
                         <a href="#" class="action-button start-conversation-btn" 
                            data-topic-id="" data-topic-name="">
                             <span>💬</span>
@@ -732,6 +739,12 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                             <span>✨</span>
                             <?php _e('Create Event', 'partyminder'); ?>
                         </a>
+                        <?php else: ?>
+                        <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="action-button">
+                            <span>🔑</span>
+                            <?php _e('Login to Participate', 'partyminder'); ?>
+                        </a>
+                        <?php endif; ?>
                         <a href="<?php echo PartyMinder::get_events_page_url(); ?>" class="action-button secondary">
                             <span>🎉</span>
                             <?php _e('Browse Events', 'partyminder'); ?>

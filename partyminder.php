@@ -163,9 +163,8 @@ class PartyMinder {
             add_action('wp_ajax_partyminder_admin_delete_event', array($this, 'ajax_admin_delete_event'));
         }
         
-        // Override default WordPress login behavior (but preserve admin access)
-        add_action('login_init', array($this, 'redirect_to_custom_login'));
-        add_filter('wp_login_url', array($this, 'custom_login_url'), 10, 2);
+        // Smart login override - frontend only, preserves wp-admin access
+        add_filter('wp_login_url', array($this, 'smart_login_url'), 10, 2);
     }
     
     public function register_shortcodes() {
@@ -2936,12 +2935,16 @@ class PartyMinder {
     /**
      * Override wp_login_url to use custom login page
      */
-    public function custom_login_url($login_url, $redirect) {
-        // Don't override admin login or wp-admin redirects
-        if (is_admin() || (is_string($redirect) && strpos($redirect, 'wp-admin') !== false)) {
+    public function smart_login_url($login_url, $redirect) {
+        // Always use default WordPress login for admin-related requests
+        if (is_admin() || 
+            (is_string($redirect) && strpos($redirect, 'wp-admin') !== false) ||
+            (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'wp-admin') !== false) ||
+            (isset($_GET['redirect_to']) && strpos($_GET['redirect_to'], 'wp-admin') !== false)) {
             return $login_url;
         }
         
+        // Use custom login page for frontend requests
         $custom_login_url = self::get_login_url();
         
         if ($redirect) {
