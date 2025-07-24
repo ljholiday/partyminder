@@ -363,67 +363,75 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 }
 </style>
 
-<div class="partyminder-communities">
+<div class="partyminder-communities pm-container">
     <!-- Header -->
-    <div class="communities-header">
-        <h1><?php _e('🏘️ Communities', 'partyminder'); ?></h1>
-        <p><?php _e('Join communities of fellow hosts and guests to plan amazing events together', 'partyminder'); ?></p>
+    <div class="pm-card-header pm-mb-6">
+        <h1 class="pm-heading pm-heading-lg pm-text-primary"><?php _e('🏘️ Communities', 'partyminder'); ?></h1>
+        <p class="pm-text-muted"><?php _e('Join communities of fellow hosts and guests to plan amazing events together', 'partyminder'); ?></p>
         
-        <?php if (PartyMinder_Feature_Flags::can_user_create_community()): ?>
-            <a href="#" class="create-community-btn create-community-modal-btn">
-                <?php _e('✨ Create Community', 'partyminder'); ?>
-            </a>
-        <?php elseif (!is_user_logged_in()): ?>
-            <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="create-community-btn">
-                <?php _e('👋 Login to Join Communities', 'partyminder'); ?>
-            </a>
-        <?php endif; ?>
+        <div class="pm-mt-4">
+            <?php if (PartyMinder_Feature_Flags::can_user_create_community()): ?>
+                <a href="#" class="pm-button pm-button-primary create-community-modal-btn">
+                    <span>✨</span>
+                    <?php _e('Create Community', 'partyminder'); ?>
+                </a>
+            <?php elseif (!is_user_logged_in()): ?>
+                <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="pm-button pm-button-primary">
+                    <span>👋</span>
+                    <?php _e('Login to Join Communities', 'partyminder'); ?>
+                </a>
+            <?php endif; ?>
+        </div>
     </div>
 
     <!-- Two-column layout -->
-    <div class="communities-layout">
+    <div class="pm-grid pm-grid-2">
         <!-- LEFT COLUMN - Public Communities -->
-        <div class="communities-section">
-            <div class="section-header">
-                <h2><?php _e('🌍 Discover Communities', 'partyminder'); ?></h2>
-                <span style="font-size: 0.9em; opacity: 0.9;"><?php printf(__('%d communities', 'partyminder'), count($public_communities)); ?></span>
+        <div class="pm-card">
+            <div class="pm-card-header">
+                <h2 class="pm-heading pm-heading-md pm-text-primary pm-m-0"><?php _e('🌍 Discover Communities', 'partyminder'); ?></h2>
+                <p class="pm-text-muted pm-mt-2"><?php printf(__('%d communities available', 'partyminder'), count($public_communities)); ?></p>
             </div>
             
-            <?php if (!empty($public_communities)): ?>
-                <div class="communities-grid">
+            <div class="pm-card-body">
+                <?php if (!empty($public_communities)): ?>
+                    <div class="pm-grid pm-grid-auto">
                     <?php foreach ($public_communities as $community): ?>
-                        <div class="community-card">
-                            <span class="privacy-badge <?php echo esc_attr($community->privacy); ?>">
-                                <?php echo esc_html(ucfirst($community->privacy)); ?>
-                            </span>
-                            
-                            <div class="community-header">
-                                <div class="community-avatar">
-                                    <?php echo strtoupper(substr($community->name, 0, 2)); ?>
-                                </div>
-                                <div class="community-info">
-                                    <h3>
-                                        <a href="<?php echo home_url('/communities/' . $community->slug); ?>" style="text-decoration: none; color: inherit;">
-                                            <?php echo esc_html($community->name); ?>
-                                        </a>
-                                    </h3>
-                                    <div class="community-meta">
-                                        <span><?php echo (int) $community->member_count; ?> <?php _e('members', 'partyminder'); ?></span>
-                                        <span><?php echo ucfirst($community->type); ?></span>
-                                    </div>
+                        <div class="pm-card">
+                            <div class="pm-card-header pm-flex pm-flex-between pm-flex-center-gap">
+                                <h3 class="pm-heading pm-heading-sm pm-m-0">
+                                    <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-text-primary" style="text-decoration: none;">
+                                        <?php echo esc_html($community->name); ?>
+                                    </a>
+                                </h3>
+                                <div class="pm-badge pm-badge-<?php echo $community->privacy === 'public' ? 'success' : 'secondary'; ?>">
+                                    <?php echo esc_html(ucfirst($community->privacy)); ?>
                                 </div>
                             </div>
                             
-                            <?php if ($community->description): ?>
-                                <div class="community-description">
-                                    <?php echo esc_html(wp_trim_words($community->description, 20)); ?>
+                            <div class="pm-card-body">
+                                <div class="pm-mb-4">
+                                    <div class="pm-meta-item">
+                                        <span>👥</span>
+                                        <span class="pm-text-muted"><?php echo (int) $community->member_count; ?> <?php _e('members', 'partyminder'); ?></span>
+                                    </div>
+                                    <div class="pm-meta-item">
+                                        <span>📂</span>
+                                        <span class="pm-text-muted"><?php echo ucfirst($community->type); ?></span>
+                                    </div>
+                                </div>
+                            
+                                <?php if ($community->description): ?>
+                                <div class="pm-mb-4">
+                                    <p class="pm-text-muted"><?php echo esc_html(wp_trim_words($community->description, 20)); ?></p>
                                 </div>
                             <?php endif; ?>
+                            </div>
                             
-                            <div class="community-stats">
-                                <div class="stat-item">
-                                    <span>🗓️</span>
-                                    <span><?php echo (int) $community->event_count; ?> <?php _e('events', 'partyminder'); ?></span>
+                            <div class="pm-card-footer pm-flex pm-flex-between pm-flex-center-gap">
+                                <div class="pm-stat">
+                                    <div class="pm-stat-number pm-text-primary"><?php echo (int) $community->event_count; ?></div>
+                                    <div class="pm-stat-label"><?php _e('Events', 'partyminder'); ?></div>
                                 </div>
                                 
                                 <?php if (is_user_logged_in()): ?>
@@ -431,43 +439,46 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                                     $is_member = $community_manager->is_member($community->id, $current_user->ID);
                                     ?>
                                     <a href="<?php echo home_url('/communities/' . $community->slug); ?>" 
-                                       class="join-btn <?php echo $is_member ? 'member' : ''; ?>">
+                                       class="pm-button pm-button-<?php echo $is_member ? 'secondary' : 'primary'; ?> pm-button-small">
                                         <?php echo $is_member ? __('Member', 'partyminder') : __('Join', 'partyminder'); ?>
                                     </a>
                                 <?php else: ?>
-                                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="join-btn">
+                                    <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="pm-button pm-button-primary pm-button-small">
                                         <?php _e('Login to Join', 'partyminder'); ?>
                                     </a>
                                 <?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <div class="no-communities">
-                    <p><?php _e('No public communities yet.', 'partyminder'); ?></p>
-                    <p><?php _e('Be the first to create a community!', 'partyminder'); ?></p>
-                </div>
-            <?php endif; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="pm-text-center pm-p-6">
+                        <p class="pm-text-muted pm-mb-2"><?php _e('No public communities yet.', 'partyminder'); ?></p>
+                        <p class="pm-text-muted"><?php _e('Be the first to create a community!', 'partyminder'); ?></p>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
 
         <!-- RIGHT COLUMN - User Communities & Actions -->
-        <div class="communities-sidebar">
+        <div class="pm-flex" style="flex-direction: column; gap: 20px;">
             <?php if (is_user_logged_in() && !empty($user_communities)): ?>
                 <!-- My Communities -->
-                <div class="sidebar-card">
-                    <div class="sidebar-card-header">
-                        <span>👥</span>
-                        <?php _e('My Communities', 'partyminder'); ?>
+                <div class="pm-card">
+                    <div class="pm-card-header">
+                        <h3 class="pm-heading pm-heading-sm pm-m-0">👥 <?php _e('My Communities', 'partyminder'); ?></h3>
+                        <p class="pm-text-muted pm-mt-2"><?php _e('Communities you\'ve joined', 'partyminder'); ?></p>
                     </div>
-                    <div class="sidebar-card-content">
+                    <div class="pm-card-body">
                         <?php foreach ($user_communities as $user_community): ?>
-                            <div class="user-community">
+                            <div class="pm-flex pm-flex-between pm-flex-center-gap pm-mb-3 pm-pb-3" style="border-bottom: 1px solid var(--pm-border);">
                                 <div>
-                                    <a href="<?php echo home_url('/communities/' . $user_community->slug); ?>" class="user-community-name">
-                                        <?php echo esc_html($user_community->name); ?>
-                                    </a>
-                                    <div class="user-community-role"><?php echo esc_html(ucfirst($user_community->role)); ?></div>
+                                    <h4 class="pm-heading pm-heading-xs pm-mb-1">
+                                        <a href="<?php echo home_url('/communities/' . $user_community->slug); ?>" class="pm-text-primary" style="text-decoration: none;">
+                                            <?php echo esc_html($user_community->name); ?>
+                                        </a>
+                                    </h4>
+                                    <div class="pm-badge pm-badge-secondary" style="font-size: 0.75rem;"><?php echo esc_html(ucfirst($user_community->role)); ?></div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -476,26 +487,25 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             <?php endif; ?>
 
             <!-- Quick Actions -->
-            <div class="sidebar-card">
-                <div class="sidebar-card-header">
-                    <span>⚡</span>
-                    <?php _e('Quick Actions', 'partyminder'); ?>
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h3 class="pm-heading pm-heading-sm pm-m-0">⚡ <?php _e('Quick Actions', 'partyminder'); ?></h3>
                 </div>
-                <div class="sidebar-card-content">
-                    <div class="quick-actions">
+                <div class="pm-card-body">
+                    <div class="pm-flex pm-flex-center-gap" style="flex-direction: column; align-items: stretch;">
                         <?php if (PartyMinder_Feature_Flags::can_user_create_community()): ?>
-                            <a href="#" class="action-btn create-community-modal-btn">
+                            <a href="#" class="pm-button pm-button-primary create-community-modal-btn">
                                 <span>✨</span>
                                 <?php _e('Create Community', 'partyminder'); ?>
                             </a>
                         <?php endif; ?>
                         
-                        <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="action-btn secondary">
+                        <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-button pm-button-secondary">
                             <span>🎉</span>
                             <?php _e('Create Event', 'partyminder'); ?>
                         </a>
                         
-                        <a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="action-btn secondary">
+                        <a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-button pm-button-secondary">
                             <span>💬</span>
                             <?php _e('Join Conversations', 'partyminder'); ?>
                         </a>
@@ -504,17 +514,41 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             </div>
 
             <!-- Community Types -->
-            <div class="sidebar-card">
-                <div class="sidebar-card-header">
-                    <span>🏷️</span>
-                    <?php _e('Community Types', 'partyminder'); ?>
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h3 class="pm-heading pm-heading-sm pm-m-0">🏷️ <?php _e('Community Types', 'partyminder'); ?></h3>
+                    <p class="pm-text-muted pm-mt-2"><?php _e('Different ways to organize', 'partyminder'); ?></p>
                 </div>
-                <div class="sidebar-card-content">
+                <div class="pm-card-body">
                     <div style="font-size: 0.9em; line-height: 1.6;">
-                        <p><strong>🏢 Work:</strong> <?php _e('Office events, team building', 'partyminder'); ?></p>
-                        <p><strong>⛪ Faith:</strong> <?php _e('Church, religious gatherings', 'partyminder'); ?></p>
-                        <p><strong>👨‍👩‍👧‍👦 Family:</strong> <?php _e('Family reunions, celebrations', 'partyminder'); ?></p>
-                        <p><strong>🎯 Hobby:</strong> <?php _e('Interest-based groups', 'partyminder'); ?></p>
+                        <div class="pm-mb-3">
+                            <div class="pm-flex pm-flex-center-gap pm-mb-1">
+                                <span>🏢</span>
+                                <strong><?php _e('Work', 'partyminder'); ?></strong>
+                            </div>
+                            <p class="pm-text-muted pm-m-0" style="font-size: 0.85rem; margin-left: 24px;"><?php _e('Office events, team building', 'partyminder'); ?></p>
+                        </div>
+                        <div class="pm-mb-3">
+                            <div class="pm-flex pm-flex-center-gap pm-mb-1">
+                                <span>⛪</span>
+                                <strong><?php _e('Faith', 'partyminder'); ?></strong>
+                            </div>
+                            <p class="pm-text-muted pm-m-0" style="font-size: 0.85rem; margin-left: 24px;"><?php _e('Church, religious gatherings', 'partyminder'); ?></p>
+                        </div>
+                        <div class="pm-mb-3">
+                            <div class="pm-flex pm-flex-center-gap pm-mb-1">
+                                <span>👨‍👩‍👧‍👦</span>
+                                <strong><?php _e('Family', 'partyminder'); ?></strong>
+                            </div>
+                            <p class="pm-text-muted pm-m-0" style="font-size: 0.85rem; margin-left: 24px;"><?php _e('Family reunions, celebrations', 'partyminder'); ?></p>
+                        </div>
+                        <div class="pm-mb-3">
+                            <div class="pm-flex pm-flex-center-gap pm-mb-1">
+                                <span>🎯</span>
+                                <strong><?php _e('Hobby', 'partyminder'); ?></strong>
+                            </div>
+                            <p class="pm-text-muted pm-m-0" style="font-size: 0.85rem; margin-left: 24px;"><?php _e('Interest-based groups', 'partyminder'); ?></p>
+                        </div>
                     </div>
                 </div>
             </div>

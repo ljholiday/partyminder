@@ -73,19 +73,19 @@ $button_style = get_option('partyminder_button_style', 'rounded');
 }
 </style>
 
-<div class="partyminder-events-content">
+<div class="partyminder-events-content pm-container">
     
     <!-- Events Header -->
-    <div class="events-header">
-        <h2 class="events-title">
+    <div class="pm-card-header pm-mb-6">
+        <h1 class="pm-heading pm-heading-lg pm-text-primary">
             <?php if ($show_past): ?>
-                <?php _e('All Events', 'partyminder'); ?>
+                <?php _e('📅 All Events', 'partyminder'); ?>
             <?php else: ?>
                 <?php _e('🎉 Upcoming Events', 'partyminder'); ?>
             <?php endif; ?>
-        </h2>
+        </h1>
         
-        <p class="events-description">
+        <p class="pm-text-muted">
             <?php if ($show_past): ?>
                 <?php _e('Browse through our collection of events and gatherings.', 'partyminder'); ?>
             <?php else: ?>
@@ -93,17 +93,17 @@ $button_style = get_option('partyminder_button_style', 'rounded');
             <?php endif; ?>
         </p>
         
-        <div class="events-stats">
-            <span class="stat-item">
-                <span class="stat-number"><?php echo count($events); ?></span>
-                <span class="stat-label"><?php _e('Events', 'partyminder'); ?></span>
-            </span>
+        <div class="pm-flex pm-flex-center-gap pm-mt-4">
+            <div class="pm-stat">
+                <div class="pm-stat-number pm-text-primary"><?php echo count($events); ?></div>
+                <div class="pm-stat-label"><?php _e('Events', 'partyminder'); ?></div>
+            </div>
         </div>
     </div>
 
     <!-- Events Grid -->
     <?php if (!empty($events)): ?>
-        <div class="events-grid">
+        <div class="pm-grid pm-grid-auto">
             <?php foreach ($events as $event): ?>
                 <?php
                 $event_date = new DateTime($event->event_date);
@@ -112,7 +112,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                 $is_past = $event_date < new DateTime();
                 ?>
                 
-                <article class="event-card <?php echo $is_past ? 'past-event' : ''; ?>">
+                <article class="pm-card <?php echo $is_past ? 'past-event' : ''; ?>">
                     
                     <?php if ($event->featured_image): ?>
                     <div class="event-image">
@@ -120,95 +120,95 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                     </div>
                     <?php endif; ?>
                     
-                    <div class="event-content">
-                        <header class="event-header">
-                            <h3 class="event-title">
-                                <a href="<?php echo home_url('/events/' . $event->slug); ?>"><?php echo esc_html($event->title); ?></a>
-                            </h3>
-                            
-                            <div class="event-meta">
-                                <div class="meta-item event-date-meta">
-                                    <span class="meta-icon">📅</span>
-                                    <span class="meta-text">
-                                        <?php if ($is_today): ?>
-                                            <?php _e('Today', 'partyminder'); ?>
-                                        <?php elseif ($is_tomorrow): ?>
-                                            <?php _e('Tomorrow', 'partyminder'); ?>
-                                        <?php else: ?>
-                                            <?php echo $event_date->format('M j, Y'); ?>
-                                        <?php endif; ?>
-                                    </span>
-                                </div>
-                                
-                                <?php if ($event->event_time): ?>
-                                <div class="meta-item">
-                                    <span class="meta-icon">🕐</span>
-                                    <span class="meta-text"><?php echo date('g:i A', strtotime($event->event_date)); ?></span>
-                                </div>
-                                <?php endif; ?>
-                                
-                                <?php if ($event->venue_info): ?>
-                                <div class="meta-item">
-                                    <span class="meta-icon">📍</span>
-                                    <span class="meta-text"><?php echo esc_html($event->venue_info); ?></span>
-                                </div>
-                                <?php endif; ?>
-                            </div>
-                        </header>
-                        
-                        <?php if ($event->excerpt || $event->description): ?>
-                        <div class="event-description">
-                            <p><?php echo esc_html(wp_trim_words($event->excerpt ?: $event->description, 20)); ?></p>
-                        </div>
-                        <?php endif; ?>
-                        
-                        <div class="event-stats">
-                            <div class="stat-item">
-                                <span class="stat-icon">👥</span>
-                                <span class="stat-text">
-                                    <?php echo $event->guest_stats->confirmed; ?> <?php _e('confirmed', 'partyminder'); ?>
-                                    <?php if ($event->guest_limit > 0): ?>
-                                        <?php printf(__(' of %d', 'partyminder'), $event->guest_limit); ?>
+                    <div class="pm-card-header">
+                        <h3 class="pm-heading pm-heading-sm pm-m-0">
+                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-text-primary" style="text-decoration: none;"><?php echo esc_html($event->title); ?></a>
+                        </h3>
+                    </div>
+                    
+                    <div class="pm-card-body">
+                        <div class="pm-mb-4">
+                            <div class="pm-meta-item">
+                                <span>📅</span>
+                                <span class="pm-text-muted">
+                                    <?php if ($is_today): ?>
+                                        <?php _e('Today', 'partyminder'); ?>
+                                    <?php elseif ($is_tomorrow): ?>
+                                        <?php _e('Tomorrow', 'partyminder'); ?>
+                                    <?php else: ?>
+                                        <?php echo $event_date->format('M j, Y'); ?>
                                     <?php endif; ?>
                                 </span>
                             </div>
                             
-                            <?php if ($event->guest_stats->maybe > 0): ?>
-                            <div class="stat-item">
-                                <span class="stat-icon">🤔</span>
-                                <span class="stat-text"><?php echo $event->guest_stats->maybe; ?> <?php _e('maybe', 'partyminder'); ?></span>
+                            <?php if ($event->event_time): ?>
+                            <div class="pm-meta-item">
+                                <span>🕐</span>
+                                <span class="pm-text-muted"><?php echo date('g:i A', strtotime($event->event_date)); ?></span>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <?php if ($event->venue_info): ?>
+                            <div class="pm-meta-item">
+                                <span>📍</span>
+                                <span class="pm-text-muted"><?php echo esc_html($event->venue_info); ?></span>
                             </div>
                             <?php endif; ?>
                         </div>
                         
-                        <footer class="event-actions">
-                            <?php if ($is_past): ?>
-                                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-secondary pm-button-small">
-                                    <span class="button-icon">📖</span>
-                                    <?php _e('View Details', 'partyminder'); ?>
-                                </a>
-                            <?php else: ?>
-                                <?php 
-                                $is_full = $event->guest_limit > 0 && $event->guest_stats->confirmed >= $event->guest_limit;
-                                ?>
-                                
-                                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-primary pm-button-small">
-                                    <span class="button-icon">💌</span>
-                                    <?php if ($is_full): ?>
-                                        <?php _e('Join Waitlist', 'partyminder'); ?>
-                                    <?php else: ?>
-                                        <?php _e('RSVP Now', 'partyminder'); ?>
+                        <?php if ($event->excerpt || $event->description): ?>
+                        <div class="pm-mb-4">
+                            <p class="pm-text-muted"><?php echo esc_html(wp_trim_words($event->excerpt ?: $event->description, 20)); ?></p>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <div class="pm-flex pm-flex-between pm-mb-4">
+                            <div class="pm-stat">
+                                <div class="pm-stat-number pm-text-success"><?php echo $event->guest_stats->confirmed; ?></div>
+                                <div class="pm-stat-label">
+                                    <?php _e('Confirmed', 'partyminder'); ?>
+                                    <?php if ($event->guest_limit > 0): ?>
+                                        <?php printf(__(' / %d', 'partyminder'), $event->guest_limit); ?>
                                     <?php endif; ?>
-                                </a>
-                                
-                                <button type="button" class="pm-button pm-button-secondary pm-button-small share-event" 
-                                        data-url="<?php echo esc_url(home_url('/events/' . $event->slug)); ?>" 
-                                        data-title="<?php echo esc_attr($event->title); ?>">
-                                    <span class="button-icon">📤</span>
-                                    <?php _e('Share', 'partyminder'); ?>
-                                </button>
+                                </div>
+                            </div>
+                            
+                            <?php if ($event->guest_stats->maybe > 0): ?>
+                            <div class="pm-stat">
+                                <div class="pm-stat-number pm-text-warning"><?php echo $event->guest_stats->maybe; ?></div>
+                                <div class="pm-stat-label"><?php _e('Maybe', 'partyminder'); ?></div>
+                            </div>
                             <?php endif; ?>
-                        </footer>
+                        </div>
+                    </div>
+                    
+                    <div class="pm-card-footer pm-flex pm-flex-center-gap">
+                        <?php if ($is_past): ?>
+                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-secondary pm-button-small">
+                                <span>📖</span>
+                                <?php _e('View Details', 'partyminder'); ?>
+                            </a>
+                        <?php else: ?>
+                            <?php 
+                            $is_full = $event->guest_limit > 0 && $event->guest_stats->confirmed >= $event->guest_limit;
+                            ?>
+                            
+                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-primary pm-button-small">
+                                <span>💌</span>
+                                <?php if ($is_full): ?>
+                                    <?php _e('Join Waitlist', 'partyminder'); ?>
+                                <?php else: ?>
+                                    <?php _e('RSVP Now', 'partyminder'); ?>
+                                <?php endif; ?>
+                            </a>
+                            
+                            <button type="button" class="pm-button pm-button-secondary pm-button-small share-event" 
+                                    data-url="<?php echo esc_url(home_url('/events/' . $event->slug)); ?>" 
+                                    data-title="<?php echo esc_attr($event->title); ?>">
+                                <span>📤</span>
+                                <?php _e('Share', 'partyminder'); ?>
+                            </button>
+                        <?php endif; ?>
                     </div>
                 </article>
             <?php endforeach; ?>
