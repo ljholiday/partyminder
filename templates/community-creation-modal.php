@@ -238,7 +238,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             <form id="pm-create-community-form">
                 <div class="pm-form-group">
                     <label for="community-name" class="pm-form-label">
-                        <?php _e('Community Name', 'partyminder'); ?> <span style="color: red;">*</span>
+                        <?php _e('Community Name', 'partyminder'); ?> <span class="pm-text-required">*</span>
                     </label>
                     <input type="text" id="community-name" name="name" class="pm-form-input" 
                            placeholder="<?php _e('Enter community name...', 'partyminder'); ?>" 

@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 
 // Check if communities are enabled
 if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-    echo '<div style="text-align: center; padding: 60px 20px;">';
+    echo '<div class="pm-text-center pm-p-16">';
     echo '<h2>' . __('Communities Feature Not Available', 'partyminder') . '</h2>';
     echo '<p>' . __('The communities feature is currently disabled. Please check back later.', 'partyminder') . '</p>';
     echo '</div>';
@@ -269,10 +269,6 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     gap: 8px;
 }
 
-.sidebar-card-content {
-    padding: 20px;
-}
-
 .user-community {
     padding: 12px 0;
     border-bottom: 1px solid #f0f0f0;
@@ -301,37 +297,6 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     background: #f8f9fa;
     padding: 2px 8px;
     border-radius: 10px;
-}
-
-.quick-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.action-btn {
-    background: var(--pm-primary);
-    color: white;
-    border: none;
-    padding: 12px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 0.9em;
-    text-align: center;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.action-btn:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.action-btn.secondary {
-    background: #6c757d;
 }
 
 .no-communities {
@@ -400,7 +365,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         <div class="pm-card">
                             <div class="pm-card-header pm-flex pm-flex-between pm-flex-center-gap">
                                 <h3 class="pm-heading pm-heading-sm pm-m-0">
-                                    <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-text-primary" style="text-decoration: none;">
+                                    <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-text-primary" >
                                         <?php echo esc_html($community->name); ?>
                                     </a>
                                 </h3>
@@ -461,7 +426,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         </div>
 
         <!-- RIGHT COLUMN - User Communities & Actions -->
-        <div class="pm-flex" style="flex-direction: column; gap: 20px;">
+        <div class="pm-flex pm-flex-column pm-gap-lg">
             <?php if (is_user_logged_in() && !empty($user_communities)): ?>
                 <!-- My Communities -->
                 <div class="pm-card">
@@ -471,14 +436,14 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     </div>
                     <div class="pm-card-body">
                         <?php foreach ($user_communities as $user_community): ?>
-                            <div class="pm-flex pm-flex-between pm-flex-center-gap pm-mb-3 pm-pb-3" style="border-bottom: 1px solid var(--pm-border);">
+                            <div class="pm-flex pm-flex-between pm-flex-center-gap pm-mb-3 pm-pb-3 pm-border-bottom">
                                 <div>
                                     <h4 class="pm-heading pm-heading-xs pm-mb-1">
-                                        <a href="<?php echo home_url('/communities/' . $user_community->slug); ?>" class="pm-text-primary" style="text-decoration: none;">
+                                        <a href="<?php echo home_url('/communities/' . $user_community->slug); ?>" class="pm-text-primary" >
                                             <?php echo esc_html($user_community->name); ?>
                                         </a>
                                     </h4>
-                                    <div class="pm-badge pm-badge-secondary" style="font-size: 0.75rem;"><?php echo esc_html(ucfirst($user_community->role)); ?></div>
+                                    <div class="pm-badge pm-badge-secondary pm-text-xs"><?php echo esc_html(ucfirst($user_community->role)); ?></div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -492,7 +457,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     <h3 class="pm-heading pm-heading-sm pm-m-0">⚡ <?php _e('Quick Actions', 'partyminder'); ?></h3>
                 </div>
                 <div class="pm-card-body">
-                    <div class="pm-flex pm-flex-center-gap" style="flex-direction: column; align-items: stretch;">
+                    <div class="pm-flex pm-flex-center-gap pm-flex-column">
                         <?php if (PartyMinder_Feature_Flags::can_user_create_community()): ?>
                             <a href="#" class="pm-button pm-button-primary create-community-modal-btn">
                                 <span>✨</span>
@@ -520,34 +485,34 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     <p class="pm-text-muted pm-mt-2"><?php _e('Different ways to organize', 'partyminder'); ?></p>
                 </div>
                 <div class="pm-card-body">
-                    <div style="font-size: 0.9em; line-height: 1.6;">
+                    <div class="pm-text-sm pm-leading-relaxed">
                         <div class="pm-mb-3">
                             <div class="pm-flex pm-flex-center-gap pm-mb-1">
                                 <span>🏢</span>
                                 <strong><?php _e('Work', 'partyminder'); ?></strong>
                             </div>
-                            <p class="pm-text-muted pm-m-0" style="font-size: 0.85rem; margin-left: 24px;"><?php _e('Office events, team building', 'partyminder'); ?></p>
+                            <p class="pm-text-muted pm-m-0" class="pm-text-xs pm-ml-6"><?php _e('Office events, team building', 'partyminder'); ?></p>
                         </div>
                         <div class="pm-mb-3">
                             <div class="pm-flex pm-flex-center-gap pm-mb-1">
                                 <span>⛪</span>
                                 <strong><?php _e('Faith', 'partyminder'); ?></strong>
                             </div>
-                            <p class="pm-text-muted pm-m-0" style="font-size: 0.85rem; margin-left: 24px;"><?php _e('Church, religious gatherings', 'partyminder'); ?></p>
+                            <p class="pm-text-muted pm-m-0" class="pm-text-xs pm-ml-6"><?php _e('Church, religious gatherings', 'partyminder'); ?></p>
                         </div>
                         <div class="pm-mb-3">
                             <div class="pm-flex pm-flex-center-gap pm-mb-1">
                                 <span>👨‍👩‍👧‍👦</span>
                                 <strong><?php _e('Family', 'partyminder'); ?></strong>
                             </div>
-                            <p class="pm-text-muted pm-m-0" style="font-size: 0.85rem; margin-left: 24px;"><?php _e('Family reunions, celebrations', 'partyminder'); ?></p>
+                            <p class="pm-text-muted pm-m-0" class="pm-text-xs pm-ml-6"><?php _e('Family reunions, celebrations', 'partyminder'); ?></p>
                         </div>
                         <div class="pm-mb-3">
                             <div class="pm-flex pm-flex-center-gap pm-mb-1">
                                 <span>🎯</span>
                                 <strong><?php _e('Hobby', 'partyminder'); ?></strong>
                             </div>
-                            <p class="pm-text-muted pm-m-0" style="font-size: 0.85rem; margin-left: 24px;"><?php _e('Interest-based groups', 'partyminder'); ?></p>
+                            <p class="pm-text-muted pm-m-0" class="pm-text-xs pm-ml-6"><?php _e('Interest-based groups', 'partyminder'); ?></p>
                         </div>
                     </div>
                 </div>

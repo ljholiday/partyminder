@@ -272,10 +272,6 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     gap: 8px;
 }
 
-.activity-card-content {
-    padding: 20px;
-}
-
 .event-conversation {
     padding: 12px 0;
     border-bottom: 1px solid #f0f0f0;
@@ -329,37 +325,6 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     font-size: 0.85em;
     color: #666;
     margin-top: 5px;
-}
-
-.quick-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.action-button {
-    background: var(--pm-primary);
-    color: white;
-    border: none;
-    padding: 12px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 0.9em;
-    text-align: center;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.action-button:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.action-button.secondary {
-    background: #6c757d;
 }
 
 /* Modal Styles */
@@ -498,45 +463,6 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     border-top: 1px solid #e9ecef;
 }
 
-.pm-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-}
-
-.pm-button-primary {
-    background: var(--pm-primary);
-    color: white;
-}
-
-.pm-button-primary:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.pm-button-secondary {
-    background: #6c757d;
-    color: white;
-}
-
-.pm-button-secondary:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.pm-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
 .button-spinner {
     display: none;
 }
@@ -606,14 +532,14 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     <div class="pm-mb-6">
                         <div class="pm-flex pm-flex-between pm-flex-center-gap pm-mb-3">
                             <div class="pm-flex pm-flex-center-gap">
-                                <span style="font-size: 1.5rem;"><?php echo esc_html($topic->icon); ?></span>
+                                <span class="pm-text-xl"><?php echo esc_html($topic->icon); ?></span>
                                 <div>
                                     <h3 class="pm-heading pm-heading-sm pm-m-0">
-                                        <a href="<?php echo home_url('/conversations/' . $topic->slug); ?>" class="pm-text-primary" style="text-decoration: none;">
+                                        <a href="<?php echo home_url('/conversations/' . $topic->slug); ?>" class="pm-text-primary pm-no-underline">
                                             <?php echo esc_html($topic->name); ?>
                                         </a>
                                     </h3>
-                                    <p class="pm-text-muted pm-m-0" style="font-size: 0.875rem;"><?php echo esc_html($topic->description); ?></p>
+                                    <p class="pm-text-muted pm-m-0 pm-text-sm"><?php echo esc_html($topic->description); ?></p>
                                 </div>
                             </div>
                             <div class="pm-stat">
@@ -623,36 +549,36 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         </div>
                         
                         <?php if (!empty($topic_conversations)): ?>
-                            <div class="pm-pl-4" style="border-left: 2px solid var(--pm-border);">
+                            <div class="pm-pl-4 pm-border-left">
                                 <?php foreach ($topic_conversations as $conversation): ?>
                                     <div class="pm-flex pm-flex-between pm-flex-center-gap pm-mb-3">
-                                        <div style="flex: 1; min-width: 0;">
+                                        <div class="pm-flex-1 pm-min-w-0">
                                             <div class="pm-flex pm-flex-center-gap pm-mb-1">
                                                 <?php if ($conversation->is_pinned): ?>
-                                                    <span class="pm-badge pm-badge-warning" style="font-size: 0.75rem;">📌 <?php _e('Pinned', 'partyminder'); ?></span>
+                                                    <span class="pm-badge pm-badge-warning pm-text-xs">📌 <?php _e('Pinned', 'partyminder'); ?></span>
                                                 <?php endif; ?>
-                                                <h4 class="pm-heading pm-heading-xs pm-m-0" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                    <a href="<?php echo home_url('/conversations/' . $topic->slug . '/' . $conversation->slug); ?>" class="pm-text-primary" style="text-decoration: none;">
+                                                <h4 class="pm-heading pm-heading-xs pm-m-0 pm-truncate">
+                                                    <a href="<?php echo home_url('/conversations/' . $topic->slug . '/' . $conversation->slug); ?>" class="pm-text-primary pm-no-underline">
                                                         <?php echo esc_html($conversation->title); ?>
                                                     </a>
                                                 </h4>
                                             </div>
-                                            <div class="pm-text-muted" style="font-size: 0.8rem;">
+                                            <div class="pm-text-muted pm-text-xs">
                                                 <?php printf(__('by %s • %s ago', 'partyminder'), 
                                                     esc_html($conversation->author_name),
                                                     human_time_diff(strtotime($conversation->last_reply_date), current_time('timestamp'))
                                                 ); ?>
                                             </div>
                                         </div>
-                                        <div class="pm-stat" style="text-align: center; min-width: 40px;">
-                                            <div class="pm-stat-number pm-text-success" style="font-size: 0.9rem;"><?php echo $conversation->reply_count; ?></div>
-                                            <div class="pm-stat-label" style="font-size: 0.7rem;"><?php _e('Replies', 'partyminder'); ?></div>
+                                        <div class="pm-stat pm-text-center pm-min-w-10">
+                                            <div class="pm-stat-number pm-text-success pm-text-sm"><?php echo $conversation->reply_count; ?></div>
+                                            <div class="pm-stat-label pm-text-xs"><?php _e('Replies', 'partyminder'); ?></div>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
                         <?php else: ?>
-                            <div class="pm-text-center pm-p-4" style="background: var(--pm-surface); border-radius: var(--pm-radius); border: 1px dashed var(--pm-border);">
+                            <div class="pm-text-center pm-p-4 pm-card-dashed">
                                 <p class="pm-text-muted pm-mb-3"><?php _e('No conversations yet in this topic.', 'partyminder'); ?></p>
                                 <?php if (is_user_logged_in()): ?>
                                 <a href="#" class="pm-button pm-button-primary pm-button-small start-conversation-btn" 
@@ -680,7 +606,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         </div>
 
         <!-- RIGHT COLUMN - Event Activity -->
-        <div class="pm-flex" style="flex-direction: column; gap: 20px;">
+        <div class="pm-flex pm-flex-column pm-gap-lg">
             <!-- Event Conversations -->
             <div class="pm-card">
                 <div class="pm-card-header">
@@ -690,25 +616,25 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <div class="pm-card-body">
                     <?php if (!empty($event_conversations)): ?>
                         <?php foreach ($event_conversations as $event_conv): ?>
-                            <div class="pm-mb-4 pm-pb-3" style="border-bottom: 1px solid var(--pm-border);">
+                            <div class="pm-mb-4 pm-pb-3 pm-border-bottom">
                                 <h4 class="pm-heading pm-heading-xs pm-mb-2">
-                                    <a href="<?php echo home_url('/events/' . $event_conv->event_slug); ?>" class="pm-text-primary" style="text-decoration: none;">
+                                    <a href="<?php echo home_url('/events/' . $event_conv->event_slug); ?>" class="pm-text-primary pm-no-underline">
                                         <?php echo esc_html($event_conv->event_title); ?>
                                     </a>
                                 </h4>
                                 <div class="pm-flex pm-flex-between pm-flex-center-gap">
-                                    <span class="pm-text-muted" style="font-size: 0.8rem;">
+                                    <span class="pm-text-muted pm-text-xs">
                                         📅 <?php echo date('M j', strtotime($event_conv->event_date)); ?>
                                     </span>
                                     <div class="pm-stat">
-                                        <div class="pm-stat-number pm-text-success" style="font-size: 0.9rem;"><?php echo $event_conv->reply_count; ?></div>
-                                        <div class="pm-stat-label" style="font-size: 0.7rem;"><?php _e('Comments', 'partyminder'); ?></div>
+                                        <div class="pm-stat-number pm-text-success pm-text-sm"><?php echo $event_conv->reply_count; ?></div>
+                                        <div class="pm-stat-label pm-text-xs"><?php _e('Comments', 'partyminder'); ?></div>
                                     </div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <p style="text-align: center; color: #666; margin: 0;">
+                        <p class="pm-text-center pm-text-muted pm-m-0">
                             <?php _e('No event conversations yet.', 'partyminder'); ?>
                         </p>
                     <?php endif; ?>
@@ -716,12 +642,12 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             </div>
 
             <!-- Community Stats -->
-            <div class="activity-card">
-                <div class="activity-card-header">
+            <div class="pm-card">
+                <div class="pm-card-header">
                     <span>📊</span>
                     <?php _e('Community Stats', 'partyminder'); ?>
                 </div>
-                <div class="activity-card-content">
+                <div class="pm-card-body">
                     <div class="community-stats">
                         <div class="stat-box">
                             <span class="stat-number"><?php echo $stats->total_conversations; ?></span>
@@ -744,31 +670,30 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             </div>
 
             <!-- Quick Actions -->
-            <div class="activity-card">
-                <div class="activity-card-header">
-                    <span>⚡</span>
-                    <?php _e('Quick Actions', 'partyminder'); ?>
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h3 class="pm-heading pm-heading-sm pm-m-0">⚡ <?php _e('Quick Actions', 'partyminder'); ?></h3>
                 </div>
-                <div class="activity-card-content">
-                    <div class="quick-actions">
+                <div class="pm-card-body">
+                    <div class="pm-flex pm-flex-center-gap pm-flex-column">
                         <?php if (is_user_logged_in()): ?>
-                        <a href="#" class="action-button start-conversation-btn" 
+                        <a href="#" class="pm-button pm-button-primary start-conversation-btn" 
                            data-topic-id="" data-topic-name="">
                             <span>💬</span>
                             <?php _e('Start New Conversation', 'partyminder'); ?>
                         </a>
-                        <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="action-button secondary">
-                            <span>✨</span>
+                        <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-button pm-button-secondary">
+                            <span>🎉</span>
                             <?php _e('Create Event', 'partyminder'); ?>
                         </a>
                         <?php else: ?>
-                        <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="action-button">
+                        <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="pm-button pm-button-primary">
                             <span>🔑</span>
                             <?php _e('Login to Participate', 'partyminder'); ?>
                         </a>
                         <?php endif; ?>
-                        <a href="<?php echo PartyMinder::get_events_page_url(); ?>" class="action-button secondary">
-                            <span>🎉</span>
+                        <a href="<?php echo PartyMinder::get_events_page_url(); ?>" class="pm-button pm-button-secondary">
+                            <span>📅</span>
                             <?php _e('Browse Events', 'partyminder'); ?>
                         </a>
                     </div>

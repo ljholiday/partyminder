@@ -158,7 +158,7 @@ if ($user_email) {
                 <article class="pm-card">
                     <div class="pm-card-header pm-flex pm-flex-between pm-flex-center-gap">
                         <h4 class="pm-heading pm-heading-sm pm-m-0">
-                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-text-primary" style="text-decoration: none;"><?php echo esc_html($event->title); ?></a>
+                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-text-primary" ><?php echo esc_html($event->title); ?></a>
                         </h4>
                         <div class="pm-badge pm-badge-success">
                             <?php _e('Host', 'partyminder'); ?>
@@ -199,7 +199,7 @@ if ($user_email) {
                         </div>
                     </div>
                     
-                    <div class="pm-card-footer pm-flex pm-flex-center-gap" style="flex-wrap: wrap;">
+                    <div class="pm-card-footer pm-flex pm-flex-center-gap pm-flex-wrap">
                         <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-small pm-button-secondary">
                             <?php _e('View Event', 'partyminder'); ?>
                         </a>
@@ -246,7 +246,7 @@ if ($user_email) {
                     <article class="pm-card">
                         <div class="pm-card-header pm-flex pm-flex-between pm-flex-center-gap">
                             <h4 class="pm-heading pm-heading-sm pm-m-0">
-                                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-text-primary" style="text-decoration: none;"><?php echo esc_html($event->title); ?></a>
+                                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-text-primary" ><?php echo esc_html($event->title); ?></a>
                             </h4>
                             <div class="pm-badge <?php echo esc_attr($badge_class); ?>">
                                 <?php echo esc_html($badge_text[$event->rsvp_status] ?? __('RSVP\'d', 'partyminder')); ?>
@@ -320,10 +320,10 @@ if ($user_email) {
         </div>
         
         <div class="pm-card-body">
-            <div class="pm-flex pm-flex-center-gap" style="flex-wrap: wrap;">
+            <div class="pm-flex pm-flex-center-gap pm-flex-column">
                 <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-button pm-button-primary">
-                    <span>✨</span>
-                    <?php _e('Create New Event', 'partyminder'); ?>
+                    <span>🎉</span>
+                    <?php _e('Create Event', 'partyminder'); ?>
                 </a>
                 <a href="<?php echo PartyMinder::get_profile_url(); ?>" class="pm-button pm-button-secondary">
                     <span>👤</span>

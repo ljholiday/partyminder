@@ -159,7 +159,7 @@ if (isset($errors) && !empty($errors)) {
                             $selected_types = json_decode($profile_data['favorite_event_types'] ?: '[]', true);
                             foreach ($event_types as $key => $label):
                             ?>
-                            <label class="pm-flex pm-flex-center-gap" style="margin-bottom: 8px;">
+                            <label class="pm-flex pm-flex-center-gap pm-mb-2">
                                 <input type="checkbox" name="favorite_event_types[]" value="<?php echo $key; ?>" 
                                        <?php checked(in_array($key, $selected_types)); ?>>
                                 <span><?php echo $label; ?></span>
@@ -284,10 +284,10 @@ if (isset($errors) && !empty($errors)) {
     <?php else: ?>
         <!-- View Profile -->
         <div class="pm-card pm-mb-6">
-            <div class="pm-card-header pm-flex pm-flex-center-gap" style="gap: 20px;">
-                <div class="profile-avatar" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; background: var(--pm-surface); display: flex; align-items: center; justify-content: center;">
+            <div class="pm-card-header pm-flex pm-flex-center-gap pm-gap-lg">
+                <div class="profile-avatar pm-avatar-lg">
                     <?php if ($profile_data['profile_image']): ?>
-                        <img src="<?php echo esc_url($profile_data['profile_image']); ?>" alt="<?php echo esc_attr($profile_data['display_name'] ?: $user_data->display_name); ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="<?php echo esc_url($profile_data['profile_image']); ?>" alt="<?php echo esc_attr($profile_data['display_name'] ?: $user_data->display_name); ?>" class="pm-avatar-img">
                     <?php else: ?>
                         <div class="pm-heading pm-heading-lg pm-text-primary pm-m-0">
                             <?php echo strtoupper(substr($profile_data['display_name'] ?: $user_data->display_name, 0, 1)); ?>
@@ -316,7 +316,7 @@ if (isset($errors) && !empty($errors)) {
                     <?php endif; ?>
                     
                     <?php if ($is_own_profile): ?>
-                        <div class="pm-mt-4 pm-flex pm-flex-center-gap" style="flex-wrap: wrap;">
+                        <div class="pm-mt-4 pm-flex pm-flex-center-gap pm-flex-wrap">
                             <a href="<?php echo esc_url(add_query_arg('edit', '1', PartyMinder::get_profile_url())); ?>" class="pm-button pm-button-primary">
                                 <span class="dashicons dashicons-edit"></span>
                                 <?php _e('Edit Profile', 'partyminder'); ?>
@@ -368,7 +368,7 @@ if (isset($errors) && !empty($errors)) {
                 <?php if ($profile_data['favorite_event_types']): ?>
                 <div class="pm-mb-4">
                     <h4 class="pm-heading pm-heading-sm pm-text-primary"><?php _e('Favorite Event Types', 'partyminder'); ?></h4>
-                    <div class="pm-flex pm-flex-center-gap" style="flex-wrap: wrap;">
+                    <div class="pm-flex pm-flex-center-gap pm-flex-wrap">
                         <?php
                         $favorite_types = json_decode($profile_data['favorite_event_types'], true);
                         $event_type_labels = array(

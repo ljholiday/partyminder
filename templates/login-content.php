@@ -146,7 +146,7 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST
         <?php if (!empty($errors)): ?>
         <div class="pm-message pm-message-error pm-mb-4">
             <h4 class="pm-heading pm-heading-sm pm-mb-2"><?php _e('Please fix the following errors:', 'partyminder'); ?></h4>
-            <ul style="margin: 0; padding-left: 20px;">
+            <ul class="pm-m-0 pm-pl-5">
                 <?php foreach ($errors as $error): ?>
                     <li><?php echo esc_html($error); ?></li>
                 <?php endforeach; ?>
@@ -163,7 +163,7 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST
         </div>
         <?php endif; ?>
         
-        <div class="pm-grid" style="max-width: 600px; margin: 0 auto;">
+        <div class="pm-grid pm-max-w-lg pm-mx-auto">
             
             <?php if ($action === 'register'): ?>
             <!-- Registration Form -->
@@ -249,8 +249,8 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST
                     </div>
                     
                     <div class="pm-form-group">
-                        <label class="pm-flex" style="align-items: center; cursor: pointer;">
-                            <input type="checkbox" name="remember" value="1" style="margin-right: 8px;"
+                        <label class="pm-flex pm-items-center pm-cursor-pointer">
+                            <input type="checkbox" name="remember" value="1" class="pm-mr-2"
                                    <?php checked(isset($_POST['remember'])); ?>>
                             <span class="pm-text-muted"><?php _e('Remember me for 2 weeks', 'partyminder'); ?></span>
                         </label>
@@ -283,19 +283,19 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST
             <div class="pm-card-body">
                 <div class="pm-grid pm-grid-3">
                     <div class="pm-text-center pm-p-4">
-                        <div style="font-size: 3rem; margin-bottom: 12px;">🎪</div>
+                        <div class="pm-text-4xl pm-mb-3">🎪</div>
                         <h4 class="pm-heading pm-heading-sm pm-mb-2"><?php _e('Host Events', 'partyminder'); ?></h4>
                         <p class="pm-text-muted pm-m-0"><?php _e('Create and manage amazing parties with our easy-to-use tools.', 'partyminder'); ?></p>
                     </div>
                     
                     <div class="pm-text-center pm-p-4">
-                        <div style="font-size: 3rem; margin-bottom: 12px;">💌</div>
+                        <div class="pm-text-4xl pm-mb-3">💌</div>
                         <h4 class="pm-heading pm-heading-sm pm-mb-2"><?php _e('RSVP & Attend', 'partyminder'); ?></h4>
                         <p class="pm-text-muted pm-m-0"><?php _e('Discover local events and connect with your community.', 'partyminder'); ?></p>
                     </div>
                     
                     <div class="pm-text-center pm-p-4">
-                        <div style="font-size: 3rem; margin-bottom: 12px;">💬</div>
+                        <div class="pm-text-4xl pm-mb-3">💬</div>
                         <h4 class="pm-heading pm-heading-sm pm-mb-2"><?php _e('Connect', 'partyminder'); ?></h4>
                         <p class="pm-text-muted pm-m-0"><?php _e('Share tips, recipes, and stories with fellow party enthusiasts.', 'partyminder'); ?></p>
                     </div>

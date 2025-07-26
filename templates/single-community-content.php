@@ -452,15 +452,15 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             <h3><?php _e('Welcome to', 'partyminder'); ?> <?php echo esc_html($community->name); ?></h3>
             
             <?php if ($community->description): ?>
-                <div style="margin-bottom: 30px;">
+                <div class="pm-mb-8">
                     <?php echo wpautop(esc_html($community->description)); ?>
                 </div>
             <?php endif; ?>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
-                    <h4 style="margin: 0 0 10px 0; color: var(--pm-primary);">🎯 Community Purpose</h4>
-                    <p style="margin: 0; color: #666;">
+            <div class="pm-grid pm-gap-5">
+                <div class="pm-card-light pm-p-5">
+                    <h4 class="pm-m-0 pm-mb-3 pm-text-primary">🎯 Community Purpose</h4>
+                    <p class="pm-m-0 pm-text-muted">
                         <?php 
                         switch ($community->type) {
                             case 'work':
@@ -482,16 +482,16 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     </p>
                 </div>
                 
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
-                    <h4 style="margin: 0 0 10px 0; color: var(--pm-primary);">📅 Recent Activity</h4>
-                    <p style="margin: 0; color: #666;">
+                <div class="pm-card-light pm-p-5">
+                    <h4 class="pm-m-0 pm-mb-3 pm-text-primary">📅 Recent Activity</h4>
+                    <p class="pm-m-0 pm-text-muted">
                         <?php printf(__('%d members have been active this month', 'partyminder'), $stats->recent_activity); ?>
                     </p>
                 </div>
                 
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
-                    <h4 style="margin: 0 0 10px 0; color: var(--pm-primary);">🎉 Get Started</h4>
-                    <p style="margin: 0; color: #666;">
+                <div class="pm-card-light pm-p-5">
+                    <h4 class="pm-m-0 pm-mb-3 pm-text-primary">🎉 Get Started</h4>
+                    <p class="pm-m-0 pm-text-muted">
                         <?php if ($is_member): ?>
                             <?php _e('Create your first community event or browse upcoming events.', 'partyminder'); ?>
                         <?php else: ?>

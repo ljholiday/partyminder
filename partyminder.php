@@ -218,6 +218,18 @@ class PartyMinder {
     
     public function enqueue_public_scripts() {
         wp_enqueue_style('partyminder', PARTYMINDER_PLUGIN_URL . 'assets/css/partyminder.css', array(), PARTYMINDER_VERSION);
+        
+        // Add dynamic colors from admin settings
+        $primary_color = get_option('partyminder_primary_color', '#667eea');
+        $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
+        
+        $custom_css = ":root {
+            --pm-primary: {$primary_color} !important;
+            --pm-secondary: {$secondary_color} !important;
+        }";
+        
+        wp_add_inline_style('partyminder', $custom_css);
+        
         wp_enqueue_script('partyminder-public', PARTYMINDER_PLUGIN_URL . 'assets/js/public.js', array('jquery'), PARTYMINDER_VERSION, true);
         
         $current_user = wp_get_current_user();
@@ -246,6 +258,18 @@ class PartyMinder {
     public function enqueue_admin_scripts($hook) {
         if (strpos($hook, 'partyminder') !== false) {
             wp_enqueue_style('partyminder-admin', PARTYMINDER_PLUGIN_URL . 'assets/css/partyminder.css', array(), PARTYMINDER_VERSION);
+            
+            // Add dynamic colors from admin settings
+            $primary_color = get_option('partyminder_primary_color', '#667eea');
+            $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
+            
+            $custom_css = ":root {
+                --pm-primary: {$primary_color} !important;
+                --pm-secondary: {$secondary_color} !important;
+            }";
+            
+            wp_add_inline_style('partyminder-admin', $custom_css);
+            
             wp_enqueue_script('partyminder-admin', PARTYMINDER_PLUGIN_URL . 'assets/js/admin.js', array('jquery'), PARTYMINDER_VERSION, true);
             
             wp_localize_script('partyminder-admin', 'partyminder_admin', array(
