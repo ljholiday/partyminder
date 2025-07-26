@@ -1044,12 +1044,105 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event handlers for Community Bluesky features
     if (document.getElementById('community-connect-bluesky-btn')) {
         document.getElementById('community-connect-bluesky-btn').addEventListener('click', function() {
-            // Reuse the same Bluesky connect modal from events
+            // Reuse the same Bluesky connect modal from events, or create it if not available
             if (typeof showBlueskyConnectModal === 'function') {
                 showBlueskyConnectModal();
             } else {
-                alert('<?php _e('Bluesky connection is not available. Please make sure AT Protocol is enabled.', 'partyminder'); ?>');
+                showCommunityBlueskyConnectModal();
             }
+        });
+    }
+    
+    // Bluesky connect modal for community context
+    function showCommunityBlueskyConnectModal() {
+        const connectHtml = `
+            <div id="bluesky-connect-modal" class="pm-modal-overlay" style="z-index: 10001;">
+                <div class="pm-modal pm-modal-sm">
+                    <div class="pm-modal-header">
+                        <h3>🦋 <?php _e('Connect to Bluesky', 'partyminder'); ?></h3>
+                        <button type="button" class="bluesky-connect-close pm-button pm-button-secondary" style="padding: 5px; border-radius: 50%; width: 35px; height: 35px;">×</button>
+                    </div>
+                    <div class="pm-modal-body">
+                        <form id="bluesky-connect-form">
+                            <div class="pm-form-group">
+                                <label class="pm-label"><?php _e('Bluesky Handle', 'partyminder'); ?></label>
+                                <input type="text" class="pm-input" id="bluesky-handle-input" 
+                                       placeholder="<?php _e('username.bsky.social', 'partyminder'); ?>" required>
+                            </div>
+                            <div class="pm-form-group">
+                                <label class="pm-label"><?php _e('App Password', 'partyminder'); ?></label>
+                                <input type="password" class="pm-input" id="bluesky-password-input" 
+                                       placeholder="<?php _e('Your Bluesky app password', 'partyminder'); ?>" required>
+                                <small class="pm-text-muted">
+                                    <?php _e('Create an app password in your Bluesky settings for secure access.', 'partyminder'); ?>
+                                </small>
+                            </div>
+                            <div class="pm-flex pm-flex-center-gap pm-mt-4">
+                                <button type="submit" class="pm-button pm-button-primary">
+                                    <?php _e('Connect Account', 'partyminder'); ?>
+                                </button>
+                                <button type="button" class="bluesky-connect-close pm-button pm-button-secondary">
+                                    <?php _e('Cancel', 'partyminder'); ?>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', connectHtml);
+        
+        const connectModal = document.getElementById('bluesky-connect-modal');
+        connectModal.classList.add('active');
+        
+        // Close handlers
+        connectModal.querySelectorAll('.bluesky-connect-close').forEach(btn => {
+            btn.addEventListener('click', () => {
+                connectModal.remove();
+            });
+        });
+        
+        // Form submission
+        document.getElementById('bluesky-connect-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const handle = document.getElementById('bluesky-handle-input').value;
+            const password = document.getElementById('bluesky-password-input').value;
+            const submitBtn = this.querySelector('button[type="submit"]');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = '<?php _e('Connecting...', 'partyminder'); ?>';
+            
+            jQuery.ajax({
+                url: partyminder_ajax.ajax_url,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'partyminder_connect_bluesky',
+                    handle: handle,
+                    password: password,
+                    nonce: partyminder_ajax.at_protocol_nonce
+                },
+                success: function(response) {
+                    console.log('Bluesky connection response:', response);
+                    if (response && response.success) {
+                        alert('<?php _e('Successfully connected to Bluesky!', 'partyminder'); ?>');
+                        connectModal.remove();
+                        showCommunityBlueskyConnected(handle);
+                    } else {
+                        alert(response.message || '<?php _e('Failed to connect to Bluesky', 'partyminder'); ?>');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '<?php _e('Connect Account', 'partyminder'); ?>';
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('Bluesky connection error:', xhr.responseText);
+                    alert('<?php _e('Network error. Please try again.', 'partyminder'); ?>');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '<?php _e('Connect Account', 'partyminder'); ?>';
+                }
+            });
         });
     }
     
