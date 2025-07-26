@@ -6,7 +6,8 @@
       "Bash(php:*)",
       "Bash(grep:*)",
       "Bash(mv:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(cp:*)"
     ],
     "deny": []
   }

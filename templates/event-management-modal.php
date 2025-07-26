@@ -853,6 +853,7 @@ document.addEventListener('DOMContentLoaded', function() {
             jQuery.ajax({
                 url: partyminder_ajax.ajax_url,
                 type: 'POST',
+                dataType: 'json',
                 data: {
                     action: 'partyminder_connect_bluesky',
                     handle: handle,
@@ -860,7 +861,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     nonce: partyminder_ajax.at_protocol_nonce
                 },
                 success: function(response) {
-                    if (response.success) {
+                    console.log('Bluesky connection response:', response);
+                    if (response && response.success) {
                         alert('<?php _e('Successfully connected to Bluesky!', 'partyminder'); ?>');
                         connectModal.remove();
                         showBlueskyConnected(handle);
@@ -870,7 +872,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         submitBtn.textContent = '<?php _e('Connect Account', 'partyminder'); ?>';
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
+                    console.log('Bluesky connection error:', xhr.responseText);
                     alert('<?php _e('Network error. Please try again.', 'partyminder'); ?>');
                     submitBtn.disabled = false;
                     submitBtn.textContent = '<?php _e('Connect Account', 'partyminder'); ?>';
@@ -894,13 +897,15 @@ document.addEventListener('DOMContentLoaded', function() {
         jQuery.ajax({
             url: partyminder_ajax.ajax_url,
             type: 'POST',
+            dataType: 'json',
             data: {
                 action: 'partyminder_get_bluesky_contacts',
                 nonce: partyminder_ajax.at_protocol_nonce
             },
             success: function(response) {
-                if (response.success && response.data.contacts) {
-                    blueSkyContacts = response.data.contacts;
+                console.log('Bluesky contacts response:', response);
+                if (response && response.success && response.contacts) {
+                    blueSkyContacts = response.contacts;
                     renderBlueskyContacts(blueSkyContacts);
                 } else {
                     contactsList.innerHTML = '<div class="pm-text-center pm-p-4"><p class="pm-text-muted">' + (response.message || '<?php _e('No contacts found.', 'partyminder'); ?>') + '</p></div>';
@@ -908,7 +913,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadBtn.disabled = false;
                 loadBtn.textContent = '<?php _e('Refresh Contacts', 'partyminder'); ?>';
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.log('Bluesky contacts error:', xhr.responseText);
                 contactsList.innerHTML = '<div class="pm-text-center pm-p-4"><p class="pm-text-danger"><?php _e('Failed to load contacts.', 'partyminder'); ?></p></div>';
                 loadBtn.disabled = false;
                 loadBtn.textContent = '<?php _e('Load Bluesky Contacts', 'partyminder'); ?>';

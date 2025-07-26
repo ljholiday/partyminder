@@ -23,16 +23,31 @@ class PartyMinder_AT_Protocol_Manager {
      * Connect user to Bluesky account
      */
     public function connect_bluesky($user_id, $handle, $password) {
+        error_log('[PartyMinder AT Protocol] connect_bluesky called for user: ' . $user_id);
+        
         if (!$this->bluesky_client) {
             $this->bluesky_client = new PartyMinder_Bluesky_Client();
         }
         
         $auth_result = $this->bluesky_client->authenticate($handle, $password);
+        error_log('[PartyMinder AT Protocol] Auth result: ' . json_encode($auth_result));
         
         if ($auth_result['success']) {
             // Store Bluesky credentials securely
             $identity_manager = new PartyMinder_Member_Identity_Manager();
             $identity = $identity_manager->get_member_identity($user_id);
+            
+            error_log('[PartyMinder AT Protocol] Member identity exists: ' . ($identity ? 'yes' : 'no'));
+            
+            if (!$identity) {
+                // Try to create identity if it doesn't exist
+                error_log('[PartyMinder AT Protocol] Creating member identity for user: ' . $user_id);
+                $user = get_user_by('id', $user_id);
+                if ($user) {
+                    $identity_manager->ensure_identity_exists($user_id, $user->user_email, $user->display_name);
+                    $identity = $identity_manager->get_member_identity($user_id);
+                }
+            }
             
             if ($identity) {
                 $at_protocol_data = $identity->at_protocol_data ?: array();
@@ -45,10 +60,14 @@ class PartyMinder_AT_Protocol_Manager {
                     'last_sync' => null
                 );
                 
-                $identity_manager->update_at_protocol_data($user_id, $at_protocol_data);
+                $result = $identity_manager->update_at_protocol_data($user_id, $at_protocol_data);
+                error_log('[PartyMinder AT Protocol] Update result: ' . ($result ? 'success' : 'failed'));
                 
                 error_log('[PartyMinder] Connected Bluesky account for user ' . $user_id . ': ' . $handle);
                 return array('success' => true, 'message' => 'Successfully connected to Bluesky');
+            } else {
+                error_log('[PartyMinder AT Protocol] Could not create or find member identity');
+                return array('success' => false, 'message' => 'Could not create member identity');
             }
         }
         
@@ -59,20 +78,22 @@ class PartyMinder_AT_Protocol_Manager {
      * Get user's Bluesky contacts/follows
      */
     public function get_bluesky_contacts($user_id) {
-        $identity_manager = new PartyMinder_Member_Identity_Manager();
-        $identity = $identity_manager->get_member_identity($user_id);
+        // First validate the connection and refresh tokens if needed
+        $connection_status = $this->validate_bluesky_connection($user_id);
         
-        if (!$identity || !isset($identity->at_protocol_data['bluesky'])) {
-            return array('success' => false, 'message' => 'Bluesky not connected');
+        if (!$connection_status['connected']) {
+            return array('success' => false, 'message' => 'Bluesky not connected or tokens invalid');
         }
         
+        $identity_manager = new PartyMinder_Member_Identity_Manager();
+        $identity = $identity_manager->get_member_identity($user_id);
         $bluesky_data = $identity->at_protocol_data['bluesky'];
         
         if (!$this->bluesky_client) {
             $this->bluesky_client = new PartyMinder_Bluesky_Client();
         }
         
-        // Set authentication tokens
+        // Set authentication tokens (they are now guaranteed to be valid)
         $this->bluesky_client->set_tokens(
             $this->decrypt_token($bluesky_data['access_token']),
             $this->decrypt_token($bluesky_data['refresh_token'])
@@ -127,20 +148,32 @@ class PartyMinder_AT_Protocol_Manager {
      * AJAX handler for connecting Bluesky
      */
     public function ajax_connect_bluesky() {
-        check_ajax_referer('partyminder_at_protocol', 'nonce');
+        error_log('[PartyMinder AT Protocol] AJAX connect_bluesky called');
+        
+        try {
+            check_ajax_referer('partyminder_at_protocol', 'nonce');
+        } catch (Exception $e) {
+            error_log('[PartyMinder AT Protocol] Nonce check failed: ' . $e->getMessage());
+            wp_die(json_encode(array('success' => false, 'message' => 'Invalid nonce')));
+        }
         
         if (!is_user_logged_in()) {
+            error_log('[PartyMinder AT Protocol] User not logged in');
             wp_die(json_encode(array('success' => false, 'message' => 'Not authenticated')));
         }
         
         $handle = sanitize_text_field($_POST['handle'] ?? '');
         $password = $_POST['password'] ?? '';
         
+        error_log('[PartyMinder AT Protocol] Connecting handle: ' . $handle);
+        
         if (empty($handle) || empty($password)) {
+            error_log('[PartyMinder AT Protocol] Missing handle or password');
             wp_die(json_encode(array('success' => false, 'message' => 'Handle and password required')));
         }
         
         $result = $this->connect_bluesky(get_current_user_id(), $handle, $password);
+        error_log('[PartyMinder AT Protocol] Connect result: ' . json_encode($result));
         wp_die(json_encode($result));
     }
     
@@ -183,26 +216,81 @@ class PartyMinder_AT_Protocol_Manager {
         }
         
         $user_id = get_current_user_id();
-        $is_connected = $this->is_bluesky_connected($user_id);
+        $connection_status = $this->validate_bluesky_connection($user_id);
         
-        if ($is_connected) {
-            $identity_manager = new PartyMinder_Member_Identity_Manager();
-            $identity = $identity_manager->get_member_identity($user_id);
-            $handle = $identity->at_protocol_data['bluesky']['handle'] ?? 'Unknown';
-            
-            wp_die(json_encode(array(
-                'success' => true,
-                'data' => array(
-                    'connected' => true,
-                    'handle' => $handle
-                )
-            )));
-        } else {
-            wp_die(json_encode(array(
-                'success' => true,
-                'data' => array('connected' => false)
-            )));
+        wp_die(json_encode(array(
+            'success' => true,
+            'data' => $connection_status
+        )));
+    }
+    
+    /**
+     * Validate Bluesky connection and refresh tokens if needed
+     */
+    public function validate_bluesky_connection($user_id) {
+        error_log('[PartyMinder AT Protocol] Validating Bluesky connection for user: ' . $user_id);
+        
+        $identity_manager = new PartyMinder_Member_Identity_Manager();
+        $identity = $identity_manager->get_member_identity($user_id);
+        
+        // Check if user has Bluesky data stored
+        if (!$identity || !isset($identity->at_protocol_data['bluesky'])) {
+            error_log('[PartyMinder AT Protocol] No Bluesky data found for user: ' . $user_id);
+            return array('connected' => false);
         }
+        
+        $bluesky_data = $identity->at_protocol_data['bluesky'];
+        $handle = $bluesky_data['handle'] ?? 'Unknown';
+        
+        // Check if we have access and refresh tokens
+        if (!isset($bluesky_data['access_token']) || !isset($bluesky_data['refresh_token'])) {
+            error_log('[PartyMinder AT Protocol] Missing tokens for user: ' . $user_id);
+            return array('connected' => false);
+        }
+        
+        // Initialize Bluesky client and set tokens
+        if (!$this->bluesky_client) {
+            $this->bluesky_client = new PartyMinder_Bluesky_Client();
+        }
+        
+        $access_token = $this->decrypt_token($bluesky_data['access_token']);
+        $refresh_token = $this->decrypt_token($bluesky_data['refresh_token']);
+        
+        $this->bluesky_client->set_tokens($access_token, $refresh_token);
+        
+        // Try to make a simple API call to validate the token
+        $profile_result = $this->bluesky_client->get_profile($bluesky_data['did']);
+        
+        if ($profile_result['success']) {
+            error_log('[PartyMinder AT Protocol] Connection valid for user: ' . $user_id);
+            return array(
+                'connected' => true,
+                'handle' => $handle
+            );
+        }
+        
+        // If the API call failed, try to refresh the token
+        error_log('[PartyMinder AT Protocol] Access token invalid, attempting refresh for user: ' . $user_id);
+        $refresh_result = $this->bluesky_client->refresh_session();
+        
+        if ($refresh_result['success']) {
+            // Save the new tokens
+            $bluesky_data['access_token'] = $this->encrypt_token($refresh_result['access_token']);
+            $bluesky_data['refresh_token'] = $this->encrypt_token($refresh_result['refresh_token']);
+            
+            $identity->at_protocol_data['bluesky'] = $bluesky_data;
+            $identity_manager->update_at_protocol_data($user_id, $identity->at_protocol_data);
+            
+            error_log('[PartyMinder AT Protocol] Tokens refreshed successfully for user: ' . $user_id);
+            return array(
+                'connected' => true,
+                'handle' => $handle
+            );
+        }
+        
+        // If refresh also failed, the connection is invalid
+        error_log('[PartyMinder AT Protocol] Token refresh failed for user: ' . $user_id . ', error: ' . ($refresh_result['error'] ?? 'Unknown'));
+        return array('connected' => false);
     }
     
     /**

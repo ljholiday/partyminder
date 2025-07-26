@@ -18,10 +18,20 @@ class PartyMinder_Bluesky_Client {
     public function authenticate($handle, $password) {
         $endpoint = $this->pds_url . '/xrpc/com.atproto.server.createSession';
         
+        // Normalize handle - remove @ if present, ensure .bsky.social if no domain
+        $normalized_handle = $this->normalize_handle($handle);
+        
+        // Log authentication attempt
+        error_log('[PartyMinder Bluesky] Original handle: ' . $handle);
+        error_log('[PartyMinder Bluesky] Normalized handle: ' . $normalized_handle);
+        error_log('[PartyMinder Bluesky] Password length: ' . strlen($password));
+        
         $body = wp_json_encode(array(
-            'identifier' => $handle,
+            'identifier' => $normalized_handle,
             'password' => $password
         ));
+        
+        error_log('[PartyMinder Bluesky] Request body: ' . $body);
         
         $response = wp_remote_post($endpoint, array(
             'headers' => array(
@@ -32,9 +42,11 @@ class PartyMinder_Bluesky_Client {
         ));
         
         if (is_wp_error($response)) {
+            $error_msg = 'Network error: ' . $response->get_error_message();
+            error_log('[PartyMinder Bluesky] ' . $error_msg);
             return array(
                 'success' => false,
-                'error' => 'Network error: ' . $response->get_error_message()
+                'error' => $error_msg
             );
         }
         
@@ -42,10 +54,16 @@ class PartyMinder_Bluesky_Client {
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
         
+        // Log response details
+        error_log('[PartyMinder Bluesky] Response status: ' . $status_code);
+        error_log('[PartyMinder Bluesky] Response body: ' . substr($body, 0, 500));
+        
         if ($status_code === 200 && isset($data['accessJwt'])) {
             $this->access_token = $data['accessJwt'];
             $this->refresh_token = $data['refreshJwt'];
             $this->did = $data['did'];
+            
+            error_log('[PartyMinder Bluesky] Authentication successful for handle: ' . $handle);
             
             return array(
                 'success' => true,
@@ -60,6 +78,8 @@ class PartyMinder_Bluesky_Client {
         if (isset($data['error'])) {
             $error_message = $data['message'] ?? $data['error'];
         }
+        
+        error_log('[PartyMinder Bluesky] Authentication failed: ' . $error_message);
         
         return array(
             'success' => false,
@@ -79,7 +99,10 @@ class PartyMinder_Bluesky_Client {
      * Get user's follows (contacts)
      */
     public function get_follows($did, $limit = 100) {
+        error_log('[PartyMinder Bluesky] Getting follows for DID: ' . $did);
+        
         if (!$this->access_token) {
+            error_log('[PartyMinder Bluesky] No access token available');
             return array('success' => false, 'error' => 'Not authenticated');
         }
         
@@ -88,6 +111,8 @@ class PartyMinder_Bluesky_Client {
             'actor' => $did,
             'limit' => $limit
         ), $endpoint);
+        
+        error_log('[PartyMinder Bluesky] Fetching follows from: ' . $url);
         
         $response = wp_remote_get($url, array(
             'headers' => array(
@@ -98,9 +123,11 @@ class PartyMinder_Bluesky_Client {
         ));
         
         if (is_wp_error($response)) {
+            $error_msg = 'Network error: ' . $response->get_error_message();
+            error_log('[PartyMinder Bluesky] ' . $error_msg);
             return array(
                 'success' => false,
-                'error' => 'Network error: ' . $response->get_error_message()
+                'error' => $error_msg
             );
         }
         
@@ -108,7 +135,12 @@ class PartyMinder_Bluesky_Client {
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
         
+        error_log('[PartyMinder Bluesky] Follows response status: ' . $status_code);
+        error_log('[PartyMinder Bluesky] Follows response body: ' . substr($body, 0, 500));
+        
         if ($status_code === 200 && isset($data['follows'])) {
+            error_log('[PartyMinder Bluesky] Found ' . count($data['follows']) . ' follows');
+            
             // Process follows into a usable format
             $contacts = array();
             foreach ($data['follows'] as $follow) {
@@ -123,6 +155,8 @@ class PartyMinder_Bluesky_Client {
                     'posts_count' => $follow['postsCount'] ?? 0
                 );
             }
+            
+            error_log('[PartyMinder Bluesky] Processed ' . count($contacts) . ' contacts');
             
             return array(
                 'success' => true,
@@ -144,6 +178,8 @@ class PartyMinder_Bluesky_Client {
         if (isset($data['error'])) {
             $error_message = $data['message'] ?? $data['error'];
         }
+        
+        error_log('[PartyMinder Bluesky] Follows fetch failed: ' . $error_message);
         
         return array(
             'success' => false,
@@ -320,5 +356,20 @@ class PartyMinder_Bluesky_Client {
             'success' => false,
             'error' => $error_message
         );
+    }
+    
+    /**
+     * Normalize Bluesky handle
+     */
+    private function normalize_handle($handle) {
+        // Remove @ if present
+        $handle = ltrim($handle, '@');
+        
+        // If no domain is present, add .bsky.social
+        if (strpos($handle, '.') === false) {
+            $handle = $handle . '.bsky.social';
+        }
+        
+        return $handle;
     }
 }
