@@ -88,6 +88,7 @@ class PartyMinder {
         
         // Load AT Protocol features only if enabled
         if (PartyMinder_Feature_Flags::is_at_protocol_enabled()) {
+            require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-bluesky-client.php';
             require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-at-protocol-manager.php';
         }
     }
@@ -225,6 +226,7 @@ class PartyMinder {
             'nonce' => wp_create_nonce('partyminder_nonce'),
             'community_nonce' => wp_create_nonce('partyminder_community_action'),
             'event_nonce' => wp_create_nonce('partyminder_event_action'),
+            'at_protocol_nonce' => wp_create_nonce('partyminder_at_protocol'),
             'current_user' => array(
                 'id' => $current_user->ID,
                 'name' => $current_user->display_name,

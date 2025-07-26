@@ -349,6 +349,46 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <!-- Invitations Tab -->
                 <div id="invites-tab" class="management-tab-pane">
                     <h4><?php _e('Invite New Members', 'partyminder'); ?></h4>
+                    
+                    <?php if (PartyMinder_Feature_Flags::is_at_protocol_enabled()): ?>
+                    <!-- Bluesky Connection for Communities -->
+                    <div id="community-bluesky-section" style="margin-bottom: 30px;">
+                        <div id="community-bluesky-not-connected" class="info-card" style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                            <h5 style="margin-top: 0; color: #0284c7;">🦋 <?php _e('Connect Bluesky for Easy Community Invites', 'partyminder'); ?></h5>
+                            <p style="margin-bottom: 15px;"><?php _e('Connect your Bluesky account to invite your contacts to join this community.', 'partyminder'); ?></p>
+                            <button type="button" class="management-btn management-btn-secondary" id="community-connect-bluesky-btn">
+                                <?php _e('Connect Bluesky Account', 'partyminder'); ?>
+                            </button>
+                        </div>
+                        
+                        <div id="community-bluesky-connected" class="success-card" style="display: none; background: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                            <h5 style="margin-top: 0; color: #059669;">✅ <?php _e('Bluesky Connected', 'partyminder'); ?></h5>
+                            <p style="margin-bottom: 15px;"><?php _e('Connected as', 'partyminder'); ?> <strong id="community-bluesky-handle"></strong></p>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button type="button" class="management-btn management-btn-primary" id="community-load-contacts-btn">
+                                    <?php _e('Load Bluesky Contacts', 'partyminder'); ?>
+                                </button>
+                                <button type="button" class="management-btn management-btn-danger" id="community-disconnect-bluesky-btn" style="font-size: 12px; padding: 6px 12px;">
+                                    <?php _e('Disconnect', 'partyminder'); ?>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Community Bluesky Contacts -->
+                        <div id="community-contacts-section" style="display: none; margin-top: 20px;">
+                            <h5><?php _e('Select from Bluesky Contacts', 'partyminder'); ?></h5>
+                            <div style="margin-bottom: 15px;">
+                                <input type="text" class="management-form-input" id="community-contacts-search" 
+                                       placeholder="<?php _e('Search your contacts...', 'partyminder'); ?>">
+                            </div>
+                            <div id="community-contacts-list" class="community-contacts-grid" style="max-height: 300px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px;">
+                                <!-- Contacts will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <!-- Email Invitation Form -->
                     <form id="invite-members-form">
                         <div class="management-form-group">
                             <label class="management-form-label">
@@ -814,6 +854,253 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Community Bluesky Integration Functions
+    let communityBlueSkyContacts = [];
+    let isCommunityBlueskyConnected = false;
+    
+    // Check Bluesky connection for community tab
+    function checkCommunityBlueskyConnection() {
+        if (!document.getElementById('community-bluesky-section')) return;
+        
+        jQuery.ajax({
+            url: partyminder_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'partyminder_check_bluesky_connection',
+                nonce: partyminder_ajax.at_protocol_nonce
+            },
+            success: function(response) {
+                if (response.success && response.data.connected) {
+                    showCommunityBlueskyConnected(response.data.handle);
+                } else {
+                    showCommunityBlueskyNotConnected();
+                }
+            },
+            error: function() {
+                showCommunityBlueskyNotConnected();
+            }
+        });
+    }
+    
+    function showCommunityBlueskyConnected(handle) {
+        isCommunityBlueskyConnected = true;
+        document.getElementById('community-bluesky-not-connected').style.display = 'none';
+        document.getElementById('community-bluesky-connected').style.display = 'block';
+        document.getElementById('community-bluesky-handle').textContent = handle;
+    }
+    
+    function showCommunityBlueskyNotConnected() {
+        isCommunityBlueskyConnected = false;
+        document.getElementById('community-bluesky-not-connected').style.display = 'block';
+        document.getElementById('community-bluesky-connected').style.display = 'none';
+        document.getElementById('community-contacts-section').style.display = 'none';
+    }
+    
+    // Load Community Bluesky contacts
+    function loadCommunityBlueskyContacts() {
+        const contactsList = document.getElementById('community-contacts-list');
+        const contactsSection = document.getElementById('community-contacts-section');
+        const loadBtn = document.getElementById('community-load-contacts-btn');
+        
+        loadBtn.disabled = true;
+        loadBtn.textContent = '<?php _e('Loading...', 'partyminder'); ?>';
+        
+        contactsList.innerHTML = '<div style="text-align: center; padding: 20px;"><p><?php _e('Loading your Bluesky contacts...', 'partyminder'); ?></p></div>';
+        contactsSection.style.display = 'block';
+        
+        jQuery.ajax({
+            url: partyminder_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'partyminder_get_bluesky_contacts',
+                nonce: partyminder_ajax.at_protocol_nonce
+            },
+            success: function(response) {
+                if (response.success && response.data.contacts) {
+                    communityBlueSkyContacts = response.data.contacts;
+                    renderCommunityBlueskyContacts(communityBlueSkyContacts);
+                } else {
+                    contactsList.innerHTML = '<div style="text-align: center; padding: 20px;"><p>' + (response.message || '<?php _e('No contacts found.', 'partyminder'); ?>') + '</p></div>';
+                }
+                loadBtn.disabled = false;
+                loadBtn.textContent = '<?php _e('Refresh Contacts', 'partyminder'); ?>';
+            },
+            error: function() {
+                contactsList.innerHTML = '<div style="text-align: center; padding: 20px;"><p style="color: #dc2626;"><?php _e('Failed to load contacts.', 'partyminder'); ?></p></div>';
+                loadBtn.disabled = false;
+                loadBtn.textContent = '<?php _e('Load Bluesky Contacts', 'partyminder'); ?>';
+            }
+        });
+    }
+    
+    // Render Community Bluesky contacts
+    function renderCommunityBlueskyContacts(contacts) {
+        const contactsList = document.getElementById('community-contacts-list');
+        
+        if (!contacts || contacts.length === 0) {
+            contactsList.innerHTML = '<div style="text-align: center; padding: 20px;"><p><?php _e('No contacts found.', 'partyminder'); ?></p></div>';
+            return;
+        }
+        
+        let html = '';
+        contacts.forEach(contact => {
+            const avatar = contact.avatar || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiNkMWQ1ZGIiLz4KPC9zdmc+';
+            
+            html += `
+                <div class="community-contact-item" data-handle="${contact.handle}" data-display-name="${contact.display_name}" style="display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 8px; background: white;">
+                    <div style="flex-shrink: 0;">
+                        <img src="${avatar}" alt="${contact.display_name}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 600; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${contact.display_name}</div>
+                        <div style="font-size: 12px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@${contact.handle}</div>
+                        ${contact.description ? '<div style="font-size: 11px; color: #9ca3af; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + contact.description.substring(0, 40) + (contact.description.length > 40 ? '...' : '') + '</div>' : ''}
+                    </div>
+                    <button type="button" class="management-btn management-btn-primary community-invite-contact-btn" style="font-size: 12px; padding: 5px 10px;">
+                        <?php _e('Invite', 'partyminder'); ?>
+                    </button>
+                </div>
+            `;
+        });
+        
+        contactsList.innerHTML = html;
+        
+        // Add click handlers for invite buttons
+        contactsList.querySelectorAll('.community-invite-contact-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const contactItem = this.closest('.community-contact-item');
+                const handle = contactItem.dataset.handle;
+                const displayName = contactItem.dataset.displayName;
+                inviteCommunityBlueskyContact(handle, displayName, this);
+            });
+        });
+        
+        // Add search functionality
+        const searchInput = document.getElementById('community-contacts-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                const filteredContacts = contacts.filter(contact => 
+                    contact.display_name.toLowerCase().includes(query) || 
+                    contact.handle.toLowerCase().includes(query) ||
+                    (contact.description && contact.description.toLowerCase().includes(query))
+                );
+                renderCommunityBlueskyContacts(filteredContacts);
+            });
+        }
+    }
+    
+    // Invite Bluesky contact to community
+    function inviteCommunityBlueskyContact(handle, displayName, btnElement) {
+        const originalText = btnElement.textContent;
+        btnElement.disabled = true;
+        btnElement.textContent = '<?php _e('Inviting...', 'partyminder'); ?>';
+        
+        // Use the handle as a pseudo-email for community invitations
+        const pseudoEmail = handle + '@bsky.social';
+        
+        jQuery.ajax({
+            url: partyminder_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'partyminder_send_invitation',
+                community_id: window.currentCommunityData.id,
+                email: pseudoEmail,
+                name: displayName,
+                source: 'bluesky',
+                bluesky_handle: handle,
+                message: '<?php _e('Community invitation sent via Bluesky connection', 'partyminder'); ?>',
+                nonce: partyminder_ajax.community_nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    btnElement.textContent = '<?php _e('Invited!', 'partyminder'); ?>';
+                    btnElement.style.backgroundColor = '#10b981';
+                    btnElement.style.borderColor = '#10b981';
+                    
+                    // Reload invitations list
+                    loadCommunityInvitations(window.currentCommunityData.id);
+                    
+                    setTimeout(() => {
+                        btnElement.disabled = false;
+                        btnElement.textContent = originalText;
+                        btnElement.style.backgroundColor = '';
+                        btnElement.style.borderColor = '';
+                    }, 3000);
+                } else {
+                    alert(response.data || '<?php _e('Failed to send community invitation', 'partyminder'); ?>');
+                    btnElement.disabled = false;
+                    btnElement.textContent = originalText;
+                }
+            },
+            error: function() {
+                alert('<?php _e('Network error. Please try again.', 'partyminder'); ?>');
+                btnElement.disabled = false;
+                btnElement.textContent = originalText;
+            }
+        });
+    }
+    
+    // Event handlers for Community Bluesky features
+    if (document.getElementById('community-connect-bluesky-btn')) {
+        document.getElementById('community-connect-bluesky-btn').addEventListener('click', function() {
+            // Reuse the same Bluesky connect modal from events
+            if (typeof showBlueskyConnectModal === 'function') {
+                showBlueskyConnectModal();
+            } else {
+                alert('<?php _e('Bluesky connection is not available. Please make sure AT Protocol is enabled.', 'partyminder'); ?>');
+            }
+        });
+    }
+    
+    if (document.getElementById('community-load-contacts-btn')) {
+        document.getElementById('community-load-contacts-btn').addEventListener('click', loadCommunityBlueskyContacts);
+    }
+    
+    if (document.getElementById('community-disconnect-bluesky-btn')) {
+        document.getElementById('community-disconnect-bluesky-btn').addEventListener('click', function() {
+            if (confirm('<?php _e('Are you sure you want to disconnect your Bluesky account?', 'partyminder'); ?>')) {
+                jQuery.ajax({
+                    url: partyminder_ajax.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'partyminder_disconnect_bluesky',
+                        nonce: partyminder_ajax.at_protocol_nonce
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showCommunityBlueskyNotConnected();
+                            alert('<?php _e('Bluesky account disconnected', 'partyminder'); ?>');
+                        } else {
+                            alert(response.message || '<?php _e('Failed to disconnect', 'partyminder'); ?>');
+                        }
+                    }
+                });
+            }
+        });
+    }
+    
+    // Override the original community modal show function to include Bluesky check
+    const originalCommunityShowFunction = showCommunityManagementModal;
+    showCommunityManagementModal = function(communityData) {
+        originalCommunityShowFunction(communityData);
+        // Check Bluesky connection when modal opens and invites tab is activated
+        setTimeout(function() {
+            if (document.querySelector('#invites-tab.active')) {
+                checkCommunityBlueskyConnection();
+            }
+        }, 100);
+    };
+    
+    // Also check when invites tab is clicked
+    const originalSwitchToTab = switchToTab;
+    switchToTab = function(targetTab) {
+        originalSwitchToTab(targetTab);
+        if (targetTab === 'invites') {
+            setTimeout(checkCommunityBlueskyConnection, 100);
+        }
+    };
+
     // Make the function available globally
     window.showCommunityManagementModal = showCommunityManagementModal;
 });
