@@ -93,6 +93,18 @@ $button_style = get_option('partyminder_button_style', 'rounded');
             <?php endif; ?>
         </p>
         
+        <!-- Events Navigation -->
+        <?php if (is_user_logged_in()): ?>
+        <div class="pm-flex pm-flex-center-gap pm-mt-4 pm-mb-4">
+            <a href="<?php echo esc_url(PartyMinder::get_my_events_url()); ?>" class="pm-button pm-button-secondary">
+                📅 <?php _e('My Events', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="pm-button pm-button-primary">
+                ✨ <?php _e('Create Event', 'partyminder'); ?>
+            </a>
+        </div>
+        <?php endif; ?>
+        
         <div class="pm-flex pm-flex-center-gap pm-mt-4">
             <div class="pm-stat">
                 <div class="pm-stat-number pm-text-primary"><?php echo count($events); ?></div>
