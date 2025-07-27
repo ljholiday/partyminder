@@ -450,19 +450,23 @@ if (isset($errors) && !empty($errors)) {
                 
                 <!-- Right Column -->
                 <div class="pm-profile-main">
-                    <!-- Activity Feed Placeholder -->
+                    <!-- Activity Feed -->
                     <div class="pm-card">
                         <div class="pm-card-header">
                             <h3 class="pm-heading pm-heading-sm pm-m-0">📈 <?php _e('Recent Activity', 'partyminder'); ?></h3>
                         </div>
-                        <div class="pm-card-body pm-text-center pm-p-8">
-                            <div class="pm-text-6xl pm-mb-4">🚧</div>
-                            <h4 class="pm-heading pm-heading-sm pm-text-primary pm-mb-3">
-                                <?php _e('Activity Feed Coming Soon', 'partyminder'); ?>
-                            </h4>
-                            <p class="pm-text-muted pm-mb-6">
-                                <?php _e('See events attended, conversations joined, and community interactions.', 'partyminder'); ?>
-                            </p>
+                        <div class="pm-card-body">
+                            <?php
+                            // Include the reusable activity feed component
+                            $user_id = $user_id; // Pass the current profile user ID
+                            $limit = 8;
+                            $show_user_names = false; // This is the user's own profile
+                            $activity_types = array(); // Show all activity types
+                            $show_empty_state = true;
+                            $empty_state_actions = true;
+                            
+                            include PARTYMINDER_PLUGIN_DIR . 'templates/components/activity-feed.php';
+                            ?>
                         </div>
                     </div>
                 </div>

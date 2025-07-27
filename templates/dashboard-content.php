@@ -249,6 +249,26 @@ $recent_conversations = $conversation_manager->get_recent_conversations(3, true)
             
             <?php endif; ?>
             
+            <!-- Community Activity -->
+            <div class="pm-card pm-mb-4">
+                <div class="pm-card-header">
+                    <h3 class="pm-heading pm-heading-sm pm-m-0">🌟 <?php _e('Community Activity', 'partyminder'); ?></h3>
+                </div>
+                <div class="pm-card-body">
+                    <?php
+                    // Include community activity feed
+                    $user_id = null; // No specific user = community feed
+                    $limit = 5;
+                    $show_user_names = true; // Show who did what
+                    $activity_types = array('events', 'conversations'); // Only public activities
+                    $show_empty_state = true;
+                    $empty_state_actions = true;
+                    
+                    include PARTYMINDER_PLUGIN_DIR . 'templates/components/activity-feed.php';
+                    ?>
+                </div>
+            </div>
+            
         </div>
         
     </div>
