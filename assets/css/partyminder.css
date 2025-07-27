@@ -136,6 +136,64 @@
     }
 }
 
+/* Conversations Layout - 2:1 proportions */
+.conversations-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+@media (max-width: 768px) {
+    .conversations-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+/* Conversations-specific styles */
+.community-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .community-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+.stat-box {
+    text-align: center;
+    padding: 15px;
+    background: var(--pm-surface);
+    border-radius: var(--pm-radius);
+}
+
+.stat-number {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--pm-primary);
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.85em;
+    color: var(--pm-text-muted);
+    margin-top: 5px;
+}
+
+.pinned-badge {
+    background: var(--pm-warning);
+    color: var(--pm-white);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.7em;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
 .pm-flex {
     display: flex;
 }
