@@ -815,22 +815,35 @@
    RESPONSIVE DESIGN
    ============================================================================= */
 
+/* =============================================================================
+   MOBILE RESPONSIVE DESIGN - Simplified System
+   ============================================================================= */
+
 @media (max-width: 768px) {
-    /* Container and Layout */
+    /* SINGLE SOURCE OF TRUTH FOR MOBILE SPACING */
+    :root {
+        --mobile-space-xs: 0.25rem;  /* 4px */
+        --mobile-space-sm: 0.5rem;   /* 8px */
+        --mobile-space-md: 0.75rem;  /* 12px */
+        --mobile-space-lg: 1rem;     /* 16px */
+    }
+    
+    /* Container and Layout - Minimal side padding */
     .pm-container,
     .pm-container-wide,
     .pm-container-narrow {
-        padding: 1.25rem;
+        padding: var(--mobile-space-sm);
         margin: 0;
+        width: 100%;
     }
     
     .partyminder-content {
         width: 100%;
-        font-size: 16px; /* Ensure base font size is readable */
+        font-size: 16px;
         line-height: 1.6;
     }
     
-    /* Grid Systems */
+    /* Grid Systems - Stack everything */
     .pm-grid-2,
     .pm-grid-3,
     .pm-grid-4,
@@ -839,202 +852,86 @@
     }
     
     .pm-grid {
-        gap: 1rem;
+        gap: var(--mobile-space-md);
     }
     
     .pm-form-row {
         grid-template-columns: 1fr;
-        gap: 1rem;
+        gap: var(--mobile-space-md);
     }
     
-    /* Enhanced Typography for Mobile */
+    /* Typography - Consistent sizing */
     .pm-heading-lg { 
-        font-size: 1.75rem; /* Slightly smaller but still prominent */
+        font-size: 1.75rem;
         line-height: 1.2;
-        margin-bottom: 12px;
+        margin-bottom: var(--mobile-space-md);
     }
     
     .pm-heading-md { 
         font-size: 1.375rem;
         line-height: 1.3;
-        margin-bottom: 10px;
+        margin-bottom: var(--mobile-space-sm);
     }
     
     .pm-heading-sm { 
         font-size: 1.125rem;
         line-height: 1.4;
-        margin-bottom: 8px;
+        margin-bottom: var(--mobile-space-sm);
     }
     
-    .pm-title-primary {
-        font-size: 1.25rem;
-        line-height: 1.3;
-        margin-bottom: 10px;
-    }
-    
-    .pm-title-secondary {
-        font-size: 1.125rem;
-        line-height: 1.4;
-        margin-bottom: 8px;
-    }
-    
-    /* Enhanced Text and Meta Info */
-    .pm-text-muted {
-        font-size: 0.95rem; /* Slightly larger for better readability */
-        line-height: 1.5;
-    }
-    
-    .pm-meta-info {
-        font-size: 0.95rem;
-        gap: 6px;
-    }
-    
-    .pm-meta-item {
-        gap: 8px;
-        margin-bottom: 4px;
-    }
-    
-    /* Enhanced Button System */
-    .pm-button {
-        min-height: 2.75rem; /* Touch-friendly minimum */
-        padding: 0.75rem 1rem;
-        font-size: 1rem;
-        line-height: 1.2;
-    }
-    
-    .pm-button-small {
-        min-height: 2.5rem;
-        padding: 0.625rem 0.875rem;
-        font-size: 0.9rem;
-    }
-    
-    .pm-button-large {
-        min-height: 3rem;
-        padding: 0.875rem 1.25rem;
-        font-size: 1.1rem;
-    }
-    
-    /* Card System Mobile Enhancements */
+    /* ALL CARDS - Single consistent padding */
     .pm-card {
-        margin-bottom: 1rem;
+        margin-bottom: var(--mobile-space-md);
     }
     
-    .pm-card-header {
-        padding: 1rem;
-    }
-    
-    .pm-card-body {
-        padding: 1rem;
-        font-size: 1rem;
-        line-height: 1.6;
-    }
-    
+    .pm-card-header,
+    .pm-card-body,
     .pm-card-footer {
-        padding: 0.75rem 1rem;
+        padding: var(--mobile-space-md);
     }
     
-    /* Form Elements */
+    /* ALL BUTTONS - Single consistent padding */
+    .pm-button,
+    .pm-button-small,
+    .pm-button-large {
+        min-height: 2.75rem;
+        padding: var(--mobile-space-md) var(--mobile-space-lg);
+        font-size: 1rem;
+    }
+    
+    /* ALL FORM ELEMENTS - Single consistent padding */
     .pm-input,
     .pm-textarea,
     .pm-select {
         min-height: 2.75rem;
-        padding: 0.75rem 0.875rem;
+        padding: var(--mobile-space-md);
         font-size: 1rem;
-        line-height: 1.4;
     }
     
     .pm-label {
         font-size: 1rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: var(--mobile-space-sm);
         font-weight: 600;
     }
     
-    /* Modal Mobile Improvements */
+    /* ALL MODALS - Single consistent padding */
     .pm-modal {
         width: 95%;
-        margin: 10px;
+        margin: var(--mobile-space-sm);
         max-height: 95vh;
     }
     
-    .pm-modal-header {
-        padding: 16px;
-    }
-    
+    .pm-modal-header,
     .pm-modal-body {
-        padding: 16px;
+        padding: var(--mobile-space-md);
     }
     
-    .pm-modal-title {
-        font-size: 1.25rem;
-        line-height: 1.3;
-    }
-    
-    /* Statistical Displays */
-    .pm-stat-number {
-        font-size: 1.75rem;
-        line-height: 1.1;
-    }
-    
-    .pm-stat-label {
-        font-size: 0.875rem;
-        line-height: 1.3;
-    }
-    
-    /* Badge and Status Improvements */
-    .pm-badge {
-        padding: 6px 10px;
-        font-size: 0.8rem;
-        line-height: 1.2;
-    }
-    
-    .pm-status {
-        padding: 6px 10px;
-        font-size: 0.8rem;
-        line-height: 1.2;
-    }
-    
-    /* Breadcrumb Mobile */
-    .pm-breadcrumb {
-        font-size: 0.9rem;
-        padding: 10px 0;
-        flex-wrap: wrap;
-    }
-    
-    /* Flexbox Mobile Utilities */
-    .pm-flex-center-gap {
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-    
-    /* Mobile-specific spacing */
-    .pm-mb-2 { margin-bottom: 10px; }
-    .pm-mb-4 { margin-bottom: 16px; }
-    .pm-mb-6 { margin-bottom: 24px; }
-    .pm-mt-4 { margin-top: 16px; }
-    .pm-mt-6 { margin-top: 24px; }
-    
-    /* Ensure proper touch targets */
-    .pm-clickable {
-        min-height: 44px;
-        min-width: 44px;
-    }
-    
-    /* Better mobile table display */
-    table {
-        font-size: 0.95rem;
-    }
-    
-    /* Placeholder content mobile */
-    .pm-placeholder {
-        padding: 32px 16px;
-        font-size: 1rem;
-        line-height: 1.5;
-    }
-    
-    .pm-placeholder-icon {
-        font-size: 2.5rem;
-        margin-bottom: 16px;
-    }
+    /* Mobile spacing utilities */
+    .pm-mb-2 { margin-bottom: var(--mobile-space-sm); }
+    .pm-mb-4 { margin-bottom: var(--mobile-space-lg); }
+    .pm-mb-6 { margin-bottom: calc(var(--mobile-space-lg) * 1.5); }
+    .pm-mt-4 { margin-top: var(--mobile-space-lg); }
+    .pm-mt-6 { margin-top: calc(var(--mobile-space-lg) * 1.5); }
 }
 
 /* =============================================================================
@@ -1619,70 +1516,8 @@
     }
 }
 
-/* Extra Small Mobile (320px and up) */
+/* Extra Small Mobile (320px and up) - Only special cases */
 @media (max-width: 480px) {
-    .partyminder-content {
-        font-size: 17px; /* Larger base font for small screens */
-    }
-    
-    /* Ensure all headings are appropriately sized */
-    .pm-heading-lg { font-size: 1.875rem; }
-    .pm-heading-md { font-size: 1.375rem; }
-    .pm-heading-sm { font-size: 1.125rem; }
-    
-    /* Form elements need to be larger on small screens */
-    .pm-input,
-    .pm-textarea,
-    .pm-select {
-        min-height: 48px;
-        padding: 14px 16px;
-        font-size: 1rem;
-    }
-    
-    /* Card spacing for very small screens */
-    .pm-card-body {
-        padding: 1.125rem;
-    }
-    
-    .pm-card-header {
-        padding: 1.125rem 1.125rem 0.875rem 1.125rem;
-    }
-    
-    .pm-container,
-    .pm-container-wide,
-    .pm-container-narrow {
-        padding: 1rem;
-    }
-    
-    .pm-heading-lg { 
-        font-size: 1.5rem;
-    }
-    
-    .pm-heading-md { 
-        font-size: 1.25rem;
-    }
-    
-    .pm-card-header,
-    .pm-card-body,
-    .pm-card-footer {
-        padding: 0.75rem;
-    }
-    
-    .pm-modal {
-        width: 98%;
-        margin: 0.25rem;
-    }
-    
-    .pm-modal-header,
-    .pm-modal-body {
-        padding: 0.75rem;
-    }
-    
-    .pm-button {
-        padding: 0.875rem 1rem; /* Larger touch targets */
-        font-size: 1rem;
-    }
-    
     /* ONLY stack general flex containers on very small screens - NOT filter buttons */
     .pm-flex-center-gap:not(#event-filters):not(#conversation-filters):not(.filter-buttons) {
         flex-direction: column;
@@ -1697,21 +1532,14 @@
     .events-filter {
         flex-direction: row !important;
         flex-wrap: nowrap !important;
-        gap: 8px;
+        gap: var(--mobile-space-sm);
         align-items: center;
-    }
-    
-    /* Also keep navigation breadcrumbs horizontal */
-    .pm-breadcrumb,
-    .breadcrumbs {
-        flex-direction: row !important;
-        flex-wrap: wrap;
     }
     
     /* Stack buttons vertically on very small screens */
     .pm-card-footer .pm-flex {
         flex-direction: column;
-        gap: 8px;
+        gap: var(--mobile-space-sm);
     }
     
     .pm-card-footer .pm-button {
