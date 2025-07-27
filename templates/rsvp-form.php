@@ -208,24 +208,24 @@ $form_layout = get_option('partyminder_form_layout', 'card');
                 </div>
             <?php endif; ?>
 
-            <form method="post" class="partyminder-rsvp-form" id="partyminder-rsvp-form">
+            <form method="post" class="pm-form" id="partyminder-rsvp-form">
                 <?php wp_nonce_field('partyminder_rsvp_' . $event_id, 'partyminder_rsvp_nonce'); ?>
                 
                 <!-- Guest Information -->
-                <div class="form-section">
-                    <h3><?php _e('Your Information', 'partyminder'); ?></h3>
+                <div class="pm-mb-6">
+                    <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e('Your Information', 'partyminder'); ?></h3>
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="guest_name"><?php _e('Your Name *', 'partyminder'); ?></label>
-                            <input type="text" id="guest_name" name="guest_name" 
+                    <div class="pm-form-row">
+                        <div class="pm-form-group">
+                            <label for="guest_name" class="pm-label"><?php _e('Your Name *', 'partyminder'); ?></label>
+                            <input type="text" id="guest_name" name="guest_name" class="pm-input" 
                                    value="<?php echo esc_attr($existing_rsvp ? $existing_rsvp->name : ($_POST['guest_name'] ?? '')); ?>" 
                                    required />
                         </div>
 
-                        <div class="form-group">
-                            <label for="guest_email"><?php _e('Email Address *', 'partyminder'); ?></label>
-                            <input type="email" id="guest_email" name="guest_email" 
+                        <div class="pm-form-group">
+                            <label for="guest_email" class="pm-label"><?php _e('Email Address *', 'partyminder'); ?></label>
+                            <input type="email" id="guest_email" name="guest_email" class="pm-input" 
                                    value="<?php echo esc_attr($existing_rsvp ? $existing_rsvp->email : ($_POST['guest_email'] ?? $_GET['guest_email'] ?? '')); ?>" 
                                    required />
                         </div>
@@ -233,8 +233,8 @@ $form_layout = get_option('partyminder_form_layout', 'card');
                 </div>
 
                 <!-- RSVP Status -->
-                <div class="form-section">
-                    <h3><?php _e('Will You Attend?', 'partyminder'); ?></h3>
+                <div class="pm-mb-6">
+                    <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e('Will You Attend?', 'partyminder'); ?></h3>
                     
                     <div class="rsvp-options">
                         <?php 
@@ -263,24 +263,24 @@ $form_layout = get_option('partyminder_form_layout', 'card');
                 </div>
 
                 <!-- Additional Info (only show if not declined) -->
-                <div class="form-section additional-info" id="additional-info" 
+                <div class="pm-mb-6 additional-info" id="additional-info" 
                      class="<?php echo $current_status === 'declined' ? 'pm-conditional-hide' : ''; ?>">
                      
-                    <div class="form-group">
-                        <label for="dietary_restrictions"><?php _e('Dietary Restrictions', 'partyminder'); ?></label>
-                        <textarea id="dietary_restrictions" name="dietary_restrictions" rows="2" 
+                    <div class="pm-form-group">
+                        <label for="dietary_restrictions" class="pm-label"><?php _e('Dietary Restrictions', 'partyminder'); ?></label>
+                        <textarea id="dietary_restrictions" name="dietary_restrictions" rows="2" class="pm-textarea" 
                                   placeholder="<?php esc_attr_e('e.g., Vegetarian, gluten-free, no nuts...', 'partyminder'); ?>"><?php echo esc_textarea($existing_rsvp ? $existing_rsvp->dietary_restrictions : ($_POST['dietary_restrictions'] ?? '')); ?></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label for="guest_notes"><?php _e('Additional Notes', 'partyminder'); ?></label>
-                        <textarea id="guest_notes" name="guest_notes" rows="2" 
+                    <div class="pm-form-group">
+                        <label for="guest_notes" class="pm-label"><?php _e('Additional Notes', 'partyminder'); ?></label>
+                        <textarea id="guest_notes" name="guest_notes" rows="2" class="pm-textarea" 
                                   placeholder="<?php esc_attr_e('Anything else the host should know...', 'partyminder'); ?>"><?php echo esc_textarea($existing_rsvp ? $existing_rsvp->notes : ($_POST['guest_notes'] ?? '')); ?></textarea>
                     </div>
                 </div>
 
                 <!-- Form Actions -->
-                <div class="form-actions">
+                <div class="pm-flex pm-flex-center-gap pm-mt-6">
                     <button type="submit" name="partyminder_rsvp" class="pm-button pm-button-primary style-<?php echo esc_attr($button_style); ?>">
                         <?php if ($existing_rsvp): ?>
                             <?php _e('Update My RSVP', 'partyminder'); ?>

@@ -45,41 +45,21 @@ $button_style = get_option('partyminder_button_style', 'rounded');
 $form_layout = get_option('partyminder_form_layout', 'card');
 ?>
 
-<style>
-/* Dynamic color styles only */
-.partyminder-create-content .page-header h2 {
-    color: <?php echo esc_attr($primary_color); ?>;
-}
 
-.partyminder-create-content .form-section h3 {
-    color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-create-content .form-group input:focus,
-.partyminder-create-content .form-group textarea:focus,
-.partyminder-create-content .form-group select:focus {
-    border-color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-create-content .pm-button {
-    background: <?php echo esc_attr($primary_color); ?>;
-}
-</style>
-
-<div class="partyminder-create-content">
+<div class="partyminder-create-content pm-container">
     
     <!-- Page Header -->
-    <div class="page-header">
-        <h2><?php _e('✨ Create Your Event', 'partyminder'); ?></h2>
-        <p><?php _e('Plan your perfect event and invite your guests.', 'partyminder'); ?></p>
+    <div class="pm-card-header pm-mb-6">
+        <h1 class="pm-heading pm-heading-lg pm-text-primary"><?php _e('✨ Create Your Event', 'partyminder'); ?></h1>
+        <p class="pm-text-muted"><?php _e('Plan your perfect event and invite your guests.', 'partyminder'); ?></p>
     </div>
 
     <?php if ($event_created): ?>
         <!-- Success Message -->
-        <div class="partyminder-success">
-            <h3><?php _e('🎉 Event Created Successfully!', 'partyminder'); ?></h3>
-            <p><?php _e('Your event has been created and is ready for guests to RSVP.', 'partyminder'); ?></p>
-            <div class="success-actions">
+        <div class="pm-message pm-message-success pm-mb-6">
+            <h3 class="pm-heading pm-heading-md pm-mb-2"><?php _e('🎉 Event Created Successfully!', 'partyminder'); ?></h3>
+            <p class="pm-mb-4"><?php _e('Your event has been created and is ready for guests to RSVP.', 'partyminder'); ?></p>
+            <div class="pm-flex pm-flex-center-gap">
                 <a href="<?php echo $creation_data['event_url']; ?>" class="pm-button pm-button-primary">
                     <span>👀</span>
                     <?php _e('View Event', 'partyminder'); ?>
@@ -97,12 +77,12 @@ $form_layout = get_option('partyminder_form_layout', 'card');
     <?php else: ?>
 
         <!-- Event Creation Form -->
-        <div class="partyminder-form layout-<?php echo esc_attr($form_layout); ?>">
+        <div class="pm-card">
             
             <?php if (!empty($form_errors)): ?>
-                <div class="partyminder-errors">
-                    <h4><?php _e('Please fix the following issues:', 'partyminder'); ?></h4>
-                    <ul>
+                <div class="pm-message pm-message-error pm-mb-4">
+                    <h4 class="pm-heading pm-heading-sm pm-mb-2"><?php _e('Please fix the following issues:', 'partyminder'); ?></h4>
+                    <ul class="pm-m-0 pm-pl-5">
                         <?php foreach ($form_errors as $error): ?>
                             <li><?php echo esc_html($error); ?></li>
                         <?php endforeach; ?>
@@ -110,71 +90,72 @@ $form_layout = get_option('partyminder_form_layout', 'card');
                 </div>
             <?php endif; ?>
             
-            <form method="post" class="partyminder-event-form" id="partyminder-event-form">
+            <div class="pm-card-body">
+            <form method="post" class="pm-form" id="partyminder-event-form">
                 <?php wp_nonce_field('create_partyminder_event', 'partyminder_event_nonce'); ?>
                 
-                <div class="form-section">
-                    <h3><?php _e('Event Details', 'partyminder'); ?></h3>
+                <div class="pm-mb-6">
+                    <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e('Event Details', 'partyminder'); ?></h3>
                     
-                    <div class="form-group">
-                        <label for="event_title"><?php _e('Event Title *', 'partyminder'); ?></label>
-                        <input type="text" id="event_title" name="event_title" 
+                    <div class="pm-form-group">
+                        <label for="event_title" class="pm-label"><?php _e('Event Title *', 'partyminder'); ?></label>
+                        <input type="text" id="event_title" name="event_title" class="pm-input"
                                value="<?php echo esc_attr($_POST['event_title'] ?? ''); ?>" 
                                placeholder="<?php esc_attr_e('e.g., Summer Dinner Party', 'partyminder'); ?>" required />
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="event_date"><?php _e('Event Date *', 'partyminder'); ?></label>
-                            <input type="datetime-local" id="event_date" name="event_date" 
+                    <div class="pm-form-row">
+                        <div class="pm-form-group">
+                            <label for="event_date" class="pm-label"><?php _e('Event Date *', 'partyminder'); ?></label>
+                            <input type="datetime-local" id="event_date" name="event_date" class="pm-input"
                                    value="<?php echo esc_attr($_POST['event_date'] ?? ''); ?>" 
                                    min="<?php echo date('Y-m-d\TH:i'); ?>" required />
                         </div>
 
-                        <div class="form-group">
-                            <label for="guest_limit"><?php _e('Guest Limit', 'partyminder'); ?></label>
-                            <input type="number" id="guest_limit" name="guest_limit" 
+                        <div class="pm-form-group">
+                            <label for="guest_limit" class="pm-label"><?php _e('Guest Limit', 'partyminder'); ?></label>
+                            <input type="number" id="guest_limit" name="guest_limit" class="pm-input"
                                    value="<?php echo esc_attr($_POST['guest_limit'] ?? '10'); ?>" 
                                    min="1" max="100" />
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="venue_info"><?php _e('Venue/Location', 'partyminder'); ?></label>
-                        <input type="text" id="venue_info" name="venue_info" 
+                    <div class="pm-form-group">
+                        <label for="venue_info" class="pm-label"><?php _e('Venue/Location', 'partyminder'); ?></label>
+                        <input type="text" id="venue_info" name="venue_info" class="pm-input"
                                value="<?php echo esc_attr($_POST['venue_info'] ?? ''); ?>" 
                                placeholder="<?php esc_attr_e('Where will your event take place?', 'partyminder'); ?>" />
                     </div>
                 </div>
 
-                <div class="form-section">
-                    <h3><?php _e('Event Description', 'partyminder'); ?></h3>
-                    <div class="form-group">
-                        <label for="event_description"><?php _e('Tell guests about your event', 'partyminder'); ?></label>
-                        <textarea id="event_description" name="event_description" rows="4" 
+                <div class="pm-mb-6">
+                    <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e('Event Description', 'partyminder'); ?></h3>
+                    <div class="pm-form-group">
+                        <label for="event_description" class="pm-label"><?php _e('Tell guests about your event', 'partyminder'); ?></label>
+                        <textarea id="event_description" name="event_description" rows="4" class="pm-textarea"
                                   placeholder="<?php esc_attr_e('Describe your event, what to expect, dress code...', 'partyminder'); ?>"><?php echo esc_textarea($_POST['event_description'] ?? ''); ?></textarea>
                     </div>
                 </div>
 
-                <div class="form-section">
-                    <h3><?php _e('Host Information', 'partyminder'); ?></h3>
+                <div class="pm-mb-6">
+                    <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e('Host Information', 'partyminder'); ?></h3>
                     
-                    <div class="form-group">
-                        <label for="host_email"><?php _e('Host Email *', 'partyminder'); ?></label>
-                        <input type="email" id="host_email" name="host_email" 
+                    <div class="pm-form-group">
+                        <label for="host_email" class="pm-label"><?php _e('Host Email *', 'partyminder'); ?></label>
+                        <input type="email" id="host_email" name="host_email" class="pm-input"
                                value="<?php echo esc_attr($_POST['host_email'] ?? (is_user_logged_in() ? wp_get_current_user()->user_email : '')); ?>" 
                                required />
                     </div>
 
-                    <div class="form-group">
-                        <label for="host_notes"><?php _e('Special Notes for Guests', 'partyminder'); ?></label>
-                        <textarea id="host_notes" name="host_notes" rows="3" 
+                    <div class="pm-form-group">
+                        <label for="host_notes" class="pm-label"><?php _e('Special Notes for Guests', 'partyminder'); ?></label>
+                        <textarea id="host_notes" name="host_notes" rows="3" class="pm-textarea"
                                   placeholder="<?php esc_attr_e('Any special instructions, parking info, what to bring...', 'partyminder'); ?>"><?php echo esc_textarea($_POST['host_notes'] ?? ''); ?></textarea>
                     </div>
                 </div>
 
-                <div class="form-actions">
-                    <button type="submit" name="partyminder_create_event" class="pm-button pm-button-primary">
+                <div class="pm-flex pm-flex-center-gap pm-mt-6">
+                    <button type="submit" name="partyminder_create_event" class="pm-button pm-button-primary pm-button-large">
                         <span>🎉</span>
                         <?php _e('Create Event', 'partyminder'); ?>
                     </button>
@@ -184,6 +165,7 @@ $form_layout = get_option('partyminder_form_layout', 'card');
                     </a>
                 </div>
             </form>
+            </div>
         </div>
 
     <?php endif; ?>

@@ -89,40 +89,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     padding: 30px;
 }
 
-.pm-form-group {
-    margin-bottom: 20px;
-}
-
-.pm-form-label {
-    display: block;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 8px;
-}
-
-.pm-form-input,
-.pm-form-select,
-.pm-form-textarea {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #e9ecef;
-    border-radius: 6px;
-    font-size: 1em;
-    transition: border-color 0.2s ease;
-    box-sizing: border-box;
-}
-
-.pm-form-input:focus,
-.pm-form-select:focus,
-.pm-form-textarea:focus {
-    outline: none;
-    border-color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.pm-form-textarea {
-    resize: vertical;
-    min-height: 80px;
-}
+/* Using standard pm- form classes instead of custom styles */
 
 .pm-form-help {
     font-size: 0.85em;
@@ -237,29 +204,29 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             
             <form id="pm-create-community-form">
                 <div class="pm-form-group">
-                    <label for="community-name" class="pm-form-label">
+                    <label for="community-name" class="pm-label">
                         <?php _e('Community Name', 'partyminder'); ?> <span class="pm-text-required">*</span>
                     </label>
-                    <input type="text" id="community-name" name="name" class="pm-form-input" 
+                    <input type="text" id="community-name" name="name" class="pm-input" 
                            placeholder="<?php _e('Enter community name...', 'partyminder'); ?>" 
                            maxlength="100" required>
                     <div class="pm-form-help"><?php _e('Choose a descriptive name for your community (3-100 characters)', 'partyminder'); ?></div>
                 </div>
                 
                 <div class="pm-form-group">
-                    <label for="community-description" class="pm-form-label">
+                    <label for="community-description" class="pm-label">
                         <?php _e('Description', 'partyminder'); ?>
                     </label>
-                    <textarea id="community-description" name="description" class="pm-form-textarea" 
+                    <textarea id="community-description" name="description" class="pm-textarea" 
                               placeholder="<?php _e('Describe what your community is about...', 'partyminder'); ?>"></textarea>
                     <div class="pm-form-help"><?php _e('Help members understand what your community is for', 'partyminder'); ?></div>
                 </div>
                 
                 <div class="pm-form-group">
-                    <label for="community-type" class="pm-form-label">
+                    <label for="community-type" class="pm-label">
                         <?php _e('Community Type', 'partyminder'); ?>
                     </label>
-                    <select id="community-type" name="type" class="pm-form-select">
+                    <select id="community-type" name="type" class="pm-select">
                         <option value="standard"><?php _e('🌟 Standard - General community', 'partyminder'); ?></option>
                         <option value="work"><?php _e('🏢 Work - Office events and team building', 'partyminder'); ?></option>
                         <option value="faith"><?php _e('⛪ Faith - Religious gatherings and events', 'partyminder'); ?></option>
@@ -270,10 +237,10 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 </div>
                 
                 <div class="pm-form-group">
-                    <label for="community-privacy" class="pm-form-label">
+                    <label for="community-privacy" class="pm-label">
                         <?php _e('Privacy Setting', 'partyminder'); ?>
                     </label>
-                    <select id="community-privacy" name="privacy" class="pm-form-select">
+                    <select id="community-privacy" name="privacy" class="pm-select">
                         <option value="public"><?php _e('🌍 Public - Anyone can see and join', 'partyminder'); ?></option>
                         <option value="private"><?php _e('🔒 Private - Invite-only membership', 'partyminder'); ?></option>
                     </select>

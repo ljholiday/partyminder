@@ -190,62 +190,62 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
             <?php wp_nonce_field('edit_partyminder_event', 'partyminder_edit_event_nonce'); ?>
             <input type="hidden" name="event_id" value="<?php echo esc_attr($event_id); ?>" />
             
-            <div class="form-section">
-                <h3><?php _e('Event Details', 'partyminder'); ?></h3>
+            <div class="pm-mb-6">
+                <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e('Event Details', 'partyminder'); ?></h3>
                 
-                <div class="form-group">
-                    <label for="event_title"><?php _e('Event Title *', 'partyminder'); ?></label>
-                    <input type="text" id="event_title" name="event_title" 
+                <div class="pm-form-group">
+                    <label for="event_title" class="pm-label"><?php _e('Event Title *', 'partyminder'); ?></label>
+                    <input type="text" id="event_title" name="event_title" class="pm-input" 
                            value="<?php echo esc_attr($_POST['event_title'] ?? $event->title); ?>" 
                            placeholder="<?php esc_attr_e('e.g., Summer Dinner Party', 'partyminder'); ?>" required />
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="event_date"><?php _e('Event Date *', 'partyminder'); ?></label>
-                        <input type="datetime-local" id="event_date" name="event_date" 
+                <div class="pm-form-row">
+                    <div class="pm-form-group">
+                        <label for="event_date" class="pm-label"><?php _e('Event Date *', 'partyminder'); ?></label>
+                        <input type="datetime-local" id="event_date" name="event_date" class="pm-input" 
                                value="<?php echo esc_attr($_POST['event_date'] ?? $event_datetime); ?>" 
                                min="<?php echo date('Y-m-d\TH:i'); ?>" required />
                     </div>
 
-                    <div class="form-group">
-                        <label for="guest_limit"><?php _e('Guest Limit', 'partyminder'); ?></label>
-                        <input type="number" id="guest_limit" name="guest_limit" 
+                    <div class="pm-form-group">
+                        <label for="guest_limit" class="pm-label"><?php _e('Guest Limit', 'partyminder'); ?></label>
+                        <input type="number" id="guest_limit" name="guest_limit" class="pm-input" 
                                value="<?php echo esc_attr($_POST['guest_limit'] ?? $event->guest_limit); ?>" 
                                min="1" max="100" />
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="venue_info"><?php _e('Venue/Location', 'partyminder'); ?></label>
-                    <input type="text" id="venue_info" name="venue_info" 
+                <div class="pm-form-group">
+                    <label for="venue_info" class="pm-label"><?php _e('Venue/Location', 'partyminder'); ?></label>
+                    <input type="text" id="venue_info" name="venue_info" class="pm-input" 
                            value="<?php echo esc_attr($_POST['venue_info'] ?? $event->venue_info); ?>" 
                            placeholder="<?php esc_attr_e('Where will your event take place?', 'partyminder'); ?>" />
                 </div>
             </div>
 
-            <div class="form-section">
-                <h3><?php _e('Event Description', 'partyminder'); ?></h3>
-                <div class="form-group">
-                    <label for="event_description"><?php _e('Tell guests about your event', 'partyminder'); ?></label>
-                    <textarea id="event_description" name="event_description" rows="4" 
+            <div class="pm-mb-6">
+                <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e('Event Description', 'partyminder'); ?></h3>
+                <div class="pm-form-group">
+                    <label for="event_description" class="pm-label"><?php _e('Tell guests about your event', 'partyminder'); ?></label>
+                    <textarea id="event_description" name="event_description" rows="4" class="pm-textarea" 
                               placeholder="<?php esc_attr_e('Describe your event, what to expect...', 'partyminder'); ?>"><?php echo esc_textarea($_POST['event_description'] ?? $event->description); ?></textarea>
                 </div>
             </div>
 
-            <div class="form-section">
-                <h3><?php _e('Host Information', 'partyminder'); ?></h3>
+            <div class="pm-mb-6">
+                <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e('Host Information', 'partyminder'); ?></h3>
                 
-                <div class="form-group">
-                    <label for="host_email"><?php _e('Host Email *', 'partyminder'); ?></label>
-                    <input type="email" id="host_email" name="host_email" 
+                <div class="pm-form-group">
+                    <label for="host_email" class="pm-label"><?php _e('Host Email *', 'partyminder'); ?></label>
+                    <input type="email" id="host_email" name="host_email" class="pm-input" 
                            value="<?php echo esc_attr($_POST['host_email'] ?? $event->host_email); ?>" 
                            required />
                 </div>
 
-                <div class="form-group">
-                    <label for="host_notes"><?php _e('Special Notes for Guests', 'partyminder'); ?></label>
-                    <textarea id="host_notes" name="host_notes" rows="3" 
+                <div class="pm-form-group">
+                    <label for="host_notes" class="pm-label"><?php _e('Special Notes for Guests', 'partyminder'); ?></label>
+                    <textarea id="host_notes" name="host_notes" rows="3" class="pm-textarea" 
                               placeholder="<?php esc_attr_e('Any special instructions, parking info...', 'partyminder'); ?>"><?php echo esc_textarea($_POST['host_notes'] ?? $event->host_notes); ?></textarea>
                 </div>
             </div>
