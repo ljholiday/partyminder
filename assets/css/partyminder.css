@@ -1,5 +1,32 @@
 /* PartyMinder - Consolidated CSS with WordPress Theme Integration */
 
+/* Mobile-first responsive foundation */
+@media screen and (max-width: 768px) {
+    /* Ensure proper mobile viewport */
+    html {
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+    }
+    
+    /* Override any WordPress theme mobile styles that interfere */
+    .partyminder-content,
+    .partyminder-content * {
+        box-sizing: border-box;
+    }
+    
+    /* Ensure all PartyMinder content is mobile-optimized */
+    .partyminder-dashboard-content,
+    .partyminder-events-content,
+    .partyminder-communities,
+    .partyminder-form,
+    .partyminder-create-content,
+    .partyminder-profile-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden;
+    }
+}
+
 /* =============================================================================
    CSS CUSTOM PROPERTIES - WordPress Theme Color System
    ============================================================================= */
@@ -963,6 +990,29 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-direction: row; /* Ensure horizontal by default */
+}
+
+/* Force filter buttons to stay horizontal on all screen sizes */
+#event-filters,
+#conversation-filters,
+.filter-buttons,
+.events-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-direction: row !important;
+    flex-wrap: nowrap;
+}
+
+/* Desktop-specific override to ensure filter buttons stay horizontal */
+@media (min-width: 769px) {
+    #event-filters,
+    #conversation-filters,
+    .pm-flex-center-gap {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+    }
 }
 
 .pm-flex-center-gap-sm {
@@ -1387,12 +1437,142 @@
         flex-direction: column;
         gap: 12px;
     }
+    
+    /* Keep filter buttons horizontal on mobile */
+    #event-filters,
+    #conversation-filters,
+    .filter-buttons,
+    .events-filter,
+    .pm-flex-keep-horizontal {
+        flex-direction: row !important;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    /* Override any flex-column changes for button groups */
+    .pm-flex-center-gap.filter-buttons,
+    .pm-flex-center-gap:has(.filter-btn) {
+        flex-direction: row !important;
+    }
+    
+    /* Enhanced mobile spacing */
+    .pm-gap-lg { gap: 20px; }
+    .pm-gap-md { gap: 16px; }
+    .pm-gap-sm { gap: 12px; }
+    
+    /* Mobile card improvements */
+    .pm-card {
+        margin-bottom: 20px;
+    }
+    
+    .pm-card-body {
+        padding: 20px;
+    }
+    
+    .pm-card-header {
+        padding: 20px 20px 16px 20px;
+    }
+    
+    .pm-card-footer {
+        padding: 16px 20px 20px 20px;
+    }
+}
+
+/* High-DPI Mobile Devices (like Samsung S24) */
+@media (max-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+    /* Ensure text is readable on high-DPI screens */
+    .partyminder-content {
+        font-size: 17px; /* Slightly larger base font */
+    }
+    
+    /* Enhanced button sizes for touch */
+    .pm-button {
+        min-height: 48px;
+        padding: 14px 18px;
+        font-size: 1.05rem;
+    }
+    
+    .pm-button-small {
+        min-height: 44px;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+    }
+    
+    /* Larger headings for better hierarchy */
+    .pm-heading-lg { 
+        font-size: 2rem;
+        line-height: 1.15;
+    }
+    
+    .pm-heading-md { 
+        font-size: 1.5rem;
+        line-height: 1.25;
+    }
+    
+    .pm-heading-sm { 
+        font-size: 1.25rem;
+        line-height: 1.3;
+    }
+    
+    /* Better card spacing */
+    .pm-card-body {
+        padding: 24px;
+    }
+    
+    .pm-card-header {
+        padding: 24px 24px 18px 24px;
+    }
+    
+    /* Dashboard-specific mobile improvements */
+    .partyminder-dashboard-content .pm-grid-2 {
+        gap: 24px;
+    }
+    
+    .partyminder-dashboard-content .event-item {
+        padding: 16px;
+        border-radius: 8px;
+    }
+    
+    .partyminder-dashboard-content .pm-badge {
+        font-size: 0.8rem;
+        padding: 4px 8px;
+    }
+    
+    /* Filter buttons */
+    .partyminder-dashboard-content .filter-btn {
+        min-height: 40px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
 }
 
 /* Extra Small Mobile (320px and up) */
 @media (max-width: 480px) {
     .partyminder-content {
-        font-size: 16px; /* Prevent zoom on iOS */
+        font-size: 17px; /* Larger base font for small screens */
+    }
+    
+    /* Ensure all headings are appropriately sized */
+    .pm-heading-lg { font-size: 1.875rem; }
+    .pm-heading-md { font-size: 1.375rem; }
+    .pm-heading-sm { font-size: 1.125rem; }
+    
+    /* Form elements need to be larger on small screens */
+    .pm-input,
+    .pm-textarea,
+    .pm-select {
+        min-height: 48px;
+        padding: 14px 16px;
+        font-size: 1rem;
+    }
+    
+    /* Card spacing for very small screens */
+    .pm-card-body {
+        padding: 18px;
+    }
+    
+    .pm-card-header {
+        padding: 18px 18px 14px 18px;
     }
     
     .pm-container,
@@ -1430,9 +1610,29 @@
         font-size: 1rem;
     }
     
-    .pm-flex-center-gap {
+    /* ONLY stack general flex containers on very small screens - NOT filter buttons */
+    .pm-flex-center-gap:not(#event-filters):not(#conversation-filters):not(.filter-buttons) {
         flex-direction: column;
         align-items: stretch;
+    }
+    
+    /* Exception: Keep filter buttons and small button groups horizontal */
+    #event-filters.pm-flex-center-gap,
+    #conversation-filters.pm-flex-center-gap,
+    .pm-flex-center-gap.filter-buttons,
+    .pm-flex-center-gap:has(.filter-btn),
+    .events-filter {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    /* Also keep navigation breadcrumbs horizontal */
+    .pm-breadcrumb,
+    .breadcrumbs {
+        flex-direction: row !important;
+        flex-wrap: wrap;
     }
     
     /* Stack buttons vertically on very small screens */
