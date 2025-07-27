@@ -16,6 +16,28 @@ require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
 $conversation_manager = new PartyMinder_Conversation_Manager();
 $event_manager = new PartyMinder_Event_Manager();
 
+// Check if we're viewing a single conversation
+$conversation_topic = get_query_var('conversation_topic');
+$conversation_slug = get_query_var('conversation_slug');
+
+// Debug: Check what we're getting
+if (WP_DEBUG) {
+    error_log("Conversation Topic: " . $conversation_topic);
+    error_log("Conversation Slug: " . $conversation_slug);
+}
+
+// If we have both topic and conversation slug, show single conversation
+if ($conversation_topic && $conversation_slug) {
+    include PARTYMINDER_PLUGIN_DIR . 'templates/single-conversation-content.php';
+    return;
+}
+
+// If we have just a topic slug, show topic conversations
+if ($conversation_topic) {
+    include PARTYMINDER_PLUGIN_DIR . 'templates/topic-conversations-content.php';
+    return;
+}
+
 // Get current user info
 $current_user = wp_get_current_user();
 $user_email = '';

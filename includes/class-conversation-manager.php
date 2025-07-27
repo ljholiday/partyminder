@@ -48,7 +48,7 @@ class PartyMinder_Conversation_Manager {
         $event_clause = $exclude_event_conversations ? 'AND event_id IS NULL' : '';
         
         return $wpdb->get_results($wpdb->prepare("
-            SELECT c.*, t.name as topic_name, t.icon as topic_icon
+            SELECT c.*, t.name as topic_name, t.icon as topic_icon, t.slug as topic_slug
             FROM $conversations_table c
             LEFT JOIN {$wpdb->prefix}partyminder_conversation_topics t ON c.topic_id = t.id
             WHERE 1=1 $event_clause

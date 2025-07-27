@@ -34,7 +34,7 @@
         });
 
         // Close modal events
-        $(document).on('click', '.partyminder-modal-overlay, .close-modal', function(e) {
+        $(document).on('click', '.pm-modal-overlay, .close-modal', function(e) {
             if (e.target === this || $(this).hasClass('close-modal')) {
                 PartyMinderConversations.closeModal();
             }
@@ -48,7 +48,7 @@
         });
 
         // Prevent modal content clicks from closing modal
-        $(document).on('click', '.partyminder-modal-content', function(e) {
+        $(document).on('click', '.pm-modal', function(e) {
             e.stopPropagation();
         });
     };
@@ -58,12 +58,12 @@
      */
     PartyMinderConversations.initFormValidation = function() {
         // Real-time validation
-        $(document).on('input blur', '.conversation-form input[required], .conversation-form textarea[required]', function() {
+        $(document).on('input blur', '.pm-form input[required], .pm-form textarea[required]', function() {
             PartyMinderConversations.validateField($(this));
         });
 
         // Form submission
-        $(document).on('submit', '.conversation-form', function(e) {
+        $(document).on('submit', '.pm-form', function(e) {
             e.preventDefault();
             PartyMinderConversations.submitConversation($(this));
         });
@@ -104,58 +104,58 @@
         const topicsHtml = PartyMinderConversations.getTopicsDropdown(topicId);
 
         const modalHtml = `
-            <div class="partyminder-modal-overlay" id="conversation-modal">
-                <div class="partyminder-modal-content">
-                    <div class="modal-header">
+            <div class="pm-modal-overlay" id="conversation-modal">
+                <div class="pm-modal">
+                    <div class="pm-modal-header">
                         <div>
-                            <h3>💬 Start New Conversation</h3>
-                            ${topicName ? `<p>in <strong>${topicName}</strong></p>` : ''}
+                            <h3 class="pm-modal-title">💬 Start New Conversation</h3>
+                            ${topicName ? `<p class="pm-text-muted pm-m-0">in <strong>${topicName}</strong></p>` : ''}
                         </div>
-                        <button class="close-modal" type="button">&times;</button>
+                        <button class="close-modal pm-button pm-button-secondary pm-button-small" type="button">&times;</button>
                     </div>
-                    <div class="modal-body">
-                        <form class="conversation-form" method="post">
+                    <div class="pm-modal-body">
+                        <form class="pm-form" method="post">
                             <input type="hidden" name="nonce" value="${partyminder_ajax.nonce}">
                             <input type="hidden" name="action" value="partyminder_create_conversation">
                             
                             ${!isLoggedIn ? `
-                                <div class="form-row">
-                                    <label for="guest_name">Your Name *</label>
-                                    <input type="text" id="guest_name" name="guest_name" required>
+                                <div class="pm-form-group">
+                                    <label for="guest_name" class="pm-label">Your Name *</label>
+                                    <input type="text" id="guest_name" name="guest_name" class="pm-input" required>
                                 </div>
-                                <div class="form-row">
-                                    <label for="guest_email">Your Email *</label>
-                                    <input type="email" id="guest_email" name="guest_email" required>
+                                <div class="pm-form-group">
+                                    <label for="guest_email" class="pm-label">Your Email *</label>
+                                    <input type="email" id="guest_email" name="guest_email" class="pm-input" required>
                                 </div>
                             ` : ''}
                             
                             ${!topicId ? `
-                                <div class="form-row">
-                                    <label for="topic_select">Topic *</label>
-                                    <select id="topic_select" name="topic_id" required>
+                                <div class="pm-form-group">
+                                    <label for="topic_select" class="pm-label">Topic *</label>
+                                    <select id="topic_select" name="topic_id" class="pm-select pm-input" required>
                                         <option value="">Choose a topic...</option>
                                         ${topicsHtml}
                                     </select>
                                 </div>
                             ` : `<input type="hidden" name="topic_id" value="${topicId}">`}
                             
-                            <div class="form-row">
-                                <label for="conversation_title">Conversation Title *</label>
-                                <input type="text" id="conversation_title" name="title" required maxlength="255" 
+                            <div class="pm-form-group">
+                                <label for="conversation_title" class="pm-label">Conversation Title *</label>
+                                <input type="text" id="conversation_title" name="title" class="pm-input" required maxlength="255" 
                                        placeholder="What would you like to discuss?">
                             </div>
                             
-                            <div class="form-row">
-                                <label for="conversation_content">Your Message *</label>
-                                <textarea id="conversation_content" name="content" required rows="8" 
+                            <div class="pm-form-group">
+                                <label for="conversation_content" class="pm-label">Your Message *</label>
+                                <textarea id="conversation_content" name="content" class="pm-textarea" required rows="8" 
                                           placeholder="Share your thoughts, ask a question, or start a discussion..."></textarea>
                             </div>
                             
-                            <div class="form-actions">
+                            <div class="pm-modal-footer">
                                 <button type="button" class="pm-button pm-button-secondary close-modal">Cancel</button>
                                 <button type="submit" class="pm-button pm-button-primary">
                                     <span class="button-text">Start Conversation</span>
-                                    <span class="button-spinner">Starting...</span>
+                                    <span class="button-spinner pm-hidden">Starting...</span>
                                 </button>
                             </div>
                         </form>
@@ -211,9 +211,9 @@
      * Close modal
      */
     PartyMinderConversations.closeModal = function() {
-        $('.partyminder-modal-overlay').removeClass('active');
+        $('.pm-modal-overlay').removeClass('active');
         setTimeout(() => {
-            $('.partyminder-modal-overlay').remove();
+            $('.pm-modal-overlay').remove();
         }, 300);
     };
 
@@ -248,17 +248,17 @@
      * Show field error
      */
     PartyMinderConversations.showFieldError = function($field, message) {
-        $field.addClass('error');
-        $field.siblings('.field-error').remove();
-        $field.after(`<div class="field-error">${message}</div>`);
+        $field.addClass('pm-input-error');
+        $field.siblings('.pm-field-error').remove();
+        $field.after(`<div class="pm-field-error pm-text-danger pm-text-sm pm-mt-1">${message}</div>`);
     };
 
     /**
      * Clear field error
      */
     PartyMinderConversations.clearFieldError = function($field) {
-        $field.removeClass('error');
-        $field.siblings('.field-error').remove();
+        $field.removeClass('pm-input-error');
+        $field.siblings('.pm-field-error').remove();
     };
 
     /**
