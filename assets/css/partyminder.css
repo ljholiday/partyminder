@@ -224,6 +224,11 @@
 .pm-max-w-lg { max-width: 600px; }
 .pm-cursor-pointer { cursor: pointer; }
 
+/* Spacing utilities */
+.pm-space-y-3 > * + * {
+    margin-top: 12px;
+}
+
 /* Avatar utilities */
 .pm-avatar-lg {
     width: 80px;

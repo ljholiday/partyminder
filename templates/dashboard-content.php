@@ -67,40 +67,98 @@ if ($user_logged_in) {
     <!-- Two-Column Layout -->
     <div class="pm-grid pm-grid-2">
         
-        <!-- Main Column: Conversations -->
-        <div class="pm-card">
-            <div class="pm-card-header">
-                <h2 class="pm-heading pm-heading-md">💬 <?php _e('Community Conversations', 'partyminder'); ?></h2>
-                <p class="pm-text-muted"><?php _e('Join the latest discussions about hosting, planning, and party tips.', 'partyminder'); ?></p>
+        <!-- Main Column: Events & Conversations -->
+        <div class="pm-flex pm-flex-column pm-gap-lg">
+            
+            <!-- Events Section -->
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2 class="pm-heading pm-heading-md">🎪 <?php _e('Recent Events', 'partyminder'); ?></h2>
+                    <p class="pm-text-muted"><?php _e('Events you\'ve created or RSVP\'d to', 'partyminder'); ?></p>
+                    
+                    <!-- Event Filters -->
+                    <div class="pm-flex pm-flex-center-gap pm-mt-3" id="event-filters">
+                        <button class="pm-button pm-button-small pm-button-secondary filter-btn active" data-filter="all"><?php _e('All', 'partyminder'); ?></button>
+                        <button class="pm-button pm-button-small pm-button-secondary filter-btn" data-filter="upcoming"><?php _e('Upcoming', 'partyminder'); ?></button>
+                        <button class="pm-button pm-button-small pm-button-secondary filter-btn" data-filter="past"><?php _e('Past', 'partyminder'); ?></button>
+                        <button class="pm-button pm-button-small pm-button-secondary filter-btn" data-filter="hosting"><?php _e('Hosting', 'partyminder'); ?></button>
+                    </div>
+                </div>
+                <div class="pm-card-body">
+                    <?php if (!empty($recent_events)): ?>
+                        <div class="pm-space-y-3" id="events-list">
+                            <?php foreach ($recent_events as $event): ?>
+                                <?php 
+                                $is_past = strtotime($event->event_date) < time();
+                                $is_hosting = $event->relationship_type === 'created';
+                                $event_classes = array();
+                                if ($is_past) $event_classes[] = 'event-past';
+                                if (!$is_past) $event_classes[] = 'event-upcoming';
+                                if ($is_hosting) $event_classes[] = 'event-hosting';
+                                ?>
+                                <div class="pm-flex pm-p-3 pm-border pm-border-radius event-item <?php echo implode(' ', $event_classes); ?>" data-filter-tags="<?php echo implode(' ', $event_classes); ?>">
+                                    <div class="pm-flex-1">
+                                        <h4 class="pm-heading pm-heading-sm pm-mb-1">
+                                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-text-primary">
+                                                <?php echo esc_html($event->title); ?>
+                                            </a>
+                                        </h4>
+                                        <div class="pm-flex pm-flex-center-gap pm-text-sm pm-text-muted pm-mb-2">
+                                            <span>📅 <?php echo date('M j, Y', strtotime($event->event_date)); ?></span>
+                                            <?php if ($event->venue_info): ?>
+                                                <span>📍 <?php echo esc_html(wp_trim_words($event->venue_info, 3)); ?></span>
+                                            <?php endif; ?>
+                                            <span class="pm-badge pm-badge-<?php echo $is_hosting ? 'primary' : 'secondary'; ?> pm-text-xs">
+                                                <?php echo $is_hosting ? __('Hosting', 'partyminder') : __('Attending', 'partyminder'); ?>
+                                            </span>
+                                        </div>
+                                        <?php if ($event->description): ?>
+                                            <p class="pm-text-muted pm-text-sm pm-m-0"><?php echo esc_html(wp_trim_words($event->description, 15)); ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="pm-text-center pm-p-6">
+                            <div class="pm-mb-4 pm-text-4xl">📅</div>
+                            <h3 class="pm-heading pm-heading-md pm-mb-2"><?php _e('No Recent Events', 'partyminder'); ?></h3>
+                            <p class="pm-text-muted pm-mb-4"><?php _e('Create an event or RSVP to events to see them here.', 'partyminder'); ?></p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <div class="pm-card-footer pm-text-center">
+                    <a href="<?php echo esc_url(PartyMinder::get_events_page_url()); ?>" class="pm-button pm-button-secondary pm-button-small">
+                        <?php _e('Browse All Events', 'partyminder'); ?>
+                    </a>
+                </div>
             </div>
-            <div class="pm-card-body">
-                
-                <!-- Conversations Content -->
-                <?php
-                // Include simplified conversations content for the dashboard
-                $conversations_atts = array('limit' => 5, 'show_form' => false);
-                
-                // Check if conversations file exists
-                $conversations_file = PARTYMINDER_PLUGIN_DIR . 'templates/conversations-content.php';
-                if (file_exists($conversations_file)) {
-                    include $conversations_file;
-                } else {
-                    // Fallback if conversations not available
-                    echo '<div class="pm-text-center pm-p-6">';
-                    echo '<div class="pm-mb-4 pm-text-4xl">💭</div>';
-                    echo '<h3 class="pm-heading pm-heading-md pm-mb-2">' . __('Conversations Coming Soon', 'partyminder') . '</h3>';
-                    echo '<p class="pm-text-muted pm-mb-4">' . __('Community conversations will appear here when available.', 'partyminder') . '</p>';
-                    echo '<a href="' . esc_url(PartyMinder::get_conversations_url()) . '" class="pm-button pm-button-primary">';
-                    echo __('View Conversations', 'partyminder');
-                    echo '</a>';
-                    echo '</div>';
-                }
-                ?>
-            </div>
-            <div class="pm-card-footer pm-text-center">
-                <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-button pm-button-primary">
-                    <?php _e('View All Conversations', 'partyminder'); ?>
-                </a>
+            
+            <!-- Conversations Section -->
+            <div class="pm-card">
+                <div class="pm-card-header">
+                    <h2 class="pm-heading pm-heading-md">💬 <?php _e('Community Conversations', 'partyminder'); ?></h2>
+                    <p class="pm-text-muted"><?php _e('Latest discussions about hosting and party planning', 'partyminder'); ?></p>
+                    
+                    <!-- Conversation Filters -->
+                    <div class="pm-flex pm-flex-center-gap pm-mt-3" id="conversation-filters">
+                        <button class="pm-button pm-button-small pm-button-secondary filter-btn active" data-filter="all"><?php _e('All', 'partyminder'); ?></button>
+                        <button class="pm-button pm-button-small pm-button-secondary filter-btn" data-filter="popular"><?php _e('Popular', 'partyminder'); ?></button>
+                        <button class="pm-button pm-button-small pm-button-secondary filter-btn" data-filter="recent"><?php _e('Recent', 'partyminder'); ?></button>
+                    </div>
+                </div>
+                <div class="pm-card-body">
+                    <!-- Conversations Content (simplified) -->
+                    <div class="pm-text-center pm-p-4">
+                        <div class="pm-mb-3 pm-text-xl">💭</div>
+                        <p class="pm-text-muted pm-mb-3"><?php _e('Join conversations with fellow hosts and guests', 'partyminder'); ?></p>
+                    </div>
+                </div>
+                <div class="pm-card-footer pm-text-center">
+                    <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-button pm-button-secondary pm-button-small">
+                        <?php _e('View All Conversations', 'partyminder'); ?>
+                    </a>
+                </div>
             </div>
         </div>
         
@@ -269,7 +327,45 @@ if ($user_logged_in) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Dashboard-specific JavaScript can go here
-    console.log('PartyMinder Dashboard loaded');
+    // Event Filter functionality
+    const eventFilters = document.querySelectorAll('#event-filters .filter-btn');
+    const eventItems = document.querySelectorAll('#events-list .event-item');
+    
+    eventFilters.forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.getAttribute('data-filter');
+            
+            // Update active button
+            eventFilters.forEach(btn => btn.classList.remove('active', 'pm-button-primary'));
+            eventFilters.forEach(btn => btn.classList.add('pm-button-secondary'));
+            this.classList.remove('pm-button-secondary');
+            this.classList.add('active', 'pm-button-primary');
+            
+            // Filter events
+            eventItems.forEach(item => {
+                const tags = item.getAttribute('data-filter-tags') || '';
+                if (filter === 'all' || tags.includes('event-' + filter)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+    // Conversation Filter functionality
+    const conversationFilters = document.querySelectorAll('#conversation-filters .filter-btn');
+    
+    conversationFilters.forEach(button => {
+        button.addEventListener('click', function() {
+            // Update active button
+            conversationFilters.forEach(btn => btn.classList.remove('active', 'pm-button-primary'));
+            conversationFilters.forEach(btn => btn.classList.add('pm-button-secondary'));
+            this.classList.remove('pm-button-secondary');
+            this.classList.add('active', 'pm-button-primary');
+            
+            // Note: Conversation filtering logic would go here when conversations are implemented
+        });
+    });
 });
 </script>
