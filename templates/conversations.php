@@ -506,7 +506,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 }
 </style>
 
-<div class="partyminder-conversations pm-container">
+<div class="partyminder-conversations pm-container-wide">
     <!-- Header -->
     <div class="pm-card-header pm-mb-6">
         <h1 class="pm-heading pm-heading-lg pm-text-primary"><?php _e('💬 Community Conversations', 'partyminder'); ?></h1>
@@ -514,7 +514,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     </div>
 
     <!-- Two-column layout -->
-    <div class="pm-grid pm-grid-2">
+    <div class="conversations-layout">
         <!-- LEFT COLUMN - Community Conversations -->
         <div class="pm-card">
             <div class="pm-card-header">

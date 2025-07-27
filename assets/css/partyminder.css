@@ -121,6 +121,21 @@
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
 }
 
+/* Dashboard Layout - 2:1 proportions like conversations */
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+@media (max-width: 768px) {
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
 .pm-flex {
     display: flex;
 }
@@ -747,7 +762,7 @@
     .pm-container,
     .pm-container-wide,
     .pm-container-narrow {
-        padding: 16px;
+        padding: 20px;
         margin: 0;
     }
     
@@ -1578,7 +1593,7 @@
     .pm-container,
     .pm-container-wide,
     .pm-container-narrow {
-        padding: 12px;
+        padding: 16px;
     }
     
     .pm-heading-lg { 

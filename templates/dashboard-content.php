@@ -65,7 +65,7 @@ if ($user_logged_in) {
     </div>
 
     <!-- Two-Column Layout -->
-    <div class="pm-grid pm-grid-2">
+    <div class="dashboard-layout">
         
         <!-- Main Column: Events & Conversations -->
         <div class="pm-flex pm-flex-column pm-gap-lg">
