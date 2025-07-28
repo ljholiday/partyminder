@@ -203,13 +203,10 @@ if ($user_email) {
                         <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-small pm-button-secondary">
                             <?php _e('View Event', 'partyminder'); ?>
                         </a>
-                        <button class="pm-button pm-button-primary pm-button-small manage-event-btn" 
-                                data-event-id="<?php echo esc_attr($event->id); ?>"
-                                data-event-title="<?php echo esc_attr($event->title); ?>"
-                                data-event-slug="<?php echo esc_attr($event->slug); ?>">
+                        <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-primary pm-button-small">
                             <span>⚙️</span>
                             <?php _e('Manage', 'partyminder'); ?>
-                        </button>
+                        </a>
                         <a href="<?php echo PartyMinder::get_edit_event_url($event->id); ?>" class="pm-button pm-button-secondary pm-button-small">
                             <span>✏️</span>
                             <?php _e('Edit', 'partyminder'); ?>
@@ -341,31 +338,10 @@ if ($user_email) {
 </div>
 
 <?php
-// Include event management modal
-include PARTYMINDER_PLUGIN_DIR . 'templates/event-management-modal.php';
+// Event management functionality is now inline in single event pages
 ?>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle manage event button clicks
-    document.querySelectorAll('.manage-event-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Get event data from button attributes
-            const eventData = {
-                id: this.getAttribute('data-event-id'),
-                title: this.getAttribute('data-event-title'),
-                slug: this.getAttribute('data-event-slug')
-            };
-            
-            // Show the management modal
-            if (typeof window.showEventManagementModal === 'function') {
-                window.showEventManagementModal(eventData);
-            } else {
-                console.error('Event management modal not loaded');
-            }
-        });
-    });
-});
+// Event management is now handled inline on individual event pages
+// No modal JavaScript needed
 </script>

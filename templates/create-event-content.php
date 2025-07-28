@@ -154,6 +154,63 @@ $form_layout = get_option('partyminder_form_layout', 'card');
                     </div>
                 </div>
 
+                <!-- Invitation Section for Create Event -->
+                <div class="pm-mb-6">
+                    <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e('Ready to Invite Guests?', 'partyminder'); ?></h3>
+                    
+                    <?php if (PartyMinder_Feature_Flags::is_at_protocol_enabled()): ?>
+                    <!-- Bluesky Connection Status -->
+                    <div id="create-bluesky-connection-section" class="pm-mb-6">
+                        <div id="create-bluesky-not-connected" class="pm-card pm-card-info" style="border-left: 4px solid #1d9bf0;">
+                            <div class="pm-card-body">
+                                <h5 class="pm-heading pm-heading-sm pm-mb-2">
+                                    🦋 <?php _e('Connect Bluesky for Easy Invites', 'partyminder'); ?>
+                                </h5>
+                                <p class="pm-text-muted pm-mb-4">
+                                    <?php _e('Connect your Bluesky account to quickly invite your contacts after creating the event.', 'partyminder'); ?>
+                                </p>
+                                <button type="button" class="pm-button pm-button-secondary" id="create-connect-bluesky-btn">
+                                    <?php _e('Connect Bluesky Account', 'partyminder'); ?>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="create-bluesky-connected" class="pm-card pm-card-success" style="border-left: 4px solid #10b981; display: none;">
+                            <div class="pm-card-body">
+                                <h5 class="pm-heading pm-heading-sm pm-mb-2">
+                                    ✅ <?php _e('Bluesky Connected', 'partyminder'); ?>
+                                </h5>
+                                <p class="pm-text-muted pm-mb-4">
+                                    <?php _e('Connected as', 'partyminder'); ?> <strong id="create-bluesky-handle"></strong>
+                                </p>
+                                <button type="button" class="pm-button pm-button-danger pm-button-sm" id="create-disconnect-bluesky-btn">
+                                    <?php _e('Disconnect', 'partyminder'); ?>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <!-- Manual Email Preview -->
+                    <div class="pm-card">
+                        <div class="pm-card-body">
+                            <h5 class="pm-heading pm-heading-sm pm-mb-2">📧 <?php _e('Manual Email Invitations', 'partyminder'); ?></h5>
+                            <p class="pm-text-muted pm-mb-4">
+                                <?php _e('After creating your event, you\'ll be able to send email invitations to specific guests.', 'partyminder'); ?>
+                            </p>
+                            <div class="pm-form-group">
+                                <input type="email" class="pm-input" placeholder="<?php _e('Enter email addresses here...', 'partyminder'); ?>" disabled>
+                            </div>
+                            <div class="pm-form-group">
+                                <textarea class="pm-input pm-textarea" rows="2" placeholder="<?php _e('Add a personal message...', 'partyminder'); ?>" disabled></textarea>
+                            </div>
+                            <button type="button" class="pm-button pm-button-secondary" disabled>
+                                <?php _e('Available After Event Creation', 'partyminder'); ?>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="pm-flex pm-flex-center-gap pm-mt-6">
                     <button type="submit" name="partyminder_create_event" class="pm-button pm-button-primary pm-button-large">
                         <span>🎉</span>
@@ -173,6 +230,15 @@ $form_layout = get_option('partyminder_form_layout', 'card');
 
 <script>
 jQuery(document).ready(function($) {
+    // Initialize Bluesky connection check on page load
+    <?php if (PartyMinder_Feature_Flags::is_at_protocol_enabled()): ?>
+    checkCreateBlueskyConnection();
+    
+    // Handle Bluesky buttons
+    $('#create-connect-bluesky-btn').on('click', showCreateBlueskyConnectModal);
+    $('#create-disconnect-bluesky-btn').on('click', disconnectCreateBluesky);
+    <?php endif; ?>
+    
     $('#partyminder-event-form').on('submit', function(e) {
         e.preventDefault();
         
@@ -221,5 +287,142 @@ jQuery(document).ready(function($) {
             }
         });
     });
+    
+    <?php if (PartyMinder_Feature_Flags::is_at_protocol_enabled()): ?>
+    // Bluesky Integration Functions for Create Event Page
+    function checkCreateBlueskyConnection() {
+        $.ajax({
+            url: partyminder_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'partyminder_check_bluesky_connection',
+                nonce: partyminder_ajax.at_protocol_nonce
+            },
+            success: function(response) {
+                if (response.success && response.data.connected) {
+                    showCreateBlueskyConnected(response.data.handle);
+                } else {
+                    showCreateBlueskyNotConnected();
+                }
+            },
+            error: function() {
+                showCreateBlueskyNotConnected();
+            }
+        });
+    }
+    
+    function showCreateBlueskyConnected(handle) {
+        $('#create-bluesky-not-connected').hide();
+        $('#create-bluesky-connected').show();
+        $('#create-bluesky-handle').text(handle);
+    }
+    
+    function showCreateBlueskyNotConnected() {
+        $('#create-bluesky-not-connected').show();
+        $('#create-bluesky-connected').hide();
+    }
+    
+    function showCreateBlueskyConnectModal() {
+        const connectHtml = `
+            <div id="create-bluesky-connect-modal" class="pm-modal-overlay" style="z-index: 10001;">
+                <div class="pm-modal pm-modal-sm">
+                    <div class="pm-modal-header">
+                        <h3>🦋 <?php _e('Connect to Bluesky', 'partyminder'); ?></h3>
+                        <button type="button" class="create-bluesky-connect-close pm-button pm-button-secondary" style="padding: 5px; border-radius: 50%; width: 35px; height: 35px;">×</button>
+                    </div>
+                    <div class="pm-modal-body">
+                        <form id="create-bluesky-connect-form">
+                            <div class="pm-form-group">
+                                <label class="pm-label"><?php _e('Bluesky Handle', 'partyminder'); ?></label>
+                                <input type="text" class="pm-input" id="create-bluesky-handle-input" 
+                                       placeholder="<?php _e('username.bsky.social', 'partyminder'); ?>" required>
+                            </div>
+                            <div class="pm-form-group">
+                                <label class="pm-label"><?php _e('App Password', 'partyminder'); ?></label>
+                                <input type="password" class="pm-input" id="create-bluesky-password-input" 
+                                       placeholder="<?php _e('Your Bluesky app password', 'partyminder'); ?>" required>
+                                <small class="pm-text-muted">
+                                    <?php _e('Create an app password in your Bluesky settings for secure access.', 'partyminder'); ?>
+                                </small>
+                            </div>
+                            <div class="pm-flex pm-flex-center-gap pm-mt-4">
+                                <button type="submit" class="pm-button pm-button-primary">
+                                    <?php _e('Connect Account', 'partyminder'); ?>
+                                </button>
+                                <button type="button" class="create-bluesky-connect-close pm-button pm-button-secondary">
+                                    <?php _e('Cancel', 'partyminder'); ?>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('body').append(connectHtml);
+        
+        const $connectModal = $('#create-bluesky-connect-modal');
+        $connectModal.addClass('active');
+        
+        // Close handlers
+        $connectModal.find('.create-bluesky-connect-close').on('click', function() {
+            $connectModal.remove();
+        });
+        
+        // Form submission
+        $('#create-bluesky-connect-form').on('submit', function(e) {
+            e.preventDefault();
+            
+            const handle = $('#create-bluesky-handle-input').val();
+            const password = $('#create-bluesky-password-input').val();
+            const $submitBtn = $(this).find('button[type="submit"]');
+            
+            $submitBtn.prop('disabled', true).text('<?php _e('Connecting...', 'partyminder'); ?>');
+            
+            $.ajax({
+                url: partyminder_ajax.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'partyminder_connect_bluesky',
+                    handle: handle,
+                    password: password,
+                    nonce: partyminder_ajax.at_protocol_nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showCreateBlueskyConnected(response.data.handle);
+                        $connectModal.remove();
+                    } else {
+                        alert(response.data || '<?php _e('Connection failed. Please check your credentials.', 'partyminder'); ?>');
+                    }
+                },
+                error: function() {
+                    alert('<?php _e('Connection failed. Please try again.', 'partyminder'); ?>');
+                },
+                complete: function() {
+                    $submitBtn.prop('disabled', false).text('<?php _e('Connect Account', 'partyminder'); ?>');
+                }
+            });
+        });
+    }
+    
+    function disconnectCreateBluesky() {
+        if (!confirm('<?php _e('Are you sure you want to disconnect your Bluesky account?', 'partyminder'); ?>')) {
+            return;
+        }
+        
+        $.ajax({
+            url: partyminder_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'partyminder_disconnect_bluesky',
+                nonce: partyminder_ajax.at_protocol_nonce
+            },
+            success: function(response) {
+                showCreateBlueskyNotConnected();
+            }
+        });
+    }
+    <?php endif; ?>
 });
 </script>
