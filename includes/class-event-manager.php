@@ -140,6 +140,13 @@ class PartyMinder_Event_Manager {
         $guests_table = $wpdb->prefix . 'partyminder_guests';
         $invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
         
+        // DEBUG: Check what's actually in the guests table
+        $all_guests = $wpdb->get_results($wpdb->prepare(
+            "SELECT name, email, status FROM $guests_table WHERE event_id = %d",
+            $event_id
+        ));
+        error_log("DEBUG Guests for event $event_id: " . print_r($all_guests, true));
+
         // Get RSVP stats from guests table
         $guest_stats = $wpdb->get_row($wpdb->prepare(
             "SELECT 
