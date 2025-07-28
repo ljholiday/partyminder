@@ -21,6 +21,7 @@ if (!$event) {
 }
 
 
+
 $event_date = new DateTime($event->event_date);
 $is_today = $event_date->format('Y-m-d') === date('Y-m-d');
 $is_tomorrow = $event_date->format('Y-m-d') === date('Y-m-d', strtotime('+1 day'));
