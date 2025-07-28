@@ -138,19 +138,48 @@ class PartyMinder_Event_Manager {
         global $wpdb;
         
         $guests_table = $wpdb->prefix . 'partyminder_guests';
+        $invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
         
-        $stats = $wpdb->get_row($wpdb->prepare(
+        // Get RSVP stats from guests table
+        $guest_stats = $wpdb->get_row($wpdb->prepare(
             "SELECT 
                 COUNT(*) as total,
                 SUM(CASE WHEN status = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
                 SUM(CASE WHEN status = 'declined' THEN 1 ELSE 0 END) as declined,
-                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_rsvps,
                 SUM(CASE WHEN status = 'maybe' THEN 1 ELSE 0 END) as maybe
             FROM $guests_table WHERE event_id = %d",
             $event_id
         ));
         
-        return $stats ?: (object) array('total' => 0, 'confirmed' => 0, 'declined' => 0, 'pending' => 0, 'maybe' => 0);
+        // Get pending invitation stats
+        $invitation_stats = $wpdb->get_row($wpdb->prepare(
+            "SELECT COUNT(*) as pending_invitations
+            FROM $invitations_table 
+            WHERE event_id = %d AND status = 'pending' AND expires_at > NOW()",
+            $event_id
+        ));
+        
+        // Combine stats
+        $confirmed = intval($guest_stats->confirmed ?? 0);
+        $declined = intval($guest_stats->declined ?? 0);
+        $maybe = intval($guest_stats->maybe ?? 0);
+        $pending_rsvps = intval($guest_stats->pending_rsvps ?? 0);
+        $pending_invitations = intval($invitation_stats->pending_invitations ?? 0);
+        
+        // Total pending = pending RSVPs + pending invitations
+        $total_pending = $pending_rsvps + $pending_invitations;
+        $total = $confirmed + $declined + $maybe + $total_pending;
+        
+        return (object) array(
+            'total' => $total,
+            'confirmed' => $confirmed,
+            'declined' => $declined,
+            'pending' => $total_pending,
+            'maybe' => $maybe,
+            'pending_rsvps' => $pending_rsvps,
+            'pending_invitations' => $pending_invitations
+        );
     }
     
     
