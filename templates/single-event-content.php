@@ -160,6 +160,11 @@ $is_past = $event_date < new DateTime();
                             <span>✏️</span>
                             <?php _e('Edit Details', 'partyminder'); ?>
                         </a>
+                        
+                        <button type="button" class="pm-button pm-button-danger" id="delete-event-btn" data-event-id="<?php echo esc_attr($event->id); ?>" data-event-title="<?php echo esc_attr($event->title); ?>">
+                            <span>🗑️</span>
+                            <?php _e('Delete Event', 'partyminder'); ?>
+                        </button>
                     <?php else: ?>
                         <a href="#rsvp" class="pm-button pm-button-primary">
                             <?php if ($is_full): ?>
@@ -370,6 +375,12 @@ document.addEventListener('DOMContentLoaded', function() {
             inviteForm.addEventListener('submit', handleInviteSubmission);
         }
         
+        // Handle delete event button
+        const deleteBtn = document.getElementById('delete-event-btn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', handleDeleteEvent);
+        }
+        
         // Handle Bluesky buttons
         const connectBtn = document.getElementById('connect-bluesky-btn');
         const loadContactsBtn = document.getElementById('load-bluesky-contacts-btn');
@@ -426,6 +437,52 @@ document.addEventListener('DOMContentLoaded', function() {
             complete: function() {
                 submitBtn.disabled = false;
                 submitBtn.textContent = '<?php _e('Send Invitation', 'partyminder'); ?>';
+            }
+        });
+    }
+    
+    function handleDeleteEvent() {
+        const deleteBtn = document.getElementById('delete-event-btn');
+        const eventTitle = deleteBtn.getAttribute('data-event-title');
+        
+        // Show confirmation dialog
+        const confirmMessage = '<?php _e('Are you sure you want to delete this event?', 'partyminder'); ?>\n\n' +
+                              '<?php _e('Event:', 'partyminder'); ?> ' + eventTitle + '\n\n' +
+                              '<?php _e('This action cannot be undone. All RSVPs, invitations, and related data will be permanently deleted.', 'partyminder'); ?>';
+        
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+        
+        // Disable button and show loading
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '<span>⏳</span> <?php _e('Deleting...', 'partyminder'); ?>';
+        
+        jQuery.ajax({
+            url: partyminder_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'partyminder_delete_event',
+                event_id: currentEventId,
+                nonce: partyminder_ajax.event_nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Redirect to events page
+                    window.location.href = '<?php echo PartyMinder::get_events_page_url(); ?>';
+                } else {
+                    console.error('Failed to delete event:', response.data);
+                    alert('<?php _e('Failed to delete event:', 'partyminder'); ?> ' + (response.data || '<?php _e('Unknown error', 'partyminder'); ?>'));
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX error deleting event:', error, xhr.responseText);
+                alert('<?php _e('Network error. Please try again.', 'partyminder'); ?>');
+            },
+            complete: function() {
+                // Re-enable button
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = '<span>🗑️</span> <?php _e('Delete Event', 'partyminder'); ?>';
             }
         });
     }
