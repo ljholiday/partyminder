@@ -186,7 +186,7 @@ $is_past = $event_date < new DateTime();
         </div>
     <?php endif; ?>
     
-    <?php if (!$is_past): ?>
+    <?php if (!$is_past && !$is_event_host): ?>
     <!-- RSVP Form Section -->
     <div class="pm-card pm-mb-6" id="rsvp">
         <div class="pm-card-header">

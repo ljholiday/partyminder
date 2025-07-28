@@ -322,6 +322,15 @@ class PartyMinder {
         if (!is_wp_error($event_id)) {
             // Get the created event to get its slug
             $created_event = $this->event_manager->get_event($event_id);
+            
+            // Set transient for success message display
+            $creation_data = array(
+                'event_id' => $event_id,
+                'event_url' => home_url('/events/' . $created_event->slug),
+                'event_title' => $created_event->title
+            );
+            set_transient('partyminder_event_created_' . get_current_user_id(), $creation_data, 300); // 5 minutes
+            
             wp_send_json_success(array(
                 'event_id' => $event_id,
                 'message' => __('Event created successfully!', 'partyminder'),
