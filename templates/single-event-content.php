@@ -431,55 +431,97 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function loadGuestList() {
-        jQuery.ajax({
+        // Load both invitations (pending) and guests (RSVPed)
+        const invitationsPromise = jQuery.ajax({
+            url: partyminder_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'partyminder_get_event_invitations',
+                event_id: currentEventId,
+                nonce: partyminder_ajax.event_nonce
+            }
+        });
+        
+        const guestsPromise = jQuery.ajax({
             url: partyminder_ajax.ajax_url,
             type: 'POST',
             data: {
                 action: 'partyminder_get_event_guests',
                 event_id: currentEventId,
                 nonce: partyminder_ajax.event_nonce
-            },
-            success: function(response) {
-                if (response.success) {
-                    renderGuestList(response.data.guests);
-                } else {
-                    console.error('Failed to load guests:', response.data);
-                    const container = document.getElementById('invited-guests-list');
-                    if (container) {
-                        container.innerHTML = '<div class="pm-text-center pm-p-6"><p class="pm-text-muted"><?php _e('Failed to load guest list.', 'partyminder'); ?></p></div>';
-                    }
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX error loading guests:', error, xhr.responseText);
-                const container = document.getElementById('invited-guests-list');
-                if (container) {
-                    container.innerHTML = '<div class="pm-text-center pm-p-6"><p class="pm-text-muted"><?php _e('Error loading guest list.', 'partyminder'); ?></p></div>';
-                }
+            }
+        });
+        
+        jQuery.when(invitationsPromise, guestsPromise).done(function(invitationsResponse, guestsResponse) {
+            const invitations = invitationsResponse[0].success ? invitationsResponse[0].data.invitations || [] : [];
+            const guests = guestsResponse[0].success ? guestsResponse[0].data.guests || [] : [];
+            
+            console.log('Loaded invitations:', invitations);
+            console.log('Loaded guests:', guests);
+            
+            renderGuestList(invitations, guests);
+        }).fail(function(xhr, status, error) {
+            console.error('AJAX error loading guest data:', error, xhr.responseText);
+            const container = document.getElementById('invited-guests-list');
+            if (container) {
+                container.innerHTML = '<div class="pm-text-center pm-p-6"><p class="pm-text-muted"><?php _e('Error loading guest list.', 'partyminder'); ?></p></div>';
             }
         });
     }
     
-    function renderGuestList(guests) {
+    function renderGuestList(invitations, guests) {
         const container = document.getElementById('invited-guests-list');
         if (!container) return;
         
-        console.log('Rendering guest list:', guests); // Debug log
+        console.log('Rendering guest list - invitations:', invitations, 'guests:', guests);
         
-        if (!guests || guests.length === 0) {
+        // Combine invitations and guests into a single list
+        const allEntries = [];
+        
+        // Add invitations (pending status)
+        if (invitations && invitations.length > 0) {
+            invitations.forEach(invitation => {
+                allEntries.push({
+                    name: invitation.invited_name || '',
+                    email: invitation.invited_email || '',
+                    status: invitation.status || 'pending',
+                    type: 'invitation',
+                    date: invitation.created_at || ''
+                });
+            });
+        }
+        
+        // Add actual guests (RSVPed)
+        if (guests && guests.length > 0) {
+            guests.forEach(guest => {
+                allEntries.push({
+                    name: guest.name || '',
+                    email: guest.email || '',
+                    status: guest.status || 'confirmed',
+                    type: 'rsvp',
+                    date: guest.rsvp_date || ''
+                });
+            });
+        }
+        
+        if (allEntries.length === 0) {
             container.innerHTML = '<div class="pm-text-center pm-p-6"><p class="pm-text-muted"><?php _e('No guests yet. Start sending invitations!', 'partyminder'); ?></p></div>';
             return;
         }
         
-        const html = guests.map(guest => {
-            const displayName = guest.name || guest.email || '<?php _e('Unknown Guest', 'partyminder'); ?>';
-            const email = guest.email || '<?php _e('No email', 'partyminder'); ?>';
-            const status = guest.status || 'pending';
+        // Sort by date (most recent first)
+        allEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        const html = allEntries.map(entry => {
+            const displayName = entry.name || entry.email || '<?php _e('Unknown Guest', 'partyminder'); ?>';
+            const email = entry.email || '<?php _e('No email', 'partyminder'); ?>';
+            const status = entry.status || 'pending';
+            const typeLabel = entry.type === 'invitation' ? '<?php _e('(Invited)', 'partyminder'); ?>' : '';
             
             return `
                 <div class="guest-item">
                     <div class="guest-info">
-                        <h6>${displayName}</h6>
+                        <h6>${displayName} ${typeLabel}</h6>
                         <p>${email}</p>
                     </div>
                     <div class="guest-status">
