@@ -305,7 +305,7 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
     <?php endif; ?>
     
     <!-- Event Conversations -->
-    <div class="pm-card pm-mb-6">
+    <div class="pm-card pm-mb-6" id="event-conversations-section">
         <div class="pm-card-header">
             <div class="pm-flex pm-flex-between pm-flex-center-gap">
                 <h3 class="pm-title-secondary pm-m-0">💬 Event Conversations</h3>
@@ -994,10 +994,10 @@ function openEventConversationModal(eventId, eventTitle) {
             success: function(response) {
                 if (response.success) {
                     showNotification('Event conversation created successfully!', 'success');
-                    modal.remove();
-                    
-                    // Refresh the conversations section on this page
-                    refreshEventConversations();
+                    // Simple page reload to show new conversation
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
                 } else {
                     showNotification(response.data || 'Failed to create conversation.', 'error');
                 }
@@ -1014,67 +1014,6 @@ function openEventConversationModal(eventId, eventTitle) {
     });
 }
 
-// Refresh event conversations section
-function refreshEventConversations() {
-    const eventId = <?php echo $event->id; ?>;
-    
-    jQuery.ajax({
-        url: partyminder_ajax.ajax_url,
-        type: 'POST',
-        data: {
-            action: 'partyminder_get_event_conversations',
-            event_id: eventId,
-            nonce: partyminder_ajax.nonce
-        },
-        success: function(response) {
-            if (response.success) {
-                updateConversationsSection(response.data.conversations);
-            }
-        }
-    });
-}
-
-// Update conversations section with new data
-function updateConversationsSection(conversations) {
-    const conversationsBody = document.querySelector('.pm-card:has(h3:contains("Event Conversations")) .pm-card-body');
-    if (!conversationsBody) return;
-    
-    if (conversations.length === 0) {
-        conversationsBody.innerHTML = `
-            <div class="pm-text-center pm-p-4">
-                <p class="pm-text-muted pm-mb-3">💭 No conversations started yet for this event.</p>
-                <p class="pm-text-muted pm-text-sm">Be the first to start planning and discussing ideas!</p>
-            </div>
-        `;
-    } else {
-        let html = '';
-        conversations.forEach((conversation, index) => {
-            const isLast = index === conversations.length - 1;
-            html += `
-                <div class="pm-mb-4 pm-pb-3 ${!isLast ? 'pm-border-bottom' : ''}">
-                    <div class="pm-flex pm-flex-between pm-flex-center-gap pm-mb-2">
-                        <h4 class="pm-heading pm-heading-sm pm-m-0">
-                            <a href="/conversations/${conversation.topic_slug || 'general'}/${conversation.slug}" class="pm-text-primary pm-no-underline">
-                                ${conversation.title}
-                            </a>
-                        </h4>
-                        <div class="pm-stat pm-text-center">
-                            <div class="pm-stat-number pm-text-success pm-text-sm">${conversation.reply_count || 0}</div>
-                            <div class="pm-stat-label pm-text-xs">Replies</div>
-                        </div>
-                    </div>
-                    <div class="pm-text-muted pm-text-sm">
-                        ${conversation.content_preview || ''}
-                    </div>
-                    <div class="pm-text-muted pm-text-xs pm-mt-2">
-                        by ${conversation.author_name} • ${conversation.time_ago}
-                    </div>
-                </div>
-            `;
-        });
-        conversationsBody.innerHTML = html;
-    }
-}
 
 // Simple notification function
 function showNotification(message, type) {
