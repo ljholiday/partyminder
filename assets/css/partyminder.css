@@ -8,6 +8,32 @@
         -ms-text-size-adjust: 100%;
     }
     
+    /* Override WordPress theme containers that might wrap PartyMinder */
+    .site-content,
+    .entry-content, 
+    .wp-block-group,
+    .wp-block-group__inner-container,
+    .wp-site-blocks,
+    main,
+    article {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+    }
+    
+    /* Target PartyMinder content specifically */
+    body .partyminder-content,
+    main .partyminder-content,
+    article .partyminder-content,
+    section .partyminder-content,
+    div .partyminder-content,
+    .wp-block-group .partyminder-content,
+    .entry-content .partyminder-content,
+    .site-content .partyminder-content,
+    .container .partyminder-content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
     /* Override any WordPress theme mobile styles that interfere */
     .partyminder-content,
     .partyminder-content * {
@@ -25,8 +51,8 @@
         max-width: 100vw !important;
         box-sizing: border-box !important;
         overflow-x: hidden !important;
-        padding-left: var(--mobile-space-md) !important;
-        padding-right: var(--mobile-space-md) !important;
+        padding-left: 0px !important;
+        padding-right: 0px !important;
     }
     
     /* Prevent any child elements from causing overflow */
@@ -81,6 +107,8 @@
     color: var(--pm-text);
     max-width: 100%;
     width: 100%;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 /* =============================================================================
@@ -171,15 +199,6 @@
     min-width: 3rem;
 }
 
-/* Desktop Layout */
-@media (min-width: 768px) {
-    .pm-dashboard-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 2rem;
-        align-items: start;
-    }
-}
 
 /* Conversations Layout - 2:1 proportions */
 .conversations-layout {
@@ -189,12 +208,6 @@
     margin-bottom: 40px;
 }
 
-@media (max-width: 768px) {
-    .conversations-layout {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-}
 
 /* Conversations-specific styles */
 .community-stats {
@@ -203,11 +216,6 @@
     gap: 15px;
 }
 
-@media (max-width: 768px) {
-    .community-stats {
-        grid-template-columns: 1fr;
-    }
-}
 
 .stat-box {
     text-align: center;
@@ -451,6 +459,8 @@
 .pm-heading-lg { font-size: 2rem; }
 .pm-heading-md { font-size: 1.5rem; }
 .pm-heading-sm { font-size: 1.25rem; }
+.pm-heading-xs { font-size: 0.875rem; }
+
 
 /* =============================================================================
    BUTTONS
@@ -917,128 +927,6 @@
    RESPONSIVE DESIGN
    ============================================================================= */
 
-/* =============================================================================
-   MOBILE RESPONSIVE DESIGN - Simplified System
-   ============================================================================= */
-
-@media (max-width: 768px) {
-    /* SINGLE SOURCE OF TRUTH FOR MOBILE SPACING */
-    :root {
-        --mobile-space-xs: 0.25rem;  /* 4px */
-        --mobile-space-sm: 0.5rem;   /* 8px */
-        --mobile-space-md: 0.75rem;  /* 12px */
-        --mobile-space-lg: 1rem;     /* 16px */
-    }
-    
-    /* Container and Layout - Minimal side padding */
-    .pm-container,
-    .pm-container-wide,
-    .pm-container-narrow {
-        padding: var(--mobile-space-sm);
-        margin: 0;
-        width: 100%;
-    }
-    
-    .partyminder-content {
-        width: 100%;
-        font-size: 16px;
-        line-height: 1.6;
-    }
-    
-    /* Grid Systems - Stack everything */
-    .pm-grid-2,
-    .pm-grid-3,
-    .pm-grid-4,
-    .pm-grid-auto {
-        grid-template-columns: 1fr;
-    }
-    
-    .pm-grid {
-        gap: var(--mobile-space-md);
-    }
-    
-    .pm-form-row {
-        grid-template-columns: 1fr;
-        gap: var(--mobile-space-md);
-    }
-    
-    /* Typography - Consistent sizing */
-    .pm-heading-lg { 
-        font-size: 1.75rem;
-        line-height: 1.2;
-        margin-bottom: var(--mobile-space-md);
-    }
-    
-    .pm-heading-md { 
-        font-size: 1.375rem;
-        line-height: 1.3;
-        margin-bottom: var(--mobile-space-sm);
-    }
-    
-    .pm-heading-sm { 
-        font-size: 1.125rem;
-        line-height: 1.4;
-        margin-bottom: var(--mobile-space-sm);
-    }
-    
-    /* ALL CARDS - Single consistent padding */
-    .pm-card {
-        margin-bottom: var(--mobile-space-md);
-    }
-    
-    .pm-card-header,
-    .pm-card-body,
-    .pm-card-footer {
-        padding: var(--mobile-space-md);
-    }
-    
-    /* ALL BUTTONS - Single consistent padding */
-    .pm-button,
-    .pm-button-small,
-    .pm-button-large {
-        min-height: 2.75rem;
-        padding: var(--mobile-space-md) var(--mobile-space-lg);
-        font-size: 1rem;
-    }
-    
-    /* ALL FORM ELEMENTS - Single consistent padding */
-    .pm-input,
-    .pm-textarea,
-    .pm-select {
-        min-height: 2.75rem;
-        padding: var(--mobile-space-md);
-        font-size: 1rem;
-    }
-    
-    .pm-label {
-        font-size: 1rem;
-        margin-bottom: var(--mobile-space-sm);
-        font-weight: 600;
-    }
-    
-    /* ALL MODALS - Single consistent padding */
-    .pm-modal-overlay {
-        padding: var(--mobile-space-sm);
-    }
-    
-    .pm-modal {
-        max-width: none;
-        max-height: calc(100vh - calc(var(--mobile-space-sm) * 2));
-    }
-    
-    .pm-modal-header,
-    .pm-modal-body,
-    .pm-modal-footer {
-        padding: var(--mobile-space-lg);
-    }
-    
-    /* Mobile spacing utilities */
-    .pm-mb-2 { margin-bottom: var(--mobile-space-sm); }
-    .pm-mb-4 { margin-bottom: var(--mobile-space-lg); }
-    .pm-mb-6 { margin-bottom: calc(var(--mobile-space-lg) * 1.5); }
-    .pm-mt-4 { margin-top: var(--mobile-space-lg); }
-    .pm-mt-6 { margin-top: calc(var(--mobile-space-lg) * 1.5); }
-}
 
 /* =============================================================================
    UTILITY CLASSES
@@ -1081,15 +969,6 @@
     flex-wrap: nowrap;
 }
 
-/* Desktop-specific override to ensure filter buttons stay horizontal */
-@media (min-width: 769px) {
-    #event-filters,
-    #conversation-filters,
-    .pm-flex-center-gap {
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-    }
-}
 
 .pm-flex-center-gap-sm {
     display: flex;
@@ -1398,25 +1277,36 @@
     color: var(--pm-primary);
 }
 
-/* WordPress Theme Compatibility - Ensure we inherit theme typography */
+/* WordPress Theme Compatibility - Override theme spacing */
 .wp-site-blocks .partyminder-content {
     font-family: var(--pm-font-family);
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 /* Gutenberg block editor compatibility */
 .wp-block .partyminder-content {
     font-family: var(--pm-font-family);
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 /* Twenty Twenty-Five theme compatibility */
 .wp-block-group .partyminder-content,
 .entry-content .partyminder-content {
     font-family: var(--pm-font-family);
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
-/* Ensure we respect theme's responsive behavior */
-.partyminder-content {
+/* Override any WordPress theme container spacing */
+.partyminder-content,
+.partyminder-content .pm-container,
+.partyminder-content .pm-container-wide,
+.partyminder-content .pm-container-narrow {
     box-sizing: border-box;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 .partyminder-content *,
@@ -1482,28 +1372,47 @@
 }
 
 /* =============================================================================
-   RESPONSIVE UTILITIES
+   RESPONSIVE DESIGN - ORGANIZED BY BREAKPOINT
    ============================================================================= */
 
-/* Mobile-first responsive utilities */
-@media (min-width: 768px) {
-    .pm-md-grid-2 { grid-template-columns: repeat(2, 1fr); }
-    .pm-md-grid-3 { grid-template-columns: repeat(3, 1fr); }
-    .pm-md-grid-4 { grid-template-columns: repeat(4, 1fr); }
-    .pm-md-flex-row { flex-direction: row; }
-    .pm-md-text-left { text-align: left; }
-    .pm-md-block { display: block; }
-    .pm-md-flex { display: flex; }
+/* =============================================================================
+   EXTRA SMALL MOBILE: max-width 480px
+   ============================================================================= */
+@media (max-width: 480px) {
+    /* ONLY stack general flex containers on very small screens - NOT filter buttons */
+    .pm-flex-center-gap:not(#event-filters):not(#conversation-filters):not(.filter-buttons) {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    /* Exception: Keep filter buttons and small button groups horizontal */
+    #event-filters.pm-flex-center-gap,
+    #conversation-filters.pm-flex-center-gap,
+    .pm-flex-center-gap.filter-buttons,
+    .pm-flex-center-gap:has(.filter-btn),
+    .events-filter {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: var(--mobile-space-sm);
+        align-items: center;
+    }
+    
+    /* Stack buttons vertically on very small screens */
+    .pm-card-footer .pm-flex {
+        flex-direction: column;
+        gap: var(--mobile-space-sm);
+    }
+    
+    .pm-card-footer .pm-button {
+        width: 100%;
+    }
 }
 
-@media (min-width: 1024px) {
-    .pm-lg-grid-3 { grid-template-columns: repeat(3, 1fr); }
-    .pm-lg-grid-4 { grid-template-columns: repeat(4, 1fr); }
-    .pm-lg-grid-5 { grid-template-columns: repeat(5, 1fr); }
-}
-
-/* Mobile-specific utilities */
-@media (max-width: 767px) {
+/* =============================================================================
+   MOBILE: max-width 768px (consolidated 767px + 768px breakpoints)
+   ============================================================================= */
+@media (max-width: 768px) {
+    /* Mobile utility classes */
     .pm-mobile-hidden { display: none; }
     .pm-mobile-full-width { width: 100%; }
     .pm-mobile-text-center { text-align: center; }
@@ -1511,7 +1420,7 @@
     .pm-mobile-stack {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: var(--mobile-space-md);
     }
     
     /* Keep filter buttons horizontal on mobile */
@@ -1522,7 +1431,7 @@
     .pm-flex-keep-horizontal {
         flex-direction: row !important;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: var(--mobile-space-sm);
     }
     
     /* Override any flex-column changes for button groups */
@@ -1531,46 +1440,252 @@
         flex-direction: row !important;
     }
     
-    /* Enhanced mobile spacing */
-    .pm-gap-lg { gap: 20px; }
-    .pm-gap-md { gap: 16px; }
-    .pm-gap-sm { gap: 12px; }
+    /* Mobile spacing utilities */
+    .pm-gap-lg { gap: var(--mobile-space-lg); }
+    .pm-gap-md { gap: var(--mobile-space-md); }
+    .pm-gap-sm { gap: var(--mobile-space-sm); }
     
-    /* Mobile card improvements */
+    /* Mobile card styling */
     .pm-card {
-        margin-bottom: 20px;
+        margin: 0 0 var(--mobile-space-sm) 0;
     }
     
     .pm-card-body {
-        padding: 20px;
+        padding: var(--mobile-content-sm) var(--mobile-content-xs);
     }
     
     .pm-card-header {
-        padding: 20px 20px 16px 20px;
+        padding: var(--mobile-content-sm) var(--mobile-content-xs) var(--mobile-content-xs) var(--mobile-content-xs);
     }
     
     .pm-card-footer {
-        padding: 16px 20px 20px 20px;
+        padding: var(--mobile-content-xs) var(--mobile-content-xs) var(--mobile-content-sm) var(--mobile-content-xs);
+    }
+    
+    /* Conversations Layout */
+    .conversations-layout {
+        grid-template-columns: 1fr;
+        gap: var(--mobile-space-md);
+    }
+    
+    /* Community Stats */
+    .community-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    /* MOBILE SPACING VARIABLES */
+    :root {
+        --mobile-space-xs: 0.03125rem; /* 0.5px */
+        --mobile-space-sm: 0.0625rem;  /* 1px */
+        --mobile-space-md: 0.125rem;   /* 2px */
+        --mobile-space-lg: 0.1875rem;  /* 3px */
+        
+        /* Content padding - Enhanced for text readability */
+        --mobile-content-xs: 0.375rem; /* 6px */
+        --mobile-content-sm: 0.75rem;  /* 12px */
+        --mobile-content-md: 1rem;     /* 16px */
+        --mobile-content-lg: 1.25rem;  /* 20px */
+    }
+    
+    /* Container and Layout */
+    .pm-container,
+    .pm-container-wide,
+    .pm-container-narrow {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
+    
+    .partyminder-content {
+        width: 100%;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+    
+    /* Grid Systems - Stack everything */
+    .pm-grid-2,
+    .pm-grid-3,
+    .pm-grid-4,
+    .pm-grid-auto {
+        grid-template-columns: 1fr;
+    }
+    
+    .pm-grid {
+        gap: var(--mobile-space-md);
+    }
+    
+    .pm-form-row {
+        grid-template-columns: 1fr;
+        gap: var(--mobile-space-md);
+    }
+    
+    /* Typography - Consistent sizing */
+    .pm-heading-lg { 
+        font-size: 1.75rem;
+        line-height: 1.2;
+        margin-bottom: var(--mobile-space-md);
+    }
+    
+    .pm-heading-md { 
+        font-size: 1.375rem;
+        line-height: 1.3;
+        margin-bottom: var(--mobile-space-sm);
+    }
+    
+    .pm-heading-sm { 
+        font-size: 1.125rem;
+        line-height: 1.4;
+        margin-bottom: var(--mobile-space-sm);
+    }
+    
+    /* Card styling */
+    .pm-card {
+        margin: 0 0 var(--mobile-space-md) 0;
+    }
+    
+    .pm-card-header,
+    .pm-card-body,
+    .pm-card-footer {
+        padding: var(--mobile-content-md);
+    }
+    
+    /* Button styling */
+    .pm-button,
+    .pm-button-small,
+    .pm-button-large {
+        min-height: 2.75rem;
+        padding: var(--mobile-content-sm) var(--mobile-space-xs);
+        font-size: 1rem;
+    }
+    
+    /* Form elements */
+    .pm-input,
+    .pm-textarea,
+    .pm-select {
+        min-height: 2.75rem;
+        padding: var(--mobile-content-sm) var(--mobile-content-xs);
+        font-size: 1rem;
+    }
+    
+    /* Text elements - side padding to prevent touching borders */
+    .pm-activity-description,
+    .pm-title-primary,
+    .pm-title-secondary,
+    .pm-meta-info,
+    .pm-meta-item,
+    .pm-stat-label,
+    .pm-placeholder {
+        padding-left: var(--mobile-content-sm);
+        padding-right: var(--mobile-content-sm);
+    }
+    
+    .pm-label {
+        font-size: 1rem;
+        margin-bottom: var(--mobile-space-sm);
+        font-weight: 600;
+    }
+    
+    /* Modal styling */
+    .pm-modal-overlay {
+        padding: var(--mobile-space-xs);
+    }
+    
+    .pm-modal {
+        max-width: none;
+        max-height: calc(100vh - calc(var(--mobile-space-xs) * 2));
+    }
+    
+    .pm-modal-header,
+    .pm-modal-body,
+    .pm-modal-footer {
+        padding: var(--mobile-content-sm) var(--mobile-content-xs);
+    }
+    
+    /* Mobile spacing utilities */
+    .pm-mb-2 { margin-bottom: var(--mobile-space-sm); }
+    .pm-mb-4 { margin-bottom: var(--mobile-space-lg); }
+    .pm-mb-6 { margin-bottom: calc(var(--mobile-space-lg) * 1.5); }
+    .pm-mt-4 { margin-top: var(--mobile-space-lg); }
+    .pm-mt-6 { margin-top: calc(var(--mobile-space-lg) * 1.5); }
+    
+    /* Profile mobile styles */
+    .pm-profile-content-grid {
+        grid-template-columns: 1fr;
+        gap: var(--mobile-space-md);
+    }
+    
+    .pm-profile-header {
+        position: static;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-top: var(--mobile-space-md);
+        left: auto;
+        right: auto;
+        bottom: auto;
+    }
+    
+    .pm-profile-cover {
+        margin-bottom: var(--mobile-space-md);
+    }
+    
+    .pm-profile-info {
+        flex-direction: column;
+        align-items: center;
+        gap: var(--mobile-space-sm);
+        margin-bottom: 0;
+        margin-left: 0;
+        padding: var(--mobile-content-sm) var(--mobile-content-xs);
+    }
+    
+    .pm-profile-name-section {
+        text-align: center;
+    }
+    
+    .pm-profile-actions {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .pm-profile-avatar {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .pm-profile-avatar-initials {
+        font-size: 2rem;
+    }
+    
+    .pm-profile-name {
+        font-size: 1.5rem;
+        justify-content: center;
+    }
+    
+    .pm-profile-sidebar {
+        position: static;
     }
 }
 
-/* High-DPI Mobile Devices (like Samsung S24) */
+/* =============================================================================
+   HIGH-DPI MOBILE: max-width 768px AND high pixel ratio
+   ============================================================================= */
 @media (max-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
     /* Ensure text is readable on high-DPI screens */
     .partyminder-content {
         font-size: 17px; /* Slightly larger base font */
     }
     
-    /* Enhanced button sizes for touch */
+    /* High-DPI button styling */
     .pm-button {
         min-height: 48px;
-        padding: 14px 18px;
+        padding: 14px 2px;
         font-size: 1.05rem;
     }
     
     .pm-button-small {
         min-height: 44px;
-        padding: 12px 16px;
+        padding: 12px 1px;
         font-size: 0.95rem;
     }
     
@@ -1590,37 +1705,82 @@
         line-height: 1.3;
     }
     
-    /* Better card spacing */
+    /* High-DPI card styling */
     .pm-card-body {
-        padding: 24px;
+        padding: 12px 1.2px;
     }
     
     .pm-card-header {
-        padding: 24px 24px 18px 24px;
+        padding: 12px 1.2px 8px 1.2px;
     }
     
-    /* Dashboard-specific mobile improvements */
+    /* Dashboard mobile styling */
     .partyminder-dashboard-content .pm-grid-2 {
-        gap: 24px;
+        gap: 3px;
     }
     
     .partyminder-dashboard-content .event-item {
-        padding: 16px;
+        padding: 8px 1.2px;
         border-radius: 8px;
     }
     
     .partyminder-dashboard-content .pm-badge {
         font-size: 0.8rem;
-        padding: 4px 8px;
+        padding: 2px 1.2px;
     }
     
     /* Filter buttons */
     .partyminder-dashboard-content .filter-btn {
         min-height: 40px;
-        padding: 8px 12px;
+        padding: 8px 1.2px;
         font-size: 0.9rem;
     }
 }
+
+/* =============================================================================
+   TABLET AND DESKTOP: min-width 768px
+   ============================================================================= */
+@media (min-width: 768px) {
+    /* Dashboard Grid Layout */
+    .pm-dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+    
+    /* Filter button layout */
+    #event-filters,
+    #conversation-filters,
+    .pm-flex-center-gap {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+    }
+    
+    /* Responsive utility classes */
+    .pm-md-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .pm-md-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .pm-md-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .pm-md-flex-row { flex-direction: row; }
+    .pm-md-text-left { text-align: left; }
+    .pm-md-block { display: block; }
+    .pm-md-flex { display: flex; }
+}
+
+/* =============================================================================
+   LARGE DESKTOP: min-width 1024px
+   ============================================================================= */
+@media (min-width: 1024px) {
+    .pm-lg-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .pm-lg-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .pm-lg-grid-5 { grid-template-columns: repeat(5, 1fr); }
+}
+
+/* =============================================================================
+   RESPONSIVE UTILITIES
+   ============================================================================= */
+
+
 
 /* Additional Utility Classes */
 .pm-line-clamp-2 {
@@ -1803,65 +1963,6 @@
     flex: 1;
 }
 
-/* Profile Mobile Responsive */
-@media (max-width: 768px) {
-    .pm-profile-content-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .pm-profile-header {
-        position: static;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        margin-top: 1rem;
-        left: auto;
-        right: auto;
-        bottom: auto;
-    }
-    
-    .pm-profile-cover {
-        margin-bottom: 1rem;
-    }
-    
-    .pm-profile-info {
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 0;
-        margin-left: 0;
-        padding: 1rem;
-    }
-    
-    .pm-profile-name-section {
-        text-align: center;
-    }
-    
-    .pm-profile-actions {
-        flex-direction: column;
-        width: 100%;
-        max-width: 300px;
-    }
-    
-    .pm-profile-avatar {
-        width: 100px;
-        height: 100px;
-    }
-    
-    .pm-profile-avatar-initials {
-        font-size: 2rem;
-    }
-    
-    .pm-profile-name {
-        font-size: 1.5rem;
-        justify-content: center;
-    }
-    
-    .pm-profile-sidebar {
-        position: static;
-    }
-}
 
 /* Extra Small Mobile (320px and up) - Only special cases */
 @media (max-width: 480px) {
