@@ -480,8 +480,22 @@ class PartyMinder {
         
         // Validate input
         $topic_id = intval($_POST['topic_id'] ?? 0);
+        $event_id = intval($_POST['event_id'] ?? 0);
         $title = sanitize_text_field($_POST['title'] ?? '');
         $content = wp_kses_post($_POST['content'] ?? '');
+        
+        // For event conversations, use a default topic if not provided
+        if ($event_id && !$topic_id) {
+            // Find the party planning topic for event conversations
+            if (!$this->conversation_manager) {
+                $this->load_dependencies();
+                $this->conversation_manager = new PartyMinder_Conversation_Manager();
+            }
+            $party_planning_topic = $this->conversation_manager->get_topic_by_slug('party-planning');
+            if ($party_planning_topic) {
+                $topic_id = $party_planning_topic->id;
+            }
+        }
         
         if (empty($topic_id) || empty($title) || empty($content)) {
             wp_send_json_error(__('Please fill in all required fields.', 'partyminder'));
@@ -495,6 +509,7 @@ class PartyMinder {
         
         $conversation_data = array(
             'topic_id' => $topic_id,
+            'event_id' => $event_id ?: null,
             'title' => $title,
             'content' => $content,
             'author_id' => $user_id,
@@ -505,10 +520,25 @@ class PartyMinder {
         $conversation_id = $this->conversation_manager->create_conversation($conversation_data);
         
         if ($conversation_id) {
-            wp_send_json_success(array(
+            $success_data = array(
                 'conversation_id' => $conversation_id,
                 'message' => __('Conversation started successfully!', 'partyminder')
-            ));
+            );
+            
+            // If this is an event conversation, provide the event URL for redirect
+            if ($event_id) {
+                if (!$this->event_manager) {
+                    $this->load_dependencies();
+                    $this->event_manager = new PartyMinder_Event_Manager();
+                }
+                $event = $this->event_manager->get_event($event_id);
+                if ($event) {
+                    $success_data['redirect_url'] = home_url('/events/' . $event->slug);
+                    $success_data['message'] = __('Event conversation created successfully!', 'partyminder');
+                }
+            }
+            
+            wp_send_json_success($success_data);
         } else {
             wp_send_json_error(__('Failed to create conversation. Please try again.', 'partyminder'));
         }

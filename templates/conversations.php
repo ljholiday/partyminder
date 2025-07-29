@@ -47,6 +47,15 @@ if (isset($_GET['email']) && is_email($_GET['email'])) {
     $user_email = $current_user->user_email;
 }
 
+// Check for conversation creation from event
+$create_conversation = isset($_GET['create']) && $_GET['create'] == '1';
+$event_id = isset($_GET['event_id']) ? intval($_GET['event_id']) : null;
+$event_data = null;
+
+if ($create_conversation && $event_id) {
+    $event_data = $event_manager->get_event($event_id);
+}
+
 // Get data for the page
 $topics = $conversation_manager->get_topics();
 $recent_conversations = $conversation_manager->get_recent_conversations(5, true); // Exclude event conversations
@@ -255,3 +264,18 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         </div>
     </div>
 </div>
+
+<?php if ($create_conversation && $event_data): ?>
+<script>
+jQuery(document).ready(function($) {
+    // Auto-open conversation modal for event
+    if (typeof PartyMinderConversations !== 'undefined') {
+        const eventId = <?php echo $event_id; ?>;
+        const eventTitle = '<?php echo esc_js($event_data->title); ?>';
+        
+        // Open modal with event context
+        PartyMinderConversations.openEventConversationModal(eventId, eventTitle);
+    }
+});
+</script>
+<?php endif; ?>

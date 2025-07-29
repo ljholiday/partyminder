@@ -94,6 +94,76 @@
     };
 
     /**
+     * Open event conversation modal
+     */
+    PartyMinderConversations.openEventConversationModal = function(eventId, eventTitle) {
+        const currentUser = partyminder_ajax.current_user || {};
+        const isLoggedIn = currentUser.id > 0;
+
+        const modalHtml = `
+            <div class="pm-modal-overlay" id="conversation-modal">
+                <div class="pm-modal">
+                    <div class="pm-modal-header">
+                        <div>
+                            <h3 class="pm-modal-title">💬 Create Event Conversation</h3>
+                            <p class="pm-text-muted pm-m-0">for <strong>${eventTitle}</strong></p>
+                        </div>
+                        <button class="close-modal pm-button pm-button-secondary pm-button-small" type="button">&times;</button>
+                    </div>
+                    <div class="pm-modal-body">
+                        <form class="pm-form" method="post">
+                            <input type="hidden" name="nonce" value="${partyminder_ajax.nonce}">
+                            <input type="hidden" name="action" value="partyminder_create_conversation">
+                            <input type="hidden" name="event_id" value="${eventId}">
+                            
+                            ${!isLoggedIn ? `
+                                <div class="pm-form-group">
+                                    <label for="guest_name" class="pm-label">Your Name *</label>
+                                    <input type="text" id="guest_name" name="guest_name" class="pm-input" required>
+                                </div>
+                                <div class="pm-form-group">
+                                    <label for="guest_email" class="pm-label">Your Email *</label>
+                                    <input type="email" id="guest_email" name="guest_email" class="pm-input" required>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="pm-form-group">
+                                <label for="conversation_title" class="pm-label">Conversation Title *</label>
+                                <input type="text" id="conversation_title" name="title" class="pm-input" required maxlength="255" 
+                                       placeholder="What aspect of this event would you like to discuss?">
+                            </div>
+                            
+                            <div class="pm-form-group">
+                                <label for="conversation_content" class="pm-label">Your Message *</label>
+                                <textarea id="conversation_content" name="content" class="pm-textarea" required rows="6" 
+                                          placeholder="Share ideas, ask questions, or coordinate details for this event..."></textarea>
+                            </div>
+                            
+                            <div class="pm-modal-footer">
+                                <button type="button" class="pm-button pm-button-secondary close-modal">Cancel</button>
+                                <button type="submit" class="pm-button pm-button-primary">
+                                    <span class="button-text">Create Conversation</span>
+                                    <span class="button-spinner pm-hidden">Creating...</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        $('body').append(modalHtml);
+        $('#conversation-modal').addClass('active');
+        
+        // Focus appropriate field
+        if (!isLoggedIn) {
+            $('#guest_name').focus();
+        } else {
+            $('#conversation_title').focus();
+        }
+    };
+
+    /**
      * Open conversation modal
      */
     PartyMinderConversations.openConversationModal = function(topicId, topicName) {
@@ -303,10 +373,18 @@
                 if (response.success) {
                     PartyMinderConversations.showNotification(response.data.message, 'success');
                     PartyMinderConversations.closeModal();
-                    // Refresh the page to show new conversation
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
+                    
+                    // If redirect URL provided (event conversation), redirect there
+                    if (response.data.redirect_url) {
+                        setTimeout(() => {
+                            window.location.href = response.data.redirect_url;
+                        }, 1000);
+                    } else {
+                        // Otherwise refresh the page to show new conversation
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    }
                 } else {
                     PartyMinderConversations.showNotification(response.data || 'Failed to create conversation.', 'error');
                 }

@@ -53,6 +53,36 @@ if ($user_logged_in) {
 // Get recent conversations for dashboard
 $recent_conversations = $conversation_manager->get_recent_conversations(3, true);
 
+// Get recent event conversations for dashboard, grouped by event
+$recent_event_conversations = $conversation_manager->get_event_conversations(null, 10);
+
+// Group conversations by event
+$conversations_by_event = array();
+if (!empty($recent_event_conversations)) {
+    foreach ($recent_event_conversations as $conversation) {
+        $event_key = $conversation->event_id;
+        if (!isset($conversations_by_event[$event_key])) {
+            $conversations_by_event[$event_key] = array(
+                'event_title' => $conversation->event_title,
+                'event_slug' => $conversation->event_slug,
+                'event_date' => $conversation->event_date,
+                'conversations' => array()
+            );
+        }
+        $conversations_by_event[$event_key]['conversations'][] = $conversation;
+    }
+    
+    // Sort events by most recent conversation activity
+    uasort($conversations_by_event, function($a, $b) {
+        $a_latest = max(array_map(function($conv) { return strtotime($conv->last_reply_date); }, $a['conversations']));
+        $b_latest = max(array_map(function($conv) { return strtotime($conv->last_reply_date); }, $b['conversations']));
+        return $b_latest - $a_latest;
+    });
+    
+    // Limit to 3 most active events
+    $conversations_by_event = array_slice($conversations_by_event, 0, 3, true);
+}
+
 ?>
 
 <div class="pm-container-wide">
@@ -174,6 +204,93 @@ $recent_conversations = $conversation_manager->get_recent_conversations(3, true)
                     </a>
                 </div>
             </div>
+            
+            <!-- Event Conversations Section -->
+            <div class="pm-card pm-mb-6">
+                <div class="pm-card-header">
+                    <h2 class="pm-heading pm-heading-md pm-mb-2">🎪 <?php _e('Event Planning Discussions', 'partyminder'); ?></h2>
+                    <p class="pm-text-muted pm-m-0"><?php _e('Active conversations about specific events', 'partyminder'); ?></p>
+                </div>
+                <div class="pm-card-body">
+                    <?php if (!empty($conversations_by_event)): ?>
+                        <div class="event-conversations-grouped">
+                            <?php foreach ($conversations_by_event as $event_id => $event_data): ?>
+                                <?php 
+                                $conversation_count = count($event_data['conversations']);
+                                $event_date = new DateTime($event_data['event_date']);
+                                $is_upcoming = $event_date > new DateTime();
+                                ?>
+                                <div class="event-conversation-group pm-mb-4">
+                                    <!-- Event Header (Clickable to expand/collapse) -->
+                                    <div class="event-group-header pm-flex pm-flex-between pm-flex-center-gap pm-p-3 pm-border pm-border-radius pm-cursor-pointer" 
+                                         onclick="toggleEventConversations('event-<?php echo $event_id; ?>')">
+                                        <div class="pm-flex pm-flex-center-gap pm-flex-1">
+                                            <span class="pm-text-lg"><?php echo $is_upcoming ? '📅' : '🗓️'; ?></span>
+                                            <div class="pm-flex-1 pm-min-w-0">
+                                                <h4 class="pm-heading pm-heading-sm pm-m-0 pm-truncate pm-text-primary">
+                                                    <?php echo esc_html($event_data['event_title']); ?>
+                                                </h4>
+                                                <div class="pm-text-muted pm-text-xs">
+                                                    <?php echo $event_date->format('M j, Y'); ?> • 
+                                                    <?php printf(_n('%d conversation', '%d conversations', $conversation_count, 'partyminder'), $conversation_count); ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="pm-flex pm-flex-center-gap">
+                                            <div class="pm-stat pm-text-center">
+                                                <div class="pm-stat-number pm-text-success pm-text-sm">
+                                                    <?php echo array_sum(array_map(function($conv) { return $conv->reply_count; }, $event_data['conversations'])); ?>
+                                                </div>
+                                                <div class="pm-stat-label pm-text-xs"><?php _e('Replies', 'partyminder'); ?></div>
+                                            </div>
+                                            <span class="expand-icon pm-text-muted" id="icon-event-<?php echo $event_id; ?>">▼</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Conversations List (Initially collapsed) -->
+                                    <div class="event-conversations-list pm-ml-4 pm-mt-2" id="event-<?php echo $event_id; ?>" style="display: none;">
+                                        <?php foreach ($event_data['conversations'] as $conversation): ?>
+                                            <div class="pm-flex pm-flex-between pm-flex-center-gap pm-p-3 pm-border-left pm-pl-4 pm-mb-2">
+                                                <div class="pm-flex-1 pm-min-w-0">
+                                                    <div class="pm-flex pm-flex-center-gap pm-mb-1">
+                                                        <span class="pm-text-sm">💬</span>
+                                                        <h5 class="pm-heading pm-heading-xs pm-m-0 pm-truncate">
+                                                            <a href="<?php echo home_url('/conversations/' . ($conversation->topic_slug ?? 'general') . '/' . $conversation->slug); ?>" 
+                                                               class="pm-text-primary pm-no-underline">
+                                                                <?php echo esc_html($conversation->title); ?>
+                                                            </a>
+                                                        </h5>
+                                                    </div>
+                                                    <div class="pm-text-muted pm-text-xs">
+                                                        <?php printf(__('by %s • %s ago', 'partyminder'), 
+                                                            esc_html($conversation->author_name),
+                                                            human_time_diff(strtotime($conversation->last_reply_date), current_time('timestamp'))
+                                                        ); ?>
+                                                    </div>
+                                                </div>
+                                                <div class="pm-stat pm-text-center pm-min-w-8">
+                                                    <div class="pm-stat-number pm-text-success pm-text-xs"><?php echo $conversation->reply_count; ?></div>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="pm-text-center pm-p-6">
+                            <div class="pm-text-4xl pm-mb-3">🎪</div>
+                            <h3 class="pm-heading pm-heading-sm pm-mb-2"><?php _e('No Event Discussions Yet', 'partyminder'); ?></h3>
+                            <p class="pm-text-muted pm-text-sm"><?php _e('Event conversations will appear here when people start planning together!', 'partyminder'); ?></p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <div class="pm-card-footer pm-text-center">
+                    <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-button pm-button-secondary pm-button-small">
+                        <?php _e('View All Conversations', 'partyminder'); ?>
+                    </a>
+                </div>
+            </div>
         </div>
         
         <!-- Sidebar Column -->
@@ -274,3 +391,18 @@ $recent_conversations = $conversation_manager->get_recent_conversations(3, true)
     </div>
     
 </div>
+
+<script>
+function toggleEventConversations(elementId) {
+    const conversationsList = document.getElementById(elementId);
+    const icon = document.getElementById('icon-' + elementId);
+    
+    if (conversationsList.style.display === 'none' || conversationsList.style.display === '') {
+        conversationsList.style.display = 'block';
+        icon.textContent = '▲';
+    } else {
+        conversationsList.style.display = 'none';
+        icon.textContent = '▼';
+    }
+}
+</script>

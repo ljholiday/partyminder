@@ -70,9 +70,10 @@ class PartyMinder_Conversation_Manager {
         $prepare_values = $event_id ? array($event_id, $limit) : array($limit);
         
         return $wpdb->get_results($wpdb->prepare("
-            SELECT c.*, e.title as event_title, e.slug as event_slug, e.event_date
+            SELECT DISTINCT c.*, e.title as event_title, e.slug as event_slug, e.event_date, t.slug as topic_slug
             FROM $conversations_table c
             LEFT JOIN $events_table e ON c.event_id = e.id
+            LEFT JOIN {$wpdb->prefix}partyminder_conversation_topics t ON c.topic_id = t.id
             $where_clause
             ORDER BY c.last_reply_date DESC
             LIMIT %d

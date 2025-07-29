@@ -26,6 +26,11 @@ $event_date = new DateTime($event->event_date);
 $is_today = $event_date->format('Y-m-d') === date('Y-m-d');
 $is_tomorrow = $event_date->format('Y-m-d') === date('Y-m-d', strtotime('+1 day'));
 $is_past = $event_date < new DateTime();
+
+// Load conversation manager and get event conversations  
+require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-manager.php';
+$conversation_manager = new PartyMinder_Conversation_Manager();
+$event_conversations = $conversation_manager->get_event_conversations($event->id);
 ?>
 
 
@@ -179,6 +184,10 @@ $is_past = $event_date < new DateTime();
                     <button type="button" class="pm-button pm-button-secondary" onclick="shareEvent()">
                         📤 Share Event
                     </button>
+                    
+                    <a href="<?php echo PartyMinder::get_conversations_url(); ?>?create=1&event_id=<?php echo $event->id; ?>" class="pm-button pm-button-secondary">
+                        💬 Create Conversation
+                    </a>
                 </div>
             </div>
         </div>
@@ -294,6 +303,54 @@ $is_past = $event_date < new DateTime();
         </div>
     </div>
     <?php endif; ?>
+    
+    <!-- Event Conversations -->
+    <div class="pm-card pm-mb-6">
+        <div class="pm-card-header">
+            <div class="pm-flex pm-flex-between pm-flex-center-gap">
+                <h3 class="pm-title-secondary pm-m-0">💬 Event Conversations</h3>
+                <a href="<?php echo PartyMinder::get_conversations_url(); ?>?create=1&event_id=<?php echo $event->id; ?>" class="pm-button pm-button-primary pm-button-small">
+                    Start Discussion
+                </a>
+            </div>
+        </div>
+        <div class="pm-card-body">
+            <?php if (!empty($event_conversations)): ?>
+                <?php foreach ($event_conversations as $conversation): ?>
+                    <div class="pm-mb-4 pm-pb-3 <?php echo $conversation !== end($event_conversations) ? 'pm-border-bottom' : ''; ?>">
+                        <div class="pm-flex pm-flex-between pm-flex-center-gap pm-mb-2">
+                            <h4 class="pm-heading pm-heading-sm pm-m-0">
+                                <a href="<?php echo home_url('/conversations/' . ($conversation->topic_slug ?? 'general') . '/' . $conversation->slug); ?>" class="pm-text-primary pm-no-underline">
+                                    <?php echo esc_html($conversation->title); ?>
+                                </a>
+                            </h4>
+                            <div class="pm-stat pm-text-center">
+                                <div class="pm-stat-number pm-text-success pm-text-sm"><?php echo $conversation->reply_count ?? 0; ?></div>
+                                <div class="pm-stat-label pm-text-xs">Replies</div>
+                            </div>
+                        </div>
+                        <div class="pm-text-muted pm-text-sm">
+                            <?php 
+                            $content_preview = wp_trim_words(strip_tags($conversation->content), 20, '...');
+                            echo esc_html($content_preview); 
+                            ?>
+                        </div>
+                        <div class="pm-text-muted pm-text-xs pm-mt-2">
+                            <?php printf(__('by %s • %s ago', 'partyminder'), 
+                                esc_html($conversation->author_name),
+                                human_time_diff(strtotime($conversation->last_reply_date), current_time('timestamp'))
+                            ); ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="pm-text-center pm-p-4">
+                    <p class="pm-text-muted pm-mb-3">💭 No conversations started yet for this event.</p>
+                    <p class="pm-text-muted pm-text-sm">Be the first to start planning and discussing ideas!</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
     
     <!-- Event Details -->
     <div class="pm-card pm-mb-6">
