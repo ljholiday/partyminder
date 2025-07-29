@@ -205,8 +205,14 @@ if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST
                         
                         <div class="pm-form-group">
                             <label for="confirm_password" class="pm-label"><?php _e('Confirm Password', 'partyminder'); ?></label>
-                            <input type="password" id="confirm_password" name="confirm_password" class="pm-input"
-                                   placeholder="<?php esc_attr_e('Repeat your password', 'partyminder'); ?>" required>
+                            <div class="pm-password-confirm-wrapper">
+                                <input type="password" id="confirm_password" name="confirm_password" class="pm-input"
+                                       placeholder="<?php esc_attr_e('Repeat your password', 'partyminder'); ?>" required>
+                                <div class="pm-password-match-indicator" id="password-match-indicator" style="display: none;">
+                                    <span class="pm-match-icon"></span>
+                                    <span class="pm-match-text"></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -333,18 +339,44 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Password confirmation validation
+    // Password confirmation validation with visual feedback
     const confirmPassword = document.getElementById('confirm_password');
     const password = document.getElementById('password');
+    const matchIndicator = document.getElementById('password-match-indicator');
     
-    if (confirmPassword && password) {
-        confirmPassword.addEventListener('input', function() {
-            if (this.value !== password.value) {
-                this.setCustomValidity('<?php echo esc_js(__('Passwords do not match', 'partyminder')); ?>');
-            } else {
-                this.setCustomValidity('');
+    if (confirmPassword && password && matchIndicator) {
+        function updatePasswordMatchIndicator() {
+            const passwordValue = password.value;
+            const confirmValue = confirmPassword.value;
+            const matchIcon = matchIndicator.querySelector('.pm-match-icon');
+            const matchText = matchIndicator.querySelector('.pm-match-text');
+            
+            // Only show indicator if confirm password has content
+            if (confirmValue.length === 0) {
+                matchIndicator.style.display = 'none';
+                confirmPassword.setCustomValidity('');
+                return;
             }
-        });
+            
+            matchIndicator.style.display = 'block';
+            
+            if (passwordValue === confirmValue) {
+                // Passwords match
+                matchIndicator.className = 'pm-password-match-indicator pm-match-success';
+                matchIcon.textContent = '✓';
+                matchText.textContent = '<?php echo esc_js(__('Passwords match', 'partyminder')); ?>';
+                confirmPassword.setCustomValidity('');
+            } else {
+                // Passwords don't match
+                matchIndicator.className = 'pm-password-match-indicator pm-match-error';
+                matchIcon.textContent = '✗';
+                matchText.textContent = '<?php echo esc_js(__('Passwords do not match', 'partyminder')); ?>';
+                confirmPassword.setCustomValidity('<?php echo esc_js(__('Passwords do not match', 'partyminder')); ?>');
+            }
+        }
+        
+        confirmPassword.addEventListener('input', updatePasswordMatchIndicator);
+        password.addEventListener('input', updatePasswordMatchIndicator);
     }
 });
 </script>

@@ -7,7 +7,9 @@
       "Bash(grep:*)",
       "Bash(mv:*)",
       "Bash(find:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(zip:*)",
+      "Bash(wp plugin list:*)"
     ],
     "deny": []
   }

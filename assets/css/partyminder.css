@@ -1,5 +1,47 @@
 /* PartyMinder - Consolidated CSS with WordPress Theme Integration */
 
+/* Password Match Indicator Styles */
+.pm-password-confirm-wrapper {
+    position: relative;
+}
+
+.pm-password-match-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.pm-password-match-indicator .pm-match-icon {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.pm-match-success {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.pm-match-success .pm-match-icon {
+    color: #15803d;
+}
+
+.pm-match-error {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.pm-match-error .pm-match-icon {
+    color: #dc2626;
+}
+
 /* Mobile-first responsive foundation */
 @media screen and (max-width: 768px) {
     /* Ensure proper mobile viewport */
