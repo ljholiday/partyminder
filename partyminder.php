@@ -132,6 +132,8 @@ class PartyMinder {
         add_action('wp_ajax_nopriv_partyminder_rsvp', array($this, 'ajax_rsvp'));
         add_action('wp_ajax_partyminder_create_conversation', array($this, 'ajax_create_conversation'));
         add_action('wp_ajax_nopriv_partyminder_create_conversation', array($this, 'ajax_create_conversation'));
+        add_action('wp_ajax_partyminder_get_event_conversations', array($this, 'ajax_get_event_conversations'));
+        add_action('wp_ajax_nopriv_partyminder_get_event_conversations', array($this, 'ajax_get_event_conversations'));
         add_action('wp_ajax_partyminder_add_reply', array($this, 'ajax_add_reply'));
         add_action('wp_ajax_nopriv_partyminder_add_reply', array($this, 'ajax_add_reply'));
         add_action('wp_ajax_partyminder_generate_ai_plan', array($this, 'ajax_generate_ai_plan'));
@@ -542,6 +544,44 @@ class PartyMinder {
         } else {
             wp_send_json_error(__('Failed to create conversation. Please try again.', 'partyminder'));
         }
+    }
+    
+    public function ajax_get_event_conversations() {
+        check_ajax_referer('partyminder_nonce', 'nonce');
+        
+        $event_id = intval($_POST['event_id'] ?? 0);
+        if (!$event_id) {
+            wp_send_json_error(__('Event ID is required.', 'partyminder'));
+        }
+        
+        if (!$this->conversation_manager) {
+            $this->load_dependencies();
+            $this->conversation_manager = new PartyMinder_Conversation_Manager();
+        }
+        
+        $conversations = $this->conversation_manager->get_event_conversations($event_id);
+        
+        // Format conversations for JavaScript
+        $formatted_conversations = array();
+        foreach ($conversations as $conversation) {
+            $content_preview = wp_trim_words(strip_tags($conversation->content), 20, '...');
+            $time_ago = human_time_diff(strtotime($conversation->last_reply_date), current_time('timestamp')) . ' ago';
+            
+            $formatted_conversations[] = array(
+                'id' => $conversation->id,
+                'title' => $conversation->title,
+                'slug' => $conversation->slug,
+                'topic_slug' => $conversation->topic_slug ?? 'general',
+                'content_preview' => $content_preview,
+                'author_name' => $conversation->author_name,
+                'reply_count' => $conversation->reply_count ?? 0,
+                'time_ago' => $time_ago
+            );
+        }
+        
+        wp_send_json_success(array(
+            'conversations' => $formatted_conversations
+        ));
     }
     
     public function ajax_add_reply() {

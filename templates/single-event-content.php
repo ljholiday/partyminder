@@ -185,9 +185,9 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
                         📤 Share Event
                     </button>
                     
-                    <a href="<?php echo PartyMinder::get_conversations_url(); ?>?create=1&event_id=<?php echo $event->id; ?>" class="pm-button pm-button-secondary">
+                    <button type="button" class="pm-button pm-button-secondary" onclick="openEventConversationModal(<?php echo $event->id; ?>, '<?php echo esc_js($event->title); ?>')">
                         💬 Create Conversation
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -309,9 +309,9 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
         <div class="pm-card-header">
             <div class="pm-flex pm-flex-between pm-flex-center-gap">
                 <h3 class="pm-title-secondary pm-m-0">💬 Event Conversations</h3>
-                <a href="<?php echo PartyMinder::get_conversations_url(); ?>?create=1&event_id=<?php echo $event->id; ?>" class="pm-button pm-button-primary pm-button-small">
-                    Start Discussion
-                </a>
+                <button type="button" class="pm-button pm-button-primary pm-button-small" onclick="openEventConversationModal(<?php echo $event->id; ?>, '<?php echo esc_js($event->title); ?>')">
+                    Create Conversation
+                </button>
             </div>
         </div>
         <div class="pm-card-body">
@@ -893,4 +893,215 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php endif; ?>
 });
 <?php endif; ?>
+
+// Event Conversation Modal
+function openEventConversationModal(eventId, eventTitle) {
+    const currentUser = partyminder_ajax.current_user || {};
+    const isLoggedIn = currentUser.id > 0;
+
+    const modalHtml = `
+        <div class="pm-modal-overlay" id="event-conversation-modal" style="z-index: 10001;">
+            <div class="pm-modal pm-modal-sm">
+                <div class="pm-modal-header">
+                    <div>
+                        <h3 class="pm-modal-title">💬 Create Event Conversation</h3>
+                        <p class="pm-text-muted pm-m-0">for <strong>${eventTitle}</strong></p>
+                    </div>
+                    <button type="button" class="close-modal pm-button pm-button-secondary pm-button-small">&times;</button>
+                </div>
+                <div class="pm-modal-body">
+                    <form id="event-conversation-form" method="post">
+                        <input type="hidden" name="nonce" value="${partyminder_ajax.nonce}">
+                        <input type="hidden" name="action" value="partyminder_create_conversation">
+                        <input type="hidden" name="event_id" value="${eventId}">
+                        
+                        ${!isLoggedIn ? `
+                            <div class="pm-form-group">
+                                <label for="guest_name" class="pm-label">Your Name *</label>
+                                <input type="text" id="guest_name" name="guest_name" class="pm-input" required>
+                            </div>
+                            <div class="pm-form-group">
+                                <label for="guest_email" class="pm-label">Your Email *</label>
+                                <input type="email" id="guest_email" name="guest_email" class="pm-input" required>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="pm-form-group">
+                            <label for="conversation_title" class="pm-label">Conversation Title *</label>
+                            <input type="text" id="conversation_title" name="title" class="pm-input" required maxlength="255" 
+                                   placeholder="What aspect of this event would you like to discuss?">
+                        </div>
+                        
+                        <div class="pm-form-group">
+                            <label for="conversation_content" class="pm-label">Your Message *</label>
+                            <textarea id="conversation_content" name="content" class="pm-textarea" required rows="6" 
+                                      placeholder="Share ideas, ask questions, or coordinate details for this event..."></textarea>
+                        </div>
+                        
+                        <div class="pm-modal-footer">
+                            <button type="button" class="pm-button pm-button-secondary close-modal">Cancel</button>
+                            <button type="submit" class="pm-button pm-button-primary">
+                                <span class="button-text">Create Conversation</span>
+                                <span class="button-spinner pm-hidden">Creating...</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = document.getElementById('event-conversation-modal');
+    modal.classList.add('active');
+    
+    // Focus appropriate field
+    if (!isLoggedIn) {
+        document.getElementById('guest_name').focus();
+    } else {
+        document.getElementById('conversation_title').focus();
+    }
+    
+    // Close modal handlers
+    modal.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', () => {
+            modal.remove();
+        });
+    });
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+    
+    // Handle form submission
+    document.getElementById('event-conversation-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const buttonText = submitBtn.querySelector('.button-text');
+        const buttonSpinner = submitBtn.querySelector('.button-spinner');
+        
+        submitBtn.disabled = true;
+        buttonText.style.display = 'none';
+        buttonSpinner.style.display = 'inline';
+        
+        jQuery.ajax({
+            url: partyminder_ajax.ajax_url,
+            type: 'POST',
+            data: jQuery(this).serialize(),
+            success: function(response) {
+                if (response.success) {
+                    showNotification('Event conversation created successfully!', 'success');
+                    modal.remove();
+                    
+                    // Refresh the conversations section on this page
+                    refreshEventConversations();
+                } else {
+                    showNotification(response.data || 'Failed to create conversation.', 'error');
+                }
+            },
+            error: function() {
+                showNotification('Network error. Please try again.', 'error');
+            },
+            complete: function() {
+                submitBtn.disabled = false;
+                buttonText.style.display = 'inline';
+                buttonSpinner.style.display = 'none';
+            }
+        });
+    });
+}
+
+// Refresh event conversations section
+function refreshEventConversations() {
+    const eventId = <?php echo $event->id; ?>;
+    
+    jQuery.ajax({
+        url: partyminder_ajax.ajax_url,
+        type: 'POST',
+        data: {
+            action: 'partyminder_get_event_conversations',
+            event_id: eventId,
+            nonce: partyminder_ajax.nonce
+        },
+        success: function(response) {
+            if (response.success) {
+                updateConversationsSection(response.data.conversations);
+            }
+        }
+    });
+}
+
+// Update conversations section with new data
+function updateConversationsSection(conversations) {
+    const conversationsBody = document.querySelector('.pm-card:has(h3:contains("Event Conversations")) .pm-card-body');
+    if (!conversationsBody) return;
+    
+    if (conversations.length === 0) {
+        conversationsBody.innerHTML = `
+            <div class="pm-text-center pm-p-4">
+                <p class="pm-text-muted pm-mb-3">💭 No conversations started yet for this event.</p>
+                <p class="pm-text-muted pm-text-sm">Be the first to start planning and discussing ideas!</p>
+            </div>
+        `;
+    } else {
+        let html = '';
+        conversations.forEach((conversation, index) => {
+            const isLast = index === conversations.length - 1;
+            html += `
+                <div class="pm-mb-4 pm-pb-3 ${!isLast ? 'pm-border-bottom' : ''}">
+                    <div class="pm-flex pm-flex-between pm-flex-center-gap pm-mb-2">
+                        <h4 class="pm-heading pm-heading-sm pm-m-0">
+                            <a href="/conversations/${conversation.topic_slug || 'general'}/${conversation.slug}" class="pm-text-primary pm-no-underline">
+                                ${conversation.title}
+                            </a>
+                        </h4>
+                        <div class="pm-stat pm-text-center">
+                            <div class="pm-stat-number pm-text-success pm-text-sm">${conversation.reply_count || 0}</div>
+                            <div class="pm-stat-label pm-text-xs">Replies</div>
+                        </div>
+                    </div>
+                    <div class="pm-text-muted pm-text-sm">
+                        ${conversation.content_preview || ''}
+                    </div>
+                    <div class="pm-text-muted pm-text-xs pm-mt-2">
+                        by ${conversation.author_name} • ${conversation.time_ago}
+                    </div>
+                </div>
+            `;
+        });
+        conversationsBody.innerHTML = html;
+    }
+}
+
+// Simple notification function
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `partyminder-notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#10b981' : '#ef4444'};
+        color: white;
+        padding: 15px 20px;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        max-width: 350px;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+    
+    notification.addEventListener('click', () => {
+        notification.remove();
+    });
+}
 </script>

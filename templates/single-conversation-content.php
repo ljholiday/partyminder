@@ -27,6 +27,14 @@ if (!$topic_slug || !$conversation_slug) {
 $topic = $conversation_manager->get_topic_by_slug($topic_slug);
 $conversation = $conversation_manager->get_conversation($conversation_slug, true);
 
+// Get event data if this is an event conversation
+$event_data = null;
+if ($conversation && $conversation->event_id) {
+    require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+    $event_manager = new PartyMinder_Event_Manager();
+    $event_data = $event_manager->get_event($conversation->event_id);
+}
+
 if (!$topic || !$conversation) {
     global $wp_query;
     $wp_query->set_404();
@@ -349,6 +357,9 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             <div class="conversation-meta">
                 <span><?php printf(__('Started by %s', 'partyminder'), esc_html($conversation->author_name)); ?></span>
                 <span><?php echo human_time_diff(strtotime($conversation->created_at), current_time('timestamp')) . ' ' . __('ago', 'partyminder'); ?></span>
+                <?php if ($event_data): ?>
+                    <span><?php printf(__('for event: %s', 'partyminder'), esc_html($event_data->title)); ?></span>
+                <?php endif; ?>
                 <span><?php printf(__('in %s %s', 'partyminder'), esc_html($topic->icon), esc_html($topic->name)); ?></span>
             </div>
         </div>
@@ -368,6 +379,11 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             </div>
             
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <?php if ($event_data): ?>
+                    <a href="<?php echo home_url('/events/' . $event_data->slug); ?>" class="pm-button pm-button-primary pm-button-small">
+                        <span>📅</span> <?php _e('Go To Event', 'partyminder'); ?>
+                    </a>
+                <?php endif; ?>
                 <?php if ($user_email): ?>
                     <button class="pm-button pm-button-small follow-btn" 
                             data-conversation-id="<?php echo esc_attr($conversation->id); ?>">
