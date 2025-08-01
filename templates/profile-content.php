@@ -387,6 +387,29 @@ if (isset($errors) && !empty($errors)) {
         <div class="pm-dashboard-grid">
             <!-- Main Content Column -->
             <div class="pm-dashboard-main">
+                <!-- Activity Feed -->
+                <div class="pm-card">
+                    <div class="pm-card-header">
+                        <h3 class="pm-heading pm-heading-sm pm-m-0">📈 <?php _e('Recent Activity', 'partyminder'); ?></h3>
+                    </div>
+                    <div class="pm-card-body">
+                        <?php
+                        // Include the reusable activity feed component
+                        $user_id = $user_id; // Pass the current profile user ID
+                        $limit = 8;
+                        $show_user_names = false; // This is the user's own profile
+                        $activity_types = array(); // Show all activity types
+                        $show_empty_state = true;
+                        $empty_state_actions = true;
+                        
+                        include PARTYMINDER_PLUGIN_DIR . 'templates/components/activity-feed.php';
+                        ?>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar Column -->
+            <div class="pm-dashboard-sidebar">
                 <!-- About Section -->
                 <div class="pm-card pm-mb-4">
                     <div class="pm-card-header">
@@ -479,29 +502,6 @@ if (isset($errors) && !empty($errors)) {
                     </div>
                 </div>
                 <?php endif; ?>
-            </div>
-            
-            <!-- Sidebar Column -->
-            <div class="pm-dashboard-sidebar">
-                <!-- Activity Feed -->
-                <div class="pm-card">
-                    <div class="pm-card-header">
-                        <h3 class="pm-heading pm-heading-sm pm-m-0">📈 <?php _e('Recent Activity', 'partyminder'); ?></h3>
-                    </div>
-                    <div class="pm-card-body">
-                        <?php
-                        // Include the reusable activity feed component
-                        $user_id = $user_id; // Pass the current profile user ID
-                        $limit = 8;
-                        $show_user_names = false; // This is the user's own profile
-                        $activity_types = array(); // Show all activity types
-                        $show_empty_state = true;
-                        $empty_state_actions = true;
-                        
-                        include PARTYMINDER_PLUGIN_DIR . 'templates/components/activity-feed.php';
-                        ?>
-                    </div>
-                </div>
             </div>
         </div>
         
