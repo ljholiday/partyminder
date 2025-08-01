@@ -336,7 +336,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         
         <div class="pm-mt-4">
             <?php if (PartyMinder_Feature_Flags::can_user_create_community()): ?>
-                <a href="#" class="pm-button pm-button-primary create-community-modal-btn">
+                <a href="<?php echo esc_url(site_url('/create-community')); ?>" class="pm-button pm-button-primary">
                     <span>✨</span>
                     <?php _e('Create Community', 'partyminder'); ?>
                 </a>
@@ -459,7 +459,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <div class="pm-card-body">
                     <div class="pm-flex pm-flex-center-gap pm-flex-column">
                         <?php if (PartyMinder_Feature_Flags::can_user_create_community()): ?>
-                            <a href="#" class="pm-button pm-button-primary create-community-modal-btn">
+                            <a href="<?php echo esc_url(site_url('/create-community')); ?>" class="pm-button pm-button-primary">
                                 <span>✨</span>
                                 <?php _e('Create Community', 'partyminder'); ?>
                             </a>
@@ -522,15 +522,12 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 </div>
 
 <?php 
-// Include community creation modal if user can create communities
-if (PartyMinder_Feature_Flags::can_user_create_community()) {
-    include PARTYMINDER_PLUGIN_DIR . 'templates/community-creation-modal.php';
-}
+// Community creation modal replaced with single-page interface at /create-community
 ?>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Community creation modal is now handled by community-creation-modal.php
+    // Community creation now handled by single-page interface at /create-community
     
     // Join community functionality
     const joinBtns = document.querySelectorAll('.join-btn');
