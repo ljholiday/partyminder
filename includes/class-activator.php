@@ -470,6 +470,7 @@ class PartyMinder_Activator {
             bio text DEFAULT '',
             location varchar(255) DEFAULT '',
             profile_image varchar(255) DEFAULT '',
+            cover_image varchar(255) DEFAULT '',
             website_url varchar(255) DEFAULT '',
             social_links longtext DEFAULT '',
             hosting_preferences longtext DEFAULT '',

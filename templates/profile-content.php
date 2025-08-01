@@ -117,27 +117,54 @@ if (isset($errors) && !empty($errors)) {
                         <small class="character-count pm-text-muted">0/500 characters</small>
                     </div>
                     
+                    <!-- Photo Upload Section -->
                     <div class="pm-form-row">
-                        <div class="pm-form-group">
-                            <label class="pm-label" for="website_url"><?php _e('Website', 'partyminder'); ?></label>
-                            <input type="url" id="website_url" name="website_url" class="pm-input"
-                                   value="<?php echo esc_attr($profile_data['website_url']); ?>" 
-                                   placeholder="https://yoursite.com">
-                        </div>
-                        
                         <div class="pm-form-group">
                             <label class="pm-label" for="profile_image"><?php _e('Profile Photo', 'partyminder'); ?></label>
                             <div class="pm-avatar-upload-container pm-mb-3">
                                 <div class="pm-avatar-preview">
-                                    <?php echo get_avatar($user_id, 80, '', '', array('class' => 'pm-avatar-preview-img')); ?>
+                                    <?php if (!empty($profile_data['profile_image'])): ?>
+                                        <img src="<?php echo esc_url($profile_data['profile_image']); ?>" alt="Profile" class="pm-avatar-preview-img">
+                                    <?php else: ?>
+                                        <?php echo get_avatar($user_id, 80, '', '', array('class' => 'pm-avatar-preview-img')); ?>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="pm-avatar-upload-info">
                                     <p class="pm-text-sm pm-mb-2"><?php _e('Current profile photo', 'partyminder'); ?></p>
                                     <input type="file" id="profile_image" name="profile_image" class="pm-input" accept="image/*">
-                                    <small class="pm-text-muted"><?php _e('Upload a new photo (JPG, PNG, max 2MB) or use Gravatar', 'partyminder'); ?></small>
+                                    <small class="pm-text-muted"><?php _e('Upload a new photo (JPG, PNG, GIF, WebP, max 5MB)', 'partyminder'); ?></small>
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="pm-form-group">
+                            <label class="pm-label" for="cover_image"><?php _e('Cover Photo', 'partyminder'); ?></label>
+                            <div class="pm-cover-upload-container pm-mb-3">
+                                <div class="pm-cover-preview">
+                                    <?php if (!empty($profile_data['cover_image'])): ?>
+                                        <img src="<?php echo esc_url($profile_data['cover_image']); ?>" alt="Cover" class="pm-cover-preview-img">
+                                    <?php else: ?>
+                                        <div class="pm-cover-placeholder">
+                                            <span class="dashicons dashicons-format-image"></span>
+                                            <p><?php _e('No cover photo set', 'partyminder'); ?></p>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="pm-cover-upload-info">
+                                    <p class="pm-text-sm pm-mb-2"><?php _e('Cover photo (1200x400 recommended)', 'partyminder'); ?></p>
+                                    <input type="file" id="cover_image" name="cover_image" class="pm-input" accept="image/*">
+                                    <small class="pm-text-muted"><?php _e('Upload a cover photo (JPG, PNG, GIF, WebP, max 5MB)', 'partyminder'); ?></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Website Field -->
+                    <div class="pm-form-group">
+                        <label class="pm-label" for="website_url"><?php _e('Website', 'partyminder'); ?></label>
+                        <input type="url" id="website_url" name="website_url" class="pm-input"
+                               value="<?php echo esc_attr($profile_data['website_url']); ?>" 
+                               placeholder="https://yoursite.com">
                     </div>
                 </div>
             </div>
@@ -294,28 +321,36 @@ if (isset($errors) && !empty($errors)) {
         <div class="pm-profile-container">
             <!-- Cover Image -->
             <div class="pm-profile-cover">
-                <div class="pm-profile-cover-placeholder">
-                    <div class="pm-profile-cover-content">
-                        <span class="pm-text-muted pm-text-sm">🖼️ <?php _e('Cover image coming soon', 'partyminder'); ?></span>
+                <?php if (!empty($profile_data['cover_image'])): ?>
+                    <img src="<?php echo esc_url($profile_data['cover_image']); ?>" alt="<?php echo esc_attr($profile_data['display_name'] ?: $user_data->display_name); ?> Cover" class="pm-profile-cover-img">
+                <?php else: ?>
+                    <div class="pm-profile-cover-placeholder">
+                        <div class="pm-profile-cover-content">
+                            <span class="pm-text-muted pm-text-sm">🖼️ <?php _e('No cover image set', 'partyminder'); ?></span>
+                        </div>
                     </div>
-                </div>
+                <?php endif; ?>
+            </div>
                 
                 <!-- Profile Header -->
                 <div class="pm-profile-header">
                     <div class="pm-profile-avatar-container">
                         <div class="pm-profile-avatar">
-                            <?php 
-                            $avatar = get_avatar($user_id, 120, '', '', array('class' => 'pm-profile-avatar-img'));
-                            if ($avatar) {
-                                echo $avatar;
-                            } else {
-                                // Fallback to initials if no avatar
-                                ?>
-                                <div class="pm-profile-avatar-initials">
-                                    <?php echo strtoupper(substr($profile_data['display_name'] ?: $user_data->display_name, 0, 1)); ?>
-                                </div>
-                                <?php
-                            }
+                            <?php if (!empty($profile_data['profile_image'])): ?>
+                                <img src="<?php echo esc_url($profile_data['profile_image']); ?>" alt="<?php echo esc_attr($profile_data['display_name'] ?: $user_data->display_name); ?>" class="pm-profile-avatar-img">
+                            <?php else:
+                                $avatar = get_avatar($user_id, 120, '', '', array('class' => 'pm-profile-avatar-img'));
+                                if ($avatar) {
+                                    echo $avatar;
+                                } else {
+                                    // Fallback to initials if no avatar
+                                    ?>
+                                    <div class="pm-profile-avatar-initials">
+                                        <?php echo strtoupper(substr($profile_data['display_name'] ?: $user_data->display_name, 0, 1)); ?>
+                                    </div>
+                                    <?php
+                                }
+                            endif;
                             ?>
                         </div>
                     </div>

@@ -42,6 +42,7 @@ class PartyMinder_Profile_Manager {
             'bio' => '',
             'location' => '',
             'profile_image' => '',
+            'cover_image' => '',
             'website_url' => '',
             'social_links' => json_encode(array()),
             'hosting_preferences' => json_encode(array()),
@@ -87,6 +88,9 @@ class PartyMinder_Profile_Manager {
         
         $table_name = $wpdb->prefix . 'partyminder_user_profiles';
         $errors = array();
+        
+        // Get current profile data for image deletion
+        $current_profile = self::get_user_profile($user_id);
         
         // Validate input data
         $update_data = array();
@@ -174,9 +178,29 @@ class PartyMinder_Profile_Manager {
         
         // Handle profile image upload
         if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
-            $upload_result = self::handle_profile_image_upload($_FILES['profile_image'], $user_id);
+            // Delete old profile image if exists
+            if (!empty($current_profile['profile_image'])) {
+                PartyMinder_Image_Manager::delete_image($current_profile['profile_image']);
+            }
+            
+            $upload_result = PartyMinder_Image_Manager::handle_image_upload($_FILES['profile_image'], 'profile', $user_id, 'user');
             if ($upload_result['success']) {
                 $update_data['profile_image'] = $upload_result['url'];
+            } else {
+                $errors[] = $upload_result['error'];
+            }
+        }
+        
+        // Handle cover image upload
+        if (isset($_FILES['cover_image']) && $_FILES['cover_image']['error'] === UPLOAD_ERR_OK) {
+            // Delete old cover image if exists
+            if (!empty($current_profile['cover_image'])) {
+                PartyMinder_Image_Manager::delete_image($current_profile['cover_image']);
+            }
+            
+            $upload_result = PartyMinder_Image_Manager::handle_image_upload($_FILES['cover_image'], 'cover', $user_id, 'user');
+            if ($upload_result['success']) {
+                $update_data['cover_image'] = $upload_result['url'];
             } else {
                 $errors[] = $upload_result['error'];
             }

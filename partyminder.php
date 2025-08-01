@@ -78,6 +78,7 @@ class PartyMinder {
         require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-ai-assistant.php';
         require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-admin.php';
         require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-feature-flags.php';
+        require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-image-manager.php';
         require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-profile-manager.php';
         
         // Load communities features only if enabled
@@ -219,7 +220,7 @@ class PartyMinder {
     
     
     public function enqueue_public_scripts() {
-        wp_enqueue_style('partyminder', PARTYMINDER_PLUGIN_URL . 'assets/css/partyminder.css', array(), PARTYMINDER_VERSION);
+        wp_enqueue_style('partyminder', PARTYMINDER_PLUGIN_URL . 'assets/css/partyminder.css', array(), PARTYMINDER_VERSION . '-' . filemtime(PARTYMINDER_PLUGIN_DIR . 'assets/css/partyminder.css'));
         
         // Add dynamic colors from admin settings
         $primary_color = get_option('partyminder_primary_color', '#667eea');
@@ -259,7 +260,7 @@ class PartyMinder {
     
     public function enqueue_admin_scripts($hook) {
         if (strpos($hook, 'partyminder') !== false) {
-            wp_enqueue_style('partyminder-admin', PARTYMINDER_PLUGIN_URL . 'assets/css/partyminder.css', array(), PARTYMINDER_VERSION);
+            wp_enqueue_style('partyminder-admin', PARTYMINDER_PLUGIN_URL . 'assets/css/partyminder.css', array(), PARTYMINDER_VERSION . '-' . filemtime(PARTYMINDER_PLUGIN_DIR . 'assets/css/partyminder.css'));
             
             // Add dynamic colors from admin settings
             $primary_color = get_option('partyminder_primary_color', '#667eea');
