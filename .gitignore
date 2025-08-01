@@ -3,6 +3,9 @@
 .claude
 CLAUDE.md
 
+# Claude local settings (can vary per developer)
+.claude/settings.local.json
+
 # Only a local file
 debug.log
 

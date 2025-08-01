@@ -288,6 +288,18 @@ class PartyMinder_Activator {
                 'content' => '[partyminder_login]',
                 'slug' => 'login',
                 'description' => __('Sign in to your PartyMinder account to manage events and connect with the community.', 'partyminder')
+            ),
+            'manage-community' => array(
+                'title' => __('Manage Community', 'partyminder'),
+                'content' => '<p>Loading community management...</p>',
+                'slug' => 'manage-community',
+                'description' => __('Manage your community settings, members, and invitations.', 'partyminder')
+            ),
+            'create-community' => array(
+                'title' => __('Create Community', 'partyminder'),
+                'content' => '<p>Loading community creation...</p>',
+                'slug' => 'create-community',
+                'description' => __('Create a new community to connect with like-minded hosts and guests.', 'partyminder')
             )
         );
         

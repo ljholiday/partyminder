@@ -415,10 +415,10 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     </a>
                 <?php elseif ($is_member): ?>
                     <?php if ($user_role === 'admin'): ?>
-                        <button type="button" class="pm-button manage-community-btn">
+                        <a href="<?php echo esc_url(site_url('/manage-community?community_id=' . $community->id . '&tab=overview')); ?>" class="pm-button manage-community-btn">
                             <span>⚙️</span>
                             <?php _e('Manage Community', 'partyminder'); ?>
-                        </button>
+                        </a>
                     <?php endif; ?>
                     <a href="#" class="pm-button pm-button-secondary create-event-btn">
                         <span>🎉</span>
@@ -505,10 +505,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 </div>
 
 <?php 
-// Include community management modal for admins
-if ($is_member && $user_role === 'admin') {
-    include PARTYMINDER_PLUGIN_DIR . 'templates/community-management-modal.php';
-}
+// Community management modal replaced with single-page interface at /manage-community
 ?>
 
 <script>
@@ -573,41 +570,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Manage community button - show management modal
-    const manageBtn = document.querySelector('.manage-community-btn');
-    console.log('Manage button found:', manageBtn);
-    if (manageBtn) {
-        manageBtn.addEventListener('click', function(e) {
-            console.log('Manage button clicked');
-            e.preventDefault();
-            
-            // Check if modal element exists and try to show it
-            const modal = document.getElementById('community-management-modal');
-            console.log('Modal element found:', modal);
-            
-            if (modal && typeof window.showCommunityManagementModal === 'function') {
-                // Pass community data to the modal
-                const communityData = {
-                    name: '<?php echo esc_js($community->name); ?>',
-                    description: '<?php echo esc_js($community->description); ?>',
-                    privacy: '<?php echo esc_js($community->privacy); ?>',
-                    id: <?php echo intval($community->id); ?>
-                };
-                
-                console.log('Opening modal with data:', communityData);
-                window.showCommunityManagementModal(communityData);
-            } else if (modal) {
-                // Modal exists but function not available - show it manually
-                console.log('Showing modal manually');
-                modal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            } else {
-                console.log('Modal element not found - modal template may not be loaded');
-                alert('Community management modal not available. Please refresh the page.');
-            }
-        });
-    } else {
-        console.log('Manage button not found');
-    }
+    // Manage community button is now a direct link - no JavaScript needed
 });
 </script>
