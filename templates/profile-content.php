@@ -45,8 +45,18 @@ if ($is_own_profile && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pa
 // Show success message
 if ($profile_updated || isset($_GET['updated'])) {
     echo '<div class="pm-message pm-message-success">';
-    echo '<h4>' . __('Profile Updated!', 'partyminder') . '</h4>';
-    echo '<p>' . __('Your profile has been successfully updated.', 'partyminder') . '</p>';
+    echo '<div class="pm-flex pm-flex-between pm-flex-center-gap">';
+    echo '<div>';
+    echo '<h4 class="pm-m-0">' . __('Profile Updated!', 'partyminder') . '</h4>';
+    echo '<p class="pm-m-0 pm-mt-1">' . __('Your profile has been successfully updated.', 'partyminder') . '</p>';
+    echo '</div>';
+    echo '<div>';
+    echo '<a href="' . esc_url(PartyMinder::get_profile_url()) . '" class="pm-button pm-button-secondary pm-button-small">';
+    echo '<span class="dashicons dashicons-admin-users"></span>';
+    echo __('Return to Profile', 'partyminder');
+    echo '</a>';
+    echo '</div>';
+    echo '</div>';
     echo '</div>';
 }
 
@@ -671,6 +681,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 statusElement.textContent = '<?php _e("Preparing upload...", "partyminder"); ?>';
             } else {
                 statusElement.textContent = '<?php _e("Ready to upload!", "partyminder"); ?>';
+            }
+
+            if (progress >= 100) {
                 uploadState[type + 'Image'].processed = true;
             }
 
@@ -683,6 +696,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => {
                     if (uploadState[type + 'Image'].processed) {
                         hideProgress(type);
+                        updateOverallProgress(); // Update overall progress when individual completes
                     }
                 }, 1500);
             }
@@ -704,33 +718,41 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateOverallProgress() {
-        const hasFiles = uploadState.profileImage.selected || uploadState.coverImage.selected;
         const overallProgress = document.getElementById('overall-upload-progress');
         
-        if (!hasFiles || (uploadState.profileImage.processed && uploadState.coverImage.processed)) {
+        // Check if we have files that are selected but not yet processed
+        const hasActiveUploads = 
+            (uploadState.profileImage.selected && !uploadState.profileImage.processed) ||
+            (uploadState.coverImage.selected && !uploadState.coverImage.processed);
+        
+        // Only show overall progress during active processing or form submission
+        if (!hasActiveUploads && !uploadState.isUploading) {
             if (overallProgress) overallProgress.classList.add('pm-hidden');
             return;
         }
 
-        if (overallProgress) overallProgress.classList.remove('pm-hidden');
+        // Show progress during active uploads
+        if (overallProgress && hasActiveUploads) {
+            overallProgress.classList.remove('pm-hidden');
 
-        let totalProgress = 0;
-        let fileCount = 0;
+            let totalProgress = 0;
+            let fileCount = 0;
 
-        if (uploadState.profileImage.selected) {
-            totalProgress += uploadState.profileImage.progress;
-            fileCount++;
-        }
+            if (uploadState.profileImage.selected) {
+                totalProgress += uploadState.profileImage.progress;
+                fileCount++;
+            }
 
-        if (uploadState.coverImage.selected) {
-            totalProgress += uploadState.coverImage.progress;
-            fileCount++;
-        }
+            if (uploadState.coverImage.selected) {
+                totalProgress += uploadState.coverImage.progress;
+                fileCount++;
+            }
 
-        const averageProgress = fileCount > 0 ? totalProgress / fileCount : 0;
-        const overallFill = document.getElementById('overall-progress-fill');
-        if (overallFill) {
-            overallFill.style.width = averageProgress + '%';
+            const averageProgress = fileCount > 0 ? totalProgress / fileCount : 0;
+            const overallFill = document.getElementById('overall-progress-fill');
+            if (overallFill) {
+                overallFill.style.width = averageProgress + '%';
+            }
         }
     }
 
@@ -808,7 +830,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initialize button state
+    // Initialize UI state
     updateSubmitButton();
+    updateOverallProgress(); // Hide overall progress on page load
 });
 </script>
