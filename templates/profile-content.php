@@ -63,7 +63,7 @@ if (isset($errors) && !empty($errors)) {
 }
 ?>
 
-<div class="partyminder-content pm-container">
+<div class="pm-container-wide">
     
     <!-- Breadcrumb Navigation -->
     <div class="pm-breadcrumb">
@@ -318,191 +318,188 @@ if (isset($errors) && !empty($errors)) {
         
     <?php else: ?>
         <!-- View Profile -->
-        <div class="pm-profile-container">
-            <!-- Cover Image -->
-            <div class="pm-profile-cover">
-                <?php if (!empty($profile_data['cover_image'])): ?>
-                    <img src="<?php echo esc_url($profile_data['cover_image']); ?>" alt="<?php echo esc_attr($profile_data['display_name'] ?: $user_data->display_name); ?> Cover" class="pm-profile-cover-img">
-                <?php else: ?>
-                    <div class="pm-profile-cover-placeholder">
-                        <div class="pm-profile-cover-content">
-                            <span class="pm-text-muted pm-text-sm">🖼️ <?php _e('No cover image set', 'partyminder'); ?></span>
-                        </div>
+        <!-- Cover Image -->
+        <div class="pm-profile-cover">
+            <?php if (!empty($profile_data['cover_image'])): ?>
+                <img src="<?php echo esc_url($profile_data['cover_image']); ?>" alt="<?php echo esc_attr($profile_data['display_name'] ?: $user_data->display_name); ?> Cover" class="pm-profile-cover-img">
+            <?php else: ?>
+                <div class="pm-profile-cover-placeholder">
+                    <div class="pm-profile-cover-content">
+                        <span class="pm-text-muted pm-text-sm">🖼️ <?php _e('No cover image set', 'partyminder'); ?></span>
                     </div>
-                <?php endif; ?>
-            </div>
-                
-                <!-- Profile Header -->
-                <div class="pm-profile-header">
-                    <div class="pm-profile-avatar-container">
-                        <div class="pm-profile-avatar">
-                            <?php if (!empty($profile_data['profile_image'])): ?>
-                                <img src="<?php echo esc_url($profile_data['profile_image']); ?>" alt="<?php echo esc_attr($profile_data['display_name'] ?: $user_data->display_name); ?>" class="pm-profile-avatar-img">
-                            <?php else:
-                                $avatar = get_avatar($user_id, 120, '', '', array('class' => 'pm-profile-avatar-img'));
-                                if ($avatar) {
-                                    echo $avatar;
-                                } else {
-                                    // Fallback to initials if no avatar
-                                    ?>
-                                    <div class="pm-profile-avatar-initials">
-                                        <?php echo strtoupper(substr($profile_data['display_name'] ?: $user_data->display_name, 0, 1)); ?>
-                                    </div>
-                                    <?php
-                                }
-                            endif;
+                </div>
+            <?php endif; ?>
+        </div>
+            
+        <!-- Profile Header -->
+        <div class="pm-profile-header">
+            <div class="pm-profile-avatar-container">
+                <div class="pm-profile-avatar">
+                    <?php if (!empty($profile_data['profile_image'])): ?>
+                        <img src="<?php echo esc_url($profile_data['profile_image']); ?>" alt="<?php echo esc_attr($profile_data['display_name'] ?: $user_data->display_name); ?>" class="pm-profile-avatar-img">
+                    <?php else:
+                        $avatar = get_avatar($user_id, 120, '', '', array('class' => 'pm-profile-avatar-img'));
+                        if ($avatar) {
+                            echo $avatar;
+                        } else {
+                            // Fallback to initials if no avatar
                             ?>
-                        </div>
-                    </div>
-                    
-                    <div class="pm-profile-info">
-                        <div class="pm-profile-name-section">
-                            <h1 class="pm-profile-name">
-                                <?php echo esc_html($profile_data['display_name'] ?: $user_data->display_name); ?>
-                                <?php if ($profile_data['is_verified']): ?>
-                                    <span class="pm-badge pm-badge-success" title="<?php _e('Verified Host', 'partyminder'); ?>">✓</span>
-                                <?php endif; ?>
-                            </h1>
-                            
-                            <?php if ($profile_data['location']): ?>
-                                <div class="pm-profile-location">
-                                    📍 <?php echo esc_html($profile_data['location']); ?>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <?php if ($is_own_profile): ?>
-                            <div class="pm-profile-actions">
-                                <a href="<?php echo esc_url(add_query_arg('edit', '1', PartyMinder::get_profile_url())); ?>" class="pm-button pm-button-primary">
-                                    ✏️ <?php _e('Edit Profile', 'partyminder'); ?>
-                                </a>
-                                <a href="<?php echo esc_url(PartyMinder::get_logout_url()); ?>" class="pm-button pm-button-secondary">
-                                    🚪 <?php _e('Logout', 'partyminder'); ?>
-                                </a>
+                            <div class="pm-profile-avatar-initials">
+                                <?php echo strtoupper(substr($profile_data['display_name'] ?: $user_data->display_name, 0, 1)); ?>
                             </div>
-                        <?php endif; ?>
-                    </div>
+                            <?php
+                        }
+                    endif;
+                    ?>
                 </div>
             </div>
             
-            <!-- Profile Content Grid -->
-            <div class="pm-profile-content-grid">
-                <!-- Left Column -->
-                <div class="pm-profile-sidebar">
-                    <!-- About Section -->
-                    <div class="pm-card pm-mb-4">
-                        <div class="pm-card-header">
-                            <h3 class="pm-heading pm-heading-sm pm-m-0">👋 <?php _e('About', 'partyminder'); ?></h3>
-                        </div>
-                        <div class="pm-card-body">
-                            <?php if ($profile_data['bio']): ?>
-                                <p class="pm-m-0"><?php echo wp_kses_post(nl2br($profile_data['bio'])); ?></p>
-                            <?php else: ?>
-                                <p class="pm-text-muted pm-m-0"><?php _e('No bio added yet.', 'partyminder'); ?></p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
+            <div class="pm-profile-info">
+                <div class="pm-profile-name-section">
+                    <h1 class="pm-profile-name">
+                        <?php echo esc_html($profile_data['display_name'] ?: $user_data->display_name); ?>
+                        <?php if ($profile_data['is_verified']): ?>
+                            <span class="pm-badge pm-badge-success" title="<?php _e('Verified Host', 'partyminder'); ?>">✓</span>
+                        <?php endif; ?>
+                    </h1>
                     
-                    <!-- Community Stats -->
-                    <?php
-                    require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-manager.php';
-                    $conversation_manager = new PartyMinder_Conversation_Manager();
-                    $stats = $conversation_manager->get_stats();
-                    ?>
-                    <div class="pm-card pm-mb-4">
-                        <div class="pm-card-header">
-                            <h3 class="pm-heading pm-heading-sm pm-m-0">📊 <?php _e('Community Stats', 'partyminder'); ?></h3>
+                    <?php if ($profile_data['location']): ?>
+                        <div class="pm-profile-location">
+                            📍 <?php echo esc_html($profile_data['location']); ?>
                         </div>
-                        <div class="pm-card-body">
-                            <div class="pm-grid pm-grid-2 pm-gap-sm">
-                                <div class="pm-stat pm-text-center">
-                                    <div class="pm-stat-number pm-text-primary"><?php echo $stats->total_conversations; ?></div>
-                                    <div class="pm-stat-label"><?php _e('Conversations', 'partyminder'); ?></div>
-                                </div>
-                                <div class="pm-stat pm-text-center">
-                                    <div class="pm-stat-number pm-text-success"><?php echo $stats->total_replies; ?></div>
-                                    <div class="pm-stat-label"><?php _e('Messages', 'partyminder'); ?></div>
-                                </div>
-                                <div class="pm-stat pm-text-center">
-                                    <div class="pm-stat-number pm-text-warning"><?php echo $stats->active_conversations; ?></div>
-                                    <div class="pm-stat-label"><?php _e('Active This Week', 'partyminder'); ?></div>
-                                </div>
-                                <div class="pm-stat pm-text-center">
-                                    <div class="pm-stat-number pm-text-purple"><?php echo $stats->total_follows; ?></div>
-                                    <div class="pm-stat-label"><?php _e('Following', 'partyminder'); ?></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Favorite Event Types -->
-                    <?php if ($profile_data['favorite_event_types']): ?>
-                    <div class="pm-card pm-mb-4">
-                        <div class="pm-card-header">
-                            <h3 class="pm-heading pm-heading-sm pm-m-0">🎉 <?php _e('Favorite Event Types', 'partyminder'); ?></h3>
-                        </div>
-                        <div class="pm-card-body">
-                            <div class="pm-flex pm-flex-wrap pm-gap-xs">
-                                <?php
-                                $favorite_types = json_decode($profile_data['favorite_event_types'], true);
-                                $event_type_labels = array(
-                                    'dinner_party' => __('Dinner Parties', 'partyminder'),
-                                    'cocktail_party' => __('Cocktail Parties', 'partyminder'),
-                                    'bbq' => __('BBQ & Grilling', 'partyminder'),
-                                    'game_night' => __('Game Nights', 'partyminder'),
-                                    'book_club' => __('Book Clubs', 'partyminder'),
-                                    'wine_tasting' => __('Wine Tastings', 'partyminder'),
-                                    'outdoor' => __('Outdoor Events', 'partyminder'),
-                                    'cultural' => __('Cultural Events', 'partyminder'),
-                                );
-                                foreach ($favorite_types as $type):
-                                    if (isset($event_type_labels[$type])):
-                                ?>
-                                <span class="pm-badge pm-badge-secondary pm-text-xs"><?php echo esc_html($event_type_labels[$type]); ?></span>
-                                <?php 
-                                    endif;
-                                endforeach; 
-                                ?>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <!-- Website -->
-                    <?php if ($profile_data['website_url']): ?>
-                    <div class="pm-card pm-mb-4">
-                        <div class="pm-card-header">
-                            <h3 class="pm-heading pm-heading-sm pm-m-0">🔗 <?php _e('Website', 'partyminder'); ?></h3>
-                        </div>
-                        <div class="pm-card-body">
-                            <a href="<?php echo esc_url($profile_data['website_url']); ?>" target="_blank" rel="noopener noreferrer" class="pm-text-primary pm-no-underline">
-                                🌐 <?php echo esc_html(parse_url($profile_data['website_url'], PHP_URL_HOST)); ?>
-                            </a>
-                        </div>
-                    </div>
                     <?php endif; ?>
                 </div>
                 
-                <!-- Right Column -->
-                <div class="pm-profile-main">
-                    <!-- Activity Feed -->
-                    <div class="pm-card">
-                        <div class="pm-card-header">
-                            <h3 class="pm-heading pm-heading-sm pm-m-0">📈 <?php _e('Recent Activity', 'partyminder'); ?></h3>
+                <?php if ($is_own_profile): ?>
+                    <div class="pm-profile-actions">
+                        <a href="<?php echo esc_url(add_query_arg('edit', '1', PartyMinder::get_profile_url())); ?>" class="pm-button pm-button-primary">
+                            ✏️ <?php _e('Edit Profile', 'partyminder'); ?>
+                        </a>
+                        <a href="<?php echo esc_url(PartyMinder::get_logout_url()); ?>" class="pm-button pm-button-secondary">
+                            🚪 <?php _e('Logout', 'partyminder'); ?>
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        
+        <!-- Use Unified Two-Column Layout -->
+        <div class="pm-dashboard-grid">
+            <!-- Main Content Column -->
+            <div class="pm-dashboard-main">
+                <!-- About Section -->
+                <div class="pm-card pm-mb-4">
+                    <div class="pm-card-header">
+                        <h3 class="pm-heading pm-heading-sm pm-m-0">👋 <?php _e('About', 'partyminder'); ?></h3>
+                    </div>
+                    <div class="pm-card-body">
+                        <?php if ($profile_data['bio']): ?>
+                            <p class="pm-m-0"><?php echo wp_kses_post(nl2br($profile_data['bio'])); ?></p>
+                        <?php else: ?>
+                            <p class="pm-text-muted pm-m-0"><?php _e('No bio added yet.', 'partyminder'); ?></p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                
+                <!-- Community Stats -->
+                <?php
+                require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-manager.php';
+                $conversation_manager = new PartyMinder_Conversation_Manager();
+                $stats = $conversation_manager->get_stats();
+                ?>
+                <div class="pm-card pm-mb-4">
+                    <div class="pm-card-header">
+                        <h3 class="pm-heading pm-heading-sm pm-m-0">📊 <?php _e('Community Stats', 'partyminder'); ?></h3>
+                    </div>
+                    <div class="pm-card-body">
+                        <div class="pm-grid pm-grid-2 pm-gap-sm">
+                            <div class="pm-stat pm-text-center">
+                                <div class="pm-stat-number pm-text-primary"><?php echo $stats->total_conversations; ?></div>
+                                <div class="pm-stat-label"><?php _e('Conversations', 'partyminder'); ?></div>
+                            </div>
+                            <div class="pm-stat pm-text-center">
+                                <div class="pm-stat-number pm-text-success"><?php echo $stats->total_replies; ?></div>
+                                <div class="pm-stat-label"><?php _e('Messages', 'partyminder'); ?></div>
+                            </div>
+                            <div class="pm-stat pm-text-center">
+                                <div class="pm-stat-number pm-text-warning"><?php echo $stats->active_conversations; ?></div>
+                                <div class="pm-stat-label"><?php _e('Active This Week', 'partyminder'); ?></div>
+                            </div>
+                            <div class="pm-stat pm-text-center">
+                                <div class="pm-stat-number pm-text-purple"><?php echo $stats->total_follows; ?></div>
+                                <div class="pm-stat-label"><?php _e('Following', 'partyminder'); ?></div>
+                            </div>
                         </div>
-                        <div class="pm-card-body">
+                    </div>
+                </div>
+                
+                <!-- Favorite Event Types -->
+                <?php if ($profile_data['favorite_event_types']): ?>
+                <div class="pm-card pm-mb-4">
+                    <div class="pm-card-header">
+                        <h3 class="pm-heading pm-heading-sm pm-m-0">🎉 <?php _e('Favorite Event Types', 'partyminder'); ?></h3>
+                    </div>
+                    <div class="pm-card-body">
+                        <div class="pm-flex pm-flex-wrap pm-gap-xs">
                             <?php
-                            // Include the reusable activity feed component
-                            $user_id = $user_id; // Pass the current profile user ID
-                            $limit = 8;
-                            $show_user_names = false; // This is the user's own profile
-                            $activity_types = array(); // Show all activity types
-                            $show_empty_state = true;
-                            $empty_state_actions = true;
-                            
-                            include PARTYMINDER_PLUGIN_DIR . 'templates/components/activity-feed.php';
+                            $favorite_types = json_decode($profile_data['favorite_event_types'], true);
+                            $event_type_labels = array(
+                                'dinner_party' => __('Dinner Parties', 'partyminder'),
+                                'cocktail_party' => __('Cocktail Parties', 'partyminder'),
+                                'bbq' => __('BBQ & Grilling', 'partyminder'),
+                                'game_night' => __('Game Nights', 'partyminder'),
+                                'book_club' => __('Book Clubs', 'partyminder'),
+                                'wine_tasting' => __('Wine Tastings', 'partyminder'),
+                                'outdoor' => __('Outdoor Events', 'partyminder'),
+                                'cultural' => __('Cultural Events', 'partyminder'),
+                            );
+                            foreach ($favorite_types as $type):
+                                if (isset($event_type_labels[$type])):
+                            ?>
+                            <span class="pm-badge pm-badge-secondary pm-text-xs"><?php echo esc_html($event_type_labels[$type]); ?></span>
+                            <?php 
+                                endif;
+                            endforeach; 
                             ?>
                         </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Website -->
+                <?php if ($profile_data['website_url']): ?>
+                <div class="pm-card pm-mb-4">
+                    <div class="pm-card-header">
+                        <h3 class="pm-heading pm-heading-sm pm-m-0">🔗 <?php _e('Website', 'partyminder'); ?></h3>
+                    </div>
+                    <div class="pm-card-body">
+                        <a href="<?php echo esc_url($profile_data['website_url']); ?>" target="_blank" rel="noopener noreferrer" class="pm-text-primary pm-no-underline">
+                            🌐 <?php echo esc_html(parse_url($profile_data['website_url'], PHP_URL_HOST)); ?>
+                        </a>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
+            
+            <!-- Sidebar Column -->
+            <div class="pm-dashboard-sidebar">
+                <!-- Activity Feed -->
+                <div class="pm-card">
+                    <div class="pm-card-header">
+                        <h3 class="pm-heading pm-heading-sm pm-m-0">📈 <?php _e('Recent Activity', 'partyminder'); ?></h3>
+                    </div>
+                    <div class="pm-card-body">
+                        <?php
+                        // Include the reusable activity feed component
+                        $user_id = $user_id; // Pass the current profile user ID
+                        $limit = 8;
+                        $show_user_names = false; // This is the user's own profile
+                        $activity_types = array(); // Show all activity types
+                        $show_empty_state = true;
+                        $empty_state_actions = true;
+                        
+                        include PARTYMINDER_PLUGIN_DIR . 'templates/components/activity-feed.php';
+                        ?>
                     </div>
                 </div>
             </div>

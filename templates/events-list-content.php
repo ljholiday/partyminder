@@ -73,7 +73,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
 }
 </style>
 
-<div class="partyminder-events-content pm-container">
+<div class="pm-container-wide">
     
     <!-- Events Header -->
     <div class="pm-card-header pm-mb-6">

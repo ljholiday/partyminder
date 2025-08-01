@@ -200,10 +200,10 @@
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
 }
 
-/* Clean Dashboard Layout - Mobile First */
+/* Clean Dashboard Layout - Mobile First (Grid-based) */
 .pm-dashboard-grid {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 1.5rem;
     width: 100%;
     max-width: 100%;
@@ -242,13 +242,7 @@
 }
 
 
-/* Conversations Layout - 2:1 proportions */
-.conversations-layout {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 30px;
-    margin-bottom: 40px;
-}
+/* Removed old conversations-layout - now using unified pm-dashboard-grid */
 
 
 /* Conversations-specific styles */
@@ -1504,11 +1498,7 @@
         padding: var(--mobile-content-xs) var(--mobile-content-xs) var(--mobile-content-sm) var(--mobile-content-xs);
     }
     
-    /* Conversations Layout */
-    .conversations-layout {
-        grid-template-columns: 1fr;
-        gap: var(--mobile-space-md);
-    }
+    /* Removed old conversations-layout mobile styles - now using unified pm-dashboard-grid */
     
     /* Community Stats */
     .community-stats {
@@ -1650,11 +1640,12 @@
     .pm-mt-4 { margin-top: var(--mobile-space-lg); }
     .pm-mt-6 { margin-top: calc(var(--mobile-space-lg) * 1.5); }
     
-    /* Profile mobile styles */
-    .pm-profile-content-grid {
-        grid-template-columns: 1fr;
-        gap: var(--mobile-space-md);
-        margin-top: var(--mobile-space-lg);
+    /* Mobile: Dashboard grid already single column by default - no override needed */
+    
+    /* Mobile: Reset positioning for unified layout elements */
+    .pm-dashboard-main,
+    .pm-dashboard-sidebar {
+        position: static;
     }
     
     .pm-profile-header {
@@ -1783,14 +1774,23 @@
    TABLET AND DESKTOP: min-width 768px
    ============================================================================= */
 @media (min-width: 768px) {
-    /* Dashboard Grid Layout */
+    /* Unified Two-Column Layout System - Desktop */
     .pm-dashboard-grid {
         display: grid;
         grid-template-columns: 2fr 1fr;
         gap: 2rem;
         align-items: start;
     }
-    
+
+    /* Main content area (left column, 2/3 width) */
+    .pm-dashboard-main {
+        min-height: 200px;
+    }
+
+    /* Sidebar area (right column, 1/3 width) */  
+    .pm-dashboard-sidebar {
+        /* Clean slate - no positioning issues */
+    }
     
     /* Filter button layout */
     #event-filters,
@@ -1970,18 +1970,9 @@
     gap: 0.75rem;
 }
 
-.pm-profile-content-grid {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 2rem;
-    align-items: start;
-    margin-top: 80px;
-}
+/* Desktop styles moved to proper media query - see @media (min-width: 768px) */
 
-.pm-profile-sidebar {
-    position: sticky;
-    top: 2rem;
-}
+/* Removed old profile-specific grid - now using unified pm-dashboard-grid */
 
 .pm-profile-main {
     min-height: 400px;

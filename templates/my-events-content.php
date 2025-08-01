@@ -84,7 +84,7 @@ if ($user_email) {
 ?>
 
 
-<div class="partyminder-content pm-container">
+<div class="pm-container-wide">
     
     <!-- Breadcrumb Navigation -->
     <div class="pm-breadcrumb">

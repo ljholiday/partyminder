@@ -75,10 +75,11 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         <p class="pm-text-muted"><?php _e('Connect, share tips, and plan amazing gatherings with fellow hosts and guests', 'partyminder'); ?></p>
     </div>
 
-    <!-- Two-column layout -->
-    <div class="conversations-layout">
-        <!-- LEFT COLUMN - Community Conversations -->
-        <div class="pm-card">
+    <!-- Use Unified Two-Column Layout -->
+    <div class="pm-dashboard-grid">
+        <!-- Main Content Column -->
+        <div class="pm-dashboard-main">
+            <div class="pm-card">
             <div class="pm-card-header">
                 <h2 class="pm-heading pm-heading-md pm-text-primary pm-m-0"><?php _e('Discussion Topics', 'partyminder'); ?></h2>
                 <p class="pm-text-muted pm-mt-2"><?php _e('Join conversations about hosting and party planning', 'partyminder'); ?></p>
@@ -165,10 +166,11 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 </div>
             <?php endif; ?>
             </div>
+            </div>
         </div>
 
-        <!-- RIGHT COLUMN - Event Activity -->
-        <div class="pm-flex pm-flex-column pm-gap-lg">
+        <!-- Sidebar Column -->
+        <div class="pm-dashboard-sidebar">
             <!-- Event Conversations -->
             <div class="pm-card">
                 <div class="pm-card-header">

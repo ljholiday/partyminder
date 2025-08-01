@@ -328,7 +328,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 }
 </style>
 
-<div class="partyminder-communities pm-container">
+<div class="pm-container-wide">
     <!-- Header -->
     <div class="pm-card-header pm-mb-6">
         <h1 class="pm-heading pm-heading-lg pm-text-primary"><?php _e('🏘️ Communities', 'partyminder'); ?></h1>
@@ -349,10 +349,11 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         </div>
     </div>
 
-    <!-- Two-column layout -->
-    <div class="pm-grid pm-grid-2">
-        <!-- LEFT COLUMN - Public Communities -->
-        <div class="pm-card">
+    <!-- Use Unified Two-Column Layout -->
+    <div class="pm-dashboard-grid">
+        <!-- Main Content Column -->
+        <div class="pm-dashboard-main">
+            <div class="pm-card">
             <div class="pm-card-header">
                 <h2 class="pm-heading pm-heading-md pm-text-primary pm-m-0"><?php _e('🌍 Discover Communities', 'partyminder'); ?></h2>
                 <p class="pm-text-muted pm-mt-2"><?php printf(__('%d communities available', 'partyminder'), count($public_communities)); ?></p>
@@ -423,10 +424,11 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     </div>
                 <?php endif; ?>
             </div>
+            </div>
         </div>
 
-        <!-- RIGHT COLUMN - User Communities & Actions -->
-        <div class="pm-flex pm-flex-column pm-gap-lg">
+        <!-- Sidebar Column -->
+        <div class="pm-dashboard-sidebar">
             <?php if (is_user_logged_in() && !empty($user_communities)): ?>
                 <!-- My Communities -->
                 <div class="pm-card">

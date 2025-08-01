@@ -34,7 +34,7 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
 ?>
 
 
-<div class="partyminder-content pm-container">
+<div class="pm-container-wide">
     <div class="pm-card">
         <div class="pm-card-header">
             <h1 class="pm-title-primary pm-m-0"><?php echo esc_html($event->title); ?></h1>
