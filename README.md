@@ -1,75 +1,75 @@
 # PartyMinder
 
-**AI-powered social event planning with federated networking.**  
-Create dinner parties and social events with intelligent assistance, right from your WordPress site.
+**An Actually Social Network—Built on WordPress**  
+Plan real events. Connect with real people. Share real life.
 
-## Plugin Overview
+## What Is PartyMinder?
 
-PartyMinder is a modular, feature-rich WordPress plugin that enables users to:
+PartyMinder transforms your WordPress site into a private, human-centered social network built around gatherings. It helps people plan events, invite friends, and build community—not followers.
 
-- Create, manage, and invite guests to social events like dinner parties
-- Track RSVPs, guest preferences, and conversations
-- Build private or public community spaces (optional)
-- Integrate with the AT Protocol for federated social interaction (optional)
-- Use intelligent AI-assisted features for streamlined event planning
+Instead of endless feeds and viral noise, PartyMinder offers a quiet, meaningful layer for real-world interaction.
 
 ## Features
 
-- 📅 **Event Management:** Create and manage events with full control over guests, date, time, venue, and capacity
-- ✉️ **Invitation System:** Send, track, and manage event invitations and guest statuses
-- ✅ **RSVP Tracking:** Monitor responses and participation stats in real-time
-- 👥 **Guest Profiles:** View and manage guest preferences, allergies, and more
-- 💬 **Conversation Threads:** Built-in community conversations and event chat
-- 🌐 **Federated Networking:** Optional AT Protocol integration for public event sharing and interaction
-- 🧠 **AI Assistance:** Automated suggestions and support to help plan better events faster
-- 📦 **Shortcodes for Everything:** Easily embed dashboards, event forms, RSVP forms, and more
+- 🎉 **Event Creation** – Hosts can create events with title, date/time, location, and image
+- 📧 **Guest Invitations** – Send personalized RSVP links via email
+- ✅ **RSVP System** – Guests respond with preferences like dietary needs or allergies
+- 🧑‍🤝‍🧑 **Dashboard** – See events you're hosting or attending, all in one place
+- 👤 **User Profiles** – Guests manage their own preferences and contact info
+- 🌐 **Federated Sharing (Optional)** – Public events can be posted via AT Protocol
+- 🧩 **Page-Based Architecture** – Uses dynamic content injection; no blocks, no shortcodes
+- 🧼 **Zero Admin UI** – Everything happens cleanly on the front end
 
-## Shortcodes
+## Architecture
 
-| Shortcode | Description |
-|----------|-------------|
-| `[partyminder_dashboard]` | User dashboard for managing events and conversations |
-| `[partyminder_event_form]` | Event creation form |
-| `[partyminder_event_edit_form]` | Event editing interface |
-| `[partyminder_rsvp_form]` | RSVP form for guests |
-| `[partyminder_events_list]` | Display a list of upcoming events |
-| `[partyminder_my_events]` | User’s hosted and attending events dashboard |
-| `[partyminder_conversations]` | Community conversation section |
-| `[partyminder_profile]` | User profile view/edit |
-| `[partyminder_login]` | Custom login page |
-| `[partyminder_communities]` | Browse and join communities (if enabled) |
+- Automatically registers custom pages: `/event-create`, `/rsvp`, `/dashboard`, etc.
+- Uses the `the_content` filter to inject custom templates based on page slug
+- Forms use AJAX and WordPress APIs for smooth interaction
+- Fully theme-compatible—uses your existing site styles and layout
+- No admin configuration or editor work needed
 
-## Requirements
+## Why It Matters
 
-- WordPress 5.0 or higher
-- PHP 7.4 or higher
+Social media has become performative and extractive.  
+PartyMinder is an “actually social” network—where people:
+- Know each other
+- Share food, stories, and time
+- Build trust through repeated in-person interaction
+
+It’s a digital tool for analog joy.
+
+## MVP Goals
+
+- Create and manage events
+- Invite guests and collect RSVPs with preferences
+- View upcoming events on a personalized dashboard
+- Optional integration with AT Protocol (Bluesky, etc.)
+- Clean front-end experience with no admin overhead
 
 ## Installation
 
-1. Upload the `partyminder` plugin folder to `/wp-content/plugins/`
-2. Activate the plugin through the WordPress admin panel
-3. Configure settings and permissions as needed
+1. Upload the `partyminder` folder to `/wp-content/plugins/`
+2. Activate via the WordPress Admin → Plugins
+3. Visit **Pages → All Pages** to customize your auto-created routes (optional)
+4. Start creating and hosting events!
 
-## Developer Notes
+## Requirements
 
-- **Modular Architecture**: Activation/deactivation handled via `class-activator.php` and `class-deactivator.php`
-- **Feature Flags**: Enable or disable features like communities and AT Protocol via `class-feature-flags.php`
-- **AJAX Endpoints**: All major actions (event create/update, RSVP, guest stats, etc.) are supported via AJAX
-- **Frontend Templates**: Uses custom content injection for event and dashboard pages
-- **Fake Post System**: Dynamic routing of individual events using post-like structures
+- WordPress 5.8+
+- PHP 7.4+
+- A modern theme that respects content templates and spacing
 
 ## License
 
 GPL v2 or later  
 [https://www.gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html)
 
-## Plugin Info
+## Learn More
 
-- **Plugin Name**: PartyMinder  
-- **Version**: 1.0.0  
-- **Author**: PartyMinder Team  
-- **Plugin URI**: [https://partyminder.com](https://partyminder.com)  
-- **Text Domain**: `partyminder`
+- Website: [https://partyminder.com](https://partyminder.com)
+- Contact: team@partyminder.com
 
 ---
+
+PartyMinder is built for people, not algorithms.  
 
