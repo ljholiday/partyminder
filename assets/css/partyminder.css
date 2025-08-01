@@ -2048,6 +2048,105 @@
     margin-bottom: 2px;
 }
 
+/* Upload Progress Indicators */
+.pm-upload-progress {
+    transition: all 0.3s ease;
+}
+
+.pm-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--pm-background-muted);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.pm-progress-bar-lg {
+    height: 12px;
+    border-radius: 6px;
+}
+
+.pm-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--pm-primary), var(--pm-success));
+    border-radius: inherit;
+    transition: width 0.3s ease;
+    width: 0%;
+    position: relative;
+}
+
+.pm-progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: pm-progress-shimmer 2s infinite;
+}
+
+@keyframes pm-progress-shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.pm-progress-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Submit Button Progress States */
+.pm-submit-text, 
+.pm-submit-spinner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pm-submit-spinner .dashicons {
+    animation: pm-spin 1s linear infinite;
+}
+
+@keyframes pm-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.pm-spinning {
+    animation: pm-spin 1s linear infinite;
+}
+
+/* Upload Warning */
+.pm-upload-warning {
+    padding: 0.75rem;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: var(--pm-radius);
+}
+
+/* Button States */
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+button.pm-uploading {
+    background: var(--pm-warning);
+    border-color: var(--pm-warning);
+}
+
+button.pm-uploading:hover {
+    background: var(--pm-warning);
+}
+
+/* Hide/Show States */
+.pm-hidden {
+    display: none !important;
+}
+
 .pm-cover-placeholder p {
     margin: 0;
     font-size: 10px;

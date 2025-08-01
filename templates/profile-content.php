@@ -133,6 +133,17 @@ if (isset($errors) && !empty($errors)) {
                                     <p class="pm-text-sm pm-mb-2"><?php _e('Current profile photo', 'partyminder'); ?></p>
                                     <input type="file" id="profile_image" name="profile_image" class="pm-input" accept="image/*">
                                     <small class="pm-text-muted"><?php _e('Upload a new photo (JPG, PNG, GIF, WebP, max 5MB)', 'partyminder'); ?></small>
+                                    
+                                    <!-- Profile Image Upload Progress -->
+                                    <div id="profile-image-progress" class="pm-upload-progress pm-hidden pm-mt-2">
+                                        <div class="pm-progress-bar">
+                                            <div class="pm-progress-fill" id="profile-progress-fill"></div>
+                                        </div>
+                                        <div class="pm-progress-text pm-text-xs pm-text-muted pm-mt-1">
+                                            <span id="profile-progress-status"><?php _e('Preparing image...', 'partyminder'); ?></span>
+                                            <span id="profile-progress-percent" class="pm-ml-2">0%</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -154,6 +165,17 @@ if (isset($errors) && !empty($errors)) {
                                     <p class="pm-text-sm pm-mb-2"><?php _e('Cover photo (1200x400 recommended)', 'partyminder'); ?></p>
                                     <input type="file" id="cover_image" name="cover_image" class="pm-input" accept="image/*">
                                     <small class="pm-text-muted"><?php _e('Upload a cover photo (JPG, PNG, GIF, WebP, max 5MB)', 'partyminder'); ?></small>
+                                    
+                                    <!-- Cover Image Upload Progress -->
+                                    <div id="cover-image-progress" class="pm-upload-progress pm-hidden pm-mt-2">
+                                        <div class="pm-progress-bar">
+                                            <div class="pm-progress-fill" id="cover-progress-fill"></div>
+                                        </div>
+                                        <div class="pm-progress-text pm-text-xs pm-text-muted pm-mt-1">
+                                            <span id="cover-progress-status"><?php _e('Preparing image...', 'partyminder'); ?></span>
+                                            <span id="cover-progress-percent" class="pm-ml-2">0%</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -302,16 +324,44 @@ if (isset($errors) && !empty($errors)) {
             
             <!-- Form Actions -->
             <div class="pm-card pm-mb-6">
-                <div class="pm-card-body pm-flex pm-flex-center-gap">
-                    <button type="submit" class="pm-button pm-button-primary">
-                        <span class="dashicons dashicons-yes"></span>
-                        <?php _e('Save Profile', 'partyminder'); ?>
-                    </button>
+                <div class="pm-card-body">
+                    <!-- Overall Upload Progress -->
+                    <div id="overall-upload-progress" class="pm-upload-progress pm-hidden pm-mb-4">
+                        <div class="pm-flex pm-flex-center-gap pm-mb-2">
+                            <span class="dashicons dashicons-upload pm-text-primary"></span>
+                            <strong class="pm-text-primary"><?php _e('Uploading Images...', 'partyminder'); ?></strong>
+                        </div>
+                        <div class="pm-progress-bar pm-progress-bar-lg">
+                            <div class="pm-progress-fill" id="overall-progress-fill"></div>
+                        </div>
+                        <div class="pm-progress-text pm-text-sm pm-text-muted pm-mt-2 pm-text-center">
+                            <span id="overall-progress-status"><?php _e('Processing images, please wait...', 'partyminder'); ?></span>
+                        </div>
+                    </div>
                     
-                    <a href="<?php echo esc_url(PartyMinder::get_profile_url()); ?>" class="pm-button pm-button-secondary">
-                        <span class="dashicons dashicons-no-alt"></span>
-                        <?php _e('Cancel', 'partyminder'); ?>
-                    </a>
+                    <div class="pm-flex pm-flex-center-gap">
+                        <button type="submit" id="profile-submit-btn" class="pm-button pm-button-primary">
+                            <span class="pm-submit-icon dashicons dashicons-yes"></span>
+                            <span class="pm-submit-text"><?php _e('Save Profile', 'partyminder'); ?></span>
+                            <span class="pm-submit-spinner pm-hidden">
+                                <span class="dashicons dashicons-update pm-spinning"></span>
+                                <?php _e('Saving...', 'partyminder'); ?>
+                            </span>
+                        </button>
+                        
+                        <a href="<?php echo esc_url(PartyMinder::get_profile_url()); ?>" class="pm-button pm-button-secondary">
+                            <span class="dashicons dashicons-no-alt"></span>
+                            <?php _e('Cancel', 'partyminder'); ?>
+                        </a>
+                    </div>
+                    
+                    <!-- Upload Warning -->
+                    <div id="upload-warning" class="pm-upload-warning pm-hidden pm-mt-3">
+                        <div class="pm-flex pm-flex-center-gap">
+                            <span class="dashicons dashicons-warning pm-text-warning"></span>
+                            <span class="pm-text-warning pm-text-sm"><?php _e('Images are still uploading. Please wait before saving.', 'partyminder'); ?></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
@@ -510,8 +560,9 @@ if (isset($errors) && !empty($errors)) {
 </div>
 
 <script>
-// Character counter for bio field
+// Profile Form Enhancement with Upload Progress
 document.addEventListener('DOMContentLoaded', function() {
+    // Character counter for bio field
     const bioField = document.getElementById('bio');
     const charCount = document.querySelector('.character-count');
     
@@ -529,5 +580,235 @@ document.addEventListener('DOMContentLoaded', function() {
         bioField.addEventListener('input', updateCharCount);
         updateCharCount();
     }
+
+    // Upload Progress Management
+    const profileImageInput = document.getElementById('profile_image');
+    const coverImageInput = document.getElementById('cover_image');
+    const submitBtn = document.getElementById('profile-submit-btn');
+    const profileForm = document.querySelector('.pm-form');
+    
+    let uploadState = {
+        profileImage: { selected: false, processed: false, progress: 0 },
+        coverImage: { selected: false, processed: false, progress: 0 },
+        isUploading: false
+    };
+
+    // File Selection Handlers
+    if (profileImageInput) {
+        profileImageInput.addEventListener('change', function(e) {
+            handleFileSelection('profile', e.target.files[0]);
+        });
+    }
+
+    if (coverImageInput) {
+        coverImageInput.addEventListener('change', function(e) {
+            handleFileSelection('cover', e.target.files[0]);
+        });
+    }
+
+    function handleFileSelection(type, file) {
+        if (!file) {
+            uploadState[type + 'Image'].selected = false;
+            uploadState[type + 'Image'].processed = false;
+            hideProgress(type);
+            updateSubmitButton();
+            return;
+        }
+
+        // Validate file
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        
+        if (file.size > maxSize) {
+            alert('<?php _e("File too large. Maximum size is 5MB.", "partyminder"); ?>');
+            clearFileInput(type);
+            return;
+        }
+
+        if (!allowedTypes.includes(file.type.toLowerCase())) {
+            alert('<?php _e("Invalid file type. Please select JPG, PNG, GIF, or WebP.", "partyminder"); ?>');
+            clearFileInput(type);
+            return;
+        }
+
+        // File is valid - start processing simulation
+        uploadState[type + 'Image'].selected = true;
+        uploadState[type + 'Image'].processed = false;
+        uploadState[type + 'Image'].progress = 0;
+
+        showProgress(type);
+        simulateImageProcessing(type, file);
+        updateSubmitButton();
+    }
+
+    function simulateImageProcessing(type, file) {
+        const progressElement = document.getElementById(type + '-progress-fill');
+        const statusElement = document.getElementById(type + '-progress-status');
+        const percentElement = document.getElementById(type + '-progress-percent');
+        
+        let progress = 0;
+        const isLargeFile = file.size > 1024 * 1024; // 1MB
+        const duration = isLargeFile ? 3000 : 1500; // Longer for larger files
+        const steps = 20;
+        const stepTime = duration / steps;
+
+        statusElement.textContent = '<?php _e("Processing image...", "partyminder"); ?>';
+
+        const interval = setInterval(() => {
+            progress += 100 / steps;
+            if (progress > 100) progress = 100;
+
+            uploadState[type + 'Image'].progress = progress;
+            progressElement.style.width = progress + '%';
+            percentElement.textContent = Math.round(progress) + '%';
+
+            // Update status messages
+            if (progress < 30) {
+                statusElement.textContent = '<?php _e("Validating image...", "partyminder"); ?>';
+            } else if (progress < 70) {
+                statusElement.textContent = '<?php _e("Optimizing image...", "partyminder"); ?>';
+            } else if (progress < 100) {
+                statusElement.textContent = '<?php _e("Preparing upload...", "partyminder"); ?>';
+            } else {
+                statusElement.textContent = '<?php _e("Ready to upload!", "partyminder"); ?>';
+                uploadState[type + 'Image'].processed = true;
+            }
+
+            updateOverallProgress();
+            updateSubmitButton();
+
+            if (progress >= 100) {
+                clearInterval(interval);
+                // Auto-hide individual progress after completion
+                setTimeout(() => {
+                    if (uploadState[type + 'Image'].processed) {
+                        hideProgress(type);
+                    }
+                }, 1500);
+            }
+        }, stepTime);
+    }
+
+    function showProgress(type) {
+        const progressElement = document.getElementById(type + '-image-progress');
+        if (progressElement) {
+            progressElement.classList.remove('pm-hidden');
+        }
+    }
+
+    function hideProgress(type) {
+        const progressElement = document.getElementById(type + '-image-progress');
+        if (progressElement) {
+            progressElement.classList.add('pm-hidden');
+        }
+    }
+
+    function updateOverallProgress() {
+        const hasFiles = uploadState.profileImage.selected || uploadState.coverImage.selected;
+        const overallProgress = document.getElementById('overall-upload-progress');
+        
+        if (!hasFiles || (uploadState.profileImage.processed && uploadState.coverImage.processed)) {
+            if (overallProgress) overallProgress.classList.add('pm-hidden');
+            return;
+        }
+
+        if (overallProgress) overallProgress.classList.remove('pm-hidden');
+
+        let totalProgress = 0;
+        let fileCount = 0;
+
+        if (uploadState.profileImage.selected) {
+            totalProgress += uploadState.profileImage.progress;
+            fileCount++;
+        }
+
+        if (uploadState.coverImage.selected) {
+            totalProgress += uploadState.coverImage.progress;
+            fileCount++;
+        }
+
+        const averageProgress = fileCount > 0 ? totalProgress / fileCount : 0;
+        const overallFill = document.getElementById('overall-progress-fill');
+        if (overallFill) {
+            overallFill.style.width = averageProgress + '%';
+        }
+    }
+
+    function updateSubmitButton() {
+        if (!submitBtn) return;
+
+        const hasUnprocessedFiles = 
+            (uploadState.profileImage.selected && !uploadState.profileImage.processed) ||
+            (uploadState.coverImage.selected && !uploadState.coverImage.processed);
+
+        const submitText = submitBtn.querySelector('.pm-submit-text');
+        const submitSpinner = submitBtn.querySelector('.pm-submit-spinner');
+        const uploadWarning = document.getElementById('upload-warning');
+
+        if (hasUnprocessedFiles) {
+            // Files are still processing
+            submitBtn.disabled = true;
+            submitBtn.classList.add('pm-uploading');
+            if (uploadWarning) uploadWarning.classList.remove('pm-hidden');
+        } else {
+            // All files processed or no files selected
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('pm-uploading');
+            if (uploadWarning) uploadWarning.classList.add('pm-hidden');
+        }
+
+        // Handle submit spinner
+        if (uploadState.isUploading) {
+            if (submitText) submitText.classList.add('pm-hidden');
+            if (submitSpinner) submitSpinner.classList.remove('pm-hidden');
+        } else {
+            if (submitText) submitText.classList.remove('pm-hidden');
+            if (submitSpinner) submitSpinner.classList.add('pm-hidden');
+        }
+    }
+
+    function clearFileInput(type) {
+        const input = type === 'profile' ? profileImageInput : coverImageInput;
+        if (input) input.value = '';
+        uploadState[type + 'Image'] = { selected: false, processed: false, progress: 0 };
+        hideProgress(type);
+        updateSubmitButton();
+        updateOverallProgress();
+    }
+
+    // Form submission handler
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+            const hasUnprocessedFiles = 
+                (uploadState.profileImage.selected && !uploadState.profileImage.processed) ||
+                (uploadState.coverImage.selected && !uploadState.coverImage.processed);
+
+            if (hasUnprocessedFiles) {
+                e.preventDefault();
+                alert('<?php _e("Please wait for image processing to complete before saving.", "partyminder"); ?>');
+                return false;
+            }
+
+            // Show upload progress
+            uploadState.isUploading = true;
+            updateSubmitButton();
+            
+            // Show overall progress during form submission
+            const overallProgress = document.getElementById('overall-upload-progress');
+            const statusElement = document.getElementById('overall-progress-status');
+            if (overallProgress && statusElement) {
+                overallProgress.classList.remove('pm-hidden');
+                statusElement.textContent = '<?php _e("Saving profile changes...", "partyminder"); ?>';
+                
+                const progressFill = document.getElementById('overall-progress-fill');
+                if (progressFill) {
+                    progressFill.style.width = '100%';
+                }
+            }
+        });
+    }
+
+    // Initialize button state
+    updateSubmitButton();
 });
 </script>
