@@ -646,6 +646,9 @@ document.addEventListener('DOMContentLoaded', function() {
         uploadState[type + 'Image'].processed = false;
         uploadState[type + 'Image'].progress = 0;
 
+        // Update thumbnail preview immediately
+        updateThumbnailPreview(type, file);
+        
         showProgress(type);
         simulateImageProcessing(type, file);
         updateSubmitButton();
@@ -789,6 +792,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function updateThumbnailPreview(type, file) {
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            if (type === 'profile') {
+                const preview = document.querySelector('.pm-avatar-preview-img');
+                if (preview) {
+                    preview.src = e.target.result;
+                }
+            } else if (type === 'cover') {
+                const preview = document.querySelector('.pm-cover-preview-img');
+                const placeholder = document.querySelector('.pm-cover-placeholder');
+                const previewContainer = document.querySelector('.pm-cover-preview');
+                
+                if (preview) {
+                    // Update existing image
+                    preview.src = e.target.result;
+                } else if (placeholder && previewContainer) {
+                    // Replace placeholder with new image
+                    placeholder.style.display = 'none';
+                    const newImg = document.createElement('img');
+                    newImg.src = e.target.result;
+                    newImg.alt = 'Cover Preview';
+                    newImg.className = 'pm-cover-preview-img';
+                    previewContainer.appendChild(newImg);
+                }
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
     function clearFileInput(type) {
         const input = type === 'profile' ? profileImageInput : coverImageInput;
         if (input) input.value = '';
@@ -796,6 +831,24 @@ document.addEventListener('DOMContentLoaded', function() {
         hideProgress(type);
         updateSubmitButton();
         updateOverallProgress();
+        
+        // Reset thumbnail preview
+        resetThumbnailPreview(type);
+    }
+
+    function resetThumbnailPreview(type) {
+        if (type === 'cover') {
+            const preview = document.querySelector('.pm-cover-preview-img');
+            const placeholder = document.querySelector('.pm-cover-placeholder');
+            
+            if (preview) {
+                preview.remove();
+            }
+            if (placeholder) {
+                placeholder.style.display = 'flex';
+            }
+        }
+        // Profile image reset could be added here if needed
     }
 
     // Form submission handler
