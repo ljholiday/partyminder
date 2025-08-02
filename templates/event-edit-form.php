@@ -69,6 +69,7 @@ $form_layout = get_option('partyminder_form_layout', 'card');
 
 // Format event date for datetime-local input
 $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
+ob_start();
 ?>
 
 
@@ -239,3 +240,8 @@ jQuery(document).ready(function($) {
     });
 });
 </script>
+<?php
+$form_content = ob_get_clean();
+include PARTYMINDER_PLUGIN_DIR . 'templates/layouts/form-page.php';
+?>
+

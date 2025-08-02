@@ -32,8 +32,9 @@ $primary_color = get_option('partyminder_primary_color', '#667eea');
 $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 $button_style = get_option('partyminder_button_style', 'rounded');
 $form_layout = get_option('partyminder_form_layout', 'card');
-?>
 
+ob_start();
+?>
 
 <div class="partyminder-event-form-container">
     <?php if ($event_created): ?>
@@ -192,3 +193,7 @@ jQuery(document).ready(function($) {
     });
 });
 </script>
+<?php
+$form_content = ob_get_clean();
+include PARTYMINDER_PLUGIN_DIR . 'templates/layouts/form-page.php';
+?>

@@ -387,7 +387,7 @@ $is_event_host = (is_user_logged_in() && $current_user->ID == $event->author_id)
 ?>
 
 <?php
-// Styles now properly located in assets/css/partyminder.css
+// Styles now located in css/partyminder.css
 ?>
 
 <script>
