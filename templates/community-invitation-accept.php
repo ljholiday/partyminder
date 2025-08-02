@@ -116,156 +116,6 @@ $primary_color = get_option('partyminder_primary_color', '#667eea');
 $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 ?>
 
-<style>
-:root {
-    --pm-primary: <?php echo esc_attr($primary_color); ?>;
-    --pm-secondary: <?php echo esc_attr($secondary_color); ?>;
-}
-
-.partyminder-invitation-accept {
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 20px;
-}
-
-.invitation-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    overflow: hidden;
-    margin-bottom: 30px;
-}
-
-.invitation-header {
-    background: linear-gradient(135deg, var(--pm-primary), var(--pm-secondary));
-    color: white;
-    padding: 30px;
-    text-align: center;
-}
-
-.invitation-icon {
-    font-size: 3em;
-    margin-bottom: 10px;
-}
-
-.invitation-title {
-    font-size: 1.8em;
-    margin: 0 0 10px 0;
-    font-weight: bold;
-}
-
-.invitation-subtitle {
-    font-size: 1.1em;
-    opacity: 0.9;
-    margin: 0;
-}
-
-.invitation-body {
-    padding: 30px;
-}
-
-.invitation-details {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.invitation-details h4 {
-    margin: 0 0 10px 0;
-    color: var(--pm-primary);
-}
-
-.invitation-details p {
-    margin: 5px 0;
-    color: #666;
-}
-
-.invitation-message {
-    background: #fff3cd;
-    border: 1px solid #ffeaa7;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
-}
-
-.invitation-message em {
-    font-style: italic;
-    color: #856404;
-}
-
-.pm-button {
-    background: var(--pm-primary);
-    color: white;
-    padding: 15px 30px;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-    font-size: 1.1em;
-}
-
-.pm-button:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.pm-button-secondary {
-    background: #6c757d;
-}
-
-.message-box {
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    font-weight: 500;
-}
-
-.message-success {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.message-error {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-
-.login-prompt {
-    text-align: center;
-    padding: 20px;
-    background: #e3f2fd;
-    border-radius: 8px;
-    margin-top: 20px;
-}
-
-.already-member {
-    text-align: center;
-    padding: 20px;
-}
-
-@media (max-width: 768px) {
-    .partyminder-invitation-accept {
-        margin: 20px auto;
-        padding: 10px;
-    }
-    
-    .invitation-header, .invitation-body {
-        padding: 20px;
-    }
-    
-    .invitation-title {
-        font-size: 1.5em;
-    }
-}
-</style>
 
 <div class="partyminder-invitation-accept">
     <!-- Page Header -->
@@ -311,14 +161,14 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     <div class="login-prompt">
                         <h4><?php _e('Login Required', 'partyminder'); ?></h4>
                         <p><?php _e('You need to be logged in to accept this invitation.', 'partyminder'); ?></p>
-                        <a href="<?php echo wp_login_url(home_url('/communities/join?token=' . urlencode($token))); ?>" class="pm-button">
+                        <a href="<?php echo wp_login_url(home_url('/communities/join?token=' . urlencode($token))); ?>" class="btn">
                             <span>🔑</span> <?php _e('Login to Accept', 'partyminder'); ?>
                         </a>
                     </div>
                 <?php elseif ($message_type === 'success'): ?>
                     <div style="text-align: center;">
                         <p><?php _e('Redirecting to your new community...', 'partyminder'); ?></p>
-                        <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-button">
+                        <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="btn">
                             <span>🏘️</span> <?php _e('Go to Community', 'partyminder'); ?>
                         </a>
                     </div>
@@ -332,7 +182,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         <div class="already-member">
                             <h4><?php _e('Already a Member', 'partyminder'); ?></h4>
                             <p><?php _e('You are already a member of this community.', 'partyminder'); ?></p>
-                            <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-button">
+                            <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="btn">
                                 <span>🏘️</span> <?php _e('Go to Community', 'partyminder'); ?>
                             </a>
                         </div>
@@ -341,7 +191,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                             <?php wp_nonce_field('accept_invitation_' . $token, 'invitation_nonce'); ?>
                             <h4><?php _e('Accept Invitation', 'partyminder'); ?></h4>
                             <p><?php _e('Click below to join this community.', 'partyminder'); ?></p>
-                            <button type="submit" class="pm-button">
+                            <button type="submit" class="btn">
                                 <span>✅</span> <?php _e('Accept & Join Community', 'partyminder'); ?>
                             </button>
                         </form>
@@ -350,7 +200,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             <?php else: ?>
                 <div style="text-align: center;">
                     <p><?php _e('Return to communities to explore other options.', 'partyminder'); ?></p>
-                    <a href="<?php echo home_url('/communities'); ?>" class="pm-button pm-button-secondary">
+                    <a href="<?php echo home_url('/communities'); ?>" class="btn btn-secondary">
                         <span>🏘️</span> <?php _e('Browse Communities', 'partyminder'); ?>
                     </a>
                 </div>

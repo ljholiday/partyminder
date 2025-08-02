@@ -71,18 +71,6 @@ $form_layout = get_option('partyminder_form_layout', 'card');
 $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
 ?>
 
-<style>
-:root {
-    --pm-primary: <?php echo esc_attr($primary_color); ?>;
-    --pm-secondary: <?php echo esc_attr($secondary_color); ?>;
-}
-.partyminder-form.layout-<?php echo esc_attr($form_layout); ?> {
-    /* Form layout styles will be applied */
-}
-.pm-button.style-<?php echo esc_attr($button_style); ?> {
-    /* Button style variations */
-}
-</style>
 
 <div class="partyminder-event-edit-form-container">
     <?php if ($event_updated): ?>
@@ -91,7 +79,7 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
             <h3><?php _e('✅ Event Updated Successfully!', 'partyminder'); ?></h3>
             <p><?php _e('Your event changes have been saved.', 'partyminder'); ?></p>
             <div class="success-actions">
-                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-primary">
+                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn btn-primary">
                     <?php _e('View Event', 'partyminder'); ?>
                 </a>
                 <button type="button" onclick="navigator.share({title: 'Check out this event!', url: '<?php echo esc_js(home_url('/events/' . $event->slug)); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js(home_url('/events/' . $event->slug)); ?>')">
@@ -185,10 +173,10 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
             </div>
 
             <div class="form-actions">
-                <button type="submit" name="partyminder_update_event" class="pm-button pm-button-primary style-<?php echo esc_attr($button_style); ?>">
+                <button type="submit" name="partyminder_update_event" class="btn btn-primary style-<?php echo esc_attr($button_style); ?>">
                     <?php _e('Update Event', 'partyminder'); ?>
                 </button>
-                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-secondary style-<?php echo esc_attr($button_style); ?>">
+                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn btn-secondary style-<?php echo esc_attr($button_style); ?>">
                     <?php _e('Cancel', 'partyminder'); ?>
                 </a>
             </div>
@@ -225,7 +213,7 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success) {
                     // Show success message
-                    $form.before('<div class="partyminder-success" style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; margin: 15px 0; border-radius: 4px;"><h3><?php _e("✅ Event Updated Successfully!", "partyminder"); ?></h3><p><?php _e("Your event changes have been saved.", "partyminder"); ?></p><div class="success-actions"><a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-primary"><?php _e("View Event", "partyminder"); ?></a></div></div>');
+                    $form.before('<div class="partyminder-success" style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; margin: 15px 0; border-radius: 4px;"><h3><?php _e("✅ Event Updated Successfully!", "partyminder"); ?></h3><p><?php _e("Your event changes have been saved.", "partyminder"); ?></p><div class="success-actions"><a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn btn-primary"><?php _e("View Event", "partyminder"); ?></a></div></div>');
                     
                     // Scroll to top to show success message
                     $('html, body').animate({scrollTop: 0}, 500);

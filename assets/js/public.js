@@ -555,10 +555,10 @@
         // Adjust forms for mobile
         if (width < 768) {
             $('.form-row').addClass('mobile-stack');
-            $('.pm-button').addClass('full-width');
+            $('.btn').addClass('full-width');
         } else {
             $('.form-row').removeClass('mobile-stack');
-            $('.pm-button').removeClass('full-width');
+            $('.btn').removeClass('full-width');
         }
     };
 

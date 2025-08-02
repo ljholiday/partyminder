@@ -82,245 +82,6 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 $button_style = get_option('partyminder_button_style', 'rounded');
 ?>
 
-<style>
-:root {
-    --pm-primary: <?php echo esc_attr($primary_color); ?>;
-    --pm-secondary: <?php echo esc_attr($secondary_color); ?>;
-}
-
-.partyminder-my-events {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.my-events-header {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.my-events-header h2 {
-    font-size: 2.5em;
-    margin-bottom: 10px;
-    color: var(--pm-primary);
-}
-
-.events-section {
-    margin: 40px 0;
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #f0f0f0;
-}
-
-.section-title {
-    font-size: 1.5em;
-    color: var(--pm-primary);
-    margin: 0;
-}
-
-.event-count {
-    background: var(--pm-primary);
-    color: white;
-    padding: 5px 15px;
-    border-radius: 20px;
-    font-size: 0.9em;
-}
-
-.events-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 25px;
-}
-
-.my-event-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
-}
-
-.my-event-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.event-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.8em;
-    font-weight: bold;
-    z-index: 1;
-}
-
-.badge-created {
-    background: #28a745;
-    color: white;
-}
-
-.badge-confirmed {
-    background: #17a2b8;
-    color: white;
-}
-
-.badge-maybe {
-    background: #ffc107;
-    color: #212529;
-}
-
-.badge-declined {
-    background: #dc3545;
-    color: white;
-}
-
-.event-content {
-    padding: 20px;
-}
-
-.event-title {
-    font-size: 1.3em;
-    font-weight: bold;
-    margin: 0 0 10px 0;
-    color: #333;
-}
-
-.event-title a {
-    color: inherit;
-    text-decoration: none;
-}
-
-.event-title a:hover {
-    color: var(--pm-primary);
-}
-
-.event-meta {
-    margin: 15px 0;
-}
-
-.meta-item {
-    display: inline-flex;
-    align-items: center;
-    margin: 5px 15px 5px 0;
-    font-size: 0.9em;
-    color: #666;
-}
-
-.meta-icon {
-    margin-right: 8px;
-}
-
-.event-stats {
-    display: flex;
-    gap: 15px;
-    margin: 15px 0;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 8px;
-}
-
-.stat-item {
-    text-align: center;
-    flex: 1;
-}
-
-.stat-number {
-    font-size: 1.2em;
-    font-weight: bold;
-    color: var(--pm-primary);
-}
-
-.stat-label {
-    font-size: 0.8em;
-    color: #666;
-}
-
-.event-actions {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.pm-button {
-    background: var(--pm-primary);
-    color: white;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 0.9em;
-    transition: background 0.3s ease;
-    cursor: pointer;
-}
-
-.pm-button:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.pm-button-secondary {
-    background: #6c757d;
-}
-
-.pm-button-small {
-    padding: 6px 12px;
-    font-size: 0.8em;
-}
-
-.no-events {
-    text-align: center;
-    padding: 60px 20px;
-    color: #666;
-}
-
-.no-events-icon {
-    font-size: 4em;
-    margin-bottom: 20px;
-}
-
-.login-prompt {
-    background: #e7f3ff;
-    border: 1px solid #b8daff;
-    color: #004085;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    margin: 20px 0;
-}
-
-.email-lookup {
-    background: #fff3cd;
-    border: 1px solid #ffeaa7;
-    color: #856404;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-}
-
-.email-form {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 15px;
-}
-
-.email-form input {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 250px;
-}
-</style>
 
 <div class="partyminder-my-events">
     
@@ -347,7 +108,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     <div class="login-prompt">
         <h3><?php _e('🔐 Login to See Your Events', 'partyminder'); ?></h3>
         <p><?php _e('Log in to see events you\'ve created and your RSVPs.', 'partyminder'); ?></p>
-        <a href="<?php echo wp_login_url(get_permalink(get_the_ID())); ?>" class="pm-button">
+        <a href="<?php echo wp_login_url(get_permalink(get_the_ID())); ?>" class="btn">
             <?php _e('Login', 'partyminder'); ?>
         </a>
     </div>
@@ -357,7 +118,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
         <p><?php _e('Enter your email to see events you\'ve RSVP\'d to.', 'partyminder'); ?></p>
         <form method="get" class="email-form">
             <input type="email" name="email" placeholder="<?php esc_attr_e('Enter your email address', 'partyminder'); ?>" required />
-            <button type="submit" class="pm-button"><?php _e('Find My RSVPs', 'partyminder'); ?></button>
+            <button type="submit" class="btn"><?php _e('Find My RSVPs', 'partyminder'); ?></button>
         </form>
     </div>
     <?php endif; ?>
@@ -419,10 +180,10 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                         </div>
 
                         <div class="event-actions">
-                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-small">
+                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn btn-small">
                                 <?php _e('View Event', 'partyminder'); ?>
                             </a>
-                            <a href="<?php echo PartyMinder::get_edit_event_url($event->id); ?>" class="pm-button pm-button-secondary pm-button-small">
+                            <a href="<?php echo PartyMinder::get_edit_event_url($event->id); ?>" class="btn btn-secondary btn-small">
                                 <span>✏️</span>
                                 <?php _e('Edit', 'partyminder'); ?>
                             </a>
@@ -487,11 +248,11 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                         </div>
 
                         <div class="event-actions">
-                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-small">
+                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn btn-small">
                                 <?php _e('View Event', 'partyminder'); ?>
                             </a>
                             <?php if (!$is_past): ?>
-                            <a href="<?php echo home_url('/events/' . $event->slug); ?>#rsvp" class="pm-button pm-button-secondary pm-button-small">
+                            <a href="<?php echo home_url('/events/' . $event->slug); ?>#rsvp" class="btn btn-secondary btn-small">
                                 <?php _e('Update RSVP', 'partyminder'); ?>
                             </a>
                             <?php endif; ?>
@@ -510,7 +271,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
         <h3><?php _e('No Events Found', 'partyminder'); ?></h3>
         <?php if (is_user_logged_in()): ?>
             <p><?php _e('You haven\'t created any events yet, and no RSVPs found.', 'partyminder'); ?></p>
-            <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-button">
+            <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="btn">
                 <span>✨</span>
                 <?php _e('Create Your First Event', 'partyminder'); ?>
             </a>
@@ -528,11 +289,11 @@ $button_style = get_option('partyminder_button_style', 'rounded');
         </div>
         
         <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
-            <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-button">
+            <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="btn">
                 <span style="margin-right: 8px;">✨</span>
                 <?php _e('Create New Event', 'partyminder'); ?>
             </a>
-            <a href="<?php echo get_permalink(get_the_ID()) . '?show_past=1'; ?>" class="pm-button pm-button-secondary">
+            <a href="<?php echo get_permalink(get_the_ID()) . '?show_past=1'; ?>" class="btn btn-secondary">
                 <span style="margin-right: 8px;">📅</span>
                 <?php echo $show_past ? __('Hide Past Events', 'partyminder') : __('Show Past Events', 'partyminder'); ?>
             </a>

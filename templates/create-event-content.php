@@ -49,9 +49,9 @@ $form_layout = get_option('partyminder_form_layout', 'card');
 <div class="partyminder-create-content pm-container">
     
     <!-- Page Header -->
-    <div class="pm-card-header pm-mb-6">
+    <div class="card-header pm-mb-6">
         <h1 class="pm-heading pm-heading-lg pm-text-primary"><?php _e('✨ Create Your Event', 'partyminder'); ?></h1>
-        <p class="pm-text-muted"><?php _e('Plan your perfect event and invite your guests.', 'partyminder'); ?></p>
+        <p class="text-muted"><?php _e('Plan your perfect event and invite your guests.', 'partyminder'); ?></p>
     </div>
 
     <?php if ($event_created): ?>
@@ -60,15 +60,15 @@ $form_layout = get_option('partyminder_form_layout', 'card');
             <h3 class="pm-heading pm-heading-md pm-mb-2"><?php _e('🎉 Event Created Successfully!', 'partyminder'); ?></h3>
             <p class="pm-mb-4"><?php _e('Your event has been created and is ready for guests to RSVP.', 'partyminder'); ?></p>
             <div class="pm-flex pm-flex-center-gap">
-                <a href="<?php echo $creation_data['event_url']; ?>" class="pm-button pm-button-primary">
+                <a href="<?php echo $creation_data['event_url']; ?>" class="btn btn-primary">
                     <span>👀</span>
                     <?php _e('View Event', 'partyminder'); ?>
                 </a>
-                <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-button pm-button-secondary">
+                <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="btn btn-secondary">
                     <span>📋</span>
                     <?php _e('My Events', 'partyminder'); ?>
                 </a>
-                <button type="button" onclick="navigator.share({title: 'Check out my event!', url: '<?php echo esc_js($creation_data['event_url']); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js($creation_data['event_url']); ?>')" class="pm-button pm-button-secondary">
+                <button type="button" onclick="navigator.share({title: 'Check out my event!', url: '<?php echo esc_js($creation_data['event_url']); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js($creation_data['event_url']); ?>')" class="btn btn-secondary">
                     <span>📤</span>
                     <?php _e('Share Event', 'partyminder'); ?>
                 </button>
@@ -77,7 +77,7 @@ $form_layout = get_option('partyminder_form_layout', 'card');
     <?php else: ?>
 
         <!-- Event Creation Form -->
-        <div class="pm-card">
+        <div class="card">
             
             <?php if (!empty($form_errors)): ?>
                 <div class="pm-message pm-message-error pm-mb-4">
@@ -90,7 +90,7 @@ $form_layout = get_option('partyminder_form_layout', 'card');
                 </div>
             <?php endif; ?>
             
-            <div class="pm-card-body">
+            <div class="card-body">
             <form method="post" class="pm-form" id="partyminder-event-form">
                 <?php wp_nonce_field('create_partyminder_event', 'partyminder_event_nonce'); ?>
                 
@@ -161,29 +161,29 @@ $form_layout = get_option('partyminder_form_layout', 'card');
                     <?php if (PartyMinder_Feature_Flags::is_at_protocol_enabled()): ?>
                     <!-- Bluesky Connection Status -->
                     <div id="create-bluesky-connection-section" class="pm-mb-6">
-                        <div id="create-bluesky-not-connected" class="pm-card pm-card-info" style="border-left: 4px solid #1d9bf0;">
-                            <div class="pm-card-body">
+                        <div id="create-bluesky-not-connected" class="card card-info" style="border-left: 4px solid #1d9bf0;">
+                            <div class="card-body">
                                 <h5 class="pm-heading pm-heading-sm pm-mb-2">
                                     🦋 <?php _e('Connect Bluesky for Easy Invites', 'partyminder'); ?>
                                 </h5>
-                                <p class="pm-text-muted pm-mb-4">
+                                <p class="text-muted pm-mb-4">
                                     <?php _e('Connect your Bluesky account to quickly invite your contacts after creating the event.', 'partyminder'); ?>
                                 </p>
-                                <button type="button" class="pm-button pm-button-secondary" id="create-connect-bluesky-btn">
+                                <button type="button" class="btn btn-secondary" id="create-connect-bluesky-btn">
                                     <?php _e('Connect Bluesky Account', 'partyminder'); ?>
                                 </button>
                             </div>
                         </div>
                         
-                        <div id="create-bluesky-connected" class="pm-card pm-card-success" style="border-left: 4px solid #10b981; display: none;">
-                            <div class="pm-card-body">
+                        <div id="create-bluesky-connected" class="card card-success" style="border-left: 4px solid #10b981; display: none;">
+                            <div class="card-body">
                                 <h5 class="pm-heading pm-heading-sm pm-mb-2">
                                     ✅ <?php _e('Bluesky Connected', 'partyminder'); ?>
                                 </h5>
-                                <p class="pm-text-muted pm-mb-4">
+                                <p class="text-muted pm-mb-4">
                                     <?php _e('Connected as', 'partyminder'); ?> <strong id="create-bluesky-handle"></strong>
                                 </p>
-                                <button type="button" class="pm-button pm-button-danger pm-button-sm" id="create-disconnect-bluesky-btn">
+                                <button type="button" class="btn btn-danger btn-sm" id="create-disconnect-bluesky-btn">
                                     <?php _e('Disconnect', 'partyminder'); ?>
                                 </button>
                             </div>
@@ -192,10 +192,10 @@ $form_layout = get_option('partyminder_form_layout', 'card');
                     <?php endif; ?>
                     
                     <!-- Manual Email Preview -->
-                    <div class="pm-card">
-                        <div class="pm-card-body">
+                    <div class="card">
+                        <div class="card-body">
                             <h5 class="pm-heading pm-heading-sm pm-mb-2">📧 <?php _e('Manual Email Invitations', 'partyminder'); ?></h5>
-                            <p class="pm-text-muted pm-mb-4">
+                            <p class="text-muted pm-mb-4">
                                 <?php _e('After creating your event, you\'ll be able to send email invitations to specific guests.', 'partyminder'); ?>
                             </p>
                             <div class="pm-form-group">
@@ -204,7 +204,7 @@ $form_layout = get_option('partyminder_form_layout', 'card');
                             <div class="pm-form-group">
                                 <textarea class="pm-input pm-textarea" rows="2" placeholder="<?php _e('Add a personal message...', 'partyminder'); ?>" disabled></textarea>
                             </div>
-                            <button type="button" class="pm-button pm-button-secondary" disabled>
+                            <button type="button" class="btn btn-secondary" disabled>
                                 <?php _e('Available After Event Creation', 'partyminder'); ?>
                             </button>
                         </div>
@@ -212,11 +212,11 @@ $form_layout = get_option('partyminder_form_layout', 'card');
                 </div>
 
                 <div class="pm-flex pm-flex-center-gap pm-mt-6">
-                    <button type="submit" name="partyminder_create_event" class="pm-button pm-button-primary pm-button-large">
+                    <button type="submit" name="partyminder_create_event" class="btn btn-primary btn-large">
                         <span>🎉</span>
                         <?php _e('Create Event', 'partyminder'); ?>
                     </button>
-                    <a href="<?php echo PartyMinder::get_events_page_url(); ?>" class="pm-button pm-button-secondary">
+                    <a href="<?php echo PartyMinder::get_events_page_url(); ?>" class="btn btn-secondary">
                         <span>👈</span>
                         <?php _e('Back to Events', 'partyminder'); ?>
                     </a>
@@ -328,7 +328,7 @@ jQuery(document).ready(function($) {
                 <div class="pm-modal pm-modal-sm">
                     <div class="pm-modal-header">
                         <h3>🦋 <?php _e('Connect to Bluesky', 'partyminder'); ?></h3>
-                        <button type="button" class="create-bluesky-connect-close pm-button pm-button-secondary" style="padding: 5px; border-radius: 50%; width: 35px; height: 35px;">×</button>
+                        <button type="button" class="create-bluesky-connect-close btn btn-secondary" style="padding: 5px; border-radius: 50%; width: 35px; height: 35px;">×</button>
                     </div>
                     <div class="pm-modal-body">
                         <form id="create-bluesky-connect-form">
@@ -341,15 +341,15 @@ jQuery(document).ready(function($) {
                                 <label class="pm-label"><?php _e('App Password', 'partyminder'); ?></label>
                                 <input type="password" class="pm-input" id="create-bluesky-password-input" 
                                        placeholder="<?php _e('Your Bluesky app password', 'partyminder'); ?>" required>
-                                <small class="pm-text-muted">
+                                <small class="text-muted">
                                     <?php _e('Create an app password in your Bluesky settings for secure access.', 'partyminder'); ?>
                                 </small>
                             </div>
                             <div class="pm-flex pm-flex-center-gap pm-mt-4">
-                                <button type="submit" class="pm-button pm-button-primary">
+                                <button type="submit" class="btn btn-primary">
                                     <?php _e('Connect Account', 'partyminder'); ?>
                                 </button>
-                                <button type="button" class="create-bluesky-connect-close pm-button pm-button-secondary">
+                                <button type="button" class="create-bluesky-connect-close btn btn-secondary">
                                     <?php _e('Cancel', 'partyminder'); ?>
                                 </button>
                             </div>

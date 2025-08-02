@@ -18,7 +18,7 @@ if (!$event_id) {
         <div class="error-wrapper">
             <h3><?php _e('Event Not Found', 'partyminder'); ?></h3>
             <p><?php _e('Event ID is required to edit an event.', 'partyminder'); ?></p>
-            <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-button">
+            <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="btn">
                 <?php _e('Back to My Events', 'partyminder'); ?>
             </a>
         </div>
@@ -39,7 +39,7 @@ if (!$event) {
         <div class="error-wrapper">
             <h3><?php _e('Event Not Found', 'partyminder'); ?></h3>
             <p><?php _e('The event you\'re trying to edit could not be found.', 'partyminder'); ?></p>
-            <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-button">
+            <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="btn">
                 <?php _e('Back to My Events', 'partyminder'); ?>
             </a>
         </div>
@@ -64,7 +64,7 @@ if (!$can_edit) {
         <div class="error-wrapper">
             <h3><?php _e('Access Denied', 'partyminder'); ?></h3>
             <p><?php _e('You do not have permission to edit this event.', 'partyminder'); ?></p>
-            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button">
+            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn">
                 <?php _e('View Event', 'partyminder'); ?>
             </a>
         </div>
@@ -106,26 +106,6 @@ $form_layout = get_option('partyminder_form_layout', 'card');
 $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
 ?>
 
-<style>
-/* Dynamic theme colors for edit event content */
-.partyminder-edit-content .page-header h2 {
-    color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-edit-content .form-section h3 {
-    color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-edit-content .form-group input:focus,
-.partyminder-edit-content .form-group textarea:focus,
-.partyminder-edit-content .form-group select:focus {
-    border-color: <?php echo esc_attr($primary_color); ?>;
-}
-
-.partyminder-edit-content .pm-button {
-    background: <?php echo esc_attr($primary_color); ?>;
-}
-</style>
 
 <div class="partyminder-edit-content">
     
@@ -155,15 +135,15 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
             <h3><?php _e('✅ Event Updated Successfully!', 'partyminder'); ?></h3>
             <p><?php _e('Your event changes have been saved.', 'partyminder'); ?></p>
             <div class="success-actions">
-                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-primary">
+                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn btn-primary">
                     <span>👀</span>
                     <?php _e('View Event', 'partyminder'); ?>
                 </a>
-                <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-button pm-button-secondary">
+                <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="btn btn-secondary">
                     <span>📋</span>
                     <?php _e('My Events', 'partyminder'); ?>
                 </a>
-                <button type="button" onclick="navigator.share({title: 'Check out this event!', url: '<?php echo esc_js(home_url('/events/' . $event->slug)); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js(home_url('/events/' . $event->slug)); ?>')" class="pm-button pm-button-secondary">
+                <button type="button" onclick="navigator.share({title: 'Check out this event!', url: '<?php echo esc_js(home_url('/events/' . $event->slug)); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js(home_url('/events/' . $event->slug)); ?>')" class="btn btn-secondary">
                     <span>📤</span>
                     <?php _e('Share Event', 'partyminder'); ?>
                 </button>
@@ -251,15 +231,15 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
             </div>
 
             <div class="form-actions">
-                <button type="submit" name="partyminder_update_event" class="pm-button pm-button-primary">
+                <button type="submit" name="partyminder_update_event" class="btn btn-primary">
                     <span>💾</span>
                     <?php _e('Update Event', 'partyminder'); ?>
                 </button>
-                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-secondary">
+                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn btn-secondary">
                     <span>👀</span>
                     <?php _e('View Event', 'partyminder'); ?>
                 </a>
-                <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-button pm-button-secondary">
+                <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="btn btn-secondary">
                     <span>👈</span>
                     <?php _e('Back to My Events', 'partyminder'); ?>
                 </a>
