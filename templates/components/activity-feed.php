@@ -45,7 +45,7 @@ if ($user_id) {
                             <?php echo $activity_manager->get_activity_description($activity); ?>
                             
                             <?php if ($show_user_names && isset($activity->author_name)): ?>
-                                <span class="pm-text-muted"><?php printf(__('by %s', 'partyminder'), esc_html($activity->author_name)); ?></span>
+                                <span class="text-muted"><?php printf(__('by %s', 'partyminder'), esc_html($activity->author_name)); ?></span>
                             <?php endif; ?>
                             
                             <a href="<?php echo esc_url($activity_manager->get_activity_link($activity)); ?>" 
@@ -56,12 +56,12 @@ if ($user_id) {
                         
                         <?php $metadata = $activity_manager->get_activity_metadata($activity); ?>
                         <?php if ($metadata): ?>
-                            <div class="pm-activity-metadata pm-text-muted pm-text-xs pm-mb-1">
+                            <div class="pm-activity-metadata text-muted pm-text-xs pm-mb-1">
                                 <?php echo $metadata; ?>
                             </div>
                         <?php endif; ?>
                         
-                        <div class="pm-activity-time pm-text-muted pm-text-xs">
+                        <div class="pm-activity-time text-muted pm-text-xs">
                             <?php echo human_time_diff(strtotime($activity->activity_date), current_time('timestamp')) . ' ' . __('ago', 'partyminder'); ?>
                         </div>
                     </div>
@@ -80,7 +80,7 @@ if ($user_id) {
                 <?php _e('No Recent Activity', 'partyminder'); ?>
             <?php endif; ?>
         </h4>
-        <p class="pm-text-muted pm-text-sm pm-mb-4">
+        <p class="text-muted pm-text-sm pm-mb-4">
             <?php if ($user_id): ?>
                 <?php _e('Start by creating an event or joining a conversation!', 'partyminder'); ?>
             <?php else: ?>
@@ -91,11 +91,11 @@ if ($user_id) {
         <?php if ($empty_state_actions): ?>
             <div class="pm-flex pm-flex-center-gap pm-flex-wrap">
                 <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" 
-                   class="pm-button pm-button-primary pm-button-small">
+                   class="btn btn-primary btn-small">
                     ✨ <?php _e('Create Event', 'partyminder'); ?>
                 </a>
                 <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" 
-                   class="pm-button pm-button-secondary pm-button-small">
+                   class="btn btn-secondary btn-small">
                     💬 <?php _e('Join Conversations', 'partyminder'); ?>
                 </a>
             </div>

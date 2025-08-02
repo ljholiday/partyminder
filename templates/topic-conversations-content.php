@@ -54,23 +54,23 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     </nav>
 
     <!-- Topic Header -->
-    <div class="pm-card pm-mb-6">
-        <div class="pm-card-header">
+    <div class="card pm-mb-6">
+        <div class="card-header">
             <div class="pm-flex pm-flex-between pm-flex-center-gap pm-mb-4">
                 <div>
                     <h1 class="pm-heading pm-heading-lg pm-text-primary pm-mb-2">
                         <span class="pm-mr-2"><?php echo esc_html($topic->icon); ?></span>
                         <?php echo esc_html($topic->name); ?>
                     </h1>
-                    <p class="pm-text-muted pm-m-0"><?php echo esc_html($topic->description); ?></p>
+                    <p class="text-muted pm-m-0"><?php echo esc_html($topic->description); ?></p>
                 </div>
                 <div class="pm-flex pm-flex-center-gap pm-flex-column pm-flex-sm-row">
-                    <a href="#" class="pm-button pm-button-primary start-conversation-btn" 
+                    <a href="#" class="btn btn-primary start-conversation-btn" 
                        data-topic-id="<?php echo esc_attr($topic->id); ?>"
                        data-topic-name="<?php echo esc_attr($topic->name); ?>">
                         💬 <?php _e('Start New Conversation', 'partyminder'); ?>
                     </a>
-                    <a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-button pm-button-secondary">
+                    <a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="btn btn-secondary">
                         ← <?php _e('Back to All Topics', 'partyminder'); ?>
                     </a>
                 </div>
@@ -83,7 +83,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         <h2 class="pm-heading pm-heading-md pm-text-primary pm-m-0">
             <?php printf(__('%d Conversations', 'partyminder'), count($conversations)); ?>
         </h2>
-        <a href="#" class="pm-button pm-button-primary pm-button-small start-conversation-btn" 
+        <a href="#" class="btn btn-primary btn-small start-conversation-btn" 
            data-topic-id="<?php echo esc_attr($topic->id); ?>"
            data-topic-name="<?php echo esc_attr($topic->name); ?>">
             💬 <?php _e('Start New Conversation', 'partyminder'); ?>
@@ -94,8 +94,8 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     <?php if (!empty($conversations)): ?>
         <div class="pm-flex pm-flex-column pm-gap-md">
             <?php foreach ($conversations as $conversation): ?>
-                <div class="pm-card pm-card-hover">
-                    <div class="pm-card-body">
+                <div class="card card-hover">
+                    <div class="card-body">
                         <div class="pm-flex pm-flex-between pm-flex-center-gap">
                             <div class="pm-flex-1 pm-min-w-0">
                                 <div class="pm-flex pm-flex-center-gap pm-mb-2">
@@ -110,11 +110,11 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                                     </h3>
                                 </div>
                                 
-                                <p class="pm-text-muted pm-mb-3 pm-line-clamp-2">
+                                <p class="text-muted pm-mb-3 pm-line-clamp-2">
                                     <?php echo wp_trim_words(strip_tags($conversation->content), 25, '...'); ?>
                                 </p>
                                 
-                                <div class="pm-flex pm-flex-wrap pm-flex-center-gap pm-text-xs pm-text-muted">
+                                <div class="pm-flex pm-flex-wrap pm-flex-center-gap pm-text-xs text-muted">
                                     <span><?php printf(__('by %s', 'partyminder'), esc_html($conversation->author_name)); ?></span>
                                     <span>•</span>
                                     <span><?php echo human_time_diff(strtotime($conversation->created_at), current_time('timestamp')) . ' ' . __('ago', 'partyminder'); ?></span>
@@ -131,13 +131,13 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                                     <div class="pm-stat-number pm-text-success pm-text-lg pm-font-bold">
                                         <?php echo $conversation->reply_count; ?>
                                     </div>
-                                    <div class="pm-stat-label pm-text-xs pm-text-muted">
+                                    <div class="pm-stat-label pm-text-xs text-muted">
                                         <?php echo $conversation->reply_count === 1 ? __('reply', 'partyminder') : __('replies', 'partyminder'); ?>
                                     </div>
                                 <?php else: ?>
                                     <span class="pm-badge pm-badge-success pm-text-xs"><?php _e('New', 'partyminder'); ?></span>
                                 <?php endif; ?>
-                                <div class="pm-text-xs pm-text-muted pm-mt-1">
+                                <div class="pm-text-xs text-muted pm-mt-1">
                                     <?php echo human_time_diff(strtotime($conversation->last_reply_date), current_time('timestamp')) . ' ' . __('ago', 'partyminder'); ?>
                                 </div>
                             </div>
@@ -147,15 +147,15 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             <?php endforeach; ?>
         </div>
     <?php else: ?>
-        <div class="pm-card pm-text-center pm-p-8">
+        <div class="card pm-text-center pm-p-8">
             <div class="pm-text-6xl pm-mb-4">💭</div>
             <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-3">
                 <?php _e('No conversations yet', 'partyminder'); ?>
             </h3>
-            <p class="pm-text-muted pm-mb-6">
+            <p class="text-muted pm-mb-6">
                 <?php _e('Be the first to start a conversation in this topic!', 'partyminder'); ?>
             </p>
-            <a href="#" class="pm-button pm-button-primary start-conversation-btn" 
+            <a href="#" class="btn btn-primary start-conversation-btn" 
                data-topic-id="<?php echo esc_attr($topic->id); ?>"
                data-topic-name="<?php echo esc_attr($topic->name); ?>">
                 ✨ <?php _e('Start the First Conversation', 'partyminder'); ?>

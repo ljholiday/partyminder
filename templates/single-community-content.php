@@ -49,305 +49,6 @@ $primary_color = get_option('partyminder_primary_color', '#667eea');
 $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 ?>
 
-<style>
-:root {
-    --pm-primary: <?php echo esc_attr($primary_color); ?>;
-    --pm-secondary: <?php echo esc_attr($secondary_color); ?>;
-}
-
-.partyminder-single-community {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.breadcrumbs {
-    background: #f8f9fa;
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.breadcrumbs a {
-    color: var(--pm-primary);
-    text-decoration: none;
-}
-
-.breadcrumbs a:hover {
-    text-decoration: underline;
-}
-
-.community-header {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    overflow: hidden;
-    margin-bottom: 30px;
-}
-
-.community-hero {
-    background: linear-gradient(135deg, var(--pm-primary), var(--pm-secondary));
-    color: white;
-    padding: 40px;
-    position: relative;
-}
-
-.community-title-section {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.community-avatar {
-    width: 80px;
-    height: 80px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 2em;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-}
-
-.community-title {
-    font-size: 2.5em;
-    margin: 0;
-    font-weight: bold;
-}
-
-.community-meta {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    font-size: 1.1em;
-    opacity: 0.9;
-    flex-wrap: wrap;
-}
-
-.privacy-badge {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.9em;
-    font-weight: bold;
-    text-transform: uppercase;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.community-description {
-    font-size: 1.1em;
-    line-height: 1.6;
-    opacity: 0.95;
-}
-
-.community-actions {
-    padding: 20px 40px;
-    background: #f8f9fa;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.community-stats {
-    display: flex;
-    gap: 30px;
-    align-items: center;
-}
-
-.stat-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #666;
-    font-size: 1em;
-}
-
-.stat-number {
-    font-weight: bold;
-    color: var(--pm-primary);
-}
-
-.action-buttons {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.community-nav {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
-    overflow: hidden;
-}
-
-.nav-tabs {
-    display: flex;
-    background: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.nav-tab {
-    flex: 1;
-    padding: 15px 20px;
-    text-align: center;
-    background: none;
-    border: none;
-    color: #666;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-weight: 500;
-}
-
-.nav-tab:hover,
-.nav-tab.active {
-    background: white;
-    color: var(--pm-primary);
-    border-bottom: 3px solid var(--pm-primary);
-}
-
-.tab-content {
-    padding: 30px;
-}
-
-.pm-button {
-    background: var(--pm-primary);
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-}
-
-.pm-button:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.pm-button-secondary {
-    background: #6c757d;
-}
-
-.pm-button-outline {
-    background: transparent;
-    color: var(--pm-primary);
-    border: 2px solid var(--pm-primary);
-}
-
-.pm-button-outline:hover {
-    background: var(--pm-primary);
-    color: white;
-}
-
-.member-badge {
-    background: #28a745;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 15px;
-    font-size: 0.8em;
-    font-weight: bold;
-}
-
-.admin-badge {
-    background: #dc3545;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 15px;
-    font-size: 0.8em;
-    font-weight: bold;
-}
-
-.recent-activity {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    padding: 30px;
-}
-
-.activity-item {
-    padding: 15px 0;
-    border-bottom: 1px solid #f0f0f0;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.activity-item:last-child {
-    border-bottom: none;
-}
-
-.activity-avatar {
-    width: 40px;
-    height: 40px;
-    background: var(--pm-primary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-}
-
-.activity-content {
-    flex: 1;
-}
-
-.activity-text {
-    margin: 0 0 5px 0;
-    color: #333;
-}
-
-.activity-time {
-    font-size: 0.85em;
-    color: #666;
-}
-
-@media (max-width: 768px) {
-    .community-title-section {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .community-title {
-        font-size: 2em;
-    }
-    
-    .community-actions {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 20px;
-    }
-    
-    .community-stats {
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-    
-    .nav-tabs {
-        flex-direction: column;
-    }
-    
-    .action-buttons {
-        justify-content: center;
-    }
-}
-</style>
 
 <div class="partyminder-single-community">
     <!-- Breadcrumbs -->
@@ -409,23 +110,23 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             
             <div class="action-buttons">
                 <?php if (!$is_logged_in): ?>
-                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-button">
+                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="btn">
                         <span>👋</span>
                         <?php _e('Login to Join', 'partyminder'); ?>
                     </a>
                 <?php elseif ($is_member): ?>
                     <?php if ($user_role === 'admin'): ?>
-                        <a href="<?php echo esc_url(site_url('/manage-community?community_id=' . $community->id . '&tab=overview')); ?>" class="pm-button manage-community-btn">
+                        <a href="<?php echo esc_url(site_url('/manage-community?community_id=' . $community->id . '&tab=overview')); ?>" class="btn manage-community-btn">
                             <span>⚙️</span>
                             <?php _e('Manage Community', 'partyminder'); ?>
                         </a>
                     <?php endif; ?>
-                    <a href="#" class="pm-button pm-button-secondary create-event-btn">
+                    <a href="#" class="btn btn-secondary create-event-btn">
                         <span>🎉</span>
                         <?php _e('Create Event', 'partyminder'); ?>
                     </a>
                 <?php else: ?>
-                    <a href="#" class="pm-button join-community-btn" data-community-id="<?php echo esc_attr($community->id); ?>">
+                    <a href="#" class="btn join-community-btn" data-community-id="<?php echo esc_attr($community->id); ?>">
                         <span>➕</span>
                         <?php _e('Join Community', 'partyminder'); ?>
                     </a>
@@ -458,9 +159,9 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             <?php endif; ?>
             
             <div class="pm-grid pm-gap-5">
-                <div class="pm-card-light pm-p-5">
+                <div class="card-light pm-p-5">
                     <h4 class="pm-m-0 pm-mb-3 pm-text-primary">🎯 Community Purpose</h4>
-                    <p class="pm-m-0 pm-text-muted">
+                    <p class="pm-m-0 text-muted">
                         <?php 
                         switch ($community->type) {
                             case 'work':
@@ -482,16 +183,16 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     </p>
                 </div>
                 
-                <div class="pm-card-light pm-p-5">
+                <div class="card-light pm-p-5">
                     <h4 class="pm-m-0 pm-mb-3 pm-text-primary">📅 Recent Activity</h4>
-                    <p class="pm-m-0 pm-text-muted">
+                    <p class="pm-m-0 text-muted">
                         <?php printf(__('%d members have been active this month', 'partyminder'), $stats->recent_activity); ?>
                     </p>
                 </div>
                 
-                <div class="pm-card-light pm-p-5">
+                <div class="card-light pm-p-5">
                     <h4 class="pm-m-0 pm-mb-3 pm-text-primary">🎉 Get Started</h4>
-                    <p class="pm-m-0 pm-text-muted">
+                    <p class="pm-m-0 text-muted">
                         <?php if ($is_member): ?>
                             <?php _e('Create your first community event or browse upcoming events.', 'partyminder'); ?>
                         <?php else: ?>

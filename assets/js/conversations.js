@@ -106,9 +106,9 @@
                     <div class="pm-modal-header">
                         <div>
                             <h3 class="pm-modal-title">💬 Create Event Conversation</h3>
-                            <p class="pm-text-muted pm-m-0">for <strong>${eventTitle}</strong></p>
+                            <p class="text-muted pm-m-0">for <strong>${eventTitle}</strong></p>
                         </div>
-                        <button class="close-modal pm-button pm-button-secondary pm-button-small" type="button">&times;</button>
+                        <button class="close-modal btn btn-secondary btn-small" type="button">&times;</button>
                     </div>
                     <div class="pm-modal-body">
                         <form class="pm-form" method="post">
@@ -140,8 +140,8 @@
                             </div>
                             
                             <div class="pm-modal-footer">
-                                <button type="button" class="pm-button pm-button-secondary close-modal">Cancel</button>
-                                <button type="submit" class="pm-button pm-button-primary">
+                                <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">
                                     <span class="button-text">Create Conversation</span>
                                     <span class="button-spinner pm-hidden">Creating...</span>
                                 </button>
@@ -179,9 +179,9 @@
                     <div class="pm-modal-header">
                         <div>
                             <h3 class="pm-modal-title">💬 Start New Conversation</h3>
-                            ${topicName ? `<p class="pm-text-muted pm-m-0">in <strong>${topicName}</strong></p>` : ''}
+                            ${topicName ? `<p class="text-muted pm-m-0">in <strong>${topicName}</strong></p>` : ''}
                         </div>
-                        <button class="close-modal pm-button pm-button-secondary pm-button-small" type="button">&times;</button>
+                        <button class="close-modal btn btn-secondary btn-small" type="button">&times;</button>
                     </div>
                     <div class="pm-modal-body">
                         <form class="pm-form" method="post">
@@ -222,8 +222,8 @@
                             </div>
                             
                             <div class="pm-modal-footer">
-                                <button type="button" class="pm-button pm-button-secondary close-modal">Cancel</button>
-                                <button type="submit" class="pm-button pm-button-primary">
+                                <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">
                                     <span class="button-text">Start Conversation</span>
                                     <span class="button-spinner pm-hidden">Starting...</span>
                                 </button>

@@ -60,295 +60,6 @@ $primary_color = get_option('partyminder_primary_color', '#667eea');
 $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 ?>
 
-<style>
-:root {
-    --pm-primary: <?php echo esc_attr($primary_color); ?>;
-    --pm-secondary: <?php echo esc_attr($secondary_color); ?>;
-}
-
-.partyminder-community-members {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.breadcrumbs {
-    background: #f8f9fa;
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.breadcrumbs a {
-    color: var(--pm-primary);
-    text-decoration: none;
-}
-
-.breadcrumbs a:hover {
-    text-decoration: underline;
-}
-
-.members-header {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    overflow: hidden;
-    margin-bottom: 30px;
-}
-
-.members-hero {
-    background: linear-gradient(135deg, var(--pm-primary), var(--pm-secondary));
-    color: white;
-    padding: 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.members-title-section h1 {
-    font-size: 2em;
-    margin: 0 0 10px 0;
-    font-weight: bold;
-}
-
-.members-meta {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    font-size: 1.1em;
-    opacity: 0.9;
-    flex-wrap: wrap;
-}
-
-.member-count-badge {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: bold;
-}
-
-.members-actions {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.members-nav {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
-    overflow: hidden;
-}
-
-.nav-tabs {
-    display: flex;
-    background: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.nav-tab {
-    flex: 1;
-    padding: 15px 20px;
-    text-align: center;
-    background: none;
-    border: none;
-    color: #666;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-weight: 500;
-}
-
-.nav-tab:hover {
-    background: white;
-    color: var(--pm-primary);
-}
-
-.nav-tab.active {
-    background: white;
-    color: var(--pm-primary);
-    border-bottom: 3px solid var(--pm-primary);
-}
-
-.members-content {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    padding: 30px;
-}
-
-.members-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.member-card {
-    background: white;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    transition: all 0.2s ease;
-}
-
-.member-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-}
-
-.member-avatar {
-    width: 60px;
-    height: 60px;
-    background: var(--pm-primary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 1.5em;
-    margin: 0 auto 15px auto;
-}
-
-.member-name {
-    font-size: 1.1em;
-    font-weight: bold;
-    color: #333;
-    margin: 0 0 5px 0;
-}
-
-.member-role {
-    color: #666;
-    font-size: 0.9em;
-    margin: 0 0 10px 0;
-}
-
-.member-since {
-    color: #999;
-    font-size: 0.8em;
-}
-
-.role-badge {
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.75em;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.role-badge.admin {
-    background: #dc3545;
-    color: white;
-}
-
-.role-badge.moderator {
-    background: #fd7e14;
-    color: white;
-}
-
-.role-badge.member {
-    background: #28a745;
-    color: white;
-}
-
-.no-members {
-    text-align: center;
-    padding: 60px 20px;
-    color: #666;
-}
-
-.no-access {
-    text-align: center;
-    padding: 60px 20px;
-    color: #666;
-}
-
-.pm-button {
-    background: var(--pm-primary);
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-}
-
-.pm-button:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.pm-button-outline {
-    background: transparent;
-    color: var(--pm-primary);
-    border: 2px solid var(--pm-primary);
-}
-
-.pm-button-outline:hover {
-    background: var(--pm-primary);
-    color: white;
-}
-
-.members-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.stat-card {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.stat-number {
-    font-size: 2em;
-    font-weight: bold;
-    color: var(--pm-primary);
-    margin: 0;
-}
-
-.stat-label {
-    color: #666;
-    font-size: 0.9em;
-    margin: 5px 0 0 0;
-}
-
-@media (max-width: 768px) {
-    .members-hero {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .members-title-section h1 {
-        font-size: 1.6em;
-    }
-    
-    .members-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .nav-tabs {
-        flex-direction: column;
-    }
-    
-    .members-actions {
-        justify-content: center;
-    }
-}
-</style>
 
 <div class="partyminder-community-members">
     <!-- Breadcrumbs -->
@@ -379,13 +90,13 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             
             <div class="members-actions">
                 <?php if ($is_member && $user_role === 'admin'): ?>
-                    <a href="#" class="pm-button invite-members-btn">
+                    <a href="#" class="btn invite-members-btn">
                         <span>✉️</span>
                         <?php _e('Invite Members', 'partyminder'); ?>
                     </a>
                 <?php endif; ?>
                 
-                <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-button pm-button-outline">
+                <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="btn btn-outline">
                     <span>🔙</span>
                     <?php _e('Back to Community', 'partyminder'); ?>
                 </a>
@@ -417,11 +128,11 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <p><?php _e('This community\'s member list is private. You need to be a member to view other members.', 'partyminder'); ?></p>
                 
                 <?php if (!$is_logged_in): ?>
-                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-button">
+                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="btn">
                         <?php _e('Login to Join', 'partyminder'); ?>
                     </a>
                 <?php else: ?>
-                    <a href="#" class="pm-button join-community-btn" data-community-id="<?php echo esc_attr($community->id); ?>">
+                    <a href="#" class="btn join-community-btn" data-community-id="<?php echo esc_attr($community->id); ?>">
                         <?php _e('Join Community', 'partyminder'); ?>
                     </a>
                 <?php endif; ?>
@@ -434,11 +145,11 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <p><?php _e('This community is just getting started. Be the first to join!', 'partyminder'); ?></p>
                 
                 <?php if (!$is_logged_in): ?>
-                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-button">
+                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="btn">
                         <?php _e('Login to Join', 'partyminder'); ?>
                     </a>
                 <?php elseif (!$is_member): ?>
-                    <a href="#" class="pm-button join-community-btn" data-community-id="<?php echo esc_attr($community->id); ?>">
+                    <a href="#" class="btn join-community-btn" data-community-id="<?php echo esc_attr($community->id); ?>">
                         <?php _e('Join Community', 'partyminder'); ?>
                     </a>
                 <?php endif; ?>
