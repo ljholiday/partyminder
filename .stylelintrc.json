@@ -1,0 +1,26 @@
+{
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "selector-class-pattern": [
+      "^(page|section|header|footer|card|btn|text-muted|cover-image|column|content|form|event|rsvp|guest|host)(-[a-z0-9]+)*$",
+      {
+        "message": "Class names must be semantic and follow project naming conventions (e.g., .card, .cover-image, .text-muted). Utility-style or atomic class names (e.g., .p-4, .text-lg) are not allowed."
+      }
+    ],
+    "custom-property-pattern": [
+      "^--wp--preset--[a-z]+--[a-z0-9-]+$",
+      {
+        "message": "Only WordPress theme preset CSS variables are allowed (e.g., --wp--preset--color--base)."
+      }
+    ],
+    "declaration-no-important": true,
+    "no-duplicate-selectors": true,
+    "block-no-empty": true,
+    "property-no-vendor-prefix": true,
+    "selector-no-vendor-prefix": true,
+    "max-nesting-depth": 2,
+    "color-hex-length": "short",
+    "indentation": 2
+  }
+}
+
