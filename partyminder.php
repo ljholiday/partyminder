@@ -220,7 +220,7 @@ class PartyMinder {
     
     
     public function enqueue_public_scripts() {
-        wp_enqueue_style('partyminder', PARTYMINDER_PLUGIN_URL . 'assets/css/partyminder.css', array(), PARTYMINDER_VERSION . '-' . filemtime(PARTYMINDER_PLUGIN_DIR . 'assets/css/partyminder.css'));
+        wp_enqueue_style('partyminder', PARTYMINDER_PLUGIN_URL . 'css/partyminder.css', array(), PARTYMINDER_VERSION . '-' . filemtime(PARTYMINDER_PLUGIN_DIR . 'css/partyminder.css'));
         
         // Add dynamic colors from admin settings
         $primary_color = get_option('partyminder_primary_color', '#667eea');
@@ -260,7 +260,7 @@ class PartyMinder {
     
     public function enqueue_admin_scripts($hook) {
         if (strpos($hook, 'partyminder') !== false) {
-            wp_enqueue_style('partyminder-admin', PARTYMINDER_PLUGIN_URL . 'assets/css/partyminder.css', array(), PARTYMINDER_VERSION . '-' . filemtime(PARTYMINDER_PLUGIN_DIR . 'assets/css/partyminder.css'));
+            wp_enqueue_style('partyminder-admin', PARTYMINDER_PLUGIN_URL . 'css/partyminder.css', array(), PARTYMINDER_VERSION . '-' . filemtime(PARTYMINDER_PLUGIN_DIR . 'css/partyminder.css'));
             
             // Add dynamic colors from admin settings
             $primary_color = get_option('partyminder_primary_color', '#667eea');

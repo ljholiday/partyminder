@@ -42,8 +42,9 @@ foreach ($events as $event) {
 $primary_color = get_option('partyminder_primary_color', '#667eea');
 $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 $button_style = get_option('partyminder_button_style', 'rounded');
-?>
 
+ob_start();
+?>
 
 <div class="partyminder-events-container">
     
@@ -380,3 +381,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+<?php
+$main_content = ob_get_clean();
+$sidebar_template = 'components/activity-feed.php';
+include PARTYMINDER_PLUGIN_DIR . 'templates/layouts/two-column-page.php';
+?>

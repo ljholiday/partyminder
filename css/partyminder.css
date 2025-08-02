@@ -1,0 +1,19 @@
+/* Core PartyMinder styles - simplified */
+.page { padding: 1rem; }
+.header { margin-bottom: 1rem; }
+.section { margin-bottom: 2rem; }
+.two-column { display: flex; flex-wrap: wrap; gap: 2rem; }
+.column { flex: 1 1 0; }
+.form-page .form { max-width: 600px; margin: 0 auto; }
+.btn { display: inline-block; padding: 0.5rem 1rem; background: var(--pm-primary, #667eea); color: #fff; text-decoration: none; border-radius: 4px; }
+.btn-secondary { background: var(--pm-secondary, #764ba2); }
+.text-muted { color: #666; }
+.card { border: 1px solid #ddd; border-radius: 4px; padding: 1rem; margin-bottom: 1rem; }
+.cover-image { width: 100%; height: auto; display: block; }
+.footer { margin-top: 2rem; text-align: center; font-size: 0.875rem; color: #666; }
+.activity-feed { display: flex; flex-direction: column; gap: 1rem; }
+.activity-item { display: flex; gap: 0.5rem; align-items: flex-start; }
+.activity-icon { font-size: 1.25rem; }
+.activity-content { flex: 1; }
+.activity-description { font-weight: 600; margin-bottom: 0.25rem; }
+.activity-feed-empty { text-align: center; }
