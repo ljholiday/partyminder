@@ -84,12 +84,6 @@ $button_style = get_option('partyminder_button_style', 'rounded');
 $form_layout = get_option('partyminder_form_layout', 'card');
 ?>
 
-<style>
-:root {
-    --pm-primary: <?php echo esc_attr($primary_color); ?>;
-    --pm-secondary: <?php echo esc_attr($secondary_color); ?>;
-}
-</style>
 
 <div class="partyminder-rsvp-container">
     
@@ -281,7 +275,7 @@ $form_layout = get_option('partyminder_form_layout', 'card');
 
                 <!-- Form Actions -->
                 <div class="pm-flex pm-flex-center-gap pm-mt-6">
-                    <button type="submit" name="partyminder_rsvp" class="pm-button pm-button-primary style-<?php echo esc_attr($button_style); ?>">
+                    <button type="submit" name="partyminder_rsvp" class="btn btn-primary style-<?php echo esc_attr($button_style); ?>">
                         <?php if ($existing_rsvp): ?>
                             <?php _e('Update My RSVP', 'partyminder'); ?>
                         <?php else: ?>

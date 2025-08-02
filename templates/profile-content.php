@@ -51,7 +51,7 @@ if ($profile_updated || isset($_GET['updated'])) {
     echo '<p class="pm-m-0 pm-mt-1">' . __('Your profile has been successfully updated.', 'partyminder') . '</p>';
     echo '</div>';
     echo '<div>';
-    echo '<a href="' . esc_url(PartyMinder::get_profile_url()) . '" class="pm-button pm-button-secondary pm-button-small">';
+    echo '<a href="' . esc_url(PartyMinder::get_profile_url()) . '" class="btn btn-secondary btn-small">';
     echo '<span class="dashicons dashicons-admin-users"></span>';
     echo __('Return to Profile', 'partyminder');
     echo '</a>';
@@ -86,10 +86,10 @@ if (isset($errors) && !empty($errors)) {
     
     <?php if ($is_editing): ?>
         <!-- Edit Profile Form -->
-        <div class="pm-card pm-mb-6">
-            <div class="pm-card-header">
+        <div class="card pm-mb-6">
+            <div class="card-header">
                 <h2 class="pm-heading pm-heading-lg pm-m-0"><?php _e('Edit My Profile', 'partyminder'); ?></h2>
-                <p class="pm-text-muted pm-m-0"><?php _e('Update your information, preferences, and privacy settings.', 'partyminder'); ?></p>
+                <p class="text-muted pm-m-0"><?php _e('Update your information, preferences, and privacy settings.', 'partyminder'); ?></p>
             </div>
         </div>
         
@@ -97,13 +97,13 @@ if (isset($errors) && !empty($errors)) {
             <?php wp_nonce_field('partyminder_profile_update', 'partyminder_profile_nonce'); ?>
             
             <!-- Basic Information Section -->
-            <div class="pm-card pm-mb-6">
-                <div class="pm-card-header">
+            <div class="card pm-mb-6">
+                <div class="card-header">
                     <h3 class="pm-heading pm-heading-md pm-m-0">
                         <span class="dashicons dashicons-admin-users"></span> <?php _e('Basic Information', 'partyminder'); ?>
                     </h3>
                 </div>
-                <div class="pm-card-body">
+                <div class="card-body">
                     <div class="pm-form-row">
                         <div class="pm-form-group">
                             <label class="pm-label" for="display_name"><?php _e('Display Name', 'partyminder'); ?></label>
@@ -124,7 +124,7 @@ if (isset($errors) && !empty($errors)) {
                         <label class="pm-label" for="bio"><?php _e('Bio', 'partyminder'); ?></label>
                         <textarea id="bio" name="bio" rows="4" maxlength="500" class="pm-input pm-textarea"
                                   placeholder="Tell others about yourself and your hosting style..."><?php echo esc_textarea($profile_data['bio']); ?></textarea>
-                        <small class="character-count pm-text-muted">0/500 characters</small>
+                        <small class="character-count text-muted">0/500 characters</small>
                     </div>
                     
                     <!-- Photo Upload Section -->
@@ -142,14 +142,14 @@ if (isset($errors) && !empty($errors)) {
                                 <div class="pm-avatar-upload-info">
                                     <p class="pm-text-sm pm-mb-2"><?php _e('Current profile photo', 'partyminder'); ?></p>
                                     <input type="file" id="profile_image" name="profile_image" class="pm-input" accept="image/*">
-                                    <small class="pm-text-muted"><?php _e('Upload a new photo (JPG, PNG, GIF, WebP, max 5MB)', 'partyminder'); ?></small>
+                                    <small class="text-muted"><?php _e('Upload a new photo (JPG, PNG, GIF, WebP, max 5MB)', 'partyminder'); ?></small>
                                     
                                     <!-- Profile Image Upload Progress -->
                                     <div id="profile-image-progress" class="pm-upload-progress pm-hidden pm-mt-2">
                                         <div class="pm-progress-bar">
                                             <div class="pm-progress-fill" id="profile-progress-fill"></div>
                                         </div>
-                                        <div class="pm-progress-text pm-text-xs pm-text-muted pm-mt-1">
+                                        <div class="pm-progress-text pm-text-xs text-muted pm-mt-1">
                                             <span id="profile-progress-status"><?php _e('Preparing image...', 'partyminder'); ?></span>
                                             <span id="profile-progress-percent" class="pm-ml-2">0%</span>
                                         </div>
@@ -174,14 +174,14 @@ if (isset($errors) && !empty($errors)) {
                                 <div class="pm-cover-upload-info">
                                     <p class="pm-text-sm pm-mb-2"><?php _e('Cover photo (1200x400 recommended)', 'partyminder'); ?></p>
                                     <input type="file" id="cover_image" name="cover_image" class="pm-input" accept="image/*">
-                                    <small class="pm-text-muted"><?php _e('Upload a cover photo (JPG, PNG, GIF, WebP, max 5MB)', 'partyminder'); ?></small>
+                                    <small class="text-muted"><?php _e('Upload a cover photo (JPG, PNG, GIF, WebP, max 5MB)', 'partyminder'); ?></small>
                                     
                                     <!-- Cover Image Upload Progress -->
                                     <div id="cover-image-progress" class="pm-upload-progress pm-hidden pm-mt-2">
                                         <div class="pm-progress-bar">
                                             <div class="pm-progress-fill" id="cover-progress-fill"></div>
                                         </div>
-                                        <div class="pm-progress-text pm-text-xs pm-text-muted pm-mt-1">
+                                        <div class="pm-progress-text pm-text-xs text-muted pm-mt-1">
                                             <span id="cover-progress-status"><?php _e('Preparing image...', 'partyminder'); ?></span>
                                             <span id="cover-progress-percent" class="pm-ml-2">0%</span>
                                         </div>
@@ -202,13 +202,13 @@ if (isset($errors) && !empty($errors)) {
             </div>
             
             <!-- Hosting Preferences Section -->
-            <div class="pm-card pm-mb-6">
-                <div class="pm-card-header">
+            <div class="card pm-mb-6">
+                <div class="card-header">
                     <h3 class="pm-heading pm-heading-md pm-m-0">
                         <span class="dashicons dashicons-calendar-alt"></span> <?php _e('Hosting Preferences', 'partyminder'); ?>
                     </h3>
                 </div>
-                <div class="pm-card-body">
+                <div class="card-body">
                     <div class="pm-form-group">
                         <label class="pm-label"><?php _e('Favorite Event Types', 'partyminder'); ?></label>
                         <div class="pm-grid pm-grid-2">
@@ -333,8 +333,8 @@ if (isset($errors) && !empty($errors)) {
             </div>
             
             <!-- Form Actions -->
-            <div class="pm-card pm-mb-6">
-                <div class="pm-card-body">
+            <div class="card pm-mb-6">
+                <div class="card-body">
                     <!-- Overall Upload Progress -->
                     <div id="overall-upload-progress" class="pm-upload-progress pm-hidden pm-mb-4">
                         <div class="pm-flex pm-flex-center-gap pm-mb-2">
@@ -344,13 +344,13 @@ if (isset($errors) && !empty($errors)) {
                         <div class="pm-progress-bar pm-progress-bar-lg">
                             <div class="pm-progress-fill" id="overall-progress-fill"></div>
                         </div>
-                        <div class="pm-progress-text pm-text-sm pm-text-muted pm-mt-2 pm-text-center">
+                        <div class="pm-progress-text pm-text-sm text-muted pm-mt-2 pm-text-center">
                             <span id="overall-progress-status"><?php _e('Processing images, please wait...', 'partyminder'); ?></span>
                         </div>
                     </div>
                     
                     <div class="pm-flex pm-flex-center-gap">
-                        <button type="submit" id="profile-submit-btn" class="pm-button pm-button-primary">
+                        <button type="submit" id="profile-submit-btn" class="btn btn-primary">
                             <span class="pm-submit-icon dashicons dashicons-yes"></span>
                             <span class="pm-submit-text"><?php _e('Save Profile', 'partyminder'); ?></span>
                             <span class="pm-submit-spinner pm-hidden">
@@ -359,7 +359,7 @@ if (isset($errors) && !empty($errors)) {
                             </span>
                         </button>
                         
-                        <a href="<?php echo esc_url(PartyMinder::get_profile_url()); ?>" class="pm-button pm-button-secondary">
+                        <a href="<?php echo esc_url(PartyMinder::get_profile_url()); ?>" class="btn btn-secondary">
                             <span class="dashicons dashicons-no-alt"></span>
                             <?php _e('Cancel', 'partyminder'); ?>
                         </a>
@@ -385,7 +385,7 @@ if (isset($errors) && !empty($errors)) {
             <?php else: ?>
                 <div class="pm-profile-cover-placeholder">
                     <div class="pm-profile-cover-content">
-                        <span class="pm-text-muted pm-text-sm">🖼️ <?php _e('No cover image set', 'partyminder'); ?></span>
+                        <span class="text-muted pm-text-sm">🖼️ <?php _e('No cover image set', 'partyminder'); ?></span>
                     </div>
                 </div>
             <?php endif; ?>
@@ -432,10 +432,10 @@ if (isset($errors) && !empty($errors)) {
                 
                 <?php if ($is_own_profile): ?>
                     <div class="pm-profile-actions">
-                        <a href="<?php echo esc_url(add_query_arg('edit', '1', PartyMinder::get_profile_url())); ?>" class="pm-button pm-button-primary">
+                        <a href="<?php echo esc_url(add_query_arg('edit', '1', PartyMinder::get_profile_url())); ?>" class="btn btn-primary">
                             ✏️ <?php _e('Edit Profile', 'partyminder'); ?>
                         </a>
-                        <a href="<?php echo esc_url(PartyMinder::get_logout_url()); ?>" class="pm-button pm-button-secondary">
+                        <a href="<?php echo esc_url(PartyMinder::get_logout_url()); ?>" class="btn btn-secondary">
                             🚪 <?php _e('Logout', 'partyminder'); ?>
                         </a>
                     </div>
@@ -448,11 +448,11 @@ if (isset($errors) && !empty($errors)) {
             <!-- Main Content Column -->
             <div class="pm-dashboard-main">
                 <!-- Activity Feed -->
-                <div class="pm-card">
-                    <div class="pm-card-header">
+                <div class="card">
+                    <div class="card-header">
                         <h3 class="pm-heading pm-heading-sm pm-m-0">📈 <?php _e('Recent Activity', 'partyminder'); ?></h3>
                     </div>
-                    <div class="pm-card-body">
+                    <div class="card-body">
                         <?php
                         // Include the reusable activity feed component
                         $user_id = $user_id; // Pass the current profile user ID
@@ -471,15 +471,15 @@ if (isset($errors) && !empty($errors)) {
             <!-- Sidebar Column -->
             <div class="pm-dashboard-sidebar">
                 <!-- About Section -->
-                <div class="pm-card pm-mb-4">
-                    <div class="pm-card-header">
+                <div class="card pm-mb-4">
+                    <div class="card-header">
                         <h3 class="pm-heading pm-heading-sm pm-m-0">👋 <?php _e('About', 'partyminder'); ?></h3>
                     </div>
-                    <div class="pm-card-body">
+                    <div class="card-body">
                         <?php if ($profile_data['bio']): ?>
                             <p class="pm-m-0"><?php echo wp_kses_post(nl2br($profile_data['bio'])); ?></p>
                         <?php else: ?>
-                            <p class="pm-text-muted pm-m-0"><?php _e('No bio added yet.', 'partyminder'); ?></p>
+                            <p class="text-muted pm-m-0"><?php _e('No bio added yet.', 'partyminder'); ?></p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -490,11 +490,11 @@ if (isset($errors) && !empty($errors)) {
                 $conversation_manager = new PartyMinder_Conversation_Manager();
                 $stats = $conversation_manager->get_stats();
                 ?>
-                <div class="pm-card pm-mb-4">
-                    <div class="pm-card-header">
+                <div class="card pm-mb-4">
+                    <div class="card-header">
                         <h3 class="pm-heading pm-heading-sm pm-m-0">📊 <?php _e('Community Stats', 'partyminder'); ?></h3>
                     </div>
-                    <div class="pm-card-body">
+                    <div class="card-body">
                         <div class="pm-grid pm-grid-2 pm-gap-sm">
                             <div class="pm-stat pm-text-center">
                                 <div class="pm-stat-number pm-text-primary"><?php echo $stats->total_conversations; ?></div>
@@ -518,11 +518,11 @@ if (isset($errors) && !empty($errors)) {
                 
                 <!-- Favorite Event Types -->
                 <?php if ($profile_data['favorite_event_types']): ?>
-                <div class="pm-card pm-mb-4">
-                    <div class="pm-card-header">
+                <div class="card pm-mb-4">
+                    <div class="card-header">
                         <h3 class="pm-heading pm-heading-sm pm-m-0">🎉 <?php _e('Favorite Event Types', 'partyminder'); ?></h3>
                     </div>
-                    <div class="pm-card-body">
+                    <div class="card-body">
                         <div class="pm-flex pm-flex-wrap pm-gap-xs">
                             <?php
                             $favorite_types = json_decode($profile_data['favorite_event_types'], true);
@@ -551,11 +551,11 @@ if (isset($errors) && !empty($errors)) {
                 
                 <!-- Website -->
                 <?php if ($profile_data['website_url']): ?>
-                <div class="pm-card pm-mb-4">
-                    <div class="pm-card-header">
+                <div class="card pm-mb-4">
+                    <div class="card-header">
                         <h3 class="pm-heading pm-heading-sm pm-m-0">🔗 <?php _e('Website', 'partyminder'); ?></h3>
                     </div>
-                    <div class="pm-card-body">
+                    <div class="card-body">
                         <a href="<?php echo esc_url($profile_data['website_url']); ?>" target="_blank" rel="noopener noreferrer" class="pm-text-primary pm-no-underline">
                             🌐 <?php echo esc_html(parse_url($profile_data['website_url'], PHP_URL_HOST)); ?>
                         </a>

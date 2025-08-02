@@ -35,8 +35,8 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
 
 
 <div class="pm-container-wide">
-    <div class="pm-card">
-        <div class="pm-card-header">
+    <div class="card">
+        <div class="card-header">
             <h1 class="pm-title-primary pm-m-0"><?php echo esc_html($event->title); ?></h1>
             
             <?php if ($is_past): ?>
@@ -54,7 +54,7 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
             <?php endif; ?>
         </div>
         
-        <div class="pm-card-body">
+        <div class="card-body">
             <div class="pm-grid pm-grid-4 pm-mb-4">
                 <div class="pm-meta-item">
                     <span>📅</span>
@@ -95,29 +95,29 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
     </div>
     
     <?php if ($event->featured_image): ?>
-    <div class="pm-card pm-mb-6">
+    <div class="card pm-mb-6">
         <img src="<?php echo esc_url($event->featured_image); ?>" alt="<?php echo esc_attr($event->title); ?>" class="pm-w-full" style="height: auto; border-radius: var(--pm-radius);">
     </div>
     <?php endif; ?>
     
-    <div class="pm-card pm-mb-6">
+    <div class="card pm-mb-6">
         <?php if ($event->description): ?>
-            <div class="pm-card-header">
+            <div class="card-header">
                 <h3 class="pm-title-secondary pm-m-0">About This Event</h3>
             </div>
-            <div class="pm-card-body">
+            <div class="card-body">
                 <?php echo wpautop($event->description); ?>
             </div>
         <?php endif; ?>
         
         <?php if ($event->host_notes): ?>
             <?php if ($event->description): ?>
-                <div class="pm-card-footer pm-border-top">
+                <div class="card-footer pm-border-top">
             <?php else: ?>
-                <div class="pm-card-header">
+                <div class="card-header">
                     <h3 class="pm-title-secondary pm-m-0">Host Notes</h3>
                 </div>
-                <div class="pm-card-body">
+                <div class="card-body">
             <?php endif; ?>
                 <h4 class="pm-heading pm-heading-sm">Host Notes</h4>
                 <?php echo wpautop($event->host_notes); ?>
@@ -125,11 +125,11 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
         <?php endif; ?>
     </div>
     
-    <div class="pm-card pm-mb-6">
-        <div class="pm-card-header">
+    <div class="card pm-mb-6">
+        <div class="card-header">
             <h3 class="pm-title-secondary pm-m-0">Event Stats</h3>
         </div>
-        <div class="pm-card-body">
+        <div class="card-body">
             <div class="pm-grid pm-grid-4">
                 <div class="pm-stat">
                     <div class="pm-stat-number pm-text-success"><?php echo $event->guest_stats->confirmed ?? 0; ?></div>
@@ -150,8 +150,8 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
     </div>
     
     <?php if (!$is_past): ?>
-        <div class="pm-card pm-mb-6">
-            <div class="pm-card-body">
+        <div class="card pm-mb-6">
+            <div class="card-body">
                 <?php 
                 $is_full = $event->guest_limit > 0 && $event->guest_stats->confirmed >= $event->guest_limit;
                 $current_user = wp_get_current_user();
@@ -162,17 +162,17 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
                 
                 <div class="pm-flex pm-flex-center-gap" style="flex-wrap: wrap;">
                     <?php if ($is_event_host): ?>
-                        <a href="<?php echo PartyMinder::get_edit_event_url($event->id); ?>" class="pm-button pm-button-primary">
+                        <a href="<?php echo PartyMinder::get_edit_event_url($event->id); ?>" class="btn btn-primary">
                             <span>✏️</span>
                             <?php _e('Edit Details', 'partyminder'); ?>
                         </a>
                         
-                        <button type="button" class="pm-button pm-button-danger" id="delete-event-btn" data-event-id="<?php echo esc_attr($event->id); ?>" data-event-title="<?php echo esc_attr($event->title); ?>">
+                        <button type="button" class="btn btn-danger" id="delete-event-btn" data-event-id="<?php echo esc_attr($event->id); ?>" data-event-title="<?php echo esc_attr($event->title); ?>">
                             <span>🗑️</span>
                             <?php _e('Delete Event', 'partyminder'); ?>
                         </button>
                     <?php else: ?>
-                        <a href="#rsvp" class="pm-button pm-button-primary">
+                        <a href="#rsvp" class="btn btn-primary">
                             <?php if ($is_full): ?>
                                 🎟️ Join Waitlist
                             <?php else: ?>
@@ -181,11 +181,11 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
                         </a>
                     <?php endif; ?>
                     
-                    <button type="button" class="pm-button pm-button-secondary" onclick="shareEvent()">
+                    <button type="button" class="btn btn-secondary" onclick="shareEvent()">
                         📤 Share Event
                     </button>
                     
-                    <button type="button" class="pm-button pm-button-secondary" onclick="openEventConversationModal(<?php echo $event->id; ?>, '<?php echo esc_js($event->title); ?>')">
+                    <button type="button" class="btn btn-secondary" onclick="openEventConversationModal(<?php echo $event->id; ?>, '<?php echo esc_js($event->title); ?>')">
                         💬 Create Conversation
                     </button>
                 </div>
@@ -195,41 +195,41 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
     
     <?php if (!$is_past && $is_event_host): ?>
     <!-- Event Management Section -->
-    <div class="pm-card pm-mb-6">
-        <div class="pm-card-header">
+    <div class="card pm-mb-6">
+        <div class="card-header">
             <h3 class="pm-title-secondary pm-m-0">📧 Send Invitations</h3>
         </div>
-        <div class="pm-card-body">
+        <div class="card-body">
             <?php if (PartyMinder_Feature_Flags::is_at_protocol_enabled()): ?>
             <!-- Bluesky Connection Status -->
             <div id="bluesky-connection-section" class="pm-mb-6">
-                <div id="bluesky-not-connected" class="pm-card pm-card-info" style="border-left: 4px solid #1d9bf0;">
-                    <div class="pm-card-body">
+                <div id="bluesky-not-connected" class="card card-info" style="border-left: 4px solid #1d9bf0;">
+                    <div class="card-body">
                         <h5 class="pm-heading pm-heading-sm pm-mb-2">
                             🦋 <?php _e('Connect Bluesky for Easy Invites', 'partyminder'); ?>
                         </h5>
-                        <p class="pm-text-muted pm-mb-4">
+                        <p class="text-muted pm-mb-4">
                             <?php _e('Connect your Bluesky account to invite your contacts directly from your follows list.', 'partyminder'); ?>
                         </p>
-                        <button type="button" class="pm-button pm-button-secondary" id="connect-bluesky-btn">
+                        <button type="button" class="btn btn-secondary" id="connect-bluesky-btn">
                             <?php _e('Connect Bluesky Account', 'partyminder'); ?>
                         </button>
                     </div>
                 </div>
                 
-                <div id="bluesky-connected" class="pm-card pm-card-success" style="border-left: 4px solid #10b981; display: none;">
-                    <div class="pm-card-body">
+                <div id="bluesky-connected" class="card card-success" style="border-left: 4px solid #10b981; display: none;">
+                    <div class="card-body">
                         <h5 class="pm-heading pm-heading-sm pm-mb-2">
                             ✅ <?php _e('Bluesky Connected', 'partyminder'); ?>
                         </h5>
-                        <p class="pm-text-muted pm-mb-4">
+                        <p class="text-muted pm-mb-4">
                             <?php _e('Connected as', 'partyminder'); ?> <strong id="bluesky-handle"></strong>
                         </p>
                         <div class="pm-flex pm-flex-center-gap">
-                            <button type="button" class="pm-button pm-button-primary" id="load-bluesky-contacts-btn">
+                            <button type="button" class="btn btn-primary" id="load-bluesky-contacts-btn">
                                 <?php _e('Load Bluesky Contacts', 'partyminder'); ?>
                             </button>
-                            <button type="button" class="pm-button pm-button-danger pm-button-sm" id="disconnect-bluesky-btn">
+                            <button type="button" class="btn btn-danger btn-sm" id="disconnect-bluesky-btn">
                                 <?php _e('Disconnect', 'partyminder'); ?>
                             </button>
                         </div>
@@ -268,7 +268,7 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
                               placeholder="<?php _e('Add a personal message to your invitation...', 'partyminder'); ?>"></textarea>
                 </div>
                 
-                <button type="submit" class="pm-button pm-button-primary">
+                <button type="submit" class="btn btn-primary">
                     <?php _e('Send Invitation', 'partyminder'); ?>
                 </button>
             </form>
@@ -278,11 +278,11 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
     
     <?php if (!$is_past && !$is_event_host): ?>
     <!-- RSVP Form Section -->
-    <div class="pm-card pm-mb-6" id="rsvp">
-        <div class="pm-card-header">
+    <div class="card pm-mb-6" id="rsvp">
+        <div class="card-header">
             <h3 class="pm-title-secondary pm-m-0">RSVP for this Event</h3>
         </div>
-        <div class="pm-card-body">
+        <div class="card-body">
             <?php echo do_shortcode('[partyminder_rsvp_form event_id="' . $event->id . '"]'); ?>
         </div>
     </div>
@@ -290,14 +290,14 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
     
     <?php if (!$is_past && $is_event_host): ?>
     <!-- Invited Guests Section -->
-    <div class="pm-card pm-mb-6">
-        <div class="pm-card-header">
+    <div class="card pm-mb-6">
+        <div class="card-header">
             <h3 class="pm-title-secondary pm-m-0">👥 Invited Guests</h3>
         </div>
-        <div class="pm-card-body">
+        <div class="card-body">
             <div id="invited-guests-list">
                 <div class="pm-text-center pm-p-6 pm-placeholder">
-                    <p class="pm-text-muted"><?php _e('Loading guest list...', 'partyminder'); ?></p>
+                    <p class="text-muted"><?php _e('Loading guest list...', 'partyminder'); ?></p>
                 </div>
             </div>
         </div>
@@ -305,16 +305,16 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
     <?php endif; ?>
     
     <!-- Event Conversations -->
-    <div class="pm-card pm-mb-6" id="event-conversations-section">
-        <div class="pm-card-header">
+    <div class="card pm-mb-6" id="event-conversations-section">
+        <div class="card-header">
             <div class="pm-flex pm-flex-between pm-flex-center-gap">
                 <h3 class="pm-title-secondary pm-m-0">💬 Event Conversations</h3>
-                <button type="button" class="pm-button pm-button-primary pm-button-small" onclick="openEventConversationModal(<?php echo $event->id; ?>, '<?php echo esc_js($event->title); ?>')">
+                <button type="button" class="btn btn-primary btn-small" onclick="openEventConversationModal(<?php echo $event->id; ?>, '<?php echo esc_js($event->title); ?>')">
                     Create Conversation
                 </button>
             </div>
         </div>
-        <div class="pm-card-body">
+        <div class="card-body">
             <?php if (!empty($event_conversations)): ?>
                 <?php foreach ($event_conversations as $conversation): ?>
                     <div class="pm-mb-4 pm-pb-3 <?php echo $conversation !== end($event_conversations) ? 'pm-border-bottom' : ''; ?>">
@@ -329,13 +329,13 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
                                 <div class="pm-stat-label pm-text-xs">Replies</div>
                             </div>
                         </div>
-                        <div class="pm-text-muted pm-text-sm">
+                        <div class="text-muted pm-text-sm">
                             <?php 
                             $content_preview = wp_trim_words(strip_tags($conversation->content), 20, '...');
                             echo esc_html($content_preview); 
                             ?>
                         </div>
-                        <div class="pm-text-muted pm-text-xs pm-mt-2">
+                        <div class="text-muted pm-text-xs pm-mt-2">
                             <?php printf(__('by %s • %s ago', 'partyminder'), 
                                 esc_html($conversation->author_name),
                                 human_time_diff(strtotime($conversation->last_reply_date), current_time('timestamp'))
@@ -345,32 +345,32 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
                 <?php endforeach; ?>
             <?php else: ?>
                 <div class="pm-text-center pm-p-4">
-                    <p class="pm-text-muted pm-mb-3">💭 No conversations started yet for this event.</p>
-                    <p class="pm-text-muted pm-text-sm">Be the first to start planning and discussing ideas!</p>
+                    <p class="text-muted pm-mb-3">💭 No conversations started yet for this event.</p>
+                    <p class="text-muted pm-text-sm">Be the first to start planning and discussing ideas!</p>
                 </div>
             <?php endif; ?>
         </div>
     </div>
     
     <!-- Event Details -->
-    <div class="pm-card pm-mb-6">
-        <div class="pm-card-header">
+    <div class="card pm-mb-6">
+        <div class="card-header">
             <h3 class="pm-title-secondary pm-m-0">Event Details</h3>
         </div>
-        <div class="pm-card-body">
+        <div class="card-body">
             <div class="pm-grid pm-grid-3">
                 <div>
                     <strong class="pm-text-primary">Host Email:</strong><br>
-                    <span class="pm-text-muted"><?php echo esc_html($event->host_email); ?></span>
+                    <span class="text-muted"><?php echo esc_html($event->host_email); ?></span>
                 </div>
                 <div>
                     <strong class="pm-text-primary">Created:</strong><br>
-                    <span class="pm-text-muted"><?php echo date('F j, Y', strtotime($event->created_at)); ?></span>
+                    <span class="text-muted"><?php echo date('F j, Y', strtotime($event->created_at)); ?></span>
                 </div>
                 <?php if ($event->guest_limit > 0): ?>
                 <div>
                     <strong class="pm-text-primary">Guest Limit:</strong><br>
-                    <span class="pm-text-muted"><?php echo $event->guest_limit; ?> people</span>
+                    <span class="text-muted"><?php echo $event->guest_limit; ?> people</span>
                 </div>
                 <?php endif; ?>
             </div>
@@ -579,7 +579,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('AJAX error loading guest data:', error, xhr.responseText);
             const container = document.getElementById('invited-guests-list');
             if (container) {
-                container.innerHTML = '<div class="pm-text-center pm-p-6"><p class="pm-text-muted"><?php _e('Error loading guest list.', 'partyminder'); ?></p></div>';
+                container.innerHTML = '<div class="pm-text-center pm-p-6"><p class="text-muted"><?php _e('Error loading guest list.', 'partyminder'); ?></p></div>';
             }
         });
     }
@@ -620,7 +620,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (allEntries.length === 0) {
-            container.innerHTML = '<div class="pm-text-center pm-p-6"><p class="pm-text-muted"><?php _e('No guests yet. Start sending invitations!', 'partyminder'); ?></p></div>';
+            container.innerHTML = '<div class="pm-text-center pm-p-6"><p class="text-muted"><?php _e('No guests yet. Start sending invitations!', 'partyminder'); ?></p></div>';
             return;
         }
         
@@ -700,7 +700,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="pm-modal pm-modal-sm">
                     <div class="pm-modal-header">
                         <h3>🦋 <?php _e('Connect to Bluesky', 'partyminder'); ?></h3>
-                        <button type="button" class="bluesky-connect-close pm-button pm-button-secondary" style="padding: 5px; border-radius: 50%; width: 35px; height: 35px;">×</button>
+                        <button type="button" class="bluesky-connect-close btn btn-secondary" style="padding: 5px; border-radius: 50%; width: 35px; height: 35px;">×</button>
                     </div>
                     <div class="pm-modal-body">
                         <form id="bluesky-connect-form">
@@ -713,15 +713,15 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <label class="pm-label"><?php _e('App Password', 'partyminder'); ?></label>
                                 <input type="password" class="pm-input" id="bluesky-password-input" 
                                        placeholder="<?php _e('Your Bluesky app password', 'partyminder'); ?>" required>
-                                <small class="pm-text-muted">
+                                <small class="text-muted">
                                     <?php _e('Create an app password in your Bluesky settings for secure access.', 'partyminder'); ?>
                                 </small>
                             </div>
                             <div class="pm-flex pm-flex-center-gap pm-mt-4">
-                                <button type="submit" class="pm-button pm-button-primary">
+                                <button type="submit" class="btn btn-primary">
                                     <?php _e('Connect Account', 'partyminder'); ?>
                                 </button>
-                                <button type="button" class="bluesky-connect-close pm-button pm-button-secondary">
+                                <button type="button" class="bluesky-connect-close btn btn-secondary">
                                     <?php _e('Cancel', 'partyminder'); ?>
                                 </button>
                             </div>
@@ -822,7 +822,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!container) return;
         
         if (!contacts || contacts.length === 0) {
-            container.innerHTML = '<div class="pm-text-center pm-p-6"><p class="pm-text-muted"><?php _e('No contacts found.', 'partyminder'); ?></p></div>';
+            container.innerHTML = '<div class="pm-text-center pm-p-6"><p class="text-muted"><?php _e('No contacts found.', 'partyminder'); ?></p></div>';
             return;
         }
         
@@ -905,9 +905,9 @@ function openEventConversationModal(eventId, eventTitle) {
                 <div class="pm-modal-header">
                     <div>
                         <h3 class="pm-modal-title">💬 Create Event Conversation</h3>
-                        <p class="pm-text-muted pm-m-0">for <strong>${eventTitle}</strong></p>
+                        <p class="text-muted pm-m-0">for <strong>${eventTitle}</strong></p>
                     </div>
-                    <button type="button" class="close-modal pm-button pm-button-secondary pm-button-small">&times;</button>
+                    <button type="button" class="close-modal btn btn-secondary btn-small">&times;</button>
                 </div>
                 <div class="pm-modal-body">
                     <form id="event-conversation-form" method="post">
@@ -939,8 +939,8 @@ function openEventConversationModal(eventId, eventTitle) {
                         </div>
                         
                         <div class="pm-modal-footer">
-                            <button type="button" class="pm-button pm-button-secondary close-modal">Cancel</button>
-                            <button type="submit" class="pm-button pm-button-primary">
+                            <button type="button" class="btn btn-secondary close-modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
                                 <span class="button-text">Create Conversation</span>
                                 <span class="button-spinner pm-hidden">Creating...</span>
                             </button>

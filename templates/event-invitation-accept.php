@@ -77,237 +77,6 @@ $primary_color = get_option('partyminder_primary_color', '#667eea');
 $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 ?>
 
-<style>
-:root {
-    --pm-primary: <?php echo esc_attr($primary_color); ?>;
-    --pm-secondary: <?php echo esc_attr($secondary_color); ?>;
-}
-
-.partyminder-event-invitation {
-    max-width: 700px;
-    margin: 40px auto;
-    padding: 20px;
-}
-
-.invitation-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    overflow: hidden;
-    margin-bottom: 30px;
-}
-
-.invitation-header {
-    background: linear-gradient(135deg, var(--pm-primary), var(--pm-secondary));
-    color: white;
-    padding: 30px;
-    text-align: center;
-}
-
-.invitation-icon {
-    font-size: 3em;
-    margin-bottom: 10px;
-}
-
-.invitation-title {
-    font-size: 1.8em;
-    margin: 0 0 10px 0;
-    font-weight: bold;
-}
-
-.invitation-subtitle {
-    font-size: 1.1em;
-    opacity: 0.9;
-    margin: 0;
-}
-
-.invitation-body {
-    padding: 30px;
-}
-
-.event-details {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.event-details h4 {
-    margin: 0 0 15px 0;
-    color: var(--pm-primary);
-    font-size: 1.2em;
-}
-
-.event-info {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.event-info-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #666;
-}
-
-.event-info-item strong {
-    color: #333;
-}
-
-.event-description {
-    color: #666;
-    line-height: 1.6;
-    margin-top: 15px;
-}
-
-.invitation-message {
-    background: #fff3cd;
-    border: 1px solid #ffeaa7;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
-}
-
-.invitation-message em {
-    font-style: italic;
-    color: #856404;
-}
-
-.rsvp-form {
-    background: #f8f9fa;
-    padding: 25px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.rsvp-form h4 {
-    margin: 0 0 20px 0;
-    color: var(--pm-primary);
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-label {
-    display: block;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 8px;
-}
-
-.form-input,
-.form-textarea {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #e9ecef;
-    border-radius: 6px;
-    font-size: 1em;
-    transition: border-color 0.2s ease;
-    box-sizing: border-box;
-}
-
-.form-input:focus,
-.form-textarea:focus {
-    outline: none;
-    border-color: var(--pm-primary);
-}
-
-.form-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.form-checkbox input {
-    width: auto;
-}
-
-.form-help {
-    font-size: 0.85em;
-    color: #666;
-    margin-top: 5px;
-}
-
-.pm-button {
-    background: var(--pm-primary);
-    color: white;
-    padding: 15px 30px;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-    font-size: 1.1em;
-}
-
-.pm-button:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.pm-button-secondary {
-    background: #6c757d;
-}
-
-.message-box {
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    font-weight: 500;
-}
-
-.message-success {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.message-error {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-
-.login-prompt {
-    text-align: center;
-    padding: 20px;
-    background: #e3f2fd;
-    border-radius: 8px;
-    margin-top: 20px;
-}
-
-.already-rsvpd {
-    text-align: center;
-    padding: 20px;
-}
-
-@media (max-width: 768px) {
-    .partyminder-event-invitation {
-        margin: 20px auto;
-        padding: 10px;
-    }
-    
-    .invitation-header, .invitation-body, .rsvp-form {
-        padding: 20px;
-    }
-    
-    .invitation-title {
-        font-size: 1.5em;
-    }
-    
-    .event-info {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
 
 <div class="partyminder-event-invitation">
     <!-- Page Header -->
@@ -373,14 +142,14 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     <div class="login-prompt">
                         <h4><?php _e('Login Required', 'partyminder'); ?></h4>
                         <p><?php _e('You need to be logged in to RSVP to this event.', 'partyminder'); ?></p>
-                        <a href="<?php echo add_query_arg('redirect_to', urlencode(home_url('/events/join?token=' . urlencode($token))), PartyMinder::get_login_url()); ?>" class="pm-button">
+                        <a href="<?php echo add_query_arg('redirect_to', urlencode(home_url('/events/join?token=' . urlencode($token))), PartyMinder::get_login_url()); ?>" class="btn">
                             <span>🔑</span> <?php _e('Login to RSVP', 'partyminder'); ?>
                         </a>
                     </div>
                 <?php elseif ($message_type === 'success'): ?>
                     <div class="pm-text-center">
                         <p><?php _e('Redirecting to the event page...', 'partyminder'); ?></p>
-                        <a href="<?php echo home_url('/events/' . $invitation->event_slug); ?>" class="pm-button">
+                        <a href="<?php echo home_url('/events/' . $invitation->event_slug); ?>" class="btn">
                             <span>🎉</span> <?php _e('Go to Event', 'partyminder'); ?>
                         </a>
                     </div>
@@ -419,7 +188,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                             </div>
                             
                             <div class="pm-text-center">
-                                <button type="submit" class="pm-button">
+                                <button type="submit" class="btn">
                                     <span>✅</span> <?php _e('Confirm RSVP', 'partyminder'); ?>
                                 </button>
                             </div>
@@ -429,7 +198,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             <?php else: ?>
                 <div class="pm-text-center">
                     <p><?php _e('Return to events to explore other options.', 'partyminder'); ?></p>
-                    <a href="<?php echo home_url('/events'); ?>" class="pm-button pm-button-secondary">
+                    <a href="<?php echo home_url('/events'); ?>" class="btn btn-secondary">
                         <span>🎉</span> <?php _e('Browse Events', 'partyminder'); ?>
                     </a>
                 </div>

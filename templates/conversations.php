@@ -70,22 +70,22 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 
 <div class="partyminder-conversations pm-container-wide">
     <!-- Header -->
-    <div class="pm-card-header pm-mb-6">
+    <div class="card-header pm-mb-6">
         <h1 class="pm-heading pm-heading-lg pm-text-primary"><?php _e('💬 Community Conversations', 'partyminder'); ?></h1>
-        <p class="pm-text-muted"><?php _e('Connect, share tips, and plan amazing gatherings with fellow hosts and guests', 'partyminder'); ?></p>
+        <p class="text-muted"><?php _e('Connect, share tips, and plan amazing gatherings with fellow hosts and guests', 'partyminder'); ?></p>
     </div>
 
     <!-- Use Unified Two-Column Layout -->
     <div class="pm-dashboard-grid">
         <!-- Main Content Column -->
         <div class="pm-dashboard-main">
-            <div class="pm-card">
-            <div class="pm-card-header">
+            <div class="card">
+            <div class="card-header">
                 <h2 class="pm-heading pm-heading-md pm-text-primary pm-m-0"><?php _e('Discussion Topics', 'partyminder'); ?></h2>
-                <p class="pm-text-muted pm-mt-2"><?php _e('Join conversations about hosting and party planning', 'partyminder'); ?></p>
+                <p class="text-muted pm-mt-2"><?php _e('Join conversations about hosting and party planning', 'partyminder'); ?></p>
             </div>
             
-            <div class="pm-card-body">
+            <div class="card-body">
             
             <?php if (!empty($topics)): ?>
                 <?php foreach ($topics as $topic): ?>
@@ -102,7 +102,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                                             <?php echo esc_html($topic->name); ?>
                                         </a>
                                     </h3>
-                                    <p class="pm-text-muted pm-m-0 pm-text-sm"><?php echo esc_html($topic->description); ?></p>
+                                    <p class="text-muted pm-m-0 pm-text-sm"><?php echo esc_html($topic->description); ?></p>
                                 </div>
                             </div>
                             <div class="pm-stat">
@@ -126,7 +126,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                                                     </a>
                                                 </h4>
                                             </div>
-                                            <div class="pm-text-muted pm-text-xs">
+                                            <div class="text-muted pm-text-xs">
                                                 <?php printf(__('by %s • %s ago', 'partyminder'), 
                                                     esc_html($conversation->author_name),
                                                     human_time_diff(strtotime($conversation->last_reply_date), current_time('timestamp'))
@@ -141,17 +141,17 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                                 <?php endforeach; ?>
                             </div>
                         <?php else: ?>
-                            <div class="pm-text-center pm-p-4 pm-card-dashed">
-                                <p class="pm-text-muted pm-mb-3"><?php _e('No conversations yet in this topic.', 'partyminder'); ?></p>
+                            <div class="pm-text-center pm-p-4 card-dashed">
+                                <p class="text-muted pm-mb-3"><?php _e('No conversations yet in this topic.', 'partyminder'); ?></p>
                                 <?php if (is_user_logged_in()): ?>
-                                <a href="#" class="pm-button pm-button-primary pm-button-small start-conversation-btn" 
+                                <a href="#" class="btn btn-primary btn-small start-conversation-btn" 
                                    data-topic-id="<?php echo esc_attr($topic->id); ?>"
                                    data-topic-name="<?php echo esc_attr($topic->name); ?>">
                                     <span>💬</span>
                                     <?php _e('Start the Conversation', 'partyminder'); ?>
                                 </a>
                                 <?php else: ?>
-                                <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="pm-button pm-button-primary pm-button-small">
+                                <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="btn btn-primary btn-small">
                                     <span>🔑</span>
                                     <?php _e('Login to Start Conversation', 'partyminder'); ?>
                                 </a>
@@ -162,7 +162,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <?php endforeach; ?>
             <?php else: ?>
                 <div class="pm-text-center pm-p-6">
-                    <p class="pm-text-muted"><?php _e('No conversation topics available.', 'partyminder'); ?></p>
+                    <p class="text-muted"><?php _e('No conversation topics available.', 'partyminder'); ?></p>
                 </div>
             <?php endif; ?>
             </div>
@@ -172,12 +172,12 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         <!-- Sidebar Column -->
         <div class="pm-dashboard-sidebar">
             <!-- Event Conversations -->
-            <div class="pm-card">
-                <div class="pm-card-header">
+            <div class="card">
+                <div class="card-header">
                     <h3 class="pm-heading pm-heading-sm pm-m-0">🎪 <?php _e('Event Planning', 'partyminder'); ?></h3>
-                    <p class="pm-text-muted pm-mt-2"><?php _e('Discussions about specific events', 'partyminder'); ?></p>
+                    <p class="text-muted pm-mt-2"><?php _e('Discussions about specific events', 'partyminder'); ?></p>
                 </div>
-                <div class="pm-card-body">
+                <div class="card-body">
                     <?php if (!empty($event_conversations)): ?>
                         <?php foreach ($event_conversations as $event_conv): ?>
                             <div class="pm-mb-4 pm-pb-3 pm-border-bottom">
@@ -187,7 +187,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                                     </a>
                                 </h4>
                                 <div class="pm-flex pm-flex-between pm-flex-center-gap">
-                                    <span class="pm-text-muted pm-text-xs">
+                                    <span class="text-muted pm-text-xs">
                                         📅 <?php echo date('M j', strtotime($event_conv->event_date)); ?>
                                     </span>
                                     <div class="pm-stat">
@@ -198,7 +198,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <p class="pm-text-center pm-text-muted pm-m-0">
+                        <p class="pm-text-center text-muted pm-m-0">
                             <?php _e('No event conversations yet.', 'partyminder'); ?>
                         </p>
                     <?php endif; ?>
@@ -206,12 +206,12 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             </div>
 
             <!-- Community Stats -->
-            <div class="pm-card">
-                <div class="pm-card-header">
+            <div class="card">
+                <div class="card-header">
                     <span>📊</span>
                     <?php _e('Community Stats', 'partyminder'); ?>
                 </div>
-                <div class="pm-card-body">
+                <div class="card-body">
                     <div class="community-stats">
                         <div class="stat-box">
                             <span class="stat-number"><?php echo $stats->total_conversations; ?></span>
@@ -234,29 +234,29 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             </div>
 
             <!-- Quick Actions -->
-            <div class="pm-card">
-                <div class="pm-card-header">
+            <div class="card">
+                <div class="card-header">
                     <h3 class="pm-heading pm-heading-sm pm-m-0">⚡ <?php _e('Quick Actions', 'partyminder'); ?></h3>
                 </div>
-                <div class="pm-card-body">
+                <div class="card-body">
                     <div class="pm-flex pm-flex-center-gap pm-flex-column">
                         <?php if (is_user_logged_in()): ?>
-                        <a href="#" class="pm-button pm-button-primary start-conversation-btn" 
+                        <a href="#" class="btn btn-primary start-conversation-btn" 
                            data-topic-id="" data-topic-name="">
                             <span>💬</span>
                             <?php _e('Start New Conversation', 'partyminder'); ?>
                         </a>
-                        <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-button pm-button-secondary">
+                        <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="btn btn-secondary">
                             <span>🎉</span>
                             <?php _e('Create Event', 'partyminder'); ?>
                         </a>
                         <?php else: ?>
-                        <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="pm-button pm-button-primary">
+                        <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="btn btn-primary">
                             <span>🔑</span>
                             <?php _e('Login to Participate', 'partyminder'); ?>
                         </a>
                         <?php endif; ?>
-                        <a href="<?php echo PartyMinder::get_events_page_url(); ?>" class="pm-button pm-button-secondary">
+                        <a href="<?php echo PartyMinder::get_events_page_url(); ?>" class="btn btn-secondary">
                             <span>📅</span>
                             <?php _e('Browse Events', 'partyminder'); ?>
                         </a>

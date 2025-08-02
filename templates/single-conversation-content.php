@@ -59,282 +59,6 @@ $primary_color = get_option('partyminder_primary_color', '#667eea');
 $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 ?>
 
-<style>
-:root {
-    --pm-primary: <?php echo esc_attr($primary_color); ?>;
-    --pm-secondary: <?php echo esc_attr($secondary_color); ?>;
-}
-
-.partyminder-single-conversation {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.breadcrumbs {
-    background: #f8f9fa;
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.breadcrumbs a {
-    color: var(--pm-primary);
-    text-decoration: none;
-}
-
-.breadcrumbs a:hover {
-    text-decoration: underline;
-}
-
-.conversation-header {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    overflow: hidden;
-    margin-bottom: 30px;
-}
-
-.conversation-title-section {
-    background: linear-gradient(135deg, var(--pm-primary), var(--pm-secondary));
-    color: white;
-    padding: 30px;
-}
-
-.conversation-title {
-    font-size: 2em;
-    margin: 0 0 10px 0;
-    font-weight: bold;
-}
-
-.conversation-meta {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    font-size: 0.9em;
-    opacity: 0.9;
-    flex-wrap: wrap;
-}
-
-.conversation-actions {
-    padding: 20px 30px;
-    background: #f8f9fa;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.conversation-stats {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
-
-.stat-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: #666;
-    font-size: 0.9em;
-}
-
-.original-post {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    padding: 30px;
-    margin-bottom: 30px;
-}
-
-.post-author {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.author-avatar {
-    width: 50px;
-    height: 50px;
-    background: var(--pm-primary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 1.2em;
-}
-
-.author-info h4 {
-    margin: 0;
-    color: #333;
-}
-
-.author-info .post-date {
-    color: #666;
-    font-size: 0.9em;
-}
-
-.post-content {
-    line-height: 1.6;
-    color: #333;
-}
-
-.replies-section {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    overflow: hidden;
-}
-
-.replies-header {
-    background: #f8f9fa;
-    padding: 20px 30px;
-    border-bottom: 1px solid #e9ecef;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.reply-item {
-    padding: 20px 30px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.reply-item:last-child {
-    border-bottom: none;
-}
-
-.reply-item.depth-1 { padding-left: 60px; }
-.reply-item.depth-2 { padding-left: 90px; }
-.reply-item.depth-3 { padding-left: 120px; }
-.reply-item.depth-4 { padding-left: 150px; }
-.reply-item.depth-5 { padding-left: 180px; }
-
-.reply-form-section {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    padding: 30px;
-    margin-top: 30px;
-}
-
-.reply-form .form-row {
-    margin-bottom: 20px;
-}
-
-.reply-form label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #333;
-}
-
-.reply-form textarea,
-.reply-form input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 14px;
-    transition: border-color 0.2s ease;
-    box-sizing: border-box;
-}
-
-.reply-form textarea:focus,
-.reply-form input:focus {
-    outline: none;
-    border-color: var(--pm-primary);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.pm-button {
-    background: var(--pm-primary);
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-}
-
-.pm-button:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.pm-button-secondary {
-    background: #6c757d;
-}
-
-.pm-button-small {
-    padding: 6px 12px;
-    font-size: 0.9em;
-}
-
-.reply-actions {
-    margin-top: 10px;
-    display: flex;
-    gap: 10px;
-}
-
-.no-replies {
-    text-align: center;
-    padding: 40px 20px;
-    color: #666;
-}
-
-@media (max-width: 768px) {
-    .conversation-title {
-        font-size: 1.5em;
-    }
-    
-    .conversation-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    
-    .conversation-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .post-author {
-        flex-direction: column;
-        align-items: flex-start;
-        text-align: left;
-    }
-    
-    .author-avatar {
-        width: 40px;
-        height: 40px;
-        font-size: 1em;
-    }
-    
-    .reply-item.depth-1,
-    .reply-item.depth-2,
-    .reply-item.depth-3,
-    .reply-item.depth-4,
-    .reply-item.depth-5 {
-        padding-left: 30px;
-    }
-    
-    .reply-actions {
-        flex-wrap: wrap;
-    }
-}
-</style>
 
 <div class="partyminder-single-conversation">
     <!-- Breadcrumbs -->
@@ -380,12 +104,12 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <?php if ($event_data): ?>
-                    <a href="<?php echo home_url('/events/' . $event_data->slug); ?>" class="pm-button pm-button-primary pm-button-small">
+                    <a href="<?php echo home_url('/events/' . $event_data->slug); ?>" class="btn btn-primary btn-small">
                         <span>📅</span> <?php _e('Go To Event', 'partyminder'); ?>
                     </a>
                 <?php endif; ?>
                 <?php if ($user_email): ?>
-                    <button class="pm-button pm-button-small follow-btn" 
+                    <button class="btn btn-small follow-btn" 
                             data-conversation-id="<?php echo esc_attr($conversation->id); ?>">
                         <?php if ($is_following): ?>
                             <span>🔕</span> <?php _e('Unfollow', 'partyminder'); ?>
@@ -394,7 +118,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         <?php endif; ?>
                     </button>
                 <?php endif; ?>
-                <a href="#reply-form" class="pm-button pm-button-small">
+                <a href="#reply-form" class="btn btn-small">
                     <span>💬</span>
                     <?php _e('Reply', 'partyminder'); ?>
                 </a>
@@ -440,7 +164,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         <?php echo wpautop($reply->content); ?>
                     </div>
                     <div class="reply-actions">
-                        <a href="#reply-form" class="pm-button pm-button-small reply-btn"
+                        <a href="#reply-form" class="btn btn-small reply-btn"
                            data-conversation-id="<?php echo esc_attr($conversation->id); ?>"
                            data-parent-reply-id="<?php echo esc_attr($reply->id); ?>">
                             <span>↩️</span>
@@ -484,11 +208,11 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             </div>
             
             <div class="form-row">
-                <button type="submit" class="pm-button">
+                <button type="submit" class="btn">
                     <span class="button-text"><?php _e('Post Reply', 'partyminder'); ?></span>
                     <span class="button-spinner" style="display: none;"><?php _e('Posting...', 'partyminder'); ?></span>
                 </button>
-                <a href="<?php echo home_url('/conversations/' . $topic->slug); ?>" class="pm-button pm-button-secondary">
+                <a href="<?php echo home_url('/conversations/' . $topic->slug); ?>" class="btn btn-secondary">
                     <span>←</span>
                     <?php _e('Back to Topic', 'partyminder'); ?>
                 </a>

@@ -1394,7 +1394,7 @@ class PartyMinder {
         echo '<div class="partyminder-shortcode-wrapper">';
         echo '<h3>' . __('PartyMinder Dashboard', 'partyminder') . '</h3>';
         echo '<p>' . __('Your central hub for managing events, conversations, and connections.', 'partyminder') . '</p>';
-        echo '<a href="' . esc_url(self::get_dashboard_url()) . '" class="pm-button">' . __('Go to Dashboard', 'partyminder') . '</a>';
+        echo '<a href="' . esc_url(self::get_dashboard_url()) . '" class="btn">' . __('Go to Dashboard', 'partyminder') . '</a>';
         echo '</div>';
         return ob_get_clean();
     }
@@ -1417,7 +1417,7 @@ class PartyMinder {
         echo '<div class="partyminder-shortcode-wrapper">';
         echo '<h3>' . esc_html($atts['title']) . '</h3>';
         echo '<p>' . __('Create and manage your events with our full-featured event creation tool.', 'partyminder') . '</p>';
-        echo '<a href="' . esc_url(self::get_create_event_url()) . '" class="pm-button">' . __('Create Event', 'partyminder') . '</a>';
+        echo '<a href="' . esc_url(self::get_create_event_url()) . '" class="btn">' . __('Create Event', 'partyminder') . '</a>';
         echo '</div>';
         return ob_get_clean();
     }
@@ -1451,8 +1451,8 @@ class PartyMinder {
         echo '<div class="partyminder-shortcode-wrapper">';
         echo '<h3>' . __('Upcoming Events', 'partyminder') . '</h3>';
         echo '<p>' . __('Check out all upcoming events and RSVP to join the fun!', 'partyminder') . '</p>';
-        echo '<a href="' . esc_url(self::get_events_page_url()) . '" class="pm-button">' . __('View All Events', 'partyminder') . '</a>';
-        echo '<a href="' . esc_url(self::get_create_event_url()) . '" class="pm-button success">' . __('Create Event', 'partyminder') . '</a>';
+        echo '<a href="' . esc_url(self::get_events_page_url()) . '" class="btn">' . __('View All Events', 'partyminder') . '</a>';
+        echo '<a href="' . esc_url(self::get_create_event_url()) . '" class="btn success">' . __('Create Event', 'partyminder') . '</a>';
         echo '</div>';
         return ob_get_clean();
     }
@@ -1475,7 +1475,7 @@ class PartyMinder {
         echo '<div class="partyminder-shortcode-wrapper">';
         echo '<h3>' . __('My Events Dashboard', 'partyminder') . '</h3>';
         echo '<p>' . __('Manage your created events and RSVPs in one convenient place.', 'partyminder') . '</p>';
-        echo '<a href="' . esc_url(self::get_my_events_url()) . '" class="pm-button">' . __('View My Events', 'partyminder') . '</a>';
+        echo '<a href="' . esc_url(self::get_my_events_url()) . '" class="btn">' . __('View My Events', 'partyminder') . '</a>';
         echo '</div>';
         return ob_get_clean();
     }
@@ -1496,7 +1496,7 @@ class PartyMinder {
         echo '<div class="partyminder-shortcode-wrapper">';
         echo '<h3>' . __('Community Conversations', 'partyminder') . '</h3>';
         echo '<p>' . __('Connect with fellow hosts and guests, share tips, and plan amazing gatherings together.', 'partyminder') . '</p>';
-        echo '<a href="' . esc_url(self::get_conversations_url()) . '" class="pm-button">' . __('Join Conversations', 'partyminder') . '</a>';
+        echo '<a href="' . esc_url(self::get_conversations_url()) . '" class="btn">' . __('Join Conversations', 'partyminder') . '</a>';
         echo '</div>';
         return ob_get_clean();
     }
@@ -1522,7 +1522,7 @@ class PartyMinder {
         echo '<div class="partyminder-shortcode-wrapper">';
         echo '<h3>' . __('Communities', 'partyminder') . '</h3>';
         echo '<p>' . __('Join communities of fellow hosts and guests to plan events together.', 'partyminder') . '</p>';
-        echo '<a href="' . esc_url(self::get_communities_url()) . '" class="pm-button">' . __('Browse Communities', 'partyminder') . '</a>';
+        echo '<a href="' . esc_url(self::get_communities_url()) . '" class="btn">' . __('Browse Communities', 'partyminder') . '</a>';
         echo '</div>';
         return ob_get_clean();
     }
@@ -1547,7 +1547,7 @@ class PartyMinder {
             echo '<div class="partyminder-shortcode-wrapper">';
             echo '<h3>' . __('Edit Event', 'partyminder') . '</h3>';
             echo '<p>' . __('Use our full-featured editor to update your event details.', 'partyminder') . '</p>';
-            echo '<a href="' . esc_url(self::get_edit_event_url($event_id)) . '" class="pm-button">' . __('Edit Event', 'partyminder') . '</a>';
+            echo '<a href="' . esc_url(self::get_edit_event_url($event_id)) . '" class="btn">' . __('Edit Event', 'partyminder') . '</a>';
             echo '</div>';
             return ob_get_clean();
         }
@@ -1573,7 +1573,7 @@ class PartyMinder {
         echo '<div class="partyminder-shortcode-wrapper">';
         echo '<h3>' . __('My Profile', 'partyminder') . '</h3>';
         echo '<p>' . __('Manage your PartyMinder profile, preferences, and hosting reputation.', 'partyminder') . '</p>';
-        echo '<a href="' . esc_url(self::get_profile_url()) . '" class="pm-button">' . __('View Profile', 'partyminder') . '</a>';
+        echo '<a href="' . esc_url(self::get_profile_url()) . '" class="btn">' . __('View Profile', 'partyminder') . '</a>';
         echo '</div>';
         return ob_get_clean();
     }
@@ -1594,7 +1594,7 @@ class PartyMinder {
         echo '<div class="partyminder-shortcode-wrapper">';
         echo '<h3>' . __('PartyMinder Login', 'partyminder') . '</h3>';
         echo '<p>' . __('Sign in to access all features and manage your events.', 'partyminder') . '</p>';
-        echo '<a href="' . esc_url(self::get_login_url()) . '" class="pm-button">' . __('Sign In', 'partyminder') . '</a>';
+        echo '<a href="' . esc_url(self::get_login_url()) . '" class="btn">' . __('Sign In', 'partyminder') . '</a>';
         echo '</div>';
         return ob_get_clean();
     }

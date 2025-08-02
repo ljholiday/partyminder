@@ -44,167 +44,6 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 $button_style = get_option('partyminder_button_style', 'rounded');
 ?>
 
-<style>
-:root {
-    --pm-primary: <?php echo esc_attr($primary_color); ?>;
-    --pm-secondary: <?php echo esc_attr($secondary_color); ?>;
-}
-
-.partyminder-events-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.events-header {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.events-header h2 {
-    font-size: 2.5em;
-    margin-bottom: 10px;
-    color: var(--pm-primary);
-}
-
-.events-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 30px;
-    margin: 40px 0;
-}
-
-.event-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.event-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.event-content {
-    padding: 20px;
-}
-
-.event-title a {
-    color: #333;
-    text-decoration: none;
-    font-size: 1.4em;
-    font-weight: bold;
-}
-
-.event-title a:hover {
-    color: var(--pm-primary);
-}
-
-.event-meta {
-    margin: 15px 0;
-}
-
-.meta-item {
-    display: inline-flex;
-    align-items: center;
-    margin: 5px 15px 5px 0;
-    font-size: 0.9em;
-    color: #666;
-}
-
-.meta-icon {
-    margin-right: 8px;
-}
-
-.event-description {
-    margin: 15px 0;
-    color: #666;
-    line-height: 1.5;
-}
-
-.event-stats {
-    display: flex;
-    gap: 15px;
-    margin: 15px 0;
-}
-
-.stat-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.9em;
-    color: #666;
-}
-
-.event-actions {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.pm-button {
-    background: var(--pm-primary);
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 0.9em;
-    transition: background 0.3s ease;
-    cursor: pointer;
-}
-
-.pm-button:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.pm-button-secondary {
-    background: #6c757d;
-}
-
-.pm-button-small {
-    padding: 8px 16px;
-    font-size: 0.85em;
-}
-
-.no-events-found {
-    text-align: center;
-    padding: 60px 20px;
-    color: #666;
-}
-
-.no-events-icon {
-    font-size: 4em;
-    margin-bottom: 20px;
-}
-
-.events-stats {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    margin: 20px 0;
-    flex-wrap: wrap;
-}
-
-.stat-item {
-    text-align: center;
-}
-
-.stat-number {
-    font-size: 2em;
-    font-weight: bold;
-    color: var(--pm-primary);
-}
-
-.stat-label {
-    color: #666;
-    font-size: 0.9em;
-}
-</style>
 
 <div class="partyminder-events-container">
     
@@ -229,10 +68,10 @@ $button_style = get_option('partyminder_button_style', 'rounded');
         <!-- Events Navigation -->
         <?php if (is_user_logged_in()): ?>
         <div class="events-navigation" style="margin: 20px 0; text-align: center;">
-            <a href="<?php echo esc_url(PartyMinder::get_my_events_url()); ?>" class="pm-button pm-button-secondary" style="margin-right: 10px;">
+            <a href="<?php echo esc_url(PartyMinder::get_my_events_url()); ?>" class="btn btn-secondary" style="margin-right: 10px;">
                 📅 <?php _e('My Events', 'partyminder'); ?>
             </a>
-            <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="pm-button">
+            <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="btn">
                 ✨ <?php _e('Create Event', 'partyminder'); ?>
             </a>
         </div>
@@ -341,7 +180,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                         
                         <div class="event-actions">
                             <?php if ($is_past): ?>
-                                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-secondary pm-button-small style-<?php echo esc_attr($button_style); ?>">
+                                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn btn-secondary btn-small style-<?php echo esc_attr($button_style); ?>">
                                     <span class="button-icon">📖</span>
                                     <?php _e('View Details', 'partyminder'); ?>
                                 </a>
@@ -350,7 +189,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                                 $is_full = $event->guest_limit > 0 && $event->guest_stats->confirmed >= $event->guest_limit;
                                 ?>
                                 
-                                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-primary pm-button-small style-<?php echo esc_attr($button_style); ?>">
+                                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn btn-primary btn-small style-<?php echo esc_attr($button_style); ?>">
                                     <span class="button-icon">💌</span>
                                     <?php if ($is_full): ?>
                                         <?php _e('Join Waitlist', 'partyminder'); ?>
@@ -359,7 +198,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                                     <?php endif; ?>
                                 </a>
                                 
-                                <button type="button" class="pm-button pm-button-secondary pm-button-small share-event style-<?php echo esc_attr($button_style); ?>" 
+                                <button type="button" class="btn btn-secondary btn-small share-event style-<?php echo esc_attr($button_style); ?>" 
                                         data-url="<?php echo esc_url(home_url('/events/' . $event->slug)); ?>" 
                                         data-title="<?php echo esc_attr($event->title); ?>">
                                     <span class="button-icon">📤</span>
@@ -400,7 +239,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
         <!-- Load More (if needed) -->
         <?php if (count($events) >= $limit): ?>
         <div class="events-pagination">
-            <button type="button" class="pm-button pm-button-secondary load-more-events style-<?php echo esc_attr($button_style); ?>" 
+            <button type="button" class="btn btn-secondary load-more-events style-<?php echo esc_attr($button_style); ?>" 
                     data-page="2" data-limit="<?php echo esc_attr($limit); ?>">
                 <span class="button-icon">⬇️</span>
                 <?php _e('Load More Events', 'partyminder'); ?>
@@ -422,7 +261,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                 
                 <?php if (current_user_can('publish_posts')): ?>
                 <div class="no-events-actions">
-                    <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-button pm-button-primary style-<?php echo esc_attr($button_style); ?>">
+                    <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="btn btn-primary style-<?php echo esc_attr($button_style); ?>">
                         <span class="button-icon">✨</span>
                         <?php _e('Create First Event', 'partyminder'); ?>
                     </a>
@@ -441,7 +280,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
             <form class="newsletter-form" id="events-newsletter-form">
                 <div class="form-group">
                     <input type="email" placeholder="<?php esc_attr_e('Enter your email', 'partyminder'); ?>" required />
-                    <button type="submit" class="pm-button pm-button-primary style-<?php echo esc_attr($button_style); ?>">
+                    <button type="submit" class="btn btn-primary style-<?php echo esc_attr($button_style); ?>">
                         <span class="button-icon">📧</span>
                         <?php _e('Subscribe', 'partyminder'); ?>
                     </button>
