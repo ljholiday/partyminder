@@ -13,11 +13,7 @@ if (!defined('ABSPATH')) {
 // Load required classes
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
 
-try {
-    $community_manager = new PartyMinder_Community_Manager();
-} catch (Exception $e) {
-    wp_die('Error loading Community Manager: ' . $e->getMessage());
-}
+$community_manager = new PartyMinder_Community_Manager();
 
 // Get community ID from URL parameter
 $community_id = isset($_GET['community_id']) ? intval($_GET['community_id']) : 0;
@@ -33,18 +29,14 @@ if (!$community_id) {
 }
 
 // Get community data
-try {
-    $community = $community_manager->get_community($community_id);
-    if (!$community) {
-        echo '<div class="pm-container pm-text-center pm-p-16">';
-        echo '<h2>' . __('Community Not Found', 'partyminder') . '</h2>';
-        echo '<p>' . __('The requested community does not exist.', 'partyminder') . '</p>';
-        echo '<a href="' . esc_url(PartyMinder::get_communities_url()) . '" class="pm-button pm-button-primary">' . __('Back to Communities', 'partyminder') . '</a>';
-        echo '</div>';
-        return;
-    }
-} catch (Exception $e) {
-    wp_die('Error loading community: ' . $e->getMessage());
+$community = $community_manager->get_community($community_id);
+if (!$community) {
+    echo '<div class="pm-container pm-text-center pm-p-16">';
+    echo '<h2>' . __('Community Not Found', 'partyminder') . '</h2>';
+    echo '<p>' . __('The requested community does not exist.', 'partyminder') . '</p>';
+    echo '<a href="' . esc_url(PartyMinder::get_communities_url()) . '" class="pm-button pm-button-primary">' . __('Back to Communities', 'partyminder') . '</a>';
+    echo '</div>';
+    return;
 }
 
 // Get current user and check permissions
