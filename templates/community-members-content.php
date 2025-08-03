@@ -52,7 +52,8 @@ $members = array();
 $member_count = 0;
 if ($can_view_members) {
     $members = $community_manager->get_community_members($community->id, 50); // Limit to 50 for now
-    $member_count = $community_manager->get_member_count($community->id);
+    $stats = $community_manager->get_community_stats($community->id);
+    $member_count = $stats ? $stats->member_count : 0;
 }
 
 // Get styling options

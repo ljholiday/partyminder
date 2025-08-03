@@ -9,10 +9,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Check if communities are enabled
-if (!PartyMinder_Feature_Flags::is_communities_enabled() || !PartyMinder_Feature_Flags::can_user_create_community()) {
+// Check if user can create communities
+if (!PartyMinder_Feature_Flags::can_user_create_community()) {
     echo '<div class="pm-text-center pm-p-16">';
-    echo '<h2>' . __('Communities Feature Not Available', 'partyminder') . '</h2>';
+    echo '<h2>' . __('Cannot Create Community', 'partyminder') . '</h2>';
     echo '<p>' . __('You do not have permission to create communities.', 'partyminder') . '</p>';
     echo '</div>';
     return;

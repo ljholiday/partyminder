@@ -18,10 +18,6 @@ class PartyMinder_Community_Manager {
     public function create_community($community_data) {
         global $wpdb;
         
-        // Check if communities are enabled
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            return new WP_Error('feature_disabled', __('Communities feature is not enabled', 'partyminder'));
-        }
         
         // Check user permissions
         if (!PartyMinder_Feature_Flags::can_user_create_community()) {
@@ -203,10 +199,6 @@ class PartyMinder_Community_Manager {
         global $wpdb;
         
         if (!$skip_permission_check) {
-            // Check if communities are enabled
-            if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-                return new WP_Error('feature_disabled', __('Communities feature is not enabled', 'partyminder'));
-            }
             
             // Check if user can join communities
             if (!PartyMinder_Feature_Flags::can_user_join_community($member_data['user_id'])) {
@@ -448,10 +440,6 @@ class PartyMinder_Community_Manager {
     public function update_community($community_id, $update_data) {
         global $wpdb;
         
-        // Check if communities are enabled
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            return new WP_Error('feature_disabled', __('Communities feature is not enabled', 'partyminder'));
-        }
         
         // Get community
         $community = $this->get_community($community_id);
@@ -525,10 +513,6 @@ class PartyMinder_Community_Manager {
     public function get_community_members($community_id, $limit = 20, $offset = 0) {
         global $wpdb;
         
-        // Check if communities are enabled
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            return new WP_Error('feature_disabled', __('Communities feature is not enabled', 'partyminder'));
-        }
         
         // Get community
         $community = $this->get_community($community_id);
@@ -576,10 +560,6 @@ class PartyMinder_Community_Manager {
     public function update_member_role($community_id, $member_id, $new_role) {
         global $wpdb;
         
-        // Check if communities are enabled
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            return new WP_Error('feature_disabled', __('Communities feature is not enabled', 'partyminder'));
-        }
         
         // Get community
         $community = $this->get_community($community_id);
@@ -647,10 +627,6 @@ class PartyMinder_Community_Manager {
     public function remove_member($community_id, $member_id) {
         global $wpdb;
         
-        // Check if communities are enabled
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            return new WP_Error('feature_disabled', __('Communities feature is not enabled', 'partyminder'));
-        }
         
         // Get community
         $community = $this->get_community($community_id);
@@ -723,10 +699,6 @@ class PartyMinder_Community_Manager {
     public function send_invitation($community_id, $email, $message = '') {
         global $wpdb;
         
-        // Check if communities are enabled
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            return new WP_Error('feature_disabled', __('Communities feature is not enabled', 'partyminder'));
-        }
         
         // Get community
         $community = $this->get_community($community_id);
@@ -882,10 +854,6 @@ The %s Team', 'partyminder'),
     public function get_community_invitations($community_id, $limit = 20, $offset = 0) {
         global $wpdb;
         
-        // Check if communities are enabled
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            return new WP_Error('feature_disabled', __('Communities feature is not enabled', 'partyminder'));
-        }
         
         // Get community
         $community = $this->get_community($community_id);
@@ -917,10 +885,6 @@ The %s Team', 'partyminder'),
     public function cancel_invitation($community_id, $invitation_id) {
         global $wpdb;
         
-        // Check if communities are enabled
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            return new WP_Error('feature_disabled', __('Communities feature is not enabled', 'partyminder'));
-        }
         
         // Get community
         $community = $this->get_community($community_id);

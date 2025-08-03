@@ -81,11 +81,9 @@ class PartyMinder {
         require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-image-manager.php';
         require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-profile-manager.php';
         
-        // Load communities features only if enabled
-        if (PartyMinder_Feature_Flags::is_communities_enabled()) {
-            require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
-            require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-member-identity-manager.php';
-        }
+        // Load communities features
+        require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
+        require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-member-identity-manager.php';
         
         // Load AT Protocol features only if enabled
         if (PartyMinder_Feature_Flags::is_at_protocol_enabled()) {
@@ -139,28 +137,27 @@ class PartyMinder {
         add_action('wp_ajax_nopriv_partyminder_add_reply', array($this, 'ajax_add_reply'));
         add_action('wp_ajax_partyminder_generate_ai_plan', array($this, 'ajax_generate_ai_plan'));
         
-        // Communities AJAX handlers (only when feature enabled)
-        if (PartyMinder_Feature_Flags::is_communities_enabled()) {
-            add_action('wp_ajax_partyminder_join_community', array($this, 'ajax_join_community'));
-            add_action('wp_ajax_nopriv_partyminder_join_community', array($this, 'ajax_join_community'));
-            add_action('wp_ajax_partyminder_leave_community', array($this, 'ajax_leave_community'));
-            add_action('wp_ajax_partyminder_create_community', array($this, 'ajax_create_community'));
-            add_action('wp_ajax_partyminder_update_community', array($this, 'ajax_update_community'));
-            add_action('wp_ajax_partyminder_get_community_members', array($this, 'ajax_get_community_members'));
-            add_action('wp_ajax_partyminder_update_member_role', array($this, 'ajax_update_member_role'));
-            add_action('wp_ajax_partyminder_remove_member', array($this, 'ajax_remove_member'));
-            add_action('wp_ajax_partyminder_send_invitation', array($this, 'ajax_send_invitation'));
-            add_action('wp_ajax_partyminder_get_community_invitations', array($this, 'ajax_get_community_invitations'));
-            add_action('wp_ajax_partyminder_cancel_invitation', array($this, 'ajax_cancel_invitation'));
-            
-            // Event invitation AJAX handlers
-            add_action('wp_ajax_partyminder_send_event_invitation', array($this, 'ajax_send_event_invitation'));
-            add_action('wp_ajax_partyminder_get_event_invitations', array($this, 'ajax_get_event_invitations'));
-            add_action('wp_ajax_partyminder_cancel_event_invitation', array($this, 'ajax_cancel_event_invitation'));
-            add_action('wp_ajax_partyminder_get_event_stats', array($this, 'ajax_get_event_stats'));
-            add_action('wp_ajax_partyminder_get_event_guests', array($this, 'ajax_get_event_guests'));
-            add_action('wp_ajax_partyminder_delete_event', array($this, 'ajax_delete_event'));
-        }
+        // Communities AJAX handlers
+        add_action('wp_ajax_partyminder_join_community', array($this, 'ajax_join_community'));
+        add_action('wp_ajax_nopriv_partyminder_join_community', array($this, 'ajax_join_community'));
+        add_action('wp_ajax_partyminder_leave_community', array($this, 'ajax_leave_community'));
+        add_action('wp_ajax_partyminder_create_community', array($this, 'ajax_create_community'));
+        add_action('wp_ajax_partyminder_update_community', array($this, 'ajax_update_community'));
+        add_action('wp_ajax_partyminder_get_community_members', array($this, 'ajax_get_community_members'));
+        add_action('wp_ajax_partyminder_get_community_stats', array($this, 'ajax_get_community_stats'));
+        add_action('wp_ajax_partyminder_update_member_role', array($this, 'ajax_update_member_role'));
+        add_action('wp_ajax_partyminder_remove_member', array($this, 'ajax_remove_member'));
+        add_action('wp_ajax_partyminder_send_invitation', array($this, 'ajax_send_invitation'));
+        add_action('wp_ajax_partyminder_get_community_invitations', array($this, 'ajax_get_community_invitations'));
+        add_action('wp_ajax_partyminder_cancel_invitation', array($this, 'ajax_cancel_invitation'));
+        
+        // Event invitation AJAX handlers
+        add_action('wp_ajax_partyminder_send_event_invitation', array($this, 'ajax_send_event_invitation'));
+        add_action('wp_ajax_partyminder_get_event_invitations', array($this, 'ajax_get_event_invitations'));
+        add_action('wp_ajax_partyminder_cancel_event_invitation', array($this, 'ajax_cancel_event_invitation'));
+        add_action('wp_ajax_partyminder_get_event_stats', array($this, 'ajax_get_event_stats'));
+        add_action('wp_ajax_partyminder_get_event_guests', array($this, 'ajax_get_event_guests'));
+        add_action('wp_ajax_partyminder_delete_event', array($this, 'ajax_delete_event'));
         
         // Admin AJAX handlers (always available for admins)
         if (is_admin()) {
@@ -183,10 +180,8 @@ class PartyMinder {
         add_shortcode('partyminder_profile', array($this, 'profile_shortcode'));
         add_shortcode('partyminder_login', array($this, 'login_shortcode'));
         
-        // Communities shortcode (only if feature enabled)
-        if (PartyMinder_Feature_Flags::is_communities_enabled()) {
-            add_shortcode('partyminder_communities', array($this, 'communities_shortcode'));
-        }
+        // Communities shortcode
+        add_shortcode('partyminder_communities', array($this, 'communities_shortcode'));
     }
     
     public function init() {
@@ -199,11 +194,9 @@ class PartyMinder {
         $this->conversation_manager = new PartyMinder_Conversation_Manager();
         $this->ai_assistant = new PartyMinder_AI_Assistant();
         
-        // Initialize communities managers only if features are enabled
-        if (PartyMinder_Feature_Flags::is_communities_enabled()) {
-            $this->community_manager = new PartyMinder_Community_Manager();
-            $this->member_identity_manager = new PartyMinder_Member_Identity_Manager();
-        }
+        // Initialize communities managers
+        $this->community_manager = new PartyMinder_Community_Manager();
+        $this->member_identity_manager = new PartyMinder_Member_Identity_Manager();
         
         // Initialize AT Protocol manager only if feature is enabled
         if (PartyMinder_Feature_Flags::is_at_protocol_enabled()) {
@@ -644,10 +637,6 @@ class PartyMinder {
     
     // Communities AJAX Methods
     public function ajax_join_community() {
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
-            return;
-        }
         
         check_ajax_referer('partyminder_community_action', 'nonce');
         
@@ -700,10 +689,6 @@ class PartyMinder {
     }
     
     public function ajax_leave_community() {
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
-            return;
-        }
         
         check_ajax_referer('partyminder_community_action', 'nonce');
         
@@ -751,10 +736,6 @@ class PartyMinder {
     }
     
     public function ajax_create_community() {
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
-            return;
-        }
         
         check_ajax_referer('partyminder_community_action', 'nonce');
         
@@ -830,10 +811,6 @@ class PartyMinder {
     }
     
     public function ajax_update_community() {
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
-            return;
-        }
         
         check_ajax_referer('partyminder_community_action', 'nonce');
         
@@ -887,10 +864,6 @@ class PartyMinder {
     }
     
     public function ajax_get_community_members() {
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
-            return;
-        }
         
         check_ajax_referer('partyminder_community_action', 'nonce');
         
@@ -925,11 +898,43 @@ class PartyMinder {
         ));
     }
     
-    public function ajax_update_member_role() {
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
+    public function ajax_get_community_stats() {
+        
+        check_ajax_referer('partyminder_community_action', 'nonce');
+        
+        if (!is_user_logged_in()) {
+            wp_send_json_error(__('You must be logged in.', 'partyminder'));
             return;
         }
+        
+        $community_id = intval($_POST['community_id']);
+        $current_user = wp_get_current_user();
+        
+        if (!$community_id) {
+            wp_send_json_error(__('Invalid community.', 'partyminder'));
+            return;
+        }
+        
+        $community_manager = new PartyMinder_Community_Manager();
+        
+        // Check if user is admin of this community
+        $user_role = $community_manager->get_member_role($community_id, $current_user->ID);
+        if ($user_role !== 'admin') {
+            wp_send_json_error(__('Only community admins can view stats.', 'partyminder'));
+            return;
+        }
+        
+        $stats = $community_manager->get_community_stats($community_id);
+        
+        wp_send_json_success(array(
+            'total_members' => $stats->member_count,
+            'active_members' => $stats->recent_activity,
+            'pending_invites' => 0, // This would need to be implemented in get_community_stats
+            'community_events' => $stats->event_count
+        ));
+    }
+    
+    public function ajax_update_member_role() {
         
         check_ajax_referer('partyminder_community_action', 'nonce');
         
@@ -984,10 +989,6 @@ class PartyMinder {
     }
     
     public function ajax_remove_member() {
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
-            return;
-        }
         
         check_ajax_referer('partyminder_community_action', 'nonce');
         
@@ -1050,10 +1051,6 @@ class PartyMinder {
     }
     
     public function ajax_send_invitation() {
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
-            return;
-        }
         
         check_ajax_referer('partyminder_community_action', 'nonce');
         
@@ -1090,10 +1087,6 @@ class PartyMinder {
     }
     
     public function ajax_get_community_invitations() {
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
-            return;
-        }
         
         check_ajax_referer('partyminder_community_action', 'nonce');
         
@@ -1132,10 +1125,6 @@ class PartyMinder {
     }
     
     public function ajax_cancel_invitation() {
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            wp_send_json_error(__('Communities feature is disabled.', 'partyminder'));
-            return;
-        }
         
         check_ajax_referer('partyminder_community_action', 'nonce');
         
@@ -1512,10 +1501,6 @@ class PartyMinder {
             return '';
         }
         
-        // Check if communities are enabled
-        if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-            return '<div class="partyminder-shortcode-wrapper warning"><p>' . __('Communities feature is not enabled.', 'partyminder') . '</p></div>';
-        }
         
         // Otherwise, provide simplified embedded version
         ob_start();
@@ -1608,16 +1593,14 @@ class PartyMinder {
         add_rewrite_rule('^conversations/([^/]+)/?$', 'index.php?pagename=conversations&conversation_topic=$matches[1]', 'top');
         add_rewrite_rule('^conversations/([^/]+)/([^/]+)/?$', 'index.php?pagename=conversations&conversation_topic=$matches[1]&conversation_slug=$matches[2]', 'top');
         
-        // Add community routing (only if communities enabled)
-        if (PartyMinder_Feature_Flags::is_communities_enabled()) {
-            add_rewrite_rule('^communities/?$', 'index.php?pagename=communities', 'top');
-            add_rewrite_rule('^communities/join/?$', 'index.php?pagename=communities&community_action=join', 'top');
-            add_rewrite_rule('^communities/([^/]+)/?$', 'index.php?pagename=communities&community_slug=$matches[1]', 'top');
-            add_rewrite_rule('^communities/([^/]+)/events/?$', 'index.php?pagename=communities&community_slug=$matches[1]&community_view=events', 'top');
-            add_rewrite_rule('^communities/([^/]+)/members/?$', 'index.php?pagename=communities&community_slug=$matches[1]&community_view=members', 'top');
-            add_rewrite_rule('^manage-community/?$', 'index.php?pagename=manage-community', 'top');
-            add_rewrite_rule('^create-community/?$', 'index.php?pagename=create-community', 'top');
-        }
+        // Add community routing
+        add_rewrite_rule('^communities/?$', 'index.php?pagename=communities', 'top');
+        add_rewrite_rule('^communities/join/?$', 'index.php?pagename=communities&community_action=join', 'top');
+        add_rewrite_rule('^communities/([^/]+)/?$', 'index.php?pagename=communities&community_slug=$matches[1]', 'top');
+        add_rewrite_rule('^communities/([^/]+)/events/?$', 'index.php?pagename=communities&community_slug=$matches[1]&community_view=events', 'top');
+        add_rewrite_rule('^communities/([^/]+)/members/?$', 'index.php?pagename=communities&community_slug=$matches[1]&community_view=members', 'top');
+        add_rewrite_rule('^manage-community/?$', 'index.php?pagename=manage-community', 'top');
+        add_rewrite_rule('^create-community/?$', 'index.php?pagename=create-community', 'top');
         
         // Add query vars
         add_filter('query_vars', function($vars) {
@@ -1731,6 +1714,10 @@ class PartyMinder {
     
     public static function get_communities_url() {
         return self::get_page_url('communities');
+    }
+    
+    public static function get_community_url($community_slug) {
+        return home_url('/communities/' . $community_slug . '/');
     }
     
     public static function get_profile_url($user_id = null) {
@@ -2006,31 +1993,26 @@ class PartyMinder {
                 break;
                 
             case 'communities':
-                // Handle community routing (only if feature enabled)
-                if (PartyMinder_Feature_Flags::is_communities_enabled()) {
-                    $community_slug = get_query_var('community_slug');
-                    $community_view = get_query_var('community_view');
-                    
-                    if ($community_slug && $community_view === 'members') {
-                        // Community members view
-                        add_filter('the_content', array($this, 'inject_community_members_content'));
-                        add_filter('body_class', array($this, 'add_community_members_body_class'));
-                    } elseif ($community_slug && $community_view === 'events') {
-                        // Community events view
-                        add_filter('the_content', array($this, 'inject_community_events_content'));
-                        add_filter('body_class', array($this, 'add_community_events_body_class'));
-                    } elseif ($community_slug) {
-                        // Individual community view
-                        add_filter('the_content', array($this, 'inject_single_community_content'));
-                        add_filter('body_class', array($this, 'add_single_community_body_class'));
-                    } else {
-                        // Main communities page
-                        add_filter('the_content', array($this, 'inject_communities_content'));
-                        add_filter('body_class', array($this, 'add_communities_body_class'));
-                    }
+                // Handle community routing
+                $community_slug = get_query_var('community_slug');
+                $community_view = get_query_var('community_view');
+                
+                if ($community_slug && $community_view === 'members') {
+                    // Community members view
+                    add_filter('the_content', array($this, 'inject_community_members_content'));
+                    add_filter('body_class', array($this, 'add_community_members_body_class'));
+                } elseif ($community_slug && $community_view === 'events') {
+                    // Community events view
+                    add_filter('the_content', array($this, 'inject_community_events_content'));
+                    add_filter('body_class', array($this, 'add_community_events_body_class'));
+                } elseif ($community_slug) {
+                    // Individual community view
+                    add_filter('the_content', array($this, 'inject_single_community_content'));
+                    add_filter('body_class', array($this, 'add_single_community_body_class'));
                 } else {
-                    // Feature disabled - show disabled message
-                    add_filter('the_content', array($this, 'inject_communities_disabled_content'));
+                    // Main communities page
+                    add_filter('the_content', array($this, 'inject_communities_content'));
+                    add_filter('body_class', array($this, 'add_communities_body_class'));
                 }
                 break;
                 

@@ -9,14 +9,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Check if communities are enabled
-if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-    echo '<div class="partyminder-error">';
-    echo '<h2>' . __('Communities Not Available', 'partyminder') . '</h2>';
-    echo '<p>' . __('The communities feature is currently disabled.', 'partyminder') . '</p>';
-    echo '</div>';
-    return;
-}
 
 // Load required classes
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';

@@ -9,9 +9,10 @@ class PartyMinder_Feature_Flags {
     
     /**
      * Check if communities feature is enabled
+     * Communities are core functionality for a social network - always enabled
      */
     public static function is_communities_enabled() {
-        return (bool) get_option('partyminder_enable_communities', false);
+        return true;
     }
     
     /**
@@ -39,10 +40,6 @@ class PartyMinder_Feature_Flags {
      * Check if user can create communities
      */
     public static function can_user_create_community($user_id = null) {
-        if (!self::is_communities_enabled()) {
-            return false;
-        }
-        
         if (!$user_id) {
             $user_id = get_current_user_id();
         }
@@ -66,10 +63,6 @@ class PartyMinder_Feature_Flags {
      * Check if user can join communities
      */
     public static function can_user_join_community($user_id = null) {
-        if (!self::is_communities_enabled()) {
-            return false;
-        }
-        
         if (!$user_id) {
             $user_id = get_current_user_id();
         }

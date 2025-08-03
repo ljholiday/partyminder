@@ -9,19 +9,15 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Check if communities are enabled
-if (!PartyMinder_Feature_Flags::is_communities_enabled()) {
-    echo '<div class="pm-text-center pm-p-16">';
-    echo '<h2>' . __('Communities Feature Not Available', 'partyminder') . '</h2>';
-    echo '<p>' . __('The communities feature is currently disabled. Please check back later.', 'partyminder') . '</p>';
-    echo '</div>';
-    return;
-}
 
 // Load required classes
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
 
-$community_manager = new PartyMinder_Community_Manager();
+try {
+    $community_manager = new PartyMinder_Community_Manager();
+} catch (Exception $e) {
+    wp_die('Error loading Community Manager: ' . $e->getMessage());
+}
 
 // Get community ID from URL parameter
 $community_id = isset($_GET['community_id']) ? intval($_GET['community_id']) : 0;
@@ -37,19 +33,23 @@ if (!$community_id) {
 }
 
 // Get community data
-$community = $community_manager->get_community($community_id);
-if (!$community) {
-    echo '<div class="pm-container pm-text-center pm-p-16">';
-    echo '<h2>' . __('Community Not Found', 'partyminder') . '</h2>';
-    echo '<p>' . __('The requested community does not exist.', 'partyminder') . '</p>';
-    echo '<a href="' . esc_url(PartyMinder::get_communities_url()) . '" class="pm-button pm-button-primary">' . __('Back to Communities', 'partyminder') . '</a>';
-    echo '</div>';
-    return;
+try {
+    $community = $community_manager->get_community($community_id);
+    if (!$community) {
+        echo '<div class="pm-container pm-text-center pm-p-16">';
+        echo '<h2>' . __('Community Not Found', 'partyminder') . '</h2>';
+        echo '<p>' . __('The requested community does not exist.', 'partyminder') . '</p>';
+        echo '<a href="' . esc_url(PartyMinder::get_communities_url()) . '" class="pm-button pm-button-primary">' . __('Back to Communities', 'partyminder') . '</a>';
+        echo '</div>';
+        return;
+    }
+} catch (Exception $e) {
+    wp_die('Error loading community: ' . $e->getMessage());
 }
 
 // Get current user and check permissions
 $current_user = wp_get_current_user();
-$user_role = is_user_logged_in() ? $community_manager->get_user_role($community_id, $current_user->ID) : null;
+$user_role = is_user_logged_in() ? $community_manager->get_member_role($community_id, $current_user->ID) : null;
 
 // Check if user can manage this community
 if (!$user_role || $user_role !== 'admin') {

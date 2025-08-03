@@ -222,8 +222,8 @@ class PartyMinder_Activator {
         add_option('partyminder_demo_mode', true);
         add_option('partyminder_track_analytics', true);
         
-        // Communities Feature Flags - DISABLED BY DEFAULT FOR SAFE DEPLOYMENT
-        add_option('partyminder_enable_communities', false);
+        // Communities Feature Flags - ENABLED BY DEFAULT FOR SOCIAL NETWORK
+        add_option('partyminder_enable_communities', true);
         add_option('partyminder_enable_at_protocol', false);
         add_option('partyminder_communities_require_approval', true);
         add_option('partyminder_max_communities_per_user', 10);
