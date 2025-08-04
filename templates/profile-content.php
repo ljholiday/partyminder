@@ -56,6 +56,96 @@ $breadcrumbs = array(
     array('title' => __('Profile', 'partyminder'))
 );
 
+// Profile Header (outside two-column layout)
+if (!$is_editing) {
+?>
+<!-- Cover Photo Section - Full Width -->
+<div class="header" style="position: relative; padding: 0; overflow: hidden; border: 2px solid var(--border); border-radius: 0.75rem;">
+    <?php 
+    $cover_photo = $profile_data['cover_photo'] ?? '';
+    $cover_style = $cover_photo 
+        ? "background-image: url('" . esc_url($cover_photo) . "');" 
+        : "background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%);";
+    ?>
+    
+    <!-- Cover Photo -->
+    <div class="profile-cover" style="<?php echo $cover_style; ?>">
+        <?php if ($is_own_profile): ?>
+        <div style="position: absolute; top: 1rem; right: 1rem;">
+            <button class="btn btn-secondary" style="background: rgba(255,255,255,0.9); color: var(--text);" title="<?php _e('Change Cover Photo', 'partyminder'); ?>">
+                🖼️ <?php _e('Change Cover', 'partyminder'); ?>
+            </button>
+        </div>
+        <?php endif; ?>
+    </div>
+    
+    <!-- Profile Info Overlay -->
+    <div style="position: relative; padding: 1.5rem; margin-top: -4rem;">
+        <div class="profile-header">
+            <div class="flex gap-4 mb-4">
+                <!-- Avatar -->
+                <div style="position: relative;">
+                    <div class="profile-avatar">
+                        <?php echo get_avatar($user_id, 120, '', '', array('style' => 'width: 100%; height: 100%; object-fit: cover;')); ?>
+                    </div>
+                    <?php if ($is_own_profile): ?>
+                    <button class="avatar-upload-btn" title="<?php _e('Change Profile Photo', 'partyminder'); ?>">
+                        📷
+                    </button>
+                    <?php endif; ?>
+                </div>
+                
+                <!-- User Info -->
+                <div class="flex-1 profile-info" style="padding-top: 2rem;">
+                    <h1 class="heading heading-xl mb-4" style="color: var(--text);"><?php echo esc_html($user_data->display_name); ?></h1>
+                    
+                    <div class="flex gap-4 flex-wrap mb-4">
+                        <?php if (!empty($profile_data['location'])): ?>
+                        <div class="flex gap-4">
+                            <span>📍</span>
+                            <span class="text-muted"><?php echo esc_html($profile_data['location']); ?></span>
+                        </div>
+                        <?php endif; ?>
+                        <div class="flex gap-4">
+                            <span>📅</span>
+                            <span class="text-muted"><?php printf(__('Member since %s', 'partyminder'), date('M Y', strtotime($user_data->user_registered))); ?></span>
+                        </div>
+                        <div class="flex gap-4">
+                            <span>⭐</span>
+                            <span class="text-muted"><?php _e('Active Host', 'partyminder'); ?></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="profile-actions">
+                        <?php if ($is_own_profile): ?>
+                        <div class="flex gap-4 flex-wrap">
+                            <a href="<?php echo add_query_arg('edit', '1', PartyMinder::get_profile_url()); ?>" class="btn">
+                                ✏️ <?php _e('Edit Profile', 'partyminder'); ?>
+                            </a>
+                            <a href="<?php echo esc_url(PartyMinder::get_my_events_url()); ?>" class="btn btn-secondary">
+                                📅 <?php _e('My Events', 'partyminder'); ?>
+                            </a>
+                        </div>
+                        <?php else: ?>
+                        <div class="flex gap-4 flex-wrap">
+                            <button class="btn">
+                                💬 <?php _e('Send Message', 'partyminder'); ?>
+                            </button>
+                            <button class="btn btn-secondary">
+                                👥 <?php _e('Follow', 'partyminder'); ?>
+                            </button>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php
+}
+
 // Main content
 ob_start();
 
@@ -136,41 +226,17 @@ if ($is_editing):
 </div>
 
 <?php else: ?>
-<!-- Profile Display -->
+<!-- Profile Display - Main Content -->
+
+<!-- About Section -->
+<?php if (!empty($profile_data['bio'])): ?>
 <div class="section mb-4">
-    <div class="flex gap-4 mb-4">
-        <div class="avatar">
-            <?php echo get_avatar($user_id, 80, '', '', array('class' => 'avatar-img')); ?>
-        </div>
-        <div class="flex-1">
-            <h2 class="heading heading-lg mb-4"><?php echo esc_html($user_data->display_name); ?></h2>
-            <?php if (!empty($profile_data['location'])): ?>
-            <div class="flex gap-4 mb-4">
-                <span>📍</span>
-                <span class="text-muted"><?php echo esc_html($profile_data['location']); ?></span>
-            </div>
-            <?php endif; ?>
-            <div class="flex gap-4 mb-4">
-                <span>📅</span>
-                <span class="text-muted"><?php printf(__('Member since %s', 'partyminder'), date('M Y', strtotime($user_data->user_registered))); ?></span>
-            </div>
-        </div>
-        <?php if ($is_own_profile): ?>
-        <div>
-            <a href="<?php echo add_query_arg('edit', '1', PartyMinder::get_profile_url()); ?>" class="btn">
-                ✏️ <?php _e('Edit Profile', 'partyminder'); ?>
-            </a>
-        </div>
-        <?php endif; ?>
+    <div class="section-header">
+        <h3 class="heading heading-sm"><?php _e('About', 'partyminder'); ?></h3>
     </div>
-    
-    <?php if (!empty($profile_data['bio'])): ?>
-    <div class="mb-4">
-        <h3 class="heading heading-sm mb-4"><?php _e('About', 'partyminder'); ?></h3>
-        <p class="text-muted"><?php echo esc_html($profile_data['bio']); ?></p>
-    </div>
-    <?php endif; ?>
+    <p class="text-muted"><?php echo esc_html($profile_data['bio']); ?></p>
 </div>
+<?php endif; ?>
 
 <!-- Activity Stats -->
 <div class="section">

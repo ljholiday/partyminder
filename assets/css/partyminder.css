@@ -100,7 +100,29 @@ article .partyminder-content,
     margin-bottom: 1.5rem;
 }
 
+.header {
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
 .section-header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+}
+
+/* Legacy header classes - redirect to semantic classes */
+.events-header,
+.community-header,
+.members-header,
+.conversation-header,
+.my-events-header,
+.page-header,
+.form-header,
+.card-header,
+.invitation-header,
+.profile-header,
+.replies-header {
     margin-bottom: 1.25rem;
     padding-bottom: 1rem;
     border-bottom: 2px solid var(--border);
@@ -208,6 +230,68 @@ article .partyminder-content,
     color: white;
 }
 
+/* Option Cards */
+.option-card {
+    transition: all 0.2s ease;
+}
+
+.option-card:hover {
+    border-color: var(--primary);
+}
+
+.option-card.selected {
+    border-color: var(--primary);
+    background: rgba(102, 126, 234, 0.05);
+}
+
+/* Profile Components */
+.profile-cover {
+    height: 12rem;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.profile-avatar {
+    width: 8rem;
+    height: 8rem;
+    border-radius: 50%;
+    border: 4px solid white;
+    background: white;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-upload-btn {
+    position: absolute;
+    bottom: 0.25rem;
+    right: 0.25rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    border: 2px solid white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.avatar-upload-btn:hover {
+    background: var(--primary);
+    opacity: 0.9;
+}
+
 /* Utilities */
 .flex { display: flex; }
 .flex-between { justify-content: space-between; }
@@ -220,6 +304,7 @@ article .partyminder-content,
 .grid-3 { grid-template-columns: repeat(3, 1fr); }
 
 .text-center { text-align: center; }
+.text-xl { font-size: 1.25rem; }
 .mb-4 { margin-bottom: 1rem; }
 .mt-4 { margin-top: 1rem; }
 
@@ -252,5 +337,33 @@ article .partyminder-content,
     
     .grid-2, .grid-3 {
         grid-template-columns: 1fr;
+    }
+    
+    /* Profile Responsive */
+    .profile-cover {
+        height: 8rem;
+    }
+    
+    .profile-avatar {
+        width: 6rem;
+        height: 6rem;
+    }
+    
+    .profile-info {
+        padding-top: 1rem !important;
+    }
+    
+    .profile-header .flex {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .profile-header .flex-1 {
+        padding-top: 1rem !important;
+    }
+    
+    .profile-actions .flex {
+        justify-content: center;
     }
 }
