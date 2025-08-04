@@ -1,5 +1,20 @@
 /* PartyMinder - Ultra-Minimal Template System CSS */
 
+/* WordPress Theme Override */
+.partyminder-content {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.entry-content .partyminder-content,
+.wp-block-post-content .partyminder-content,
+.has-global-padding .partyminder-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+}
+
 /* Variables */
 :root {
     --primary: #667eea;
@@ -15,19 +30,22 @@
 
 /* Base Layout (agents.md semantic naming) */
 .page {
-    max-width: 100%;
+    max-width: 75rem;
+    width: 90%;
     margin: 0 auto;
     padding: 1.25rem;
 }
 
 .page-form {
-    max-width: 50%;
+    max-width: 37.5rem;
+    width: 90%;
     margin: 0 auto;
     padding: 1.25rem;
 }
 
 .page-two-column {
-    max-width: 100%;
+    max-width: 75rem;
+    width: 90%;
     margin: 0 auto;
     padding: 1.25rem;
     display: grid;
