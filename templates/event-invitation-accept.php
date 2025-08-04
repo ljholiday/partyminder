@@ -232,7 +232,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     margin-top: 5px;
 }
 
-.pm-button {
+.btn {
     background: var(--pm-primary);
     color: white;
     padding: 15px 30px;
@@ -248,12 +248,12 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     font-size: 1.1em;
 }
 
-.pm-button:hover {
+.btn:hover {
     opacity: 0.9;
     color: white;
 }
 
-.pm-button-secondary {
+.btn-secondary {
     background: #6c757d;
 }
 
@@ -373,14 +373,14 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     <div class="login-prompt">
                         <h4><?php _e('Login Required', 'partyminder'); ?></h4>
                         <p><?php _e('You need to be logged in to RSVP to this event.', 'partyminder'); ?></p>
-                        <a href="<?php echo add_query_arg('redirect_to', urlencode(home_url('/events/join?token=' . urlencode($token))), PartyMinder::get_login_url()); ?>" class="pm-button">
+                        <a href="<?php echo add_query_arg('redirect_to', urlencode(home_url('/events/join?token=' . urlencode($token))), PartyMinder::get_login_url()); ?>" class="btn">
                             <span>🔑</span> <?php _e('Login to RSVP', 'partyminder'); ?>
                         </a>
                     </div>
                 <?php elseif ($message_type === 'success'): ?>
-                    <div class="pm-text-center">
+                    <div class="text-center">
                         <p><?php _e('Redirecting to the event page...', 'partyminder'); ?></p>
-                        <a href="<?php echo home_url('/events/' . $invitation->event_slug); ?>" class="pm-button">
+                        <a href="<?php echo home_url('/events/' . $invitation->event_slug); ?>" class="btn">
                             <span>🎉</span> <?php _e('Go to Event', 'partyminder'); ?>
                         </a>
                     </div>
@@ -418,8 +418,8 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                                 <textarea class="form-textarea" id="notes" name="notes" rows="2" placeholder="<?php _e('Anything else you\'d like the host to know?', 'partyminder'); ?>"></textarea>
                             </div>
                             
-                            <div class="pm-text-center">
-                                <button type="submit" class="pm-button">
+                            <div class="text-center">
+                                <button type="submit" class="btn">
                                     <span>✅</span> <?php _e('Confirm RSVP', 'partyminder'); ?>
                                 </button>
                             </div>
@@ -427,9 +427,9 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     </div>
                 <?php endif; ?>
             <?php else: ?>
-                <div class="pm-text-center">
+                <div class="text-center">
                     <p><?php _e('Return to events to explore other options.', 'partyminder'); ?></p>
-                    <a href="<?php echo home_url('/events'); ?>" class="pm-button pm-button-secondary">
+                    <a href="<?php echo home_url('/events'); ?>" class="btn btn-secondary">
                         <span>🎉</span> <?php _e('Browse Events', 'partyminder'); ?>
                     </a>
                 </div>

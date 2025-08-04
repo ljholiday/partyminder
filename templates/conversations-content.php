@@ -17,9 +17,9 @@ if ($on_dedicated_page) {
     include PARTYMINDER_PLUGIN_DIR . 'templates/conversations.php';
 } else {
     // Fallback embedded version
-    echo '<div class="partyminder-shortcode-wrapper pm-card pm-text-center pm-p-5 pm-m-5">';
+    echo '<div class="partyminder-shortcode-wrapper card text-center p-4 pm-m-5">';
     echo '<h3>' . __('Community Conversations', 'partyminder') . '</h3>';
     echo '<p>' . __('Connect with fellow hosts and guests, share tips, and plan amazing gatherings together.', 'partyminder') . '</p>';
-    echo '<a href="' . esc_url(PartyMinder::get_conversations_url()) . '" class="pm-button pm-button-primary">' . __('Join Conversations', 'partyminder') . '</a>';
+    echo '<a href="' . esc_url(PartyMinder::get_conversations_url()) . '" class="btn">' . __('Join Conversations', 'partyminder') . '</a>';
     echo '</div>';
 }

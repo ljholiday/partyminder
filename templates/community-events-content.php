@@ -69,390 +69,6 @@ $primary_color = get_option('partyminder_primary_color', '#667eea');
 $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 ?>
 
-<style>
-:root {
-    --pm-primary: <?php echo esc_attr($primary_color); ?>;
-    --pm-secondary: <?php echo esc_attr($secondary_color); ?>;
-}
-
-.partyminder-community-events {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.breadcrumbs {
-    background: #f8f9fa;
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.breadcrumbs a {
-    color: var(--pm-primary);
-    text-decoration: none;
-}
-
-.breadcrumbs a:hover {
-    text-decoration: underline;
-}
-
-.events-header {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    overflow: hidden;
-    margin-bottom: 30px;
-}
-
-.events-hero {
-    background: linear-gradient(135deg, var(--pm-primary), var(--pm-secondary));
-    color: white;
-    padding: 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.events-title-section h1 {
-    font-size: 2em;
-    margin: 0 0 10px 0;
-    font-weight: bold;
-}
-
-.events-meta {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    font-size: 1.1em;
-    opacity: 0.9;
-    flex-wrap: wrap;
-}
-
-.event-count-badge {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: bold;
-}
-
-.events-actions {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.events-nav {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
-    overflow: hidden;
-}
-
-.nav-tabs {
-    display: flex;
-    background: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.nav-tab {
-    flex: 1;
-    padding: 15px 20px;
-    text-align: center;
-    background: none;
-    border: none;
-    color: #666;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-weight: 500;
-}
-
-.nav-tab:hover {
-    background: white;
-    color: var(--pm-primary);
-}
-
-.nav-tab.active {
-    background: white;
-    color: var(--pm-primary);
-    border-bottom: 3px solid var(--pm-primary);
-}
-
-.events-content {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    padding: 30px;
-}
-
-.events-filter {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.filter-button {
-    padding: 8px 16px;
-    border: 2px solid var(--pm-primary);
-    background: transparent;
-    color: var(--pm-primary);
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.9em;
-}
-
-.filter-button:hover,
-.filter-button.active {
-    background: var(--pm-primary);
-    color: white;
-}
-
-.events-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 25px;
-    margin-bottom: 30px;
-}
-
-.event-card {
-    background: white;
-    border: 1px solid #e9ecef;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.2s ease;
-    position: relative;
-}
-
-.event-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.event-image {
-    height: 180px;
-    background: linear-gradient(135deg, var(--pm-primary), var(--pm-secondary));
-    position: relative;
-    overflow: hidden;
-}
-
-.event-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.event-date-badge {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 8px 12px;
-    border-radius: 8px;
-    text-align: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.event-date-day {
-    font-weight: bold;
-    font-size: 1.2em;
-    color: var(--pm-primary);
-    line-height: 1;
-}
-
-.event-date-month {
-    font-size: 0.8em;
-    color: #666;
-    text-transform: uppercase;
-}
-
-.event-status-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    padding: 6px 12px;
-    border-radius: 15px;
-    font-size: 0.8em;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.event-status-badge.upcoming {
-    background: #28a745;
-    color: white;
-}
-
-.event-status-badge.today {
-    background: #dc3545;
-    color: white;
-}
-
-.event-status-badge.past {
-    background: #6c757d;
-    color: white;
-}
-
-.event-info {
-    padding: 20px;
-}
-
-.event-title {
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #333;
-    margin: 0 0 10px 0;
-    line-height: 1.3;
-}
-
-.event-title a {
-    color: inherit;
-    text-decoration: none;
-}
-
-.event-title a:hover {
-    color: var(--pm-primary);
-}
-
-.event-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 15px;
-    font-size: 0.9em;
-    color: #666;
-}
-
-.event-meta-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.event-description {
-    color: #555;
-    line-height: 1.5;
-    margin-bottom: 15px;
-}
-
-.event-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 15px;
-    border-top: 1px solid #f0f0f0;
-}
-
-.event-organizer {
-    font-size: 0.85em;
-    color: #666;
-}
-
-.event-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.rsvp-btn {
-    background: var(--pm-primary);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 0.9em;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-}
-
-.rsvp-btn:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.rsvp-btn.attending {
-    background: #28a745;
-}
-
-.no-events {
-    text-align: center;
-    padding: 60px 20px;
-    color: #666;
-}
-
-.no-access {
-    text-align: center;
-    padding: 60px 20px;
-    color: #666;
-}
-
-.pm-button {
-    background: var(--pm-primary);
-    color: white;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-}
-
-.pm-button:hover {
-    opacity: 0.9;
-    color: white;
-}
-
-.pm-button-outline {
-    background: transparent;
-    color: var(--pm-primary);
-    border: 2px solid var(--pm-primary);
-}
-
-.pm-button-outline:hover {
-    background: var(--pm-primary);
-    color: white;
-}
-
-.pm-button-secondary {
-    background: #6c757d;
-}
-
-@media (max-width: 768px) {
-    .events-hero {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .events-title-section h1 {
-        font-size: 1.6em;
-    }
-    
-    .events-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .nav-tabs {
-        flex-direction: column;
-    }
-    
-    .events-actions {
-        justify-content: center;
-    }
-    
-    .events-filter {
-        justify-content: center;
-    }
-}
-</style>
 
 <div class="partyminder-community-events">
     <!-- Breadcrumbs -->
@@ -483,13 +99,13 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             
             <div class="events-actions">
                 <?php if ($is_member): ?>
-                    <a href="#" class="pm-button create-event-btn">
+                    <a href="#" class="btn create-event-btn">
                         <span>🎉</span>
                         <?php _e('Create Event', 'partyminder'); ?>
                     </a>
                 <?php endif; ?>
                 
-                <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-button pm-button-outline">
+                <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="btn btn btn-secondary">
                     <span>🔙</span>
                     <?php _e('Back to Community', 'partyminder'); ?>
                 </a>
@@ -521,11 +137,11 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <p><?php _e('This community\'s events are private. You need to be a member to view community events.', 'partyminder'); ?></p>
                 
                 <?php if (!$is_logged_in): ?>
-                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-button">
+                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="btn">
                         <?php _e('Login to Join', 'partyminder'); ?>
                     </a>
                 <?php else: ?>
-                    <a href="#" class="pm-button join-community-btn" data-community-id="<?php echo esc_attr($community->id); ?>">
+                    <a href="#" class="btn join-community-btn" data-community-id="<?php echo esc_attr($community->id); ?>">
                         <?php _e('Join Community', 'partyminder'); ?>
                     </a>
                 <?php endif; ?>
@@ -538,16 +154,16 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <p><?php _e('This community hasn\'t created any events yet. Be the first to plan something amazing!', 'partyminder'); ?></p>
                 
                 <?php if ($is_member): ?>
-                    <a href="#" class="pm-button create-event-btn">
+                    <a href="#" class="btn create-event-btn">
                         <span>🎉</span>
                         <?php _e('Create First Event', 'partyminder'); ?>
                     </a>
                 <?php elseif (!$is_logged_in): ?>
-                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-button">
+                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="btn">
                         <?php _e('Login to Join', 'partyminder'); ?>
                     </a>
                 <?php else: ?>
-                    <a href="#" class="pm-button join-community-btn" data-community-id="<?php echo esc_attr($community->id); ?>">
+                    <a href="#" class="btn join-community-btn" data-community-id="<?php echo esc_attr($community->id); ?>">
                         <?php _e('Join to Create Events', 'partyminder'); ?>
                     </a>
                 <?php endif; ?>

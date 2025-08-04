@@ -215,6 +215,7 @@ class PartyMinder {
     public function enqueue_public_scripts() {
         wp_enqueue_style('partyminder', PARTYMINDER_PLUGIN_URL . 'assets/css/partyminder.css', array(), PARTYMINDER_VERSION . '-' . filemtime(PARTYMINDER_PLUGIN_DIR . 'assets/css/partyminder.css'));
         
+        
         // Add dynamic colors from admin settings
         $primary_color = get_option('partyminder_primary_color', '#667eea');
         $secondary_color = get_option('partyminder_secondary_color', '#764ba2');

@@ -253,7 +253,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.pm-button {
+.btn {
     background: var(--pm-primary);
     color: white;
     padding: 12px 24px;
@@ -268,16 +268,16 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     transition: all 0.2s ease;
 }
 
-.pm-button:hover {
+.btn:hover {
     opacity: 0.9;
     color: white;
 }
 
-.pm-button-secondary {
+.btn-secondary {
     background: #6c757d;
 }
 
-.pm-button-small {
+.btn-small {
     padding: 6px 12px;
     font-size: 0.9em;
 }
@@ -380,12 +380,12 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <?php if ($event_data): ?>
-                    <a href="<?php echo home_url('/events/' . $event_data->slug); ?>" class="pm-button pm-button-primary pm-button-small">
+                    <a href="<?php echo home_url('/events/' . $event_data->slug); ?>" class="btn btn-small">
                         <span>📅</span> <?php _e('Go To Event', 'partyminder'); ?>
                     </a>
                 <?php endif; ?>
                 <?php if ($user_email): ?>
-                    <button class="pm-button pm-button-small follow-btn" 
+                    <button class="btn btn-small follow-btn" 
                             data-conversation-id="<?php echo esc_attr($conversation->id); ?>">
                         <?php if ($is_following): ?>
                             <span>🔕</span> <?php _e('Unfollow', 'partyminder'); ?>
@@ -394,7 +394,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         <?php endif; ?>
                     </button>
                 <?php endif; ?>
-                <a href="#reply-form" class="pm-button pm-button-small">
+                <a href="#reply-form" class="btn btn-small">
                     <span>💬</span>
                     <?php _e('Reply', 'partyminder'); ?>
                 </a>
@@ -440,7 +440,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         <?php echo wpautop($reply->content); ?>
                     </div>
                     <div class="reply-actions">
-                        <a href="#reply-form" class="pm-button pm-button-small reply-btn"
+                        <a href="#reply-form" class="btn btn-small reply-btn"
                            data-conversation-id="<?php echo esc_attr($conversation->id); ?>"
                            data-parent-reply-id="<?php echo esc_attr($reply->id); ?>">
                             <span>↩️</span>
@@ -484,11 +484,11 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             </div>
             
             <div class="form-row">
-                <button type="submit" class="pm-button">
+                <button type="submit" class="btn">
                     <span class="button-text"><?php _e('Post Reply', 'partyminder'); ?></span>
                     <span class="button-spinner" style="display: none;"><?php _e('Posting...', 'partyminder'); ?></span>
                 </button>
-                <a href="<?php echo home_url('/conversations/' . $topic->slug); ?>" class="pm-button pm-button-secondary">
+                <a href="<?php echo home_url('/conversations/' . $topic->slug); ?>" class="btn btn-secondary">
                     <span>←</span>
                     <?php _e('Back to Topic', 'partyminder'); ?>
                 </a>

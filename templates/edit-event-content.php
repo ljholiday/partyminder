@@ -18,7 +18,7 @@ if (!$event_id) {
         <div class="error-wrapper">
             <h3><?php _e('Event Not Found', 'partyminder'); ?></h3>
             <p><?php _e('Event ID is required to edit an event.', 'partyminder'); ?></p>
-            <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-button">
+            <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="btn">
                 <?php _e('Back to My Events', 'partyminder'); ?>
             </a>
         </div>
@@ -39,7 +39,7 @@ if (!$event) {
         <div class="error-wrapper">
             <h3><?php _e('Event Not Found', 'partyminder'); ?></h3>
             <p><?php _e('The event you\'re trying to edit could not be found.', 'partyminder'); ?></p>
-            <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-button">
+            <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="btn">
                 <?php _e('Back to My Events', 'partyminder'); ?>
             </a>
         </div>
@@ -64,7 +64,7 @@ if (!$can_edit) {
         <div class="error-wrapper">
             <h3><?php _e('Access Denied', 'partyminder'); ?></h3>
             <p><?php _e('You do not have permission to edit this event.', 'partyminder'); ?></p>
-            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button">
+            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn">
                 <?php _e('View Event', 'partyminder'); ?>
             </a>
         </div>
@@ -122,7 +122,7 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
     border-color: <?php echo esc_attr($primary_color); ?>;
 }
 
-.partyminder-edit-content .pm-button {
+.partyminder-edit-content .btn {
     background: <?php echo esc_attr($primary_color); ?>;
 }
 </style>
@@ -155,15 +155,15 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
             <h3><?php _e('✅ Event Updated Successfully!', 'partyminder'); ?></h3>
             <p><?php _e('Your event changes have been saved.', 'partyminder'); ?></p>
             <div class="success-actions">
-                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-primary">
+                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn">
                     <span>👀</span>
                     <?php _e('View Event', 'partyminder'); ?>
                 </a>
-                <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-button pm-button-secondary">
+                <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="btn btn-secondary">
                     <span>📋</span>
                     <?php _e('My Events', 'partyminder'); ?>
                 </a>
-                <button type="button" onclick="navigator.share({title: 'Check out this event!', url: '<?php echo esc_js(home_url('/events/' . $event->slug)); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js(home_url('/events/' . $event->slug)); ?>')" class="pm-button pm-button-secondary">
+                <button type="button" onclick="navigator.share({title: 'Check out this event!', url: '<?php echo esc_js(home_url('/events/' . $event->slug)); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js(home_url('/events/' . $event->slug)); ?>')" class="btn btn-secondary">
                     <span>📤</span>
                     <?php _e('Share Event', 'partyminder'); ?>
                 </button>
@@ -190,76 +190,76 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
             <?php wp_nonce_field('edit_partyminder_event', 'partyminder_edit_event_nonce'); ?>
             <input type="hidden" name="event_id" value="<?php echo esc_attr($event_id); ?>" />
             
-            <div class="pm-mb-6">
-                <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e('Event Details', 'partyminder'); ?></h3>
+            <div class="mb-4">
+                <h3 class="heading heading-md text-primary mb-4"><?php _e('Event Details', 'partyminder'); ?></h3>
                 
-                <div class="pm-form-group">
-                    <label for="event_title" class="pm-label"><?php _e('Event Title *', 'partyminder'); ?></label>
-                    <input type="text" id="event_title" name="event_title" class="pm-input" 
+                <div class="form-group">
+                    <label for="event_title" class="form-label"><?php _e('Event Title *', 'partyminder'); ?></label>
+                    <input type="text" id="event_title" name="event_title" class="form-input" 
                            value="<?php echo esc_attr($_POST['event_title'] ?? $event->title); ?>" 
                            placeholder="<?php esc_attr_e('e.g., Summer Dinner Party', 'partyminder'); ?>" required />
                 </div>
 
-                <div class="pm-form-row">
-                    <div class="pm-form-group">
-                        <label for="event_date" class="pm-label"><?php _e('Event Date *', 'partyminder'); ?></label>
-                        <input type="datetime-local" id="event_date" name="event_date" class="pm-input" 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="event_date" class="form-label"><?php _e('Event Date *', 'partyminder'); ?></label>
+                        <input type="datetime-local" id="event_date" name="event_date" class="form-input" 
                                value="<?php echo esc_attr($_POST['event_date'] ?? $event_datetime); ?>" 
                                min="<?php echo date('Y-m-d\TH:i'); ?>" required />
                     </div>
 
-                    <div class="pm-form-group">
-                        <label for="guest_limit" class="pm-label"><?php _e('Guest Limit', 'partyminder'); ?></label>
-                        <input type="number" id="guest_limit" name="guest_limit" class="pm-input" 
+                    <div class="form-group">
+                        <label for="guest_limit" class="form-label"><?php _e('Guest Limit', 'partyminder'); ?></label>
+                        <input type="number" id="guest_limit" name="guest_limit" class="form-input" 
                                value="<?php echo esc_attr($_POST['guest_limit'] ?? $event->guest_limit); ?>" 
                                min="1" max="100" />
                     </div>
                 </div>
 
-                <div class="pm-form-group">
-                    <label for="venue_info" class="pm-label"><?php _e('Venue/Location', 'partyminder'); ?></label>
-                    <input type="text" id="venue_info" name="venue_info" class="pm-input" 
+                <div class="form-group">
+                    <label for="venue_info" class="form-label"><?php _e('Venue/Location', 'partyminder'); ?></label>
+                    <input type="text" id="venue_info" name="venue_info" class="form-input" 
                            value="<?php echo esc_attr($_POST['venue_info'] ?? $event->venue_info); ?>" 
                            placeholder="<?php esc_attr_e('Where will your event take place?', 'partyminder'); ?>" />
                 </div>
             </div>
 
-            <div class="pm-mb-6">
-                <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e('Event Description', 'partyminder'); ?></h3>
-                <div class="pm-form-group">
-                    <label for="event_description" class="pm-label"><?php _e('Tell guests about your event', 'partyminder'); ?></label>
-                    <textarea id="event_description" name="event_description" rows="4" class="pm-textarea" 
+            <div class="mb-4">
+                <h3 class="heading heading-md text-primary mb-4"><?php _e('Event Description', 'partyminder'); ?></h3>
+                <div class="form-group">
+                    <label for="event_description" class="form-label"><?php _e('Tell guests about your event', 'partyminder'); ?></label>
+                    <textarea id="event_description" name="event_description" rows="4" class="form-textarea" 
                               placeholder="<?php esc_attr_e('Describe your event, what to expect...', 'partyminder'); ?>"><?php echo esc_textarea($_POST['event_description'] ?? $event->description); ?></textarea>
                 </div>
             </div>
 
-            <div class="pm-mb-6">
-                <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e('Host Information', 'partyminder'); ?></h3>
+            <div class="mb-4">
+                <h3 class="heading heading-md text-primary mb-4"><?php _e('Host Information', 'partyminder'); ?></h3>
                 
-                <div class="pm-form-group">
-                    <label for="host_email" class="pm-label"><?php _e('Host Email *', 'partyminder'); ?></label>
-                    <input type="email" id="host_email" name="host_email" class="pm-input" 
+                <div class="form-group">
+                    <label for="host_email" class="form-label"><?php _e('Host Email *', 'partyminder'); ?></label>
+                    <input type="email" id="host_email" name="host_email" class="form-input" 
                            value="<?php echo esc_attr($_POST['host_email'] ?? $event->host_email); ?>" 
                            required />
                 </div>
 
-                <div class="pm-form-group">
-                    <label for="host_notes" class="pm-label"><?php _e('Special Notes for Guests', 'partyminder'); ?></label>
-                    <textarea id="host_notes" name="host_notes" rows="3" class="pm-textarea" 
+                <div class="form-group">
+                    <label for="host_notes" class="form-label"><?php _e('Special Notes for Guests', 'partyminder'); ?></label>
+                    <textarea id="host_notes" name="host_notes" rows="3" class="form-textarea" 
                               placeholder="<?php esc_attr_e('Any special instructions, parking info...', 'partyminder'); ?>"><?php echo esc_textarea($_POST['host_notes'] ?? $event->host_notes); ?></textarea>
                 </div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" name="partyminder_update_event" class="pm-button pm-button-primary">
+                <button type="submit" name="partyminder_update_event" class="btn">
                     <span>💾</span>
                     <?php _e('Update Event', 'partyminder'); ?>
                 </button>
-                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-button pm-button-secondary">
+                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn btn-secondary">
                     <span>👀</span>
                     <?php _e('View Event', 'partyminder'); ?>
                 </a>
-                <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-button pm-button-secondary">
+                <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="btn btn-secondary">
                     <span>👈</span>
                     <?php _e('Back to My Events', 'partyminder'); ?>
                 </a>
