@@ -62,20 +62,15 @@ if (!$is_editing) {
 <!-- Cover Photo Section - Full Width -->
 <div class="header" style="position: relative; padding: 0; overflow: hidden; border: 2px solid var(--border); border-radius: 0.75rem;">
     <?php 
-    $cover_photo = $profile_data['cover_photo'] ?? '';
+    $cover_photo = $profile_data['cover_image'] ?? '';
     $cover_style = $cover_photo 
-        ? "background-image: url('" . esc_url($cover_photo) . "');" 
+        ? "background-image: url('" . esc_url($cover_photo) . "'); background-size: cover; background-position: center;" 
         : "background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%);";
     ?>
     
     <!-- Cover Photo -->
     <div class="profile-cover" style="<?php echo $cover_style; ?>">
         <?php if ($is_own_profile): ?>
-        <div style="position: absolute; top: 1rem; right: 1rem;">
-            <button class="btn btn-secondary" style="background: rgba(255,255,255,0.9); color: var(--text);" title="<?php _e('Change Cover Photo', 'partyminder'); ?>">
-                🖼️ <?php _e('Change Cover', 'partyminder'); ?>
-            </button>
-        </div>
         <?php endif; ?>
     </div>
     
@@ -88,11 +83,6 @@ if (!$is_editing) {
                     <div class="profile-avatar">
                         <?php echo get_avatar($user_id, 120, '', '', array('style' => 'width: 100%; height: 100%; object-fit: cover;')); ?>
                     </div>
-                    <?php if ($is_own_profile): ?>
-                    <button class="avatar-upload-btn" title="<?php _e('Change Profile Photo', 'partyminder'); ?>">
-                        📷
-                    </button>
-                    <?php endif; ?>
                 </div>
                 
                 <!-- User Info -->
@@ -212,6 +202,94 @@ if ($is_editing):
                    class="form-input" 
                    value="<?php echo esc_attr($profile_data['location'] ?? ''); ?>" 
                    placeholder="<?php _e('City, State/Country', 'partyminder'); ?>">
+        </div>
+        
+        <!-- Image Upload Section -->
+        <div class="mb-4">
+            <h3 class="heading heading-sm mb-4"><?php _e('Profile Images', 'partyminder'); ?></h3>
+            
+            <?php
+            // Enqueue image upload assets
+            PartyMinder_Image_Upload_Component::enqueue_assets();
+            ?>
+            
+            <div class="grid grid-2 gap-4">
+                <!-- Profile Photo Upload -->
+                <div class="section text-center">
+                    <div class="mb-4">
+                        <div class="profile-avatar" style="width: 120px; height: 120px; margin: 0 auto;">
+                            <?php echo get_avatar($user_id, 120, '', '', array('style' => 'width: 100%; height: 100%; object-fit: cover;')); ?>
+                        </div>
+                    </div>
+                    <h4 class="heading heading-sm mb-4"><?php _e('Profile Photo', 'partyminder'); ?></h4>
+                    <p class="text-muted mb-4"><?php _e('Your profile photo appears on your profile page and throughout the site', 'partyminder'); ?></p>
+                    
+                    <!-- Progress Bar for Profile Photo -->
+                    <div class="upload-progress-bar" id="profile-progress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <div class="progress-text"><?php _e('Uploading profile photo...', 'partyminder'); ?></div>
+                    </div>
+                    
+                    <?php
+                    echo PartyMinder_Image_Upload_Component::render(array(
+                        'entity_type' => 'user',
+                        'entity_id' => $user_id,
+                        'image_type' => 'profile',
+                        'current_image' => $profile_data['profile_image'] ?? '',
+                        'button_text' => __('Upload Profile Photo', 'partyminder'),
+                        'button_icon' => '📷',
+                        'button_class' => 'btn',
+                        'modal_title' => __('Upload Profile Photo', 'partyminder'),
+                        'show_preview' => false,
+                        'dimensions' => __('Recommended: 400x400 pixels (square)', 'partyminder')
+                    ));
+                    ?>
+                </div>
+                
+                <!-- Cover Photo Upload -->
+                <div class="section text-center">
+                    <div class="mb-4">
+                        <div style="width: 200px; height: 80px; margin: 0 auto; border-radius: 0.5rem; overflow: hidden; border: 2px solid var(--border);">
+                            <?php if (!empty($profile_data['cover_image'])): ?>
+                            <img src="<?php echo esc_url($profile_data['cover_image']); ?>" 
+                                 style="width: 100%; height: 100%; object-fit: cover;" 
+                                 alt="<?php _e('Cover photo preview', 'partyminder'); ?>">
+                            <?php else: ?>
+                            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem;">
+                                <?php _e('No cover photo', 'partyminder'); ?>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <h4 class="heading heading-sm mb-4"><?php _e('Cover Photo', 'partyminder'); ?></h4>
+                    <p class="text-muted mb-4"><?php _e('Your cover photo appears at the top of your profile page', 'partyminder'); ?></p>
+                    
+                    <!-- Progress Bar for Cover Photo -->
+                    <div class="upload-progress-bar" id="cover-progress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <div class="progress-text"><?php _e('Uploading cover photo...', 'partyminder'); ?></div>
+                    </div>
+                    
+                    <?php
+                    echo PartyMinder_Image_Upload_Component::render(array(
+                        'entity_type' => 'user',
+                        'entity_id' => $user_id,
+                        'image_type' => 'cover',
+                        'current_image' => $profile_data['cover_image'] ?? '',
+                        'button_text' => __('Upload Cover Photo', 'partyminder'),
+                        'button_icon' => '🖼️',
+                        'button_class' => 'btn',
+                        'modal_title' => __('Upload Cover Photo', 'partyminder'),
+                        'show_preview' => false,
+                        'dimensions' => __('Recommended: 1200x400 pixels (3:1 ratio)', 'partyminder')
+                    ));
+                    ?>
+                </div>
+            </div>
         </div>
         
         <div class="flex gap-4">
@@ -345,3 +423,115 @@ $sidebar_content = ob_get_clean();
 // Include two-column template
 include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php');
 ?>
+
+<style>
+.upload-progress-bar {
+    margin-bottom: 1rem;
+}
+
+.upload-progress-bar .progress-bar {
+    width: 100%;
+    height: 0.5rem;
+    background: var(--border);
+    border-radius: 0.25rem;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.upload-progress-bar .progress-fill {
+    height: 100%;
+    background: var(--primary);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.upload-progress-bar .progress-text {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let activeUploads = 0;
+    const profileForm = document.querySelector('form.form');
+    const saveButton = profileForm ? profileForm.querySelector('button[type="submit"]') : null;
+    const originalSaveText = saveButton ? saveButton.textContent : '';
+    
+    // Listen for upload events
+    document.addEventListener('partyminder:uploadStarted', function(e) {
+        activeUploads++;
+        updateFormState();
+        
+        // Show progress bar for the specific image type
+        const progressBar = document.getElementById(e.detail.imageType + '-progress');
+        if (progressBar) {
+            progressBar.style.display = 'block';
+            progressBar.querySelector('.progress-fill').style.width = '0%';
+            progressBar.querySelector('.progress-text').textContent = 
+                e.detail.imageType === 'profile' 
+                ? '<?php _e('Uploading profile photo...', 'partyminder'); ?>'
+                : '<?php _e('Uploading cover photo...', 'partyminder'); ?>';
+        }
+    });
+    
+    document.addEventListener('partyminder:uploadProgress', function(e) {
+        const progressBar = document.getElementById(e.detail.imageType + '-progress');
+        if (progressBar) {
+            const percentage = Math.round(e.detail.progress);
+            progressBar.querySelector('.progress-fill').style.width = percentage + '%';
+            progressBar.querySelector('.progress-text').textContent = percentage + '%';
+        }
+    });
+    
+    document.addEventListener('partyminder:uploadCompleted', function(e) {
+        activeUploads = Math.max(0, activeUploads - 1);
+        updateFormState();
+        
+        // Hide progress bar after a short delay
+        const progressBar = document.getElementById(e.detail.imageType + '-progress');
+        if (progressBar) {
+            setTimeout(() => {
+                progressBar.style.display = 'none';
+            }, 1000);
+        }
+    });
+    
+    document.addEventListener('partyminder:uploadError', function(e) {
+        activeUploads = Math.max(0, activeUploads - 1);
+        updateFormState();
+        
+        // Hide progress bar
+        const progressBar = document.getElementById(e.detail.imageType + '-progress');
+        if (progressBar) {
+            progressBar.style.display = 'none';
+        }
+    });
+    
+    function updateFormState() {
+        if (!saveButton) return;
+        
+        if (activeUploads > 0) {
+            saveButton.disabled = true;
+            saveButton.textContent = '<?php _e('Please wait for uploads to complete...', 'partyminder'); ?>';
+            saveButton.style.opacity = '0.6';
+        } else {
+            saveButton.disabled = false;
+            saveButton.textContent = originalSaveText;
+            saveButton.style.opacity = '1';
+        }
+    }
+    
+    // Prevent form submission if uploads are active
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+            if (activeUploads > 0) {
+                e.preventDefault();
+                alert('<?php _e('Please wait for image uploads to complete before saving.', 'partyminder'); ?>');
+                return false;
+            }
+        });
+    }
+});
+</script>
