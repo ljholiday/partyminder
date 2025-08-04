@@ -1,18 +1,36 @@
 /* PartyMinder - Ultra-Minimal Template System CSS */
 
-/* WordPress Theme Override */
+/* WordPress Theme Override - Force clean layout */
+.partyminder-content,
+.partyminder-content * {
+    box-sizing: border-box;
+}
+
 .partyminder-content {
     max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
+    width: 100% !important;
+    display: block !important;
+    float: none !important;
+    position: static !important;
 }
 
+/* Override all WordPress content containers */
 .entry-content .partyminder-content,
 .wp-block-post-content .partyminder-content,
-.has-global-padding .partyminder-content {
+.has-global-padding .partyminder-content,
+.site-content .partyminder-content,
+.content-area .partyminder-content,
+article .partyminder-content,
+.post .partyminder-content {
     padding: 0 !important;
     margin: 0 !important;
     max-width: none !important;
+    width: 100% !important;
+    display: block !important;
+    float: none !important;
+    position: static !important;
 }
 
 /* Variables */
@@ -30,9 +48,7 @@
 
 /* Base Layout (agents.md semantic naming) */
 .page {
-    max-width: 75rem;
-    width: 90%;
-    margin: 0 auto;
+    width: 100%;
     padding: 1.25rem;
 }
 
@@ -44,27 +60,41 @@
 }
 
 .page-two-column {
-    max-width: 75rem;
-    width: 90%;
-    margin: 0 auto;
-    padding: 1.25rem;
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
+    width: 100% !important;
+    padding: 1.25rem !important;
+    display: grid !important;
+    grid-template-columns: 2fr 1fr !important;
+    gap: 2rem !important;
+    margin: 0 !important;
+    max-width: none !important;
+    float: none !important;
+    position: static !important;
 }
 
 .main {
-    min-width: 0;
+    min-width: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    display: block !important;
 }
 
 .sidebar {
-    min-width: 0;
+    min-width: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    display: block !important;
 }
 
 /* Core Components */
 .section {
     background: var(--surface);
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
     border-radius: 0.75rem;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
@@ -73,7 +103,7 @@
 .section-header {
     margin-bottom: 1.25rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 2px solid var(--border);
 }
 
 .heading {
@@ -113,7 +143,7 @@
 .btn-secondary {
     background: var(--surface);
     color: var(--text);
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
 }
 
 /* Forms */
@@ -131,7 +161,7 @@
 .form-input, .form-textarea, .form-select {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
     border-radius: 0.5rem;
     font-size: 0.875rem;
     background: var(--surface);
@@ -148,7 +178,7 @@
     display: flex;
     gap: 0.25rem;
     background: var(--surface);
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
     border-radius: 0.75rem;
     padding: 0.25rem;
     margin-bottom: 1.5rem;
