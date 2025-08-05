@@ -212,22 +212,22 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     <?php _e('Community Stats', 'partyminder'); ?>
                 </div>
                 <div class="pm-card-body">
-                    <div class="community-stats">
-                        <div class="stat-box">
-                            <span class="stat-number"><?php echo $stats->total_conversations; ?></span>
-                            <div class="stat-label"><?php _e('Conversations', 'partyminder'); ?></div>
+                    <div class="pm-community-stats">
+                        <div class="pm-stat-box">
+                            <span class="pm-stat-number"><?php echo $stats->total_conversations; ?></span>
+                            <div class="pm-stat-label"><?php _e('Conversations', 'partyminder'); ?></div>
                         </div>
-                        <div class="stat-box">
-                            <span class="stat-number"><?php echo $stats->total_replies; ?></span>
-                            <div class="stat-label"><?php _e('Messages', 'partyminder'); ?></div>
+                        <div class="pm-stat-box">
+                            <span class="pm-stat-number"><?php echo $stats->total_replies; ?></span>
+                            <div class="pm-stat-label"><?php _e('Messages', 'partyminder'); ?></div>
                         </div>
-                        <div class="stat-box">
-                            <span class="stat-number"><?php echo $stats->active_conversations; ?></span>
-                            <div class="stat-label"><?php _e('Active This Week', 'partyminder'); ?></div>
+                        <div class="pm-stat-box">
+                            <span class="pm-stat-number"><?php echo $stats->active_conversations; ?></span>
+                            <div class="pm-stat-label"><?php _e('Active This Week', 'partyminder'); ?></div>
                         </div>
-                        <div class="stat-box">
-                            <span class="stat-number"><?php echo $stats->total_follows; ?></span>
-                            <div class="stat-label"><?php _e('Following', 'partyminder'); ?></div>
+                        <div class="pm-stat-box">
+                            <span class="pm-stat-number"><?php echo $stats->total_follows; ?></span>
+                            <div class="pm-stat-label"><?php _e('Following', 'partyminder'); ?></div>
                         </div>
                     </div>
                 </div>

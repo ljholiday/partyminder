@@ -147,16 +147,16 @@ class PartyMinder_Admin {
                     <div class="stat-card">
                         <div class="stat-icon">🎉</div>
                         <div class="stat-content">
-                            <div class="stat-number"><?php echo number_format($total_events); ?></div>
-                            <div class="stat-label"><?php _e('Total Events', 'partyminder'); ?></div>
+                            <div class="pm-stat-number"><?php echo number_format($total_events); ?></div>
+                            <div class="pm-stat-label"><?php _e('Total Events', 'partyminder'); ?></div>
                         </div>
                     </div>
                     
                     <div class="stat-card">
                         <div class="stat-icon">🤖</div>
                         <div class="stat-content">
-                            <div class="stat-number"><?php echo $ai_usage['interactions']; ?></div>
-                            <div class="stat-label"><?php _e('AI Plans Generated', 'partyminder'); ?></div>
+                            <div class="pm-stat-number"><?php echo $ai_usage['interactions']; ?></div>
+                            <div class="pm-stat-label"><?php _e('AI Plans Generated', 'partyminder'); ?></div>
                             <div class="stat-sublabel">$<?php echo number_format($ai_usage['total'], 2); ?> <?php _e('this month', 'partyminder'); ?></div>
                         </div>
                     </div>
@@ -164,8 +164,8 @@ class PartyMinder_Admin {
                     <div class="stat-card">
                         <div class="stat-icon">📅</div>
                         <div class="stat-content">
-                            <div class="stat-number"><?php echo count($upcoming_events); ?></div>
-                            <div class="stat-label"><?php _e('Upcoming Events', 'partyminder'); ?></div>
+                            <div class="pm-stat-number"><?php echo count($upcoming_events); ?></div>
+                            <div class="pm-stat-label"><?php _e('Upcoming Events', 'partyminder'); ?></div>
                         </div>
                     </div>
                 </div>
@@ -1145,7 +1145,7 @@ class PartyMinder_Admin {
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <span class="status-badge" style="padding: 2px 8px; border-radius: 10px; font-size: 0.8em; <?php echo $identity->is_verified ? 'background: #d4edda; color: #155724;' : 'background: #fff3cd; color: #856404;'; ?>">
+                                        <span class="pm-status-badge" style="padding: 2px 8px; border-radius: 10px; font-size: 0.8em; <?php echo $identity->is_verified ? 'background: #d4edda; color: #155724;' : 'background: #fff3cd; color: #856404;'; ?>">
                                             <?php echo $identity->is_verified ? __('Verified', 'partyminder') : __('Pending', 'partyminder'); ?>
                                         </span>
                                     </td>

@@ -490,7 +490,7 @@
             $('.stat-card').each(function() {
                 const statType = $(this).data('stat-type');
                 if (stats[statType]) {
-                    $(this).find('.stat-number').text(stats[statType]);
+                    $(this).find('.pm-stat-number').text(stats[statType]);
                 }
             });
         },

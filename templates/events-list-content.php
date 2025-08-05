@@ -68,7 +68,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     background: <?php echo esc_attr($primary_color); ?>;
 }
 
-.partyminder-events-content .stat-number {
+.partyminder-events-content .pm-stat-number {
     color: <?php echo esc_attr($primary_color); ?>;
 }
 </style>
