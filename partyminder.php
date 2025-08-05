@@ -2400,7 +2400,7 @@ class PartyMinder {
         $event_action = get_query_var('event_action');
         if ($event_action === 'join') {
             ob_start();
-            echo '<div class="partyminder-content partyminder-events-join-page">';
+            echo '<div class="pm-content partyminder-events-join-page">';
             include PARTYMINDER_PLUGIN_DIR . 'templates/event-invitation-accept.php';
             echo '</div>';
             return ob_get_clean();
@@ -2409,7 +2409,7 @@ class PartyMinder {
         ob_start();
         
         // Use theme-friendly wrapper
-        echo '<div class="partyminder-content partyminder-events-page">';
+        echo '<div class="pm-content partyminder-events-page">';
         
         // Include the events template without get_header/get_footer
         $atts = array(
@@ -2440,7 +2440,7 @@ class PartyMinder {
         
         ob_start();
         
-        echo '<div class="partyminder-content partyminder-create-event-page">';
+        echo '<div class="pm-content partyminder-create-event-page">';
         
         // Include create event template
         include PARTYMINDER_PLUGIN_DIR . 'templates/create-event-content.php';
@@ -2467,7 +2467,7 @@ class PartyMinder {
         
         ob_start();
         
-        echo '<div class="partyminder-content partyminder-dashboard-page">';
+        echo '<div class="pm-content partyminder-dashboard-page">';
         
         // Include dashboard template
         $atts = array();
@@ -2495,7 +2495,7 @@ class PartyMinder {
         
         ob_start();
         
-        echo '<div class="partyminder-content partyminder-my-events-page">';
+        echo '<div class="pm-content partyminder-my-events-page">';
         
         // Include my events template
         $atts = array('show_past' => false);
@@ -2523,7 +2523,7 @@ class PartyMinder {
         
         ob_start();
         
-        echo '<div class="partyminder-content partyminder-edit-event-page">';
+        echo '<div class="pm-content partyminder-edit-event-page">';
         
         // Include edit event template
         include PARTYMINDER_PLUGIN_DIR . 'templates/edit-event-content.php';
@@ -2550,7 +2550,7 @@ class PartyMinder {
         
         ob_start();
         
-        echo '<div class="partyminder-content partyminder-login-page">';
+        echo '<div class="pm-content partyminder-login-page">';
         
         // Include login template
         $atts = array();
@@ -2578,7 +2578,7 @@ class PartyMinder {
         
         ob_start();
         
-        echo '<div class="partyminder-content partyminder-profile-page">';
+        echo '<div class="pm-content partyminder-profile-page">';
         
         // Include profile template
         include PARTYMINDER_PLUGIN_DIR . 'templates/profile-content.php';
@@ -2605,7 +2605,7 @@ class PartyMinder {
         
         ob_start();
         
-        echo '<div class="partyminder-content partyminder-conversations-page">';
+        echo '<div class="pm-content partyminder-conversations-page">';
         
         // Include conversations template
         include PARTYMINDER_PLUGIN_DIR . 'templates/conversations-content.php';
@@ -2632,7 +2632,7 @@ class PartyMinder {
         
         ob_start();
         
-        echo '<div class="partyminder-content partyminder-topic-conversations-page">';
+        echo '<div class="pm-content partyminder-topic-conversations-page">';
         
         // Include topic conversations template
         include PARTYMINDER_PLUGIN_DIR . 'templates/topic-conversations-content.php';
@@ -2659,7 +2659,7 @@ class PartyMinder {
         
         ob_start();
         
-        echo '<div class="partyminder-content partyminder-single-conversation-page">';
+        echo '<div class="pm-content partyminder-single-conversation-page">';
         
         // Include single conversation template
         include PARTYMINDER_PLUGIN_DIR . 'templates/single-conversation-content.php';
@@ -2800,14 +2800,14 @@ class PartyMinder {
         $community_action = get_query_var('community_action');
         if ($community_action === 'join') {
             ob_start();
-            echo '<div class="partyminder-content partyminder-communities-join-page">';
+            echo '<div class="pm-content partyminder-communities-join-page">';
             include PARTYMINDER_PLUGIN_DIR . 'templates/community-invitation-accept.php';
             echo '</div>';
             return ob_get_clean();
         }
         
         ob_start();
-        echo '<div class="partyminder-content partyminder-communities-page">';
+        echo '<div class="pm-content partyminder-communities-page">';
         include PARTYMINDER_PLUGIN_DIR . 'templates/communities-content.php';
         echo '</div>';
         return ob_get_clean();
@@ -2824,7 +2824,7 @@ class PartyMinder {
         }
         
         ob_start();
-        echo '<div class="partyminder-content partyminder-communities-disabled">';
+        echo '<div class="pm-content partyminder-communities-disabled">';
         echo '<h2>' . __('Communities Feature Not Available', 'partyminder') . '</h2>';
         echo '<p>' . __('The communities feature is currently disabled. Please check back later.', 'partyminder') . '</p>';
         echo '</div>';
@@ -2847,7 +2847,7 @@ class PartyMinder {
         }
         
         ob_start();
-        echo '<div class="partyminder-content partyminder-single-community-page">';
+        echo '<div class="pm-content partyminder-single-community-page">';
         include PARTYMINDER_PLUGIN_DIR . 'templates/single-community-content.php';
         echo '</div>';
         return ob_get_clean();
@@ -2869,7 +2869,7 @@ class PartyMinder {
         }
         
         ob_start();
-        echo '<div class="partyminder-content partyminder-community-members-page">';
+        echo '<div class="pm-content partyminder-community-members-page">';
         include PARTYMINDER_PLUGIN_DIR . 'templates/community-members-content.php';
         echo '</div>';
         return ob_get_clean();
@@ -2891,7 +2891,7 @@ class PartyMinder {
         }
         
         ob_start();
-        echo '<div class="partyminder-content partyminder-community-events-page">';
+        echo '<div class="pm-content partyminder-community-events-page">';
         include PARTYMINDER_PLUGIN_DIR . 'templates/community-events-content.php';
         echo '</div>';
         return ob_get_clean();
@@ -2910,7 +2910,7 @@ class PartyMinder {
         }
         
         ob_start();
-        echo '<div class="partyminder-content partyminder-manage-community-page">';
+        echo '<div class="pm-content pm-manage-community-page">';
         include PARTYMINDER_PLUGIN_DIR . 'templates/manage-community-content.php';
         echo '</div>';
         return ob_get_clean();
@@ -2929,7 +2929,7 @@ class PartyMinder {
         }
         
         ob_start();
-        echo '<div class="partyminder-content partyminder-create-community-page">';
+        echo '<div class="pm-content partyminder-create-community-page">';
         include PARTYMINDER_PLUGIN_DIR . 'templates/create-community-content.php';
         echo '</div>';
         return ob_get_clean();
@@ -2962,8 +2962,8 @@ class PartyMinder {
     }
     
     public function add_manage_community_body_class($classes) {
-        $classes[] = 'partyminder-communities';
-        $classes[] = 'partyminder-manage-community';
+        $classes[] = 'pm-communities';
+        $classes[] = 'pm-manage-community';
         return $classes;
     }
     

@@ -189,7 +189,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     padding: 30px;
 }
 
-.events-filter {
+.pm-events-filter {
     display: flex;
     gap: 15px;
     margin-bottom: 30px;
@@ -272,7 +272,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     text-transform: uppercase;
 }
 
-.event-status-badge {
+.pm-event-status-badge {
     position: absolute;
     top: 15px;
     right: 15px;
@@ -283,17 +283,17 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     text-transform: uppercase;
 }
 
-.event-status-badge.upcoming {
+.pm-event-status-badge.upcoming {
     background: #28a745;
     color: white;
 }
 
-.event-status-badge.today {
+.pm-event-status-badge.today {
     background: #dc3545;
     color: white;
 }
 
-.event-status-badge.past {
+.pm-event-status-badge.past {
     background: #6c757d;
     color: white;
 }
@@ -448,7 +448,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         justify-content: center;
     }
     
-    .events-filter {
+    .pm-events-filter {
         justify-content: center;
     }
 }
@@ -555,7 +555,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             
         <?php else: ?>
             <!-- Event Filters -->
-            <div class="events-filter">
+            <div class="pm-events-filter">
                 <span style="font-weight: 500; color: #666;"><?php _e('Filter:', 'partyminder'); ?></span>
                 <button class="filter-button active" data-filter="all">
                     <?php _e('All Events', 'partyminder'); ?>
@@ -595,7 +595,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                                 <div class="event-date-month"><?php echo $event_date->format('M'); ?></div>
                             </div>
                             
-                            <div class="event-status-badge <?php echo $status_class; ?>">
+                            <div class="pm-event-status-badge <?php echo $status_class; ?>">
                                 <?php echo $status_text; ?>
                             </div>
                         </div>

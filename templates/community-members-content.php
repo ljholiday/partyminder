@@ -313,14 +313,14 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     text-align: center;
 }
 
-.stat-number {
+.pm-stat-number {
     font-size: 2em;
     font-weight: bold;
     color: var(--pm-primary);
     margin: 0;
 }
 
-.stat-label {
+.pm-stat-label {
     color: #666;
     font-size: 0.9em;
     margin: 5px 0 0 0;
@@ -454,25 +454,25 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             
             <div class="members-stats">
                 <div class="stat-card">
-                    <div class="stat-number"><?php echo $admin_count; ?></div>
-                    <div class="stat-label"><?php echo $admin_count === 1 ? __('Admin', 'partyminder') : __('Admins', 'partyminder'); ?></div>
+                    <div class="pm-stat-number"><?php echo $admin_count; ?></div>
+                    <div class="pm-stat-label"><?php echo $admin_count === 1 ? __('Admin', 'partyminder') : __('Admins', 'partyminder'); ?></div>
                 </div>
                 
                 <?php if ($moderator_count > 0): ?>
                 <div class="stat-card">
-                    <div class="stat-number"><?php echo $moderator_count; ?></div>
-                    <div class="stat-label"><?php echo $moderator_count === 1 ? __('Moderator', 'partyminder') : __('Moderators', 'partyminder'); ?></div>
+                    <div class="pm-stat-number"><?php echo $moderator_count; ?></div>
+                    <div class="pm-stat-label"><?php echo $moderator_count === 1 ? __('Moderator', 'partyminder') : __('Moderators', 'partyminder'); ?></div>
                 </div>
                 <?php endif; ?>
                 
                 <div class="stat-card">
-                    <div class="stat-number"><?php echo $member_count_regular; ?></div>
-                    <div class="stat-label"><?php echo $member_count_regular === 1 ? __('Member', 'partyminder') : __('Members', 'partyminder'); ?></div>
+                    <div class="pm-stat-number"><?php echo $member_count_regular; ?></div>
+                    <div class="pm-stat-label"><?php echo $member_count_regular === 1 ? __('Member', 'partyminder') : __('Members', 'partyminder'); ?></div>
                 </div>
                 
                 <div class="stat-card">
-                    <div class="stat-number"><?php echo count($members); ?></div>
-                    <div class="stat-label"><?php _e('Total', 'partyminder'); ?></div>
+                    <div class="pm-stat-number"><?php echo count($members); ?></div>
+                    <div class="pm-stat-label"><?php _e('Total', 'partyminder'); ?></div>
                 </div>
             </div>
 

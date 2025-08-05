@@ -244,7 +244,7 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
                     <input type="text" class="pm-input" id="contacts-search" 
                            placeholder="<?php _e('Search your contacts...', 'partyminder'); ?>">
                 </div>
-                <div id="bluesky-contacts-list" class="bluesky-contacts-grid">
+                <div id="bluesky-contacts-list" class="pm-bluesky-contacts-grid">
                     <!-- Contacts will be loaded here -->
                 </div>
             </div>
@@ -634,13 +634,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const typeLabel = entry.type === 'invitation' ? '<?php _e('(Invited)', 'partyminder'); ?>' : '';
             
             return `
-                <div class="guest-item">
-                    <div class="guest-info">
+                <div class="pm-guest-item">
+                    <div class="pm-guest-info">
                         <h6>${displayName} ${typeLabel}</h6>
                         <p>${email}</p>
                     </div>
-                    <div class="guest-status">
-                        <span class="status-badge ${status}">${status}</span>
+                    <div class="pm-guest-status">
+                        <span class="pm-status-badge pm-status-badge-${status}">${status}</span>
                     </div>
                 </div>
             `;
@@ -700,7 +700,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="pm-modal pm-modal-sm">
                     <div class="pm-modal-header">
                         <h3>🦋 <?php _e('Connect to Bluesky', 'partyminder'); ?></h3>
-                        <button type="button" class="bluesky-connect-close pm-button pm-button-secondary" style="padding: 5px; border-radius: 50%; width: 35px; height: 35px;">×</button>
+                        <button type="button" class="pm-bluesky-connect-close pm-button pm-button-secondary" style="padding: 5px; border-radius: 50%; width: 35px; height: 35px;">×</button>
                     </div>
                     <div class="pm-modal-body">
                         <form id="bluesky-connect-form">
@@ -721,7 +721,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <button type="submit" class="pm-button pm-button-primary">
                                     <?php _e('Connect Account', 'partyminder'); ?>
                                 </button>
-                                <button type="button" class="bluesky-connect-close pm-button pm-button-secondary">
+                                <button type="button" class="pm-bluesky-connect-close pm-button pm-button-secondary">
                                     <?php _e('Cancel', 'partyminder'); ?>
                                 </button>
                             </div>
@@ -737,7 +737,7 @@ document.addEventListener('DOMContentLoaded', function() {
         connectModal.classList.add('active');
         
         // Close handlers
-        connectModal.querySelectorAll('.bluesky-connect-close').forEach(btn => {
+        connectModal.querySelectorAll('.pm-bluesky-connect-close').forEach(btn => {
             btn.addEventListener('click', () => {
                 connectModal.remove();
             });
@@ -827,11 +827,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         const html = contacts.map(contact => `
-            <div class="bluesky-contact-card" data-contact='${JSON.stringify(contact)}'>
-                <div class="bluesky-contact-info">
-                    <img src="${contact.avatar || ''}" alt="${contact.displayName || contact.handle}" class="bluesky-contact-avatar" 
+            <div class="pm-bluesky-contact-card" data-contact='${JSON.stringify(contact)}'>
+                <div class="pm-bluesky-contact-info">
+                    <img src="${contact.avatar || ''}" alt="${contact.displayName || contact.handle}" class="pm-bluesky-contact-avatar" 
                          onerror="this.src='data:image/svg+xml,<svg xmlns=\\"http://www.w3.org/2000/svg\\" viewBox=\\"0 0 40 40\\"><circle cx=\\"20\\" cy=\\"20\\" r=\\"20\\" fill=\\"#ddd\\"/><text x=\\"20\\" y=\\"26\\" text-anchor=\\"middle\\" fill=\\"white\\" font-size=\\"16\\">${(contact.displayName || contact.handle).charAt(0).toUpperCase()}</text></svg>'">
-                    <div class="bluesky-contact-details">
+                    <div class="pm-bluesky-contact-details">
                         <h6>${contact.displayName || contact.handle}</h6>
                         <p>@${contact.handle}</p>
                     </div>
@@ -842,7 +842,7 @@ document.addEventListener('DOMContentLoaded', function() {
         container.innerHTML = html;
         
         // Add click handlers
-        container.querySelectorAll('.bluesky-contact-card').forEach(card => {
+        container.querySelectorAll('.pm-bluesky-contact-card').forEach(card => {
             card.addEventListener('click', function() {
                 const contactData = JSON.parse(this.getAttribute('data-contact'));
                 selectBlueskyContact(contactData);
@@ -857,7 +857,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Visual feedback
-        document.querySelectorAll('.bluesky-contact-card').forEach(card => {
+        document.querySelectorAll('.pm-bluesky-contact-card').forEach(card => {
             card.classList.remove('selected');
         });
         event.currentTarget.classList.add('selected');

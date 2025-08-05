@@ -157,7 +157,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     gap: 15px;
 }
 
-.community-stats {
+.pm-community-stats {
     display: flex;
     gap: 30px;
     align-items: center;
@@ -171,7 +171,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     font-size: 1em;
 }
 
-.stat-number {
+.pm-stat-number {
     font-weight: bold;
     color: var(--pm-primary);
 }
@@ -334,7 +334,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         gap: 20px;
     }
     
-    .community-stats {
+    .pm-community-stats {
         justify-content: center;
         flex-wrap: wrap;
     }
@@ -392,18 +392,18 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         </div>
         
         <div class="community-actions">
-            <div class="community-stats">
+            <div class="pm-community-stats">
                 <div class="stat-item">
                     <span>👥</span>
-                    <span><span class="stat-number"><?php echo $stats->member_count; ?></span> <?php echo $stats->member_count === 1 ? __('member', 'partyminder') : __('members', 'partyminder'); ?></span>
+                    <span><span class="pm-stat-number"><?php echo $stats->member_count; ?></span> <?php echo $stats->member_count === 1 ? __('member', 'partyminder') : __('members', 'partyminder'); ?></span>
                 </div>
                 <div class="stat-item">
                     <span>🗓️</span>
-                    <span><span class="stat-number"><?php echo $stats->event_count; ?></span> <?php echo $stats->event_count === 1 ? __('event', 'partyminder') : __('events', 'partyminder'); ?></span>
+                    <span><span class="pm-stat-number"><?php echo $stats->event_count; ?></span> <?php echo $stats->event_count === 1 ? __('event', 'partyminder') : __('events', 'partyminder'); ?></span>
                 </div>
                 <div class="stat-item">
                     <span>📈</span>
-                    <span><span class="stat-number"><?php echo $stats->recent_activity; ?></span> <?php _e('active this month', 'partyminder'); ?></span>
+                    <span><span class="pm-stat-number"><?php echo $stats->recent_activity; ?></span> <?php _e('active this month', 'partyminder'); ?></span>
                 </div>
             </div>
             
@@ -415,7 +415,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     </a>
                 <?php elseif ($is_member): ?>
                     <?php if ($user_role === 'admin'): ?>
-                        <a href="<?php echo esc_url(site_url('/manage-community?community_id=' . $community->id . '&tab=overview')); ?>" class="pm-button manage-community-btn">
+                        <a href="<?php echo esc_url(site_url('/manage-community?community_id=' . $community->id . '&tab=overview')); ?>" class="pm-button pm-manage-community-btn">
                             <span>⚙️</span>
                             <?php _e('Manage Community', 'partyminder'); ?>
                         </a>
