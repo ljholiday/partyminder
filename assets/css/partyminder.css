@@ -63,22 +63,22 @@
     }
     
     /* Target PartyMinder content specifically */
-    body .partyminder-content,
-    main .partyminder-content,
-    article .partyminder-content,
-    section .partyminder-content,
-    div .partyminder-content,
-    .wp-block-group .partyminder-content,
-    .entry-content .partyminder-content,
-    .site-content .partyminder-content,
-    .container .partyminder-content {
+    body .pm-content,
+    main .pm-content,
+    article .pm-content,
+    section .pm-content,
+    div .pm-content,
+    .wp-block-group .pm-content,
+    .entry-content .pm-content,
+    .site-content .pm-content,
+    .container .pm-content {
         padding: 0 !important;
         margin: 0 !important;
     }
     
     /* Override any WordPress theme mobile styles that interfere */
-    .partyminder-content,
-    .partyminder-content * {
+    .pm-content,
+    .pm-content * {
         box-sizing: border-box;
     }
     
@@ -143,7 +143,7 @@
    BASE STYLES
    ============================================================================= */
 
-.partyminder-content {
+.pm-content {
     font-family: var(--pm-font-family);
     line-height: 1.6;
     color: var(--pm-text);
@@ -246,42 +246,33 @@
 
 
 /* Conversations-specific styles */
-.community-stats {
+.pm-community-stats {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
 }
 
 
-.stat-box {
+.pm-stat-box {
     text-align: center;
     padding: 15px;
     background: var(--pm-surface);
     border-radius: var(--pm-radius);
 }
 
-.stat-number {
+.pm-stat-number {
     font-size: 1.5em;
     font-weight: bold;
     color: var(--pm-primary);
     display: block;
 }
 
-.stat-label {
+.pm-stat-label {
     font-size: 0.85em;
     color: var(--pm-text-muted);
     margin-top: 5px;
 }
 
-.pinned-badge {
-    background: var(--pm-warning);
-    color: var(--pm-white);
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 0.7em;
-    font-weight: bold;
-    text-transform: uppercase;
-}
 
 .pm-flex {
     display: flex;
@@ -936,26 +927,26 @@
 }
 
 /* Modal Tab System */
-.management-tab-btn {
+.pm-management-tab-btn {
     transition: all 0.2s ease;
 }
 
-.management-tab-btn:hover {
+.pm-management-tab-btn:hover {
     background: var(--pm-background) !important;
     color: var(--pm-primary) !important;
 }
 
-.management-tab-btn.active {
+.pm-management-tab-btn.active {
     background: var(--pm-background) !important;
     color: var(--pm-primary) !important;
     border-bottom: 3px solid var(--pm-primary) !important;
 }
 
-.management-tab-pane {
+.pm-management-tab-pane {
     display: none;
 }
 
-.management-tab-pane.active {
+.pm-management-tab-pane.active {
     display: block;
 }
 
@@ -996,8 +987,8 @@
 /* Force filter buttons to stay horizontal on all screen sizes */
 #event-filters,
 #conversation-filters,
-.filter-buttons,
-.events-filter {
+.pm-filter-buttons,
+.pm-events-filter {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1269,22 +1260,22 @@
    ============================================================================= */
 
 /* Ensure our styles work well with common WordPress themes */
-.partyminder-content * {
+.pm-content * {
     box-sizing: border-box;
 }
 
-.partyminder-content .pm-button {
+.pm-content .pm-button {
     box-sizing: border-box;
 }
 
-.partyminder-content .pm-input,
-.partyminder-content .pm-textarea,
-.partyminder-content .pm-select {
+.pm-content .pm-input,
+.pm-content .pm-textarea,
+.pm-content .pm-select {
     box-sizing: border-box;
 }
 
 /* WordPress admin compatibility */
-.partyminder-content .pm-admin-badge {
+.pm-content .pm-admin-badge {
     display: inline-flex;
     align-items: center;
     padding: 2px 8px;
@@ -1295,7 +1286,7 @@
     font-weight: 500;
 }
 
-.partyminder-content .pm-nav-tab {
+.pm-content .pm-nav-tab {
     display: inline-block;
     padding: 8px 16px;
     margin-right: 4px;
@@ -1307,62 +1298,48 @@
     color: var(--pm-text);
 }
 
-.partyminder-content .pm-nav-tab.active,
-.partyminder-content .pm-nav-tab:hover {
+.pm-content .pm-nav-tab.active,
+.pm-content .pm-nav-tab:hover {
     background: var(--pm-background);
     color: var(--pm-primary);
 }
 
-/* WordPress Theme Compatibility - Override theme spacing */
-.wp-site-blocks .partyminder-content {
-    font-family: var(--pm-font-family);
-    padding: 0 !important;
-    margin: 0 !important;
-}
 
-/* Gutenberg block editor compatibility */
-.wp-block .partyminder-content {
-    font-family: var(--pm-font-family);
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-/* Twenty Twenty-Five theme compatibility */
-.wp-block-group .partyminder-content,
-.entry-content .partyminder-content {
+/* WordPress and Theme compatibility */
+.pm-content, .wp-site-blocks .pm-content, .wp-block .pm-content, .wp-block-group .pm-content, .entry-content .pm-content {
     font-family: var(--pm-font-family);
     padding: 0 !important;
     margin: 0 !important;
 }
 
 /* Override any WordPress theme container spacing */
-.partyminder-content,
-.partyminder-content .pm-container,
-.partyminder-content .pm-container-wide,
-.partyminder-content .pm-container-narrow {
+.pm-content,
+.pm-content .pm-container,
+.pm-content .pm-container-wide,
+.pm-content .pm-container-narrow {
     box-sizing: border-box;
     padding: 0 !important;
     margin: 0 !important;
 }
 
-.partyminder-content *,
-.partyminder-content *::before,
-.partyminder-content *::after {
+.pm-content *,
+.pm-content *::before,
+.pm-content *::after {
     box-sizing: inherit;
 }
 
 /* Ensure proper font inheritance from theme */
-.partyminder-content {
+.pm-content {
     font-size: inherit;
     line-height: inherit;
 }
 
 /* Override only within our content area, not theme */
-.partyminder-content .pm-text-muted {
+.pm-content .pm-text-muted {
     color: var(--pm-text-muted);
 }
 
-.partyminder-content .pm-heading {
+.pm-content .pm-heading {
     font-family: var(--pm-font-family);
 }
 
@@ -1416,7 +1393,7 @@
    ============================================================================= */
 @media (max-width: 480px) {
     /* ONLY stack general flex containers on very small screens - NOT filter buttons */
-    .pm-flex-center-gap:not(#event-filters):not(#conversation-filters):not(.filter-buttons) {
+    .pm-flex-center-gap:not(#event-filters):not(#conversation-filters):not(.pm-filter-buttons) {
         flex-direction: column;
         align-items: stretch;
     }
@@ -1424,9 +1401,9 @@
     /* Exception: Keep filter buttons and small button groups horizontal */
     #event-filters.pm-flex-center-gap,
     #conversation-filters.pm-flex-center-gap,
-    .pm-flex-center-gap.filter-buttons,
+    .pm-flex-center-gap.pm-filter-buttons,
     .pm-flex-center-gap:has(.filter-btn),
-    .events-filter {
+    .pm-events-filter {
         flex-direction: row !important;
         flex-wrap: nowrap !important;
         gap: var(--mobile-space-sm);
@@ -1462,8 +1439,8 @@
     /* Keep filter buttons horizontal on mobile */
     #event-filters,
     #conversation-filters,
-    .filter-buttons,
-    .events-filter,
+    .pm-filter-buttons,
+    .pm-events-filter,
     .pm-flex-keep-horizontal {
         flex-direction: row !important;
         flex-wrap: wrap;
@@ -1471,7 +1448,7 @@
     }
     
     /* Override any flex-column changes for button groups */
-    .pm-flex-center-gap.filter-buttons,
+    .pm-flex-center-gap.pm-filter-buttons,
     .pm-flex-center-gap:has(.filter-btn) {
         flex-direction: row !important;
     }
@@ -1501,7 +1478,7 @@
     /* Removed old conversations-layout mobile styles - now using unified pm-dashboard-grid */
     
     /* Community Stats */
-    .community-stats {
+    .pm-community-stats {
         grid-template-columns: 1fr;
     }
     
@@ -1528,7 +1505,7 @@
         width: 100%;
     }
     
-    .partyminder-content {
+    .pm-content {
         width: 100%;
         font-size: 16px;
         line-height: 1.6;
@@ -1705,7 +1682,7 @@
    ============================================================================= */
 @media (max-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
     /* Ensure text is readable on high-DPI screens */
-    .partyminder-content {
+    .pm-content {
         font-size: 17px; /* Slightly larger base font */
     }
     
@@ -2160,7 +2137,7 @@ button.pm-uploading:hover {
 /* Extra Small Mobile (320px and up) - Only special cases */
 @media (max-width: 480px) {
     /* ONLY stack general flex containers on very small screens - NOT filter buttons */
-    .pm-flex-center-gap:not(#event-filters):not(#conversation-filters):not(.filter-buttons) {
+    .pm-flex-center-gap:not(#event-filters):not(#conversation-filters):not(.pm-filter-buttons) {
         flex-direction: column;
         align-items: stretch;
     }
@@ -2168,9 +2145,9 @@ button.pm-uploading:hover {
     /* Exception: Keep filter buttons and small button groups horizontal */
     #event-filters.pm-flex-center-gap,
     #conversation-filters.pm-flex-center-gap,
-    .pm-flex-center-gap.filter-buttons,
+    .pm-flex-center-gap.pm-filter-buttons,
     .pm-flex-center-gap:has(.filter-btn),
-    .events-filter {
+    .pm-events-filter {
         flex-direction: row !important;
         flex-wrap: nowrap !important;
         gap: var(--mobile-space-sm);
@@ -2193,7 +2170,7 @@ button.pm-uploading:hover {
    ============================================================================= */
 
 /* Bluesky Contacts Grid */
-.bluesky-contacts-grid {
+.pm-bluesky-contacts-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 15px;
@@ -2205,7 +2182,7 @@ button.pm-uploading:hover {
     background: var(--pm-surface);
 }
 
-.bluesky-contact-card {
+.pm-bluesky-contact-card {
     background: var(--pm-background);
     border: 1px solid var(--pm-border);
     border-radius: 8px;
@@ -2214,43 +2191,43 @@ button.pm-uploading:hover {
     transition: all 0.2s ease;
 }
 
-.bluesky-contact-card:hover {
+.pm-bluesky-contact-card:hover {
     border-color: var(--pm-primary);
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.bluesky-contact-card.selected {
+.pm-bluesky-contact-card.selected {
     border-color: var(--pm-primary);
     background: var(--pm-primary-light);
 }
 
-.bluesky-contact-info {
+.pm-bluesky-contact-info {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.bluesky-contact-avatar {
+.pm-bluesky-contact-avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
 }
 
-.bluesky-contact-details h6 {
+.pm-bluesky-contact-details h6 {
     margin: 0 0 5px 0;
     font-weight: 600;
     color: var(--pm-text);
 }
 
-.bluesky-contact-details p {
+.pm-bluesky-contact-details p {
     margin: 0;
     font-size: 0.9em;
     color: var(--pm-text-muted);
 }
 
 /* Guest Management Styles */
-.guest-item {
+.pm-guest-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -2261,24 +2238,24 @@ button.pm-uploading:hover {
     background: var(--pm-surface);
 }
 
-.guest-info h6 {
+.pm-guest-info h6 {
     margin: 0 0 5px 0;
     color: var(--pm-text);
 }
 
-.guest-info p {
+.pm-guest-info p {
     margin: 0;
     font-size: 0.9em;
     color: var(--pm-text-muted);
 }
 
-.guest-status {
+.pm-guest-status {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.status-badge {
+.pm-status-badge {
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 0.8em;
@@ -2286,22 +2263,22 @@ button.pm-uploading:hover {
     text-transform: uppercase;
 }
 
-.status-badge.confirmed { 
+.pm-status-badge-confirmed { 
     background: var(--pm-success-light); 
     color: var(--pm-success); 
 }
 
-.status-badge.pending { 
+.pm-status-badge-pending { 
     background: var(--pm-warning-light); 
     color: var(--pm-warning); 
 }
 
-.status-badge.declined { 
+.pm-status-badge-declined { 
     background: var(--pm-danger-light); 
     color: var(--pm-danger); 
 }
 
-.status-badge.maybe { 
+.pm-status-badge-maybe { 
     background: var(--pm-primary-light); 
     color: var(--pm-primary); 
 }

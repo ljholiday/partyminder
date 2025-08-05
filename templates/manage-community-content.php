@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     margin-bottom: 0;
 }
 
-.management-tab-btn {
+.pm-management-tab-btn {
     flex: 1;
     background: none;
     border: none;
@@ -156,8 +156,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     text-align: center;
 }
 
-.management-tab-btn:hover,
-.management-tab-btn.active {
+.pm-management-tab-btn:hover,
+.pm-management-tab-btn.active {
     color: var(--pm-primary);
     border-bottom-color: var(--pm-primary);
     background: var(--pm-surface);
@@ -293,14 +293,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     text-align: center;
 }
 
-.stat-number {
+.pm-stat-number {
     font-size: 2rem;
     font-weight: bold;
     color: var(--pm-primary);
     margin-bottom: 5px;
 }
 
-.stat-label {
+.pm-stat-label {
     color: var(--pm-text-muted);
     font-size: 14px;
 }
@@ -453,19 +453,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     <!-- Tab Navigation -->
     <div class="management-tabs">
         <a href="?community_id=<?php echo $community_id; ?>&tab=overview" 
-           class="management-tab-btn <?php echo $current_tab === 'overview' ? 'active' : ''; ?>">
+           class="pm-management-tab-btn <?php echo $current_tab === 'overview' ? 'active' : ''; ?>">
             <?php _e('Overview', 'partyminder'); ?>
         </a>
         <a href="?community_id=<?php echo $community_id; ?>&tab=settings" 
-           class="management-tab-btn <?php echo $current_tab === 'settings' ? 'active' : ''; ?>">
+           class="pm-management-tab-btn <?php echo $current_tab === 'settings' ? 'active' : ''; ?>">
             <?php _e('Settings', 'partyminder'); ?>
         </a>
         <a href="?community_id=<?php echo $community_id; ?>&tab=members" 
-           class="management-tab-btn <?php echo $current_tab === 'members' ? 'active' : ''; ?>">
+           class="pm-management-tab-btn <?php echo $current_tab === 'members' ? 'active' : ''; ?>">
             <?php _e('Members', 'partyminder'); ?>
         </a>
         <a href="?community_id=<?php echo $community_id; ?>&tab=invitations" 
-           class="management-tab-btn <?php echo $current_tab === 'invitations' ? 'active' : ''; ?>">
+           class="pm-management-tab-btn <?php echo $current_tab === 'invitations' ? 'active' : ''; ?>">
             <?php _e('Invitations', 'partyminder'); ?>
         </a>
     </div>
@@ -477,22 +477,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         <div id="overview-tab" class="tab-pane <?php echo $current_tab === 'overview' ? 'active' : ''; ?>">
             <h3><?php _e('Community Overview', 'partyminder'); ?></h3>
             
-            <div class="stats-grid" id="community-stats">
+            <div class="stats-grid" id="pm-community-stats">
                 <div class="stat-card">
-                    <div class="stat-number" id="total-members">-</div>
-                    <div class="stat-label"><?php _e('Total Members', 'partyminder'); ?></div>
+                    <div class="pm-stat-number" id="total-members">-</div>
+                    <div class="pm-stat-label"><?php _e('Total Members', 'partyminder'); ?></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="active-members">-</div>
-                    <div class="stat-label"><?php _e('Active Members', 'partyminder'); ?></div>
+                    <div class="pm-stat-number" id="active-members">-</div>
+                    <div class="pm-stat-label"><?php _e('Active Members', 'partyminder'); ?></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="pending-invites">-</div>
-                    <div class="stat-label"><?php _e('Pending Invites', 'partyminder'); ?></div>
+                    <div class="pm-stat-number" id="pending-invites">-</div>
+                    <div class="pm-stat-label"><?php _e('Pending Invites', 'partyminder'); ?></div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="community-events">-</div>
-                    <div class="stat-label"><?php _e('Community Events', 'partyminder'); ?></div>
+                    <div class="pm-stat-number" id="community-events">-</div>
+                    <div class="pm-stat-label"><?php _e('Community Events', 'partyminder'); ?></div>
                 </div>
             </div>
 

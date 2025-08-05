@@ -300,14 +300,14 @@ $form_layout = get_option('partyminder_form_layout', 'card');
         
         <div class="guest-stats">
             <div class="stat-item">
-                <span class="stat-number"><?php echo $guest_stats->confirmed; ?></span>
-                <span class="stat-label"><?php _e('Confirmed', 'partyminder'); ?></span>
+                <span class="pm-stat-number"><?php echo $guest_stats->confirmed; ?></span>
+                <span class="pm-stat-label"><?php _e('Confirmed', 'partyminder'); ?></span>
             </div>
             
             <?php if ($guest_stats->maybe > 0): ?>
             <div class="stat-item">
-                <span class="stat-number"><?php echo $guest_stats->maybe; ?></span>
-                <span class="stat-label"><?php _e('Maybe', 'partyminder'); ?></span>
+                <span class="pm-stat-number"><?php echo $guest_stats->maybe; ?></span>
+                <span class="pm-stat-label"><?php _e('Maybe', 'partyminder'); ?></span>
             </div>
             <?php endif; ?>
         </div>

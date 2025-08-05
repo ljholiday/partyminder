@@ -233,13 +233,13 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     flex: 1;
 }
 
-.stat-number {
+.pm-stat-number {
     font-size: 1.2em;
     font-weight: bold;
     color: var(--pm-primary);
 }
 
-.stat-label {
+.pm-stat-label {
     font-size: 0.8em;
     color: #666;
 }
@@ -405,16 +405,16 @@ $button_style = get_option('partyminder_button_style', 'rounded');
 
                         <div class="event-stats">
                             <div class="stat-item">
-                                <div class="stat-number"><?php echo $event->guest_stats->confirmed; ?></div>
-                                <div class="stat-label"><?php _e('Confirmed', 'partyminder'); ?></div>
+                                <div class="pm-stat-number"><?php echo $event->guest_stats->confirmed; ?></div>
+                                <div class="pm-stat-label"><?php _e('Confirmed', 'partyminder'); ?></div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-number"><?php echo $event->guest_stats->maybe; ?></div>
-                                <div class="stat-label"><?php _e('Maybe', 'partyminder'); ?></div>
+                                <div class="pm-stat-number"><?php echo $event->guest_stats->maybe; ?></div>
+                                <div class="pm-stat-label"><?php _e('Maybe', 'partyminder'); ?></div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-number"><?php echo $event->guest_stats->pending; ?></div>
-                                <div class="stat-label"><?php _e('Pending', 'partyminder'); ?></div>
+                                <div class="pm-stat-number"><?php echo $event->guest_stats->pending; ?></div>
+                                <div class="pm-stat-label"><?php _e('Pending', 'partyminder'); ?></div>
                             </div>
                         </div>
 

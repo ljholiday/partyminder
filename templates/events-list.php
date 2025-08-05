@@ -194,13 +194,13 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     text-align: center;
 }
 
-.stat-number {
+.pm-stat-number {
     font-size: 2em;
     font-weight: bold;
     color: var(--pm-primary);
 }
 
-.stat-label {
+.pm-stat-label {
     color: #666;
     font-size: 0.9em;
 }
@@ -240,8 +240,8 @@ $button_style = get_option('partyminder_button_style', 'rounded');
         
         <div class="events-stats">
             <span class="stat-item">
-                <span class="stat-number"><?php echo count($events); ?></span>
-                <span class="stat-label"><?php _e('Events', 'partyminder'); ?></span>
+                <span class="pm-stat-number"><?php echo count($events); ?></span>
+                <span class="pm-stat-label"><?php _e('Events', 'partyminder'); ?></span>
             </span>
         </div>
     </div>

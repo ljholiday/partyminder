@@ -187,7 +187,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     margin-bottom: 15px;
 }
 
-.community-stats {
+.pm-community-stats {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -320,7 +320,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         text-align: center;
     }
     
-    .community-stats {
+    .pm-community-stats {
         flex-direction: column;
         gap: 10px;
         align-items: stretch;
