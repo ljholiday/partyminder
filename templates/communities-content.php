@@ -51,16 +51,16 @@ ob_start();
         <p class="pm-text-muted"><?php printf(__('%d communities available', 'partyminder'), count($public_communities)); ?></p>
     </div>
                 <?php if (!empty($public_communities)): ?>
-                    <div class="grid gap-4">
+                    <div class="pm-grid pm-gap">
                 <?php foreach ($public_communities as $community): ?>
-                    <div class="section border p-4">
-                        <div class="section-header flex flex-between mb-4">
+                    <div class="pm-section pm-border pm-p-4">
+                        <div class="pm-section-header pm-flex pm-flex-between pm-mb-4">
                             <h3 class="pm-heading pm-heading-sm">
                                 <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-text-primary">
                                     <?php echo esc_html($community->name); ?>
                                 </a>
                             </h3>
-                            <div class="badge badge-<?php echo $community->privacy === 'public' ? 'success' : 'secondary'; ?>">
+                            <div class="pm-badge pm-badge-<?php echo $community->privacy === 'public' ? 'success' : 'secondary'; ?>">
                                 <?php echo esc_html(ucfirst($community->privacy)); ?>
                             </div>
                         </div>
@@ -81,9 +81,9 @@ ob_start();
                         </div>
                         <?php endif; ?>
                         
-                        <div class="flex flex-between mt-4">
+                        <div class="pm-flex pm-flex-between pm-mt-4">
                             <div class="pm-stat">
-                                <div class="stat-number text-primary"><?php echo (int) $community->event_count; ?></div>
+                                <div class="pm-stat-number pm-text-primary"><?php echo (int) $community->event_count; ?></div>
                                 <div class="pm-text-muted"><?php _e('Events', 'partyminder'); ?></div>
                             </div>
                             
@@ -92,7 +92,7 @@ ob_start();
                                 $is_member = $community_manager->is_member($community->id, $current_user->ID);
                                 ?>
                                 <a href="<?php echo home_url('/communities/' . $community->slug); ?>" 
-                                   class="btn <?php echo $is_member ? 'btn-secondary' : ''; ?>">
+                                   class="pm-btn <?php echo $is_member ? 'pm-btn-secondary' : ''; ?>">
                                     <?php echo $is_member ? __('Member', 'partyminder') : __('Join', 'partyminder'); ?>
                                 </a>
                             <?php else: ?>
@@ -105,7 +105,7 @@ ob_start();
                     <?php endforeach; ?>
                     </div>
     <?php else: ?>
-        <div class="text-center p-4">
+        <div class="pm-text-center pm-p-4">
             <p class="pm-text-muted mb-4"><?php _e('No public communities yet.', 'partyminder'); ?></p>
             <p class="pm-text-muted"><?php _e('Be the first to create a community!', 'partyminder'); ?></p>
         </div>
@@ -132,7 +132,7 @@ ob_start();
                         <?php echo esc_html($user_community->name); ?>
                     </a>
                 </h4>
-                <div class="badge badge-secondary"><?php echo esc_html(ucfirst($user_community->role)); ?></div>
+                <div class="pm-badge pm-badge-secondary"><?php echo esc_html(ucfirst($user_community->role)); ?></div>
             </div>
         </div>
     <?php endforeach; ?>
@@ -144,7 +144,7 @@ ob_start();
     <div class="pm-section-header">
         <h3 class="pm-heading pm-heading-sm">⚡ <?php _e('Quick Actions', 'partyminder'); ?></h3>
     </div>
-    <div class="flex gap-4 flex-wrap">
+    <div class="pm-flex pm-gap pm-flex-wrap">
         <?php if (PartyMinder_Feature_Flags::can_user_create_community()): ?>
             <a href="<?php echo esc_url(site_url('/create-community')); ?>" class="pm-btn">
                 <span>✨</span>
@@ -172,28 +172,28 @@ ob_start();
     </div>
     <div>
         <div class="pm-mb-4">
-            <div class="flex gap-4 mb-4">
+            <div class="pm-flex pm-gap pm-mb-4">
                 <span>🏢</span>
                 <strong><?php _e('Work', 'partyminder'); ?></strong>
             </div>
             <p class="pm-text-muted"><?php _e('Office events, team building', 'partyminder'); ?></p>
         </div>
         <div class="pm-mb-4">
-            <div class="flex gap-4 mb-4">
+            <div class="pm-flex pm-gap pm-mb-4">
                 <span>⛪</span>
                 <strong><?php _e('Faith', 'partyminder'); ?></strong>
             </div>
             <p class="pm-text-muted"><?php _e('Church, religious gatherings', 'partyminder'); ?></p>
         </div>
         <div class="pm-mb-4">
-            <div class="flex gap-4 mb-4">
+            <div class="pm-flex pm-gap pm-mb-4">
                 <span>👨‍👩‍👧‍👦</span>
                 <strong><?php _e('Family', 'partyminder'); ?></strong>
             </div>
             <p class="pm-text-muted"><?php _e('Family reunions, celebrations', 'partyminder'); ?></p>
         </div>
         <div class="pm-mb-4">
-            <div class="flex gap-4 mb-4">
+            <div class="pm-flex pm-gap pm-mb-4">
                 <span>🎯</span>
                 <strong><?php _e('Hobby', 'partyminder'); ?></strong>
             </div>
