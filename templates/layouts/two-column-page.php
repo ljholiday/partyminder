@@ -6,11 +6,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 ?>
-<div class="page content-columns">
-    <div class="column">
+<div class="pm-layout-two-column">
+    <div class="pm-layout-column">
         <?php echo $main_content ?? ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
     </div>
-    <div class="column">
+    <div class="pm-layout-column">
         <?php
         if (isset($sidebar_template)) {
             include PARTYMINDER_PLUGIN_DIR . 'templates/' . $sidebar_template;

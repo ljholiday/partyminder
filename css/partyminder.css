@@ -1,27 +1,32 @@
 /* Core PartyMinder styles */
-.page {
+.pm-layout-main {
   padding: 1rem;
 }
 
-.header {
+.pm-header {
   margin-bottom: 1rem;
 }
 
-.section {
+.pm-section {
   margin-bottom: 2rem;
 }
 
-.content-columns {
+.pm-layout-two-column {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
+  padding: 1rem;
 }
 
-.column {
+.pm-layout-column {
   flex: 1 1 0;
 }
 
-.form-page .form {
+.pm-layout-form {
+  padding: 1rem;
+}
+
+.pm-layout-form-inner {
   max-width: 600px;
   margin: 0 auto;
 }

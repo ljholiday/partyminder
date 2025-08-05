@@ -31,8 +31,8 @@ $topics = $conversation_manager->get_topics();
 
 ob_start();
 ?>
-<div class="section">
-    <div class="header">
+<div class="pm-section">
+    <div class="pm-header">
         <h2><?php _e('Discussion Topics', 'partyminder'); ?></h2>
     </div>
     <?php if (!empty($topics)): ?>
@@ -48,7 +48,7 @@ ob_start();
         <p class="text-muted"><?php _e('No conversation topics found.', 'partyminder'); ?></p>
     <?php endif; ?>
     <?php if (is_user_logged_in()): ?>
-        <div class="section">
+        <div class="pm-section">
             <a href="#" class="btn start-conversation-btn"><?php _e('Start Conversation', 'partyminder'); ?></a>
         </div>
     <?php endif; ?>

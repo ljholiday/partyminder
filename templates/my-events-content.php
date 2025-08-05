@@ -51,8 +51,8 @@ if ($user_email) {
 }
 ?>
 
-<div class="section">
-    <div class="header">
+<div class="pm-section">
+    <div class="pm-header">
         <h2><?php _e('My Events', 'partyminder'); ?></h2>
     </div>
 
@@ -90,7 +90,7 @@ if ($user_email) {
     <?php endif; ?>
 
     <?php if (is_user_logged_in()): ?>
-        <div class="section">
+        <div class="pm-section">
             <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="btn"><?php _e('Create Event', 'partyminder'); ?></a>
             <a href="<?php echo esc_url(add_query_arg('show_past', $show_past ? '0' : '1')); ?>" class="btn btn-secondary">
                 <?php echo $show_past ? __('Hide Past Events', 'partyminder') : __('Show Past Events', 'partyminder'); ?>
