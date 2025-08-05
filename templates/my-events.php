@@ -347,7 +347,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     <div class="login-prompt">
         <h3><?php _e('🔐 Login to See Your Events', 'partyminder'); ?></h3>
         <p><?php _e('Log in to see events you\'ve created and your RSVPs.', 'partyminder'); ?></p>
-        <a href="<?php echo wp_login_url(get_permalink(get_the_ID())); ?>" class="btn">
+        <a href="<?php echo wp_login_url(get_permalink(get_the_ID())); ?>" class="pm-btn">
             <?php _e('Login', 'partyminder'); ?>
         </a>
     </div>
@@ -357,7 +357,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
         <p><?php _e('Enter your email to see events you\'ve RSVP\'d to.', 'partyminder'); ?></p>
         <form method="get" class="email-form">
             <input type="email" name="email" placeholder="<?php esc_attr_e('Enter your email address', 'partyminder'); ?>" required />
-            <button type="submit" class="btn"><?php _e('Find My RSVPs', 'partyminder'); ?></button>
+            <button type="submit" class="pm-btn"><?php _e('Find My RSVPs', 'partyminder'); ?></button>
         </form>
     </div>
     <?php endif; ?>
@@ -365,7 +365,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     <!-- Created Events Section -->
     <?php if (is_user_logged_in() && !empty($created_events)): ?>
     <div class="events-section">
-        <div class="section-header">
+        <div class="pm-section-header">
             <h3 class="section-title"><?php _e('🎨 Events You Created', 'partyminder'); ?></h3>
             <span class="event-count"><?php echo count($created_events); ?></span>
         </div>
@@ -405,16 +405,16 @@ $button_style = get_option('partyminder_button_style', 'rounded');
 
                         <div class="event-stats">
                             <div class="stat-item">
-                                <div class="stat-number"><?php echo $event->guest_stats->confirmed; ?></div>
-                                <div class="stat-label"><?php _e('Confirmed', 'partyminder'); ?></div>
+                                <div class="pm-stat-number"><?php echo $event->guest_stats->confirmed; ?></div>
+                                <div class="pm-stat-label"><?php _e('Confirmed', 'partyminder'); ?></div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-number"><?php echo $event->guest_stats->maybe; ?></div>
-                                <div class="stat-label"><?php _e('Maybe', 'partyminder'); ?></div>
+                                <div class="pm-stat-number"><?php echo $event->guest_stats->maybe; ?></div>
+                                <div class="pm-stat-label"><?php _e('Maybe', 'partyminder'); ?></div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-number"><?php echo $event->guest_stats->pending; ?></div>
-                                <div class="stat-label"><?php _e('Pending', 'partyminder'); ?></div>
+                                <div class="pm-stat-number"><?php echo $event->guest_stats->pending; ?></div>
+                                <div class="pm-stat-label"><?php _e('Pending', 'partyminder'); ?></div>
                             </div>
                         </div>
 
@@ -437,7 +437,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     <!-- RSVP'd Events Section -->
     <?php if ($user_email && !empty($rsvp_events)): ?>
     <div class="events-section">
-        <div class="section-header">
+        <div class="pm-section-header">
             <h3 class="section-title"><?php _e('💌 Events You\'ve RSVP\'d To', 'partyminder'); ?></h3>
             <span class="event-count"><?php echo count($rsvp_events); ?></span>
         </div>
@@ -510,7 +510,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
         <h3><?php _e('No Events Found', 'partyminder'); ?></h3>
         <?php if (is_user_logged_in()): ?>
             <p><?php _e('You haven\'t created any events yet, and no RSVPs found.', 'partyminder'); ?></p>
-            <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="btn">
+            <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn">
                 <span>✨</span>
                 <?php _e('Create Your First Event', 'partyminder'); ?>
             </a>
@@ -523,16 +523,16 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     <!-- Quick Actions -->
     <?php if (is_user_logged_in()): ?>
     <div class="events-section">
-        <div class="section-header">
+        <div class="pm-section-header">
             <h3 class="section-title"><?php _e('⚡ Quick Actions', 'partyminder'); ?></h3>
         </div>
         
         <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
-            <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="btn">
+            <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn">
                 <span style="margin-right: 8px;">✨</span>
                 <?php _e('Create New Event', 'partyminder'); ?>
             </a>
-            <a href="<?php echo get_permalink(get_the_ID()) . '?show_past=1'; ?>" class="btn btn-secondary">
+            <a href="<?php echo get_permalink(get_the_ID()) . '?show_past=1'; ?>" class="pm-btn pm-btn-secondary">
                 <span style="margin-right: 8px;">📅</span>
                 <?php echo $show_past ? __('Hide Past Events', 'partyminder') : __('Show Past Events', 'partyminder'); ?>
             </a>

@@ -20,6 +20,6 @@ if ($on_dedicated_page) {
     echo '<div class="partyminder-shortcode-wrapper card text-center p-4 pm-m-5">';
     echo '<h3>' . __('Community Conversations', 'partyminder') . '</h3>';
     echo '<p>' . __('Connect with fellow hosts and guests, share tips, and plan amazing gatherings together.', 'partyminder') . '</p>';
-    echo '<a href="' . esc_url(PartyMinder::get_conversations_url()) . '" class="btn">' . __('Join Conversations', 'partyminder') . '</a>';
+    echo '<a href="' . esc_url(PartyMinder::get_conversations_url()) . '" class="pm-btn">' . __('Join Conversations', 'partyminder') . '</a>';
     echo '</div>';
 }

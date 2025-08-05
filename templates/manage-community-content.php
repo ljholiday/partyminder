@@ -23,7 +23,7 @@ if (!$community_id) {
     echo '<div class="page text-center pm-p-16">';
     echo '<h2>' . __('Community Not Found', 'partyminder') . '</h2>';
     echo '<p>' . __('No community ID provided.', 'partyminder') . '</p>';
-    echo '<a href="' . esc_url(PartyMinder::get_communities_url()) . '" class="btn">' . __('Back to Communities', 'partyminder') . '</a>';
+    echo '<a href="' . esc_url(PartyMinder::get_communities_url()) . '" class="pm-btn">' . __('Back to Communities', 'partyminder') . '</a>';
     echo '</div>';
     return;
 }
@@ -34,7 +34,7 @@ if (!$community) {
     echo '<div class="page text-center pm-p-16">';
     echo '<h2>' . __('Community Not Found', 'partyminder') . '</h2>';
     echo '<p>' . __('The requested community does not exist.', 'partyminder') . '</p>';
-    echo '<a href="' . esc_url(PartyMinder::get_communities_url()) . '" class="btn">' . __('Back to Communities', 'partyminder') . '</a>';
+    echo '<a href="' . esc_url(PartyMinder::get_communities_url()) . '" class="pm-btn">' . __('Back to Communities', 'partyminder') . '</a>';
     echo '</div>';
     return;
 }
@@ -48,7 +48,7 @@ if (!$user_role || $user_role !== 'admin') {
     echo '<div class="page text-center pm-p-16">';
     echo '<h2>' . __('Access Denied', 'partyminder') . '</h2>';
     echo '<p>' . __('You do not have permission to manage this community.', 'partyminder') . '</p>';
-    echo '<a href="' . esc_url(PartyMinder::get_community_url($community->slug)) . '" class="btn">' . __('View Community', 'partyminder') . '</a>';
+    echo '<a href="' . esc_url(PartyMinder::get_community_url($community->slug)) . '" class="pm-btn">' . __('View Community', 'partyminder') . '</a>';
     echo '</div>';
     return;
 }
@@ -81,8 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 <div class="partyminder-manage-community">
     <!-- Header -->
-    <div class="community-header">
-        <div class="breadcrumb" style="margin-bottom: 15px;">
+    <div class="pm-community-header">
+        <div class="pm-breadcrumb" style="margin-bottom: 15px;">
             <a href="<?php echo esc_url(PartyMinder::get_dashboard_url()); ?>">🏠 <?php _e('Dashboard', 'partyminder'); ?></a>
             →
             <a href="<?php echo esc_url(PartyMinder::get_communities_url()); ?>"><?php _e('Communities', 'partyminder'); ?></a>
@@ -97,19 +97,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     <!-- Success/Error Messages -->
     <?php if (isset($success_message)): ?>
-        <div class="alert alert-success">
+        <div class="pm-alert pm-alert-success">
             <?php echo esc_html($success_message); ?>
         </div>
     <?php endif; ?>
     
     <?php if (isset($error_message)): ?>
-        <div class="alert alert-error">
+        <div class="pm-alert pm-alert-error">
             <?php echo esc_html($error_message); ?>
         </div>
     <?php endif; ?>
 
     <!-- Tab Navigation -->
-    <div class="management-tabs">
+    <div class="pm-management-tabs">
         <a href="?community_id=<?php echo $community_id; ?>&tab=overview" 
            class="management-tab-btn <?php echo $current_tab === 'overview' ? 'active' : ''; ?>">
             <?php _e('Overview', 'partyminder'); ?>
@@ -129,42 +129,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     </div>
 
     <!-- Tab Content -->
-    <div class="management-content">
+    <div class="pm-management-content">
         
         <!-- Overview Tab -->
         <div id="overview-tab" class="tab-pane <?php echo $current_tab === 'overview' ? 'active' : ''; ?>">
             <h3><?php _e('Community Overview', 'partyminder'); ?></h3>
             
-            <div class="stats-grid" id="community-stats">
-                <div class="stat-card">
-                    <div class="stat-number" id="total-members">-</div>
-                    <div class="stat-label"><?php _e('Total Members', 'partyminder'); ?></div>
+            <div class="pm-stats-grid" id="community-stats">
+                <div class="pm-stat-card">
+                    <div class="pm-stat-number" id="total-members">-</div>
+                    <div class="pm-stat-label"><?php _e('Total Members', 'partyminder'); ?></div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="active-members">-</div>
-                    <div class="stat-label"><?php _e('Active Members', 'partyminder'); ?></div>
+                <div class="pm-stat-card">
+                    <div class="pm-stat-number" id="active-members">-</div>
+                    <div class="pm-stat-label"><?php _e('Active Members', 'partyminder'); ?></div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="pending-invites">-</div>
-                    <div class="stat-label"><?php _e('Pending Invites', 'partyminder'); ?></div>
+                <div class="pm-stat-card">
+                    <div class="pm-stat-number" id="pending-invites">-</div>
+                    <div class="pm-stat-label"><?php _e('Pending Invites', 'partyminder'); ?></div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="community-events">-</div>
-                    <div class="stat-label"><?php _e('Community Events', 'partyminder'); ?></div>
+                <div class="pm-stat-card">
+                    <div class="pm-stat-number" id="community-events">-</div>
+                    <div class="pm-stat-label"><?php _e('Community Events', 'partyminder'); ?></div>
                 </div>
             </div>
 
             <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 30px;">
-                <a href="?community_id=<?php echo $community_id; ?>&tab=settings" class="btn">
+                <a href="?community_id=<?php echo $community_id; ?>&tab=settings" class="pm-btn">
                     <span>⚙️</span> <?php _e('Edit Settings', 'partyminder'); ?>
                 </a>
-                <a href="?community_id=<?php echo $community_id; ?>&tab=members" class="btn btn-secondary">
+                <a href="?community_id=<?php echo $community_id; ?>&tab=members" class="pm-btn pm-btn-secondary">
                     <span>👥</span> <?php _e('Manage Members', 'partyminder'); ?>
                 </a>
-                <a href="?community_id=<?php echo $community_id; ?>&tab=invitations" class="btn btn-secondary">
+                <a href="?community_id=<?php echo $community_id; ?>&tab=invitations" class="pm-btn pm-btn-secondary">
                     <span>📧</span> <?php _e('Send Invitations', 'partyminder'); ?>
                 </a>
-                <a href="<?php echo esc_url(PartyMinder::get_community_url($community->slug)); ?>" class="btn btn-secondary">
+                <a href="<?php echo esc_url(PartyMinder::get_community_url($community->slug)); ?>" class="pm-btn pm-btn-secondary">
                     <span>👁️</span> <?php _e('View Community', 'partyminder'); ?>
                 </a>
             </div>
@@ -175,33 +175,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         <div id="settings-tab" class="tab-pane <?php echo $current_tab === 'settings' ? 'active' : ''; ?>">
             <h3><?php _e('Community Settings', 'partyminder'); ?></h3>
             
-            <form method="post" class="form">
+            <form method="post" class="pm-form">
                 <input type="hidden" name="action" value="update_community_settings">
                 <input type="hidden" name="nonce" value="<?php echo wp_create_nonce('partyminder_community_management'); ?>">
                 
-                <div class="form-group">
-                    <label class="form-label">
+                <div class="pm-form-group">
+                    <label class="pm-form-label">
                         <?php _e('Community Name', 'partyminder'); ?>
                     </label>
-                    <input type="text" class="form-input" value="<?php echo esc_attr($community->name); ?>" readonly>
-                    <div class="form-help">
+                    <input type="text" class="pm-form-input" value="<?php echo esc_attr($community->name); ?>" readonly>
+                    <div class="pm-form-help">
                         <?php _e('Contact site administrator to change the community name', 'partyminder'); ?>
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label class="form-label">
+                <div class="pm-form-group">
+                    <label class="pm-form-label">
                         <?php _e('Description', 'partyminder'); ?>
                     </label>
-                    <textarea name="description" class="form-textarea" rows="4" 
+                    <textarea name="description" class="pm-form-textarea" rows="4" 
                               placeholder="<?php _e('Update community description...', 'partyminder'); ?>"><?php echo esc_textarea($community->description); ?></textarea>
                 </div>
                 
-                <div class="form-group">
-                    <label class="form-label">
+                <div class="pm-form-group">
+                    <label class="pm-form-label">
                         <?php _e('Privacy Setting', 'partyminder'); ?>
                     </label>
-                    <select name="privacy" class="form-select">
+                    <select name="privacy" class="pm-form-select">
                         <option value="public" <?php selected($community->privacy, 'public'); ?>>
                             <?php _e('🌍 Public - Anyone can join', 'partyminder'); ?>
                         </option>
@@ -211,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     </select>
                 </div>
                 
-                <button type="submit" class="btn">
+                <button type="submit" class="pm-btn">
                     <?php _e('Save Changes', 'partyminder'); ?>
                 </button>
             </form>
@@ -221,7 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         <div id="members-tab" class="tab-pane <?php echo $current_tab === 'members' ? 'active' : ''; ?>">
             <h3><?php _e('Community Members', 'partyminder'); ?></h3>
             <div id="members-list">
-                <div class="loading-placeholder">
+                <div class="pm-loading-placeholder">
                     <p><?php _e('Loading community members...', 'partyminder'); ?></p>
                 </div>
             </div>
@@ -232,24 +232,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             <h3><?php _e('Send Invitations', 'partyminder'); ?></h3>
             
             <!-- Email Invitation Form -->
-            <form id="send-invitation-form" class="form">
-                <div class="form-group">
-                    <label class="form-label">
+            <form id="send-invitation-form" class="pm-form">
+                <div class="pm-form-group">
+                    <label class="pm-form-label">
                         <?php _e('Email Address', 'partyminder'); ?>
                     </label>
-                    <input type="email" class="form-input" id="invitation-email" 
+                    <input type="email" class="pm-form-input" id="invitation-email" 
                            placeholder="<?php _e('Enter email address...', 'partyminder'); ?>" required>
                 </div>
                 
-                <div class="form-group">
-                    <label class="form-label">
+                <div class="pm-form-group">
+                    <label class="pm-form-label">
                         <?php _e('Personal Message (Optional)', 'partyminder'); ?>
                     </label>
-                    <textarea class="form-textarea" id="invitation-message" rows="3"
+                    <textarea class="pm-form-textarea" id="invitation-message" rows="3"
                               placeholder="<?php _e('Add a personal message to your invitation...', 'partyminder'); ?>"></textarea>
                 </div>
                 
-                <button type="submit" class="btn">
+                <button type="submit" class="pm-btn">
                     <?php _e('Send Invitation', 'partyminder'); ?>
                 </button>
             </form>
@@ -257,7 +257,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             <div style="margin-top: 30px;">
                 <h4><?php _e('Pending Invitations', 'partyminder'); ?></h4>
                 <div id="invitations-list">
-                    <div class="loading-placeholder">
+                    <div class="pm-loading-placeholder">
                         <p><?php _e('Loading pending invitations...', 'partyminder'); ?></p>
                     </div>
                 </div>
@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const membersList = document.getElementById('members-list');
         if (!membersList) return;
         
-        membersList.innerHTML = '<div class="loading-placeholder"><p><?php _e('Loading community members...', 'partyminder'); ?></p></div>';
+        membersList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e('Loading community members...', 'partyminder'); ?></p></div>';
         
         jQuery.ajax({
             url: partyminder_ajax.ajax_url,
@@ -383,11 +383,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (response.success && response.data.members) {
                     renderMembersList(response.data.members);
                 } else {
-                    membersList.innerHTML = '<div class="loading-placeholder"><p><?php _e('No members found.', 'partyminder'); ?></p></div>';
+                    membersList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e('No members found.', 'partyminder'); ?></p></div>';
                 }
             },
             error: function() {
-                membersList.innerHTML = '<div class="loading-placeholder"><p><?php _e('Error loading members.', 'partyminder'); ?></p></div>';
+                membersList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e('Error loading members.', 'partyminder'); ?></p></div>';
             }
         });
     }
@@ -397,7 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const invitationsList = document.getElementById('invitations-list');
         if (!invitationsList) return;
         
-        invitationsList.innerHTML = '<div class="loading-placeholder"><p><?php _e('Loading pending invitations...', 'partyminder'); ?></p></div>';
+        invitationsList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e('Loading pending invitations...', 'partyminder'); ?></p></div>';
         
         jQuery.ajax({
             url: partyminder_ajax.ajax_url,
@@ -411,11 +411,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (response.success && response.data.invitations) {
                     renderInvitationsList(response.data.invitations);
                 } else {
-                    invitationsList.innerHTML = '<div class="loading-placeholder"><p><?php _e('No pending invitations.', 'partyminder'); ?></p></div>';
+                    invitationsList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e('No pending invitations.', 'partyminder'); ?></p></div>';
                 }
             },
             error: function() {
-                invitationsList.innerHTML = '<div class="loading-placeholder"><p><?php _e('Error loading invitations.', 'partyminder'); ?></p></div>';
+                invitationsList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e('Error loading invitations.', 'partyminder'); ?></p></div>';
             }
         });
     }
@@ -425,31 +425,31 @@ document.addEventListener('DOMContentLoaded', function() {
         const membersList = document.getElementById('members-list');
         
         if (!members || members.length === 0) {
-            membersList.innerHTML = '<div class="loading-placeholder"><p><?php _e('No members found.', 'partyminder'); ?></p></div>';
+            membersList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e('No members found.', 'partyminder'); ?></p></div>';
             return;
         }
         
-        let html = '<div class="member-list">';
+        let html = '<div class="pm-member-list">';
         members.forEach(member => {
             const initials = member.display_name ? member.display_name.substring(0, 2).toUpperCase() : 'U';
             const joinedDate = new Date(member.joined_at).toLocaleDateString();
             
             html += `
-                <div class="member-item" data-member-id="${member.id}">
-                    <div class="member-info">
-                        <div class="member-avatar">${initials}</div>
-                        <div class="member-details">
+                <div class="pm-member-item" data-member-id="${member.id}">
+                    <div class="pm-member-info">
+                        <div class="pm-member-avatar">${initials}</div>
+                        <div class="pm-member-details">
                             <h4>${member.display_name || member.email}</h4>
                             <small><?php _e('Member since', 'partyminder'); ?> ${joinedDate}</small>
                         </div>
                     </div>
-                    <div class="member-actions">
-                        <span class="member-role ${member.role}">${member.role}</span>
+                    <div class="pm-member-actions">
+                        <span class="pm-member-role ${member.role}">${member.role}</span>
                         ${member.role === 'member' ? 
-                            '<button class="btn btn-secondary promote-btn" data-member-id="' + member.id + '"><?php _e('Promote', 'partyminder'); ?></button>' : 
-                            (member.role === 'admin' ? '<button class="btn btn-secondary demote-btn" data-member-id="' + member.id + '"><?php _e('Demote', 'partyminder'); ?></button>' : '')
+                            '<button class="pm-btn pm-btn-secondary promote-btn" data-member-id="' + member.id + '"><?php _e('Promote', 'partyminder'); ?></button>' : 
+                            (member.role === 'admin' ? '<button class="pm-btn pm-btn-secondary demote-btn" data-member-id="' + member.id + '"><?php _e('Demote', 'partyminder'); ?></button>' : '')
                         }
-                        <button class="btn btn-danger remove-btn" data-member-id="${member.id}" data-member-name="${member.display_name || member.email}">
+                        <button class="pm-btn pm-btn-danger remove-btn" data-member-id="${member.id}" data-member-name="${member.display_name || member.email}">
                             <?php _e('Remove', 'partyminder'); ?>
                         </button>
                     </div>
@@ -469,29 +469,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const invitationsList = document.getElementById('invitations-list');
         
         if (!invitations || invitations.length === 0) {
-            invitationsList.innerHTML = '<div class="loading-placeholder"><p><?php _e('No pending invitations.', 'partyminder'); ?></p></div>';
+            invitationsList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e('No pending invitations.', 'partyminder'); ?></p></div>';
             return;
         }
         
-        let html = '<div class="invitation-list">';
+        let html = '<div class="pm-invitation-list">';
         invitations.forEach(invitation => {
             const createdDate = new Date(invitation.created_at).toLocaleDateString();
             const expiresDate = new Date(invitation.expires_at).toLocaleDateString();
             
             html += `
-                <div class="invitation-item" data-invitation-id="${invitation.id}">
-                    <div class="invitation-info">
-                        <div class="invitation-avatar">📧</div>
-                        <div class="invitation-details">
+                <div class="pm-invitation-item" data-invitation-id="${invitation.id}">
+                    <div class="pm-invitation-info">
+                        <div class="pm-invitation-avatar">📧</div>
+                        <div class="pm-invitation-details">
                             <h4>${invitation.invited_email}</h4>
                             <small><?php _e('Invited on', 'partyminder'); ?> ${createdDate}</small>
                             <br><small><?php _e('Expires', 'partyminder'); ?> ${expiresDate}</small>
                             ${invitation.message ? '<br><small><em>"' + invitation.message + '"</em></small>' : ''}
                         </div>
                     </div>
-                    <div class="invitation-actions">
-                        <span class="member-role pending"><?php _e('pending', 'partyminder'); ?></span>
-                        <button class="btn btn-danger cancel-invitation-btn" data-invitation-id="${invitation.id}" data-email="${invitation.invited_email}">
+                    <div class="pm-invitation-actions">
+                        <span class="pm-member-role pending"><?php _e('pending', 'partyminder'); ?></span>
+                        <button class="pm-btn pm-btn-danger cancel-invitation-btn" data-invitation-id="${invitation.id}" data-email="${invitation.invited_email}">
                             <?php _e('Cancel', 'partyminder'); ?>
                         </button>
                     </div>

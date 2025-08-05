@@ -151,44 +151,44 @@ ob_start();
 
 <?php if ($action === 'register'): ?>
 <!-- Registration Form -->
-<div class="section">
+<div class="pm-section">
     <h2 class="heading heading-md mb-4"><?php _e('Create Account', 'partyminder'); ?></h2>
     
-    <form method="post" class="form">
+    <form method="post" class="pm-form">
         <?php wp_nonce_field('partyminder_register', 'partyminder_register_nonce'); ?>
         
-        <div class="form-group">
-            <label for="display_name" class="form-label"><?php _e('Your Name', 'partyminder'); ?></label>
-            <input type="text" id="display_name" name="display_name" class="form-input"
+        <div class="pm-form-group">
+            <label for="display_name" class="pm-form-label"><?php _e('Your Name', 'partyminder'); ?></label>
+            <input type="text" id="display_name" name="display_name" class="pm-form-input"
                    value="<?php echo esc_attr($_POST['display_name'] ?? ''); ?>" 
                    placeholder="<?php esc_attr_e('How should we address you?', 'partyminder'); ?>" required>
         </div>
         
-        <div class="form-group">
-            <label for="username" class="form-label"><?php _e('Username', 'partyminder'); ?></label>
-            <input type="text" id="username" name="username" class="form-input"
+        <div class="pm-form-group">
+            <label for="username" class="pm-form-label"><?php _e('Username', 'partyminder'); ?></label>
+            <input type="text" id="username" name="username" class="pm-form-input"
                    value="<?php echo esc_attr($_POST['username'] ?? ''); ?>" 
                    placeholder="<?php esc_attr_e('Choose a unique username', 'partyminder'); ?>" required>
         </div>
         
-        <div class="form-group">
-            <label for="email" class="form-label"><?php _e('Email Address', 'partyminder'); ?></label>
-            <input type="email" id="email" name="email" class="form-input"
+        <div class="pm-form-group">
+            <label for="email" class="pm-form-label"><?php _e('Email Address', 'partyminder'); ?></label>
+            <input type="email" id="email" name="email" class="pm-form-input"
                    value="<?php echo esc_attr($_POST['email'] ?? ''); ?>" 
                    placeholder="<?php esc_attr_e('your@email.com', 'partyminder'); ?>" required>
         </div>
         
-        <div class="form-row">
-            <div class="form-group">
-                <label for="password" class="form-label"><?php _e('Password', 'partyminder'); ?></label>
-                <input type="password" id="password" name="password" class="form-input"
+        <div class="pm-form-row">
+            <div class="pm-form-group">
+                <label for="password" class="pm-form-label"><?php _e('Password', 'partyminder'); ?></label>
+                <input type="password" id="password" name="password" class="pm-form-input"
                        placeholder="<?php esc_attr_e('At least 8 characters', 'partyminder'); ?>" required>
             </div>
             
-            <div class="form-group">
-                <label for="confirm_password" class="form-label"><?php _e('Confirm Password', 'partyminder'); ?></label>
+            <div class="pm-form-group">
+                <label for="confirm_password" class="pm-form-label"><?php _e('Confirm Password', 'partyminder'); ?></label>
                 <div>
-                    <input type="password" id="confirm_password" name="confirm_password" class="form-input"
+                    <input type="password" id="confirm_password" name="confirm_password" class="pm-form-input"
                            placeholder="<?php esc_attr_e('Repeat your password', 'partyminder'); ?>" required>
                     <div id="password-match-indicator" style="display: none;">
                         <span></span>
@@ -198,7 +198,7 @@ ob_start();
             </div>
         </div>
         
-        <div class="text-center">
+        <div class="pm-text-center">
             <button type="submit" class="btn btn-large">
                 <span>✨</span>
                 <?php _e('Create Account & Setup Profile', 'partyminder'); ?>
@@ -207,42 +207,42 @@ ob_start();
     </form>
     
     <div class="text-center mt-4">
-        <p class="text-muted"><?php _e('Already have an account?', 'partyminder'); ?> 
-           <a href="<?php echo esc_url(remove_query_arg('action')); ?>" class="text-primary"><?php _e('Sign In', 'partyminder'); ?></a>
+        <p class="pm-text-muted"><?php _e('Already have an account?', 'partyminder'); ?> 
+           <a href="<?php echo esc_url(remove_query_arg('action')); ?>" class="pm-text-primary"><?php _e('Sign In', 'partyminder'); ?></a>
         </p>
     </div>
 </div>
 
 <?php else: ?>
 <!-- Login Form -->
-<div class="section">
+<div class="pm-section">
     <h2 class="heading heading-md mb-4"><?php _e('Sign In', 'partyminder'); ?></h2>
     
-    <form method="post" class="form">
+    <form method="post" class="pm-form">
         <?php wp_nonce_field('partyminder_login', 'partyminder_login_nonce'); ?>
         
-        <div class="form-group">
-            <label for="username" class="form-label"><?php _e('Username or Email', 'partyminder'); ?></label>
-            <input type="text" id="username" name="username" class="form-input"
+        <div class="pm-form-group">
+            <label for="username" class="pm-form-label"><?php _e('Username or Email', 'partyminder'); ?></label>
+            <input type="text" id="username" name="username" class="pm-form-input"
                    value="<?php echo esc_attr($_POST['username'] ?? ''); ?>" 
                    placeholder="<?php esc_attr_e('Enter your username or email', 'partyminder'); ?>" required>
         </div>
         
-        <div class="form-group">
-            <label for="password" class="form-label"><?php _e('Password', 'partyminder'); ?></label>
-            <input type="password" id="password" name="password" class="form-input"
+        <div class="pm-form-group">
+            <label for="password" class="pm-form-label"><?php _e('Password', 'partyminder'); ?></label>
+            <input type="password" id="password" name="password" class="pm-form-input"
                    placeholder="<?php esc_attr_e('Enter your password', 'partyminder'); ?>" required>
         </div>
         
-        <div class="form-group">
-            <label class="flex">
+        <div class="pm-form-group">
+            <label class="pm-flex">
                 <input type="checkbox" name="remember" value="1"
                        <?php checked(isset($_POST['remember'])); ?>>
-                <span class="text-muted"><?php _e('Remember me for 2 weeks', 'partyminder'); ?></span>
+                <span class="pm-text-muted"><?php _e('Remember me for 2 weeks', 'partyminder'); ?></span>
             </label>
         </div>
         
-        <div class="text-center">
+        <div class="pm-text-center">
             <button type="submit" class="btn btn-large">
                 <span>🚪</span>
                 <?php _e('Sign In', 'partyminder'); ?>
@@ -251,10 +251,10 @@ ob_start();
     </form>
     
     <div class="text-center mt-4">
-        <p class="text-muted mb-4"><?php _e('New to PartyMinder?', 'partyminder'); ?> 
-           <a href="<?php echo esc_url(add_query_arg('action', 'register')); ?>" class="text-primary"><?php _e('Create Account', 'partyminder'); ?></a>
+        <p class="pm-text-muted mb-4"><?php _e('New to PartyMinder?', 'partyminder'); ?> 
+           <a href="<?php echo esc_url(add_query_arg('action', 'register')); ?>" class="pm-text-primary"><?php _e('Create Account', 'partyminder'); ?></a>
         </p>
-        <p><a href="<?php echo wp_lostpassword_url(); ?>" class="text-primary"><?php _e('Forgot your password?', 'partyminder'); ?></a></p>
+        <p><a href="<?php echo wp_lostpassword_url(); ?>" class="pm-text-primary"><?php _e('Forgot your password?', 'partyminder'); ?></a></p>
     </div>
 </div>
 <?php endif; ?>
@@ -267,19 +267,19 @@ ob_start();
         <div class="text-center p-4">
             <div class="text-xl mb-4">🎪</div>
             <h4 class="heading heading-sm mb-4"><?php _e('Host Events', 'partyminder'); ?></h4>
-            <p class="text-muted"><?php _e('Create and manage amazing parties with our easy-to-use tools.', 'partyminder'); ?></p>
+            <p class="pm-text-muted"><?php _e('Create and manage amazing parties with our easy-to-use tools.', 'partyminder'); ?></p>
         </div>
         
         <div class="text-center p-4">
             <div class="text-xl mb-4">💌</div>
             <h4 class="heading heading-sm mb-4"><?php _e('RSVP & Attend', 'partyminder'); ?></h4>
-            <p class="text-muted"><?php _e('Discover local events and connect with your community.', 'partyminder'); ?></p>
+            <p class="pm-text-muted"><?php _e('Discover local events and connect with your community.', 'partyminder'); ?></p>
         </div>
         
         <div class="text-center p-4">
             <div class="text-xl mb-4">💬</div>
             <h4 class="heading heading-sm mb-4"><?php _e('Connect', 'partyminder'); ?></h4>
-            <p class="text-muted"><?php _e('Share tips, recipes, and stories with fellow party enthusiasts.', 'partyminder'); ?></p>
+            <p class="pm-text-muted"><?php _e('Share tips, recipes, and stories with fellow party enthusiasts.', 'partyminder'); ?></p>
         </div>
     </div>
 </div>

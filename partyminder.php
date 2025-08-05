@@ -1607,6 +1607,7 @@ class PartyMinder {
         add_rewrite_rule('^communities/([^/]+)/members/?$', 'index.php?pagename=communities&community_slug=$matches[1]&community_view=members', 'top');
         add_rewrite_rule('^manage-community/?$', 'index.php?pagename=manage-community', 'top');
         add_rewrite_rule('^create-community/?$', 'index.php?pagename=create-community', 'top');
+        add_rewrite_rule('^create-conversation/?$', 'index.php?pagename=create-conversation', 'top');
         
         // Add query vars
         add_filter('query_vars', function($vars) {
@@ -1632,7 +1633,7 @@ class PartyMinder {
         }
         
         // Check if this is one of our dedicated pages
-        $page_keys = array('events', 'create-event', 'my-events', 'edit-event');
+        $page_keys = array('events', 'create-event', 'my-events', 'edit-event', 'create-conversation');
         $current_page_key = null;
         
         foreach ($page_keys as $key) {
@@ -1731,6 +1732,10 @@ class PartyMinder {
             return self::get_page_url('profile', array('user' => $user_id));
         }
         return self::get_page_url('profile');
+    }
+    
+    public static function get_create_conversation_url() {
+        return self::get_page_url('create-conversation');
     }
     
     private function is_on_dedicated_page($page_key) {
@@ -1964,6 +1969,11 @@ class PartyMinder {
                 add_filter('body_class', array($this, 'add_edit_event_body_class'));
                 break;
                 
+            case 'create-conversation':
+                add_filter('the_content', array($this, 'inject_create_conversation_content'));
+                add_filter('body_class', array($this, 'add_create_conversation_body_class'));
+                break;
+                
             case 'profile':
                 // Handle user parameter for viewing other profiles
                 if (!get_query_var('user') && isset($_GET['user'])) {
@@ -2169,7 +2179,7 @@ class PartyMinder {
         }
         
         // Modify titles for our dedicated pages
-        $page_keys = array('events', 'create-event', 'my-events', 'edit-event');
+        $page_keys = array('events', 'create-event', 'my-events', 'edit-event', 'create-conversation');
         
         foreach ($page_keys as $key) {
             $page_id = get_option('partyminder_page_' . $key);
@@ -2658,6 +2668,33 @@ class PartyMinder {
     }
     
     /**
+     * Inject create conversation content
+     */
+    public function inject_create_conversation_content($content) {
+        global $post;
+        
+        if (!is_page() || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+        
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        if ($page_type !== 'create-conversation') {
+            return $content;
+        }
+        
+        ob_start();
+        
+        echo '<div class="partyminder-content partyminder-create-conversation-page">';
+        
+        // Include create conversation template
+        include PARTYMINDER_PLUGIN_DIR . 'templates/create-conversation-content.php';
+        
+        echo '</div>';
+        
+        return ob_get_clean();
+    }
+    
+    /**
      * Add body classes for PartyMinder pages
      */
     public function add_body_classes($classes) {
@@ -2766,6 +2803,15 @@ class PartyMinder {
     public function add_single_conversation_body_class($classes) {
         $classes[] = 'partyminder-conversations';
         $classes[] = 'partyminder-single-conversation';
+        return $classes;
+    }
+    
+    /**
+     * Add specific body classes for create conversation page
+     */
+    public function add_create_conversation_body_class($classes) {
+        $classes[] = 'partyminder-conversations';
+        $classes[] = 'partyminder-create-conversation';
         return $classes;
     }
     

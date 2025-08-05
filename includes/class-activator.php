@@ -271,6 +271,12 @@ class PartyMinder_Activator {
                 'slug' => 'conversations',
                 'description' => __('Connect, share tips, and plan amazing gatherings with the community.', 'partyminder')
             ),
+            'create-conversation' => array(
+                'title' => __('Create Conversation', 'partyminder'),
+                'content' => '[partyminder_create_conversation]',
+                'slug' => 'create-conversation',
+                'description' => __('Share ideas, ask questions, and start discussions with the community.', 'partyminder')
+            ),
             'communities' => array(
                 'title' => __('Communities', 'partyminder'),
                 'content' => '[partyminder_communities]',

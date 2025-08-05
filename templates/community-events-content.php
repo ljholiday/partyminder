@@ -137,7 +137,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <p><?php _e('This community\'s events are private. You need to be a member to view community events.', 'partyminder'); ?></p>
                 
                 <?php if (!$is_logged_in): ?>
-                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="btn">
+                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-btn">
                         <?php _e('Login to Join', 'partyminder'); ?>
                     </a>
                 <?php else: ?>
@@ -159,7 +159,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         <?php _e('Create First Event', 'partyminder'); ?>
                     </a>
                 <?php elseif (!$is_logged_in): ?>
-                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="btn">
+                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-btn">
                         <?php _e('Login to Join', 'partyminder'); ?>
                     </a>
                 <?php else: ?>

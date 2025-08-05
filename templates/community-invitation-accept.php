@@ -126,7 +126,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             <?php endif; ?>
             
             <?php if ($invitation && $community && $message_type !== 'error'): ?>
-                <div class="invitation-details">
+                <div class="pm-invitation-details">
                     <h4><?php _e('Community Details', 'partyminder'); ?></h4>
                     <p><strong><?php _e('Community:', 'partyminder'); ?></strong> <?php echo esc_html($community->name); ?></p>
                     <p><strong><?php _e('Type:', 'partyminder'); ?></strong> <?php echo esc_html(ucfirst($community->type)); ?></p>
@@ -136,7 +136,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 </div>
                 
                 <?php if ($community->description): ?>
-                    <div class="invitation-details">
+                    <div class="pm-invitation-details">
                         <h4><?php _e('About This Community', 'partyminder'); ?></h4>
                         <p><?php echo wpautop(esc_html($community->description)); ?></p>
                     </div>
@@ -153,14 +153,14 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     <div class="login-prompt">
                         <h4><?php _e('Login Required', 'partyminder'); ?></h4>
                         <p><?php _e('You need to be logged in to accept this invitation.', 'partyminder'); ?></p>
-                        <a href="<?php echo wp_login_url(home_url('/communities/join?token=' . urlencode($token))); ?>" class="btn">
+                        <a href="<?php echo wp_login_url(home_url('/communities/join?token=' . urlencode($token))); ?>" class="pm-btn">
                             <span>🔑</span> <?php _e('Login to Accept', 'partyminder'); ?>
                         </a>
                     </div>
                 <?php elseif ($message_type === 'success'): ?>
                     <div style="text-align: center;">
                         <p><?php _e('Redirecting to your new community...', 'partyminder'); ?></p>
-                        <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="btn">
+                        <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-btn">
                             <span>🏘️</span> <?php _e('Go to Community', 'partyminder'); ?>
                         </a>
                     </div>
@@ -174,7 +174,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         <div class="already-member">
                             <h4><?php _e('Already a Member', 'partyminder'); ?></h4>
                             <p><?php _e('You are already a member of this community.', 'partyminder'); ?></p>
-                            <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="btn">
+                            <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-btn">
                                 <span>🏘️</span> <?php _e('Go to Community', 'partyminder'); ?>
                             </a>
                         </div>
@@ -183,7 +183,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                             <?php wp_nonce_field('accept_invitation_' . $token, 'invitation_nonce'); ?>
                             <h4><?php _e('Accept Invitation', 'partyminder'); ?></h4>
                             <p><?php _e('Click below to join this community.', 'partyminder'); ?></p>
-                            <button type="submit" class="btn">
+                            <button type="submit" class="pm-btn">
                                 <span>✅</span> <?php _e('Accept & Join Community', 'partyminder'); ?>
                             </button>
                         </form>
@@ -192,7 +192,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             <?php else: ?>
                 <div style="text-align: center;">
                     <p><?php _e('Return to communities to explore other options.', 'partyminder'); ?></p>
-                    <a href="<?php echo home_url('/communities'); ?>" class="btn btn-secondary">
+                    <a href="<?php echo home_url('/communities'); ?>" class="pm-btn pm-btn-secondary">
                         <span>🏘️</span> <?php _e('Browse Communities', 'partyminder'); ?>
                     </a>
                 </div>

@@ -20,9 +20,9 @@ class PartyMinder_Image_Upload_Component {
             'current_image' => '',
             'button_text' => __('Upload Image', 'partyminder'),
             'button_icon' => '📷',
-            'button_class' => 'btn btn-secondary',
+            'button_class' => 'pm-btn pm-btn-secondary',
             'show_preview' => true,
-            'preview_class' => 'image-preview',
+            'preview_class' => 'pm-image-preview',
             'modal_title' => __('Upload Image', 'partyminder'),
             'accepted_formats' => 'image/jpeg,image/png,image/gif,image/webp',
             'max_file_size' => '5MB',
@@ -80,7 +80,7 @@ class PartyMinder_Image_Upload_Component {
                     <button type="button" class="modal-close">&times;</button>
                 </div>
                 
-                <form class="image-upload-form" enctype="multipart/form-data">
+                <form class="pm-image-upload-form" enctype="multipart/form-data">
                     <div class="modal-body">
                         <!-- Hidden fields -->
                         <input type="hidden" name="entity_type" value="<?php echo esc_attr($config['entity_type']); ?>">
@@ -89,17 +89,17 @@ class PartyMinder_Image_Upload_Component {
                         <input type="hidden" name="nonce" value="<?php echo wp_create_nonce('partyminder_image_upload'); ?>">
                         
                         <!-- File Input -->
-                        <div class="form-group">
-                            <label class="form-label" for="<?php echo esc_attr($input_id); ?>">
+                        <div class="pm-form-group">
+                            <label class="pm-form-label" for="<?php echo esc_attr($input_id); ?>">
                                 <?php _e('Select Image', 'partyminder'); ?>
                             </label>
                             <input type="file" 
                                    id="<?php echo esc_attr($input_id); ?>"
                                    name="image_file" 
-                                   class="form-input image-file-input"
+                                   class="pm-form-input pm-image-file-input"
                                    accept="<?php echo esc_attr($config['accepted_formats']); ?>"
                                    required>
-                            <div class="text-muted mt-4">
+                            <div class="pm-text-muted pm-mt">
                                 <div><?php echo esc_html($config['dimensions']); ?></div>
                                 <div><?php printf(__('Maximum file size: %s', 'partyminder'), $config['max_file_size']); ?></div>
                                 <div><?php _e('Formats: JPG, PNG, GIF, WebP', 'partyminder'); ?></div>
@@ -124,10 +124,10 @@ class PartyMinder_Image_Upload_Component {
                     </div>
                     
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary modal-close">
+                        <button type="button" class="pm-btn pm-btn-secondary pm-modal-close">
                             <?php _e('Cancel', 'partyminder'); ?>
                         </button>
-                        <button type="submit" class="btn upload-submit" disabled>
+                        <button type="submit" class="pm-btn pm-upload-submit" disabled>
                             ✨ <?php _e('Upload', 'partyminder'); ?>
                         </button>
                     </div>
@@ -311,7 +311,7 @@ class PartyMinder_Image_Upload_Component {
             
             // Handle modal closing
             document.addEventListener('click', function(e) {
-                if (e.target.matches('.modal-close') || e.target.matches('.modal-overlay')) {
+                if (e.target.matches('.pm-modal-close') || e.target.matches('.modal-overlay')) {
                     const modal = e.target.closest('.image-upload-modal');
                     if (modal) {
                         closeModal(modal);
@@ -321,14 +321,14 @@ class PartyMinder_Image_Upload_Component {
             
             // Handle file input changes
             document.addEventListener('change', function(e) {
-                if (e.target.matches('.image-file-input')) {
+                if (e.target.matches('.pm-image-file-input')) {
                     handleFilePreview(e.target);
                 }
             });
             
             // Handle form submissions
             document.addEventListener('submit', function(e) {
-                if (e.target.matches('.image-upload-form')) {
+                if (e.target.matches('.pm-image-upload-form')) {
                     e.preventDefault();
                     handleImageUpload(e.target);
                 }
@@ -339,22 +339,22 @@ class PartyMinder_Image_Upload_Component {
                 document.body.style.overflow = '';
                 
                 // Reset form
-                const form = modal.querySelector('.image-upload-form');
+                const form = modal.querySelector('.pm-image-upload-form');
                 if (form) {
                     form.reset();
                     form.querySelector('.upload-preview').style.display = 'none';
                     form.querySelector('.upload-progress').style.display = 'none';
                     form.querySelector('.upload-messages').innerHTML = '';
-                    form.querySelector('.upload-submit').disabled = true;
+                    form.querySelector('.pm-upload-submit').disabled = true;
                 }
             }
             
             function handleFilePreview(fileInput) {
                 const file = fileInput.files[0];
-                const form = fileInput.closest('.image-upload-form');
+                const form = fileInput.closest('.pm-image-upload-form');
                 const preview = form.querySelector('.upload-preview');
                 const previewImg = form.querySelector('.preview-image');
-                const submitBtn = form.querySelector('.upload-submit');
+                const submitBtn = form.querySelector('.pm-upload-submit');
                 
                 if (file && file.type.startsWith('image/')) {
                     const reader = new FileReader();
@@ -376,7 +376,7 @@ class PartyMinder_Image_Upload_Component {
                 const progressFill = form.querySelector('.progress-fill');
                 const progressText = form.querySelector('.progress-text');
                 const messages = form.querySelector('.upload-messages');
-                const submitBtn = form.querySelector('.upload-submit');
+                const submitBtn = form.querySelector('.pm-upload-submit');
                 const entityType = formData.get('entity_type');
                 const entityId = formData.get('entity_id');
                 const imageType = formData.get('image_type');

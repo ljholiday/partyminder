@@ -229,10 +229,10 @@ $button_style = get_option('partyminder_button_style', 'rounded');
         <!-- Events Navigation -->
         <?php if (is_user_logged_in()): ?>
         <div class="events-navigation" style="margin: 20px 0; text-align: center;">
-            <a href="<?php echo esc_url(PartyMinder::get_my_events_url()); ?>" class="btn btn-secondary" style="margin-right: 10px;">
+            <a href="<?php echo esc_url(PartyMinder::get_my_events_url()); ?>" class="pm-btn pm-btn-secondary" style="margin-right: 10px;">
                 📅 <?php _e('My Events', 'partyminder'); ?>
             </a>
-            <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="btn">
+            <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="pm-btn">
                 ✨ <?php _e('Create Event', 'partyminder'); ?>
             </a>
         </div>
@@ -240,8 +240,8 @@ $button_style = get_option('partyminder_button_style', 'rounded');
         
         <div class="events-stats">
             <span class="stat-item">
-                <span class="stat-number"><?php echo count($events); ?></span>
-                <span class="stat-label"><?php _e('Events', 'partyminder'); ?></span>
+                <span class="pm-stat-number"><?php echo count($events); ?></span>
+                <span class="pm-stat-label"><?php _e('Events', 'partyminder'); ?></span>
             </span>
         </div>
     </div>
@@ -439,7 +439,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
             <p><?php _e('Get notified about new events in your area.', 'partyminder'); ?></p>
             
             <form class="newsletter-form" id="events-newsletter-form">
-                <div class="form-group">
+                <div class="pm-form-group">
                     <input type="email" placeholder="<?php esc_attr_e('Enter your email', 'partyminder'); ?>" required />
                     <button type="submit" class="btn style-<?php echo esc_attr($button_style); ?>">
                         <span class="button-icon">📧</span>

@@ -62,7 +62,7 @@ class PartyMinder_Deactivator {
     }
     
     private static function delete_pages() {
-        $page_keys = array('events', 'create-event', 'my-events', 'edit-event');
+        $page_keys = array('events', 'create-event', 'my-events', 'edit-event', 'create-conversation');
         
         foreach ($page_keys as $key) {
             $page_id = get_option('partyminder_page_' . $key);

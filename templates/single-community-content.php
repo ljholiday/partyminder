@@ -50,10 +50,10 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 ?>
 
 
-<div class="page">
+<div class="pm-page">
     <!-- Breadcrumbs -->
-    <div class="text-muted" style="margin-bottom: 16px;">
-        <a href="<?php echo PartyMinder::get_communities_url(); ?>" class="text-primary">
+    <div class="pm-text-muted" style="margin-bottom: 16px;">
+        <a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-text-primary">
             <?php _e('🏘️ Communities', 'partyminder'); ?>
         </a>
         <span> › </span>
@@ -63,7 +63,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     <!-- Community Header -->
     <div class="section header">
         <div style="position: relative;">
-            <span class="badge" style="position:absolute;top:0;right:0;">
+            <span class="pm-badge" style="position:absolute;top:0;right:0;">
                 <?php echo esc_html(ucfirst($community->privacy)); ?>
             </span>
             
@@ -72,7 +72,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     <?php echo strtoupper(substr($community->name, 0, 2)); ?>
                 </div>
                 <div>
-                    <h1 class="heading heading-lg"><?php echo esc_html($community->name); ?></h1>
+                    <h1 class="pm-heading pm-heading-lg"><?php echo esc_html($community->name); ?></h1>
                     <div class="flex gap-4 text-muted" style="font-size:14px;">
                         <span><?php echo esc_html(ucfirst($community->type)); ?> <?php _e('Community', 'partyminder'); ?></span>
                         <span><?php echo date('M Y', strtotime($community->created_at)); ?></span>
@@ -96,21 +96,21 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             <div class="community-stats">
                 <div class="stat-item">
                     <span>👥</span>
-                    <span><span class="stat-number"><?php echo $stats->member_count; ?></span> <?php echo $stats->member_count === 1 ? __('member', 'partyminder') : __('members', 'partyminder'); ?></span>
+                    <span><span class="pm-stat-number"><?php echo $stats->member_count; ?></span> <?php echo $stats->member_count === 1 ? __('member', 'partyminder') : __('members', 'partyminder'); ?></span>
                 </div>
                 <div class="stat-item">
                     <span>🗓️</span>
-                    <span><span class="stat-number"><?php echo $stats->event_count; ?></span> <?php echo $stats->event_count === 1 ? __('event', 'partyminder') : __('events', 'partyminder'); ?></span>
+                    <span><span class="pm-stat-number"><?php echo $stats->event_count; ?></span> <?php echo $stats->event_count === 1 ? __('event', 'partyminder') : __('events', 'partyminder'); ?></span>
                 </div>
                 <div class="stat-item">
                     <span>📈</span>
-                    <span><span class="stat-number"><?php echo $stats->recent_activity; ?></span> <?php _e('active this month', 'partyminder'); ?></span>
+                    <span><span class="pm-stat-number"><?php echo $stats->recent_activity; ?></span> <?php _e('active this month', 'partyminder'); ?></span>
                 </div>
             </div>
             
             <div class="action-buttons">
                 <?php if (!$is_logged_in): ?>
-                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="btn">
+                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-btn">
                         <span>👋</span>
                         <?php _e('Login to Join', 'partyminder'); ?>
                     </a>
@@ -136,24 +136,24 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     </div>
 
     <!-- Navigation Tabs -->
-    <div class="nav">
+    <div class="pm-nav">
         <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="nav-item active">
             <span>🏠</span> <?php _e('Overview', 'partyminder'); ?>
         </a>
-        <a href="<?php echo home_url('/communities/' . $community->slug . '/events'); ?>" class="nav-item">
+        <a href="<?php echo home_url('/communities/' . $community->slug . '/events'); ?>" class="pm-nav-item">
             <span>🗓️</span> <?php _e('Events', 'partyminder'); ?>
         </a>
-        <a href="<?php echo home_url('/communities/' . $community->slug . '/members'); ?>" class="nav-item">
+        <a href="<?php echo home_url('/communities/' . $community->slug . '/members'); ?>" class="pm-nav-item">
             <span>👥</span> <?php _e('Members', 'partyminder'); ?>
         </a>
     </div>
     
     <!-- Content -->
-    <div class="section">
-        <h3 class="heading heading-sm"><?php _e('Welcome to', 'partyminder'); ?> <?php echo esc_html($community->name); ?></h3>
+    <div class="pm-section">
+        <h3 class="pm-heading pm-heading-sm"><?php _e('Welcome to', 'partyminder'); ?> <?php echo esc_html($community->name); ?></h3>
             
             <?php if ($community->description): ?>
-                <div class="mb-4">
+                <div class="pm-mb-4">
                     <?php echo wpautop(esc_html($community->description)); ?>
                 </div>
             <?php endif; ?>

@@ -326,7 +326,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             <?php endif; ?>
             
             <?php if ($invitation && $message_type !== 'error'): ?>
-                <div class="event-details">
+                <div class="pm-event-details">
                     <h4><?php _e('Event Details', 'partyminder'); ?></h4>
                     <div class="event-info">
                         <div class="event-info-item">
@@ -373,14 +373,14 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     <div class="login-prompt">
                         <h4><?php _e('Login Required', 'partyminder'); ?></h4>
                         <p><?php _e('You need to be logged in to RSVP to this event.', 'partyminder'); ?></p>
-                        <a href="<?php echo add_query_arg('redirect_to', urlencode(home_url('/events/join?token=' . urlencode($token))), PartyMinder::get_login_url()); ?>" class="btn">
+                        <a href="<?php echo add_query_arg('redirect_to', urlencode(home_url('/events/join?token=' . urlencode($token))), PartyMinder::get_login_url()); ?>" class="pm-btn">
                             <span>🔑</span> <?php _e('Login to RSVP', 'partyminder'); ?>
                         </a>
                     </div>
                 <?php elseif ($message_type === 'success'): ?>
-                    <div class="text-center">
+                    <div class="pm-text-center">
                         <p><?php _e('Redirecting to the event page...', 'partyminder'); ?></p>
-                        <a href="<?php echo home_url('/events/' . $invitation->event_slug); ?>" class="btn">
+                        <a href="<?php echo home_url('/events/' . $invitation->event_slug); ?>" class="pm-btn">
                             <span>🎉</span> <?php _e('Go to Event', 'partyminder'); ?>
                         </a>
                     </div>
@@ -392,34 +392,34 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         <form method="post">
                             <?php wp_nonce_field('accept_event_invitation_' . $token, 'invitation_nonce'); ?>
                             
-                            <div class="form-group">
-                                <label class="form-label" for="phone"><?php _e('Phone Number (Optional)', 'partyminder'); ?></label>
-                                <input type="tel" class="form-input" id="phone" name="phone" placeholder="<?php _e('Your phone number', 'partyminder'); ?>">
-                                <div class="form-help"><?php _e('The host may contact you if needed.', 'partyminder'); ?></div>
+                            <div class="pm-form-group">
+                                <label class="pm-form-label" for="phone"><?php _e('Phone Number (Optional)', 'partyminder'); ?></label>
+                                <input type="tel" class="pm-form-input" id="phone" name="phone" placeholder="<?php _e('Your phone number', 'partyminder'); ?>">
+                                <div class="pm-form-help"><?php _e('The host may contact you if needed.', 'partyminder'); ?></div>
                             </div>
                             
-                            <div class="form-group">
+                            <div class="pm-form-group">
                                 <label class="form-checkbox">
                                     <input type="checkbox" name="plus_one" id="plus_one" onchange="togglePlusOne()">
                                     <span><?php _e('I\'m bringing a plus one', 'partyminder'); ?></span>
                                 </label>
                                 <div id="plus-one-details" style="display: none; margin-top: 10px;">
-                                    <input type="text" class="form-input" name="plus_one_name" placeholder="<?php _e('Plus one name', 'partyminder'); ?>">
+                                    <input type="text" class="pm-form-input" name="plus_one_name" placeholder="<?php _e('Plus one name', 'partyminder'); ?>">
                                 </div>
                             </div>
                             
-                            <div class="form-group">
-                                <label class="form-label" for="dietary_restrictions"><?php _e('Dietary Restrictions (Optional)', 'partyminder'); ?></label>
-                                <textarea class="form-textarea" id="dietary_restrictions" name="dietary_restrictions" rows="2" placeholder="<?php _e('Any dietary restrictions or allergies?', 'partyminder'); ?>"></textarea>
+                            <div class="pm-form-group">
+                                <label class="pm-form-label" for="dietary_restrictions"><?php _e('Dietary Restrictions (Optional)', 'partyminder'); ?></label>
+                                <textarea class="pm-form-textarea" id="dietary_restrictions" name="dietary_restrictions" rows="2" placeholder="<?php _e('Any dietary restrictions or allergies?', 'partyminder'); ?>"></textarea>
                             </div>
                             
-                            <div class="form-group">
-                                <label class="form-label" for="notes"><?php _e('Additional Notes (Optional)', 'partyminder'); ?></label>
-                                <textarea class="form-textarea" id="notes" name="notes" rows="2" placeholder="<?php _e('Anything else you\'d like the host to know?', 'partyminder'); ?>"></textarea>
+                            <div class="pm-form-group">
+                                <label class="pm-form-label" for="notes"><?php _e('Additional Notes (Optional)', 'partyminder'); ?></label>
+                                <textarea class="pm-form-textarea" id="notes" name="notes" rows="2" placeholder="<?php _e('Anything else you\'d like the host to know?', 'partyminder'); ?>"></textarea>
                             </div>
                             
-                            <div class="text-center">
-                                <button type="submit" class="btn">
+                            <div class="pm-text-center">
+                                <button type="submit" class="pm-btn">
                                     <span>✅</span> <?php _e('Confirm RSVP', 'partyminder'); ?>
                                 </button>
                             </div>
@@ -427,9 +427,9 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     </div>
                 <?php endif; ?>
             <?php else: ?>
-                <div class="text-center">
+                <div class="pm-text-center">
                     <p><?php _e('Return to events to explore other options.', 'partyminder'); ?></p>
-                    <a href="<?php echo home_url('/events'); ?>" class="btn btn-secondary">
+                    <a href="<?php echo home_url('/events'); ?>" class="pm-btn pm-btn-secondary">
                         <span>🎉</span> <?php _e('Browse Events', 'partyminder'); ?>
                     </a>
                 </div>

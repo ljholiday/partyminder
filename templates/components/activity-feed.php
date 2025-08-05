@@ -31,7 +31,7 @@ if ($user_id) {
 
 <?php if (!empty($activities)): ?>
     <div class="pm-activity-feed">
-        <div class="flex gap-4">
+        <div class="pm-flex pm-gap">
             <?php foreach ($activities as $activity): ?>
                 <div class="pm-activity-item flex gap-4 p-4  -radius">
                     <!-- Activity Icon -->
@@ -45,7 +45,7 @@ if ($user_id) {
                             <?php echo $activity_manager->get_activity_description($activity); ?>
                             
                             <?php if ($show_user_names && isset($activity->author_name)): ?>
-                                <span class="text-muted"><?php printf(__('by %s', 'partyminder'), esc_html($activity->author_name)); ?></span>
+                                <span class="pm-text-muted"><?php printf(__('by %s', 'partyminder'), esc_html($activity->author_name)); ?></span>
                             <?php endif; ?>
                             
                             <a href="<?php echo esc_url($activity_manager->get_activity_link($activity)); ?>" 
@@ -73,14 +73,14 @@ if ($user_id) {
 <?php elseif ($show_empty_state): ?>
     <div class="pm-activity-feed-empty text-center p-4">
         <div class=" mb-4">📝</div>
-        <h4 class="heading heading-sm text-primary mb-4">
+        <h4 class="pm-heading pm-heading-sm pm-text-primary mb-4">
             <?php if ($user_id): ?>
                 <?php _e('No Activity Yet', 'partyminder'); ?>
             <?php else: ?>
                 <?php _e('No Recent Activity', 'partyminder'); ?>
             <?php endif; ?>
         </h4>
-        <p class="text-muted  mb-4">
+        <p class="pm-text-muted  mb-4">
             <?php if ($user_id): ?>
                 <?php _e('Start by creating an event or joining a conversation!', 'partyminder'); ?>
             <?php else: ?>

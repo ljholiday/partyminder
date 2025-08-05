@@ -86,102 +86,102 @@ ob_start();
 <?php endif; ?>
 
 <!-- Creation Form -->
-<div class="section">
-    <form method="post" class="form" id="create-community-form">
+<div class="pm-section">
+    <form method="post" class="pm-form" id="create-community-form">
             <input type="hidden" name="action" value="create_community">
             <input type="hidden" name="nonce" value="<?php echo wp_create_nonce('partyminder_create_community'); ?>">
             
         <!-- Basic Information Section -->
-        <div class="mb-4">
+        <div class="pm-mb-4">
             <h3 class="heading heading-sm mb-4"><?php _e('Basic Information', 'partyminder'); ?></h3>
                 
-            <div class="form-group">
-                <label class="form-label" for="community-name">
+            <div class="pm-form-group">
+                <label class="pm-form-label" for="community-name">
                     <?php _e('Community Name', 'partyminder'); ?> <span style="color: var(--danger);">*</span>
                 </label>
                 <input type="text" 
                        id="community-name" 
                        name="name" 
-                       class="form-input" 
+                       class="pm-form-input" 
                        placeholder="<?php _e('Enter community name...', 'partyminder'); ?>" 
                        required
                        maxlength="100"
                        value="<?php echo isset($_POST['name']) ? esc_attr($_POST['name']) : ''; ?>">
-                <div class="text-muted">
+                <div class="pm-text-muted">
                     <?php _e('Choose a descriptive name that reflects your community\'s purpose', 'partyminder'); ?>
                 </div>
             </div>
             
-            <div class="form-group">
-                <label class="form-label" for="community-description">
+            <div class="pm-form-group">
+                <label class="pm-form-label" for="community-description">
                     <?php _e('Description', 'partyminder'); ?>
                 </label>
                 <textarea id="community-description" 
                           name="description" 
-                          class="form-textarea" 
+                          class="pm-form-textarea" 
                           placeholder="<?php _e('Describe what your community is about...', 'partyminder'); ?>"
                           maxlength="500"><?php echo isset($_POST['description']) ? esc_textarea($_POST['description']) : ''; ?></textarea>
-                <div class="text-muted">
+                <div class="pm-text-muted">
                     <?php _e('Optional: Tell people what your community is about and what kind of events you might host', 'partyminder'); ?>
                 </div>
             </div>
         </div>
 
         <!-- Community Type Section -->
-        <div class="mb-4">
+        <div class="pm-mb-4">
             <h3 class="heading heading-sm mb-4"><?php _e('Community Type', 'partyminder'); ?></h3>
             <div class="grid grid-2 gap-4 type-options">
                 <div class="section text-center option-card" data-option="general" style="cursor: pointer;">
                     <div class="text-xl mb-4">🌟</div>
                     <h4 class="heading heading-sm mb-4"><?php _e('General Community', 'partyminder'); ?></h4>
-                    <p class="text-muted"><?php _e('For any kind of social gathering or mixed interests', 'partyminder'); ?></p>
+                    <p class="pm-text-muted"><?php _e('For any kind of social gathering or mixed interests', 'partyminder'); ?></p>
                 </div>
                 <div class="section text-center option-card" data-option="food" style="cursor: pointer;">
                     <div class="text-xl mb-4">🍽️</div>
                     <h4 class="heading heading-sm mb-4"><?php _e('Food & Dining', 'partyminder'); ?></h4>
-                    <p class="text-muted"><?php _e('Dinner parties, cooking clubs, restaurant meetups', 'partyminder'); ?></p>
+                    <p class="pm-text-muted"><?php _e('Dinner parties, cooking clubs, restaurant meetups', 'partyminder'); ?></p>
                 </div>
                 <div class="section text-center option-card" data-option="hobby" style="cursor: pointer;">
                     <div class="text-xl mb-4">🎨</div>
                     <h4 class="heading heading-sm mb-4"><?php _e('Hobby & Interest', 'partyminder'); ?></h4>
-                    <p class="text-muted"><?php _e('Book clubs, game nights, art groups, crafting', 'partyminder'); ?></p>
+                    <p class="pm-text-muted"><?php _e('Book clubs, game nights, art groups, crafting', 'partyminder'); ?></p>
                 </div>
                 <div class="section text-center option-card" data-option="professional" style="cursor: pointer;">
                     <div class="text-xl mb-4">💼</div>
                     <h4 class="heading heading-sm mb-4"><?php _e('Professional', 'partyminder'); ?></h4>
-                    <p class="text-muted"><?php _e('Networking events, work celebrations, team building', 'partyminder'); ?></p>
+                    <p class="pm-text-muted"><?php _e('Networking events, work celebrations, team building', 'partyminder'); ?></p>
                 </div>
             </div>
             <input type="hidden" name="type" id="community-type" value="general">
         </div>
 
         <!-- Privacy Settings Section -->
-        <div class="mb-4">
+        <div class="pm-mb-4">
             <h3 class="heading heading-sm mb-4"><?php _e('Privacy Settings', 'partyminder'); ?></h3>
             <div class="grid grid-2 gap-4 privacy-options">
                 <div class="section text-center option-card selected" data-option="public" style="cursor: pointer;">
                     <div class="text-xl mb-4">🌍</div>
                     <h4 class="heading heading-sm mb-4"><?php _e('Public Community', 'partyminder'); ?></h4>
-                    <p class="text-muted"><?php _e('Anyone can find and join this community', 'partyminder'); ?></p>
+                    <p class="pm-text-muted"><?php _e('Anyone can find and join this community', 'partyminder'); ?></p>
                 </div>
                 <div class="section text-center option-card" data-option="private" style="cursor: pointer;">
                     <div class="text-xl mb-4">🔒</div>
                     <h4 class="heading heading-sm mb-4"><?php _e('Private Community', 'partyminder'); ?></h4>
-                    <p class="text-muted"><?php _e('Only invited members can join this community', 'partyminder'); ?></p>
+                    <p class="pm-text-muted"><?php _e('Only invited members can join this community', 'partyminder'); ?></p>
                 </div>
             </div>
             <input type="hidden" name="privacy" id="community-privacy" value="public">
-            <div class="text-muted mt-4">
+            <div class="pm-text-muted mt-4">
                 <?php _e('You can change this setting later from your community management page', 'partyminder'); ?>
             </div>
         </div>
 
         <!-- Form Actions -->
-        <div class="flex gap-4">
-            <a href="<?php echo esc_url(PartyMinder::get_communities_url()); ?>" class="btn btn-secondary">
+        <div class="pm-flex pm-gap">
+            <a href="<?php echo esc_url(PartyMinder::get_communities_url()); ?>" class="pm-btn pm-btn-secondary">
                 <?php _e('Cancel', 'partyminder'); ?>
             </a>
-            <button type="submit" class="btn" id="create-btn">
+            <button type="submit" class="pm-btn" id="create-btn">
                 ✨ <?php _e('Create Community', 'partyminder'); ?>
             </button>
         </div>

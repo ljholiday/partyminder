@@ -38,25 +38,25 @@ $page_description = __('Join communities of fellow hosts and guests to plan amaz
 // Main content
 ob_start();
 ?>
-<div class="section mb-4">
-    <a href="<?php echo esc_url(site_url('/create-community')); ?>" class="btn">
+<div class="pm-section pm-mb">
+    <a href="<?php echo esc_url(site_url('/create-community')); ?>" class="pm-btn">
         <span>✨</span>
         <?php _e('Create Community', 'partyminder'); ?>
     </a>
 </div>
 
-<div class="section">
-    <div class="section-header">
-        <h2 class="heading heading-md text-primary"><?php _e('🌍 Discover Communities', 'partyminder'); ?></h2>
-        <p class="text-muted"><?php printf(__('%d communities available', 'partyminder'), count($public_communities)); ?></p>
+<div class="pm-section">
+    <div class="pm-section-header">
+        <h2 class="pm-heading pm-heading-md pm-text-primary"><?php _e('🌍 Discover Communities', 'partyminder'); ?></h2>
+        <p class="pm-text-muted"><?php printf(__('%d communities available', 'partyminder'), count($public_communities)); ?></p>
     </div>
                 <?php if (!empty($public_communities)): ?>
                     <div class="grid gap-4">
                 <?php foreach ($public_communities as $community): ?>
                     <div class="section border p-4">
                         <div class="section-header flex flex-between mb-4">
-                            <h3 class="heading heading-sm">
-                                <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="text-primary">
+                            <h3 class="pm-heading pm-heading-sm">
+                                <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-text-primary">
                                     <?php echo esc_html($community->name); ?>
                                 </a>
                             </h3>
@@ -64,27 +64,27 @@ ob_start();
                                 <?php echo esc_html(ucfirst($community->privacy)); ?>
                             </div>
                         </div>
-                                <div class="mb-4">
-                                    <div class="flex gap-4">
+                                <div class="pm-mb-4">
+                                    <div class="pm-flex pm-gap">
                                         <span>👥</span>
-                                        <span class="text-muted"><?php echo (int) $community->member_count; ?> <?php _e('members', 'partyminder'); ?></span>
+                                        <span class="pm-text-muted"><?php echo (int) $community->member_count; ?> <?php _e('members', 'partyminder'); ?></span>
                                     </div>
-                                    <div class="flex gap-4">
+                                    <div class="pm-flex pm-gap">
                                         <span>📂</span>
-                                        <span class="text-muted"><?php echo ucfirst($community->type); ?></span>
+                                        <span class="pm-text-muted"><?php echo ucfirst($community->type); ?></span>
                                     </div>
                                 </div>
                             
                             <?php if ($community->description): ?>
-                        <div class="mb-4">
-                            <p class="text-muted"><?php echo esc_html(wp_trim_words($community->description, 20)); ?></p>
+                        <div class="pm-mb-4">
+                            <p class="pm-text-muted"><?php echo esc_html(wp_trim_words($community->description, 20)); ?></p>
                         </div>
                         <?php endif; ?>
                         
                         <div class="flex flex-between mt-4">
-                            <div class="stat">
+                            <div class="pm-stat">
                                 <div class="stat-number text-primary"><?php echo (int) $community->event_count; ?></div>
-                                <div class="text-muted"><?php _e('Events', 'partyminder'); ?></div>
+                                <div class="pm-text-muted"><?php _e('Events', 'partyminder'); ?></div>
                             </div>
                             
                             <?php if (is_user_logged_in()): ?>
@@ -96,7 +96,7 @@ ob_start();
                                     <?php echo $is_member ? __('Member', 'partyminder') : __('Join', 'partyminder'); ?>
                                 </a>
                             <?php else: ?>
-                                <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="btn">
+                                <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="pm-btn">
                                     <?php _e('Login to Join', 'partyminder'); ?>
                                 </a>
                             <?php endif; ?>
@@ -106,8 +106,8 @@ ob_start();
                     </div>
     <?php else: ?>
         <div class="text-center p-4">
-            <p class="text-muted mb-4"><?php _e('No public communities yet.', 'partyminder'); ?></p>
-            <p class="text-muted"><?php _e('Be the first to create a community!', 'partyminder'); ?></p>
+            <p class="pm-text-muted mb-4"><?php _e('No public communities yet.', 'partyminder'); ?></p>
+            <p class="pm-text-muted"><?php _e('Be the first to create a community!', 'partyminder'); ?></p>
         </div>
     <?php endif; ?>
 </div>
@@ -119,16 +119,16 @@ ob_start();
 ?>
 <?php if (is_user_logged_in() && !empty($user_communities)): ?>
 <!-- My Communities -->
-<div class="section mb-4">
-    <div class="section-header">
-        <h3 class="heading heading-sm">👥 <?php _e('My Communities', 'partyminder'); ?></h3>
-        <p class="text-muted mt-4"><?php _e('Communities you\'ve joined', 'partyminder'); ?></p>
+<div class="pm-section pm-mb">
+    <div class="pm-section-header">
+        <h3 class="pm-heading pm-heading-sm">👥 <?php _e('My Communities', 'partyminder'); ?></h3>
+        <p class="pm-text-muted mt-4"><?php _e('Communities you\'ve joined', 'partyminder'); ?></p>
     </div>
     <?php foreach ($user_communities as $user_community): ?>
-        <div class="flex flex-between mb-4">
+        <div class="pm-flex pm-flex-between pm-mb-4">
             <div>
-                <h4 class="heading heading-sm">
-                    <a href="<?php echo home_url('/communities/' . $user_community->slug); ?>" class="text-primary">
+                <h4 class="pm-heading pm-heading-sm">
+                    <a href="<?php echo home_url('/communities/' . $user_community->slug); ?>" class="pm-text-primary">
                         <?php echo esc_html($user_community->name); ?>
                     </a>
                 </h4>
@@ -140,24 +140,24 @@ ob_start();
 <?php endif; ?>
 
 <!-- Quick Actions -->
-<div class="section mb-4">
-    <div class="section-header">
-        <h3 class="heading heading-sm">⚡ <?php _e('Quick Actions', 'partyminder'); ?></h3>
+<div class="pm-section pm-mb">
+    <div class="pm-section-header">
+        <h3 class="pm-heading pm-heading-sm">⚡ <?php _e('Quick Actions', 'partyminder'); ?></h3>
     </div>
     <div class="flex gap-4 flex-wrap">
         <?php if (PartyMinder_Feature_Flags::can_user_create_community()): ?>
-            <a href="<?php echo esc_url(site_url('/create-community')); ?>" class="btn">
+            <a href="<?php echo esc_url(site_url('/create-community')); ?>" class="pm-btn">
                 <span>✨</span>
                 <?php _e('Create Community', 'partyminder'); ?>
             </a>
         <?php endif; ?>
         
-        <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="btn btn-secondary">
+        <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn pm-btn-secondary">
             <span>🎉</span>
             <?php _e('Create Event', 'partyminder'); ?>
         </a>
         
-        <a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="btn btn-secondary">
+        <a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
             <span>💬</span>
             <?php _e('Join Conversations', 'partyminder'); ?>
         </a>
@@ -165,39 +165,39 @@ ob_start();
 </div>
 
 <!-- Community Types -->
-<div class="section mb-4">
-    <div class="section-header">
-        <h3 class="heading heading-sm">🏷️ <?php _e('Community Types', 'partyminder'); ?></h3>
-        <p class="text-muted mt-4"><?php _e('Different ways to organize', 'partyminder'); ?></p>
+<div class="pm-section pm-mb">
+    <div class="pm-section-header">
+        <h3 class="pm-heading pm-heading-sm">🏷️ <?php _e('Community Types', 'partyminder'); ?></h3>
+        <p class="pm-text-muted mt-4"><?php _e('Different ways to organize', 'partyminder'); ?></p>
     </div>
     <div>
-        <div class="mb-4">
+        <div class="pm-mb-4">
             <div class="flex gap-4 mb-4">
                 <span>🏢</span>
                 <strong><?php _e('Work', 'partyminder'); ?></strong>
             </div>
-            <p class="text-muted"><?php _e('Office events, team building', 'partyminder'); ?></p>
+            <p class="pm-text-muted"><?php _e('Office events, team building', 'partyminder'); ?></p>
         </div>
-        <div class="mb-4">
+        <div class="pm-mb-4">
             <div class="flex gap-4 mb-4">
                 <span>⛪</span>
                 <strong><?php _e('Faith', 'partyminder'); ?></strong>
             </div>
-            <p class="text-muted"><?php _e('Church, religious gatherings', 'partyminder'); ?></p>
+            <p class="pm-text-muted"><?php _e('Church, religious gatherings', 'partyminder'); ?></p>
         </div>
-        <div class="mb-4">
+        <div class="pm-mb-4">
             <div class="flex gap-4 mb-4">
                 <span>👨‍👩‍👧‍👦</span>
                 <strong><?php _e('Family', 'partyminder'); ?></strong>
             </div>
-            <p class="text-muted"><?php _e('Family reunions, celebrations', 'partyminder'); ?></p>
+            <p class="pm-text-muted"><?php _e('Family reunions, celebrations', 'partyminder'); ?></p>
         </div>
-        <div class="mb-4">
+        <div class="pm-mb-4">
             <div class="flex gap-4 mb-4">
                 <span>🎯</span>
                 <strong><?php _e('Hobby', 'partyminder'); ?></strong>
             </div>
-            <p class="text-muted"><?php _e('Interest-based groups', 'partyminder'); ?></p>
+            <p class="pm-text-muted"><?php _e('Interest-based groups', 'partyminder'); ?></p>
         </div>
     </div>
 </div>

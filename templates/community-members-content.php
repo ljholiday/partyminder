@@ -129,7 +129,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <p><?php _e('This community\'s member list is private. You need to be a member to view other members.', 'partyminder'); ?></p>
                 
                 <?php if (!$is_logged_in): ?>
-                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="btn">
+                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-btn">
                         <?php _e('Login to Join', 'partyminder'); ?>
                     </a>
                 <?php else: ?>
@@ -146,7 +146,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <p><?php _e('This community is just getting started. Be the first to join!', 'partyminder'); ?></p>
                 
                 <?php if (!$is_logged_in): ?>
-                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="btn">
+                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-btn">
                         <?php _e('Login to Join', 'partyminder'); ?>
                     </a>
                 <?php elseif (!$is_member): ?>
@@ -165,26 +165,26 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             ?>
             
             <div class="members-stats">
-                <div class="stat-card">
-                    <div class="stat-number"><?php echo $admin_count; ?></div>
-                    <div class="stat-label"><?php echo $admin_count === 1 ? __('Admin', 'partyminder') : __('Admins', 'partyminder'); ?></div>
+                <div class="pm-stat-card">
+                    <div class="pm-stat-number"><?php echo $admin_count; ?></div>
+                    <div class="pm-stat-label"><?php echo $admin_count === 1 ? __('Admin', 'partyminder') : __('Admins', 'partyminder'); ?></div>
                 </div>
                 
                 <?php if ($moderator_count > 0): ?>
-                <div class="stat-card">
-                    <div class="stat-number"><?php echo $moderator_count; ?></div>
-                    <div class="stat-label"><?php echo $moderator_count === 1 ? __('Moderator', 'partyminder') : __('Moderators', 'partyminder'); ?></div>
+                <div class="pm-stat-card">
+                    <div class="pm-stat-number"><?php echo $moderator_count; ?></div>
+                    <div class="pm-stat-label"><?php echo $moderator_count === 1 ? __('Moderator', 'partyminder') : __('Moderators', 'partyminder'); ?></div>
                 </div>
                 <?php endif; ?>
                 
-                <div class="stat-card">
-                    <div class="stat-number"><?php echo $member_count_regular; ?></div>
-                    <div class="stat-label"><?php echo $member_count_regular === 1 ? __('Member', 'partyminder') : __('Members', 'partyminder'); ?></div>
+                <div class="pm-stat-card">
+                    <div class="pm-stat-number"><?php echo $member_count_regular; ?></div>
+                    <div class="pm-stat-label"><?php echo $member_count_regular === 1 ? __('Member', 'partyminder') : __('Members', 'partyminder'); ?></div>
                 </div>
                 
-                <div class="stat-card">
-                    <div class="stat-number"><?php echo count($members); ?></div>
-                    <div class="stat-label"><?php _e('Total', 'partyminder'); ?></div>
+                <div class="pm-stat-card">
+                    <div class="pm-stat-number"><?php echo count($members); ?></div>
+                    <div class="pm-stat-label"><?php _e('Total', 'partyminder'); ?></div>
                 </div>
             </div>
 
@@ -192,7 +192,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             <div class="members-grid">
                 <?php foreach ($members as $member): ?>
                     <div class="member-card">
-                        <div class="member-avatar">
+                        <div class="pm-member-avatar">
                             <?php echo strtoupper(substr($member->display_name, 0, 2)); ?>
                         </div>
                         
@@ -200,7 +200,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                             <?php echo esc_html($member->display_name); ?>
                         </div>
                         
-                        <div class="member-role">
+                        <div class="pm-member-role">
                             <span class="role-badge <?php echo esc_attr($member->role); ?>">
                                 <?php echo esc_html(ucfirst($member->role)); ?>
                             </span>

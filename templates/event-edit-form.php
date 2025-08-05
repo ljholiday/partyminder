@@ -90,8 +90,8 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
         <div class="partyminder-success">
             <h3><?php _e('✅ Event Updated Successfully!', 'partyminder'); ?></h3>
             <p><?php _e('Your event changes have been saved.', 'partyminder'); ?></p>
-            <div class="success-actions">
-                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn">
+            <div class="pm-success-actions">
+                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-btn">
                     <?php _e('View Event', 'partyminder'); ?>
                 </a>
                 <button type="button" onclick="navigator.share({title: 'Check out this event!', url: '<?php echo esc_js(home_url('/events/' . $event->slug)); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js(home_url('/events/' . $event->slug)); ?>')">
@@ -127,22 +127,22 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
             <div class="form-section">
                 <h3><?php _e('Event Details', 'partyminder'); ?></h3>
                 
-                <div class="form-group">
+                <div class="pm-form-group">
                     <label for="event_title"><?php _e('Event Title *', 'partyminder'); ?></label>
                     <input type="text" id="event_title" name="event_title" 
                            value="<?php echo esc_attr($_POST['event_title'] ?? $event->title); ?>" 
                            placeholder="<?php esc_attr_e('e.g., Summer Dinner Party', 'partyminder'); ?>" required />
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
+                <div class="pm-form-row">
+                    <div class="pm-form-group">
                         <label for="event_date"><?php _e('Event Date *', 'partyminder'); ?></label>
                         <input type="datetime-local" id="event_date" name="event_date" 
                                value="<?php echo esc_attr($_POST['event_date'] ?? $event_datetime); ?>" 
                                min="<?php echo date('Y-m-d\TH:i'); ?>" required />
                     </div>
 
-                    <div class="form-group">
+                    <div class="pm-form-group">
                         <label for="guest_limit"><?php _e('Guest Limit', 'partyminder'); ?></label>
                         <input type="number" id="guest_limit" name="guest_limit" 
                                value="<?php echo esc_attr($_POST['guest_limit'] ?? $event->guest_limit); ?>" 
@@ -150,7 +150,7 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="pm-form-group">
                     <label for="venue_info"><?php _e('Venue/Location', 'partyminder'); ?></label>
                     <input type="text" id="venue_info" name="venue_info" 
                            value="<?php echo esc_attr($_POST['venue_info'] ?? $event->venue_info); ?>" 
@@ -160,7 +160,7 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
 
             <div class="form-section">
                 <h3><?php _e('Event Description', 'partyminder'); ?></h3>
-                <div class="form-group">
+                <div class="pm-form-group">
                     <label for="event_description"><?php _e('Tell guests about your event', 'partyminder'); ?></label>
                     <textarea id="event_description" name="event_description" rows="4" 
                               placeholder="<?php esc_attr_e('Describe your event, what to expect...', 'partyminder'); ?>"><?php echo esc_textarea($_POST['event_description'] ?? $event->description); ?></textarea>
@@ -170,21 +170,21 @@ $event_datetime = date('Y-m-d\TH:i', strtotime($event->event_date));
             <div class="form-section">
                 <h3><?php _e('Host Information', 'partyminder'); ?></h3>
                 
-                <div class="form-group">
+                <div class="pm-form-group">
                     <label for="host_email"><?php _e('Host Email *', 'partyminder'); ?></label>
                     <input type="email" id="host_email" name="host_email" 
                            value="<?php echo esc_attr($_POST['host_email'] ?? $event->host_email); ?>" 
                            required />
                 </div>
 
-                <div class="form-group">
+                <div class="pm-form-group">
                     <label for="host_notes"><?php _e('Special Notes for Guests', 'partyminder'); ?></label>
                     <textarea id="host_notes" name="host_notes" rows="3" 
                               placeholder="<?php esc_attr_e('Any special instructions, parking info...', 'partyminder'); ?>"><?php echo esc_textarea($_POST['host_notes'] ?? $event->host_notes); ?></textarea>
                 </div>
             </div>
 
-            <div class="form-actions">
+            <div class="pm-form-actions">
                 <button type="submit" name="partyminder_update_event" class="btn style-<?php echo esc_attr($button_style); ?>">
                     <?php _e('Update Event', 'partyminder'); ?>
                 </button>
@@ -225,7 +225,7 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success) {
                     // Show success message
-                    $form.before('<div class="partyminder-success" style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; margin: 15px 0; border-radius: 4px;"><h3><?php _e("✅ Event Updated Successfully!", "partyminder"); ?></h3><p><?php _e("Your event changes have been saved.", "partyminder"); ?></p><div class="success-actions"><a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn"><?php _e("View Event", "partyminder"); ?></a></div></div>');
+                    $form.before('<div class="partyminder-success" style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; margin: 15px 0; border-radius: 4px;"><h3><?php _e("✅ Event Updated Successfully!", "partyminder"); ?></h3><p><?php _e("Your event changes have been saved.", "partyminder"); ?></p><div class="pm-success-actions"><a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-btn"><?php _e("View Event", "partyminder"); ?></a></div></div>');
                     
                     // Scroll to top to show success message
                     $('html, body').animate({scrollTop: 0}, 500);

@@ -1,7 +1,7 @@
 <?php
 /**
- * My Events Content Template - Theme Integrated
- * Content only version for theme integration via the_content filter
+ * My Events Content Template - Unified System
+ * User's events and RSVPs using unified two-column template
  */
 
 // Prevent direct access
@@ -81,267 +81,258 @@ if ($user_email) {
     }
 }
 
+// Set up template variables
+$page_title = is_user_logged_in() 
+    ? sprintf(__('👋 Hi %s!', 'partyminder'), $current_user->display_name)
+    : __('My Events', 'partyminder');
+$page_description = $show_past 
+    ? __('All your events and RSVPs', 'partyminder')
+    : __('Your upcoming events and RSVPs', 'partyminder');
+$breadcrumbs = array(
+    array('title' => __('Dashboard', 'partyminder'), 'url' => PartyMinder::get_dashboard_url()),
+    array('title' => __('My Events', 'partyminder'))
+);
+
+// Main content
+ob_start();
 ?>
 
+<!-- Login/Email Prompt for non-logged-in users -->
+<?php if (!is_user_logged_in() && !$user_email): ?>
+<div class="pm-section pm-mb">
+    <div class="pm-section-header">
+        <h3 class="pm-heading pm-heading-md pm-text-primary">🔐 <?php _e('Login to See Your Events', 'partyminder'); ?></h3>
+    </div>
+    <p class="pm-text-muted pm-mb"><?php _e('Log in to see events you\'ve created and your RSVPs.', 'partyminder'); ?></p>
+    <a href="<?php echo esc_url(add_query_arg('redirect_to', get_permalink(get_the_ID()), PartyMinder::get_login_url())); ?>" class="pm-btn">
+        🔑 <?php _e('Login', 'partyminder'); ?>
+    </a>
+</div>
 
-<div class="page">
-    
-    <!-- Breadcrumb Navigation -->
-    <div class="">
-        <a href="<?php echo esc_url(PartyMinder::get_dashboard_url()); ?>" class="-link">
-            🏠 <?php _e('Dashboard', 'partyminder'); ?>
-        </a>
-        <span class="-separator">→</span>
-        <span class="-current"><?php _e('My Events', 'partyminder'); ?></span>
+<div class="pm-section pm-mb">
+    <div class="pm-section-header">
+        <h3 class="pm-heading pm-heading-md pm-text-primary">📧 <?php _e('Or Find Your RSVPs by Email', 'partyminder'); ?></h3>
+    </div>
+    <p class="pm-text-muted pm-mb"><?php _e('Enter your email to see events you\'ve RSVP\'d to.', 'partyminder'); ?></p>
+    <form method="get" class="pm-flex pm-gap">
+        <input type="email" name="email" class="pm-form-input pm-flex-1" placeholder="<?php esc_attr_e('Enter your email address', 'partyminder'); ?>" required />
+        <button type="submit" class="pm-btn">📧 <?php _e('Find My RSVPs', 'partyminder'); ?></button>
+    </form>
+</div>
+<?php endif; ?>
+
+<!-- Created Events Section -->
+<?php if (is_user_logged_in() && !empty($created_events)): ?>
+<div class="pm-section pm-mb">
+    <div class="pm-section-header">
+        <div class="pm-flex pm-flex-between pm-flex-wrap pm-gap">
+            <h3 class="pm-heading pm-heading-md pm-text-primary">🎨 <?php _e('Events You Created', 'partyminder'); ?></h3>
+            <span class="pm-badge pm-badge-success"><?php echo count($created_events); ?></span>
+        </div>
     </div>
     
-    <!-- Header -->
-    <div class="mb-4">
-        <h2 class="heading heading-lg text-primary">
-            <?php if (is_user_logged_in()): ?>
-                <?php printf(__('👋 Hi %s, here are your events', 'partyminder'), esc_html($current_user->display_name)); ?>
-            <?php else: ?>
-                <?php _e('🎉 My Events', 'partyminder'); ?>
-            <?php endif; ?>
-        </h2>
-        <p class="text-muted">
-            <?php if ($show_past): ?>
-                <?php _e('All your events and RSVPs', 'partyminder'); ?>
-            <?php else: ?>
-                <?php _e('Your upcoming events and RSVPs', 'partyminder'); ?>
-            <?php endif; ?>
-        </p>
-    </div>
-
-    <!-- Login/Email Prompt for non-logged-in users -->
-    <?php if (!is_user_logged_in() && !$user_email): ?>
-    <div class="card mb-4">
-        <div class="card-header">
-            <h3 class="heading heading-md">🔐 <?php _e('Login to See Your Events', 'partyminder'); ?></h3>
-        </div>
-        <div class="card-body">
-            <p class="text-muted mb-4"><?php _e('Log in to see events you\'ve created and your RSVPs.', 'partyminder'); ?></p>
-            <a href="<?php echo esc_url(add_query_arg('redirect_to', get_permalink(get_the_ID()), PartyMinder::get_login_url())); ?>" class="btn">
-                <?php _e('Login', 'partyminder'); ?>
-            </a>
-        </div>
-    </div>
-
-    <div class="card mb-4">
-        <div class="card-header">
-            <h3 class="heading heading-md">📧 <?php _e('Or Find Your RSVPs by Email', 'partyminder'); ?></h3>
-        </div>
-        <div class="card-body">
-            <p class="text-muted mb-4"><?php _e('Enter your email to see events you\'ve RSVP\'d to.', 'partyminder'); ?></p>
-            <form method="get" class="flex gap-4">
-                <input type="email" name="email" class="form-input" style="flex: 1;" placeholder="<?php esc_attr_e('Enter your email address', 'partyminder'); ?>" required />
-                <button type="submit" class="btn"><?php _e('Find My RSVPs', 'partyminder'); ?></button>
-            </form>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <!-- Created Events Section -->
-    <?php if (is_user_logged_in() && !empty($created_events)): ?>
-    <div class="card mb-4">
-        <div class="card-header flex flex-between">
-            <h3 class="heading heading-md text-primary "><?php _e('🎨 Events You Created', 'partyminder'); ?></h3>
-            <span class="badge"><?php echo count($created_events); ?></span>
-        </div>
-        <div class="card-body">
-        <div class="grid grid-auto">
-            <?php foreach ($created_events as $event): ?>
-                <?php
-                $event_date = new DateTime($event->event_date);
-                $is_past = $event_date < new DateTime();
-                ?>
-                <article class="card">
-                    <div class="card-header flex flex-between">
-                        <h4 class="heading heading-sm ">
-                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="text-primary" ><?php echo esc_html($event->title); ?></a>
+    <div class="pm-grid pm-grid-auto pm-gap">
+        <?php foreach ($created_events as $event): ?>
+            <?php
+            $event_date = new DateTime($event->event_date);
+            $is_past = $event_date < new DateTime();
+            ?>
+            <div class="pm-section">
+                <div class="pm-section-header">
+                    <div class="pm-flex pm-flex-between pm-flex-wrap pm-gap">
+                        <h4 class="pm-heading pm-heading-sm">
+                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-text-primary"><?php echo esc_html($event->title); ?></a>
                         </h4>
-                        <div class="badge badge-success">
-                            <?php _e('Host', 'partyminder'); ?>
-                        </div>
+                        <span class="pm-badge pm-badge-success"><?php _e('Host', 'partyminder'); ?></span>
                     </div>
-                    
-                    <div class="card-body">
-                        <div class="mb-4">
-                            <div class="flex">
-                                <span>📅</span>
-                                <span class="text-muted"><?php echo $event_date->format('M j, Y'); ?></span>
-                            </div>
-                            <div class="flex">
-                                <span>🕐</span>
-                                <span class="text-muted"><?php echo $event_date->format('g:i A'); ?></span>
-                            </div>
-                            <?php if ($event->venue_info): ?>
-                            <div class="flex">
-                                <span>📍</span>
-                                <span class="text-muted"><?php echo esc_html($event->venue_info); ?></span>
-                            </div>
-                            <?php endif; ?>
-                        </div>
+                </div>
+                
+                <div class="pm-mb">
+                    <div class="pm-flex pm-gap pm-mb">
+                        <span>📅</span>
+                        <span class="pm-text-muted"><?php echo $event_date->format('M j, Y'); ?></span>
+                    </div>
+                    <div class="pm-flex pm-gap pm-mb">
+                        <span>🕐</span>
+                        <span class="pm-text-muted"><?php echo $event_date->format('g:i A'); ?></span>
+                    </div>
+                    <?php if ($event->venue_info): ?>
+                    <div class="pm-flex pm-gap pm-mb">
+                        <span>📍</span>
+                        <span class="pm-text-muted"><?php echo esc_html($event->venue_info); ?></span>
+                    </div>
+                    <?php endif; ?>
+                </div>
 
-                        <div class="flex flex-between mb-4">
-                            <div class="stat">
-                                <div class="stat-number text-primary"><?php echo $event->guest_stats->confirmed; ?></div>
-                                <div class="stat-label"><?php _e('Confirmed', 'partyminder'); ?></div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-number text-primary"><?php echo $event->guest_stats->maybe; ?></div>
-                                <div class="stat-label"><?php _e('Maybe', 'partyminder'); ?></div>
-                            </div>
-                            <div class="stat">
-                                <div class="stat-number text-primary"><?php echo $event->guest_stats->pending; ?></div>
-                                <div class="stat-label"><?php _e('Pending', 'partyminder'); ?></div>
-                            </div>
-                        </div>
+                <div class="pm-grid pm-grid-3 pm-gap pm-mb">
+                    <div class="pm-text-center">
+                        <div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->confirmed; ?></div>
+                        <div class="pm-stat-label"><?php _e('Confirmed', 'partyminder'); ?></div>
                     </div>
-                    
-                    <div class="card-footer flex gap-4 flex-wrap">
-                        <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn btn-small btn-secondary">
-                            <?php _e('View Event', 'partyminder'); ?>
-                        </a>
-                        <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn btn-small">
-                            <span>⚙️</span>
-                            <?php _e('Manage', 'partyminder'); ?>
-                        </a>
-                        <a href="<?php echo PartyMinder::get_edit_event_url($event->id); ?>" class="btn btn-secondary btn-small">
-                            <span>✏️</span>
-                            <?php _e('Edit', 'partyminder'); ?>
-                        </a>
+                    <div class="pm-text-center">
+                        <div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->maybe; ?></div>
+                        <div class="pm-stat-label"><?php _e('Maybe', 'partyminder'); ?></div>
                     </div>
-                </article>
-            <?php endforeach; ?>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <!-- RSVP'd Events Section -->
-    <?php if ($user_email && !empty($rsvp_events)): ?>
-    <div class="card mb-4">
-        <div class="card-header flex flex-between">
-            <h3 class="heading heading-md text-primary "><?php _e('💌 Events You\'ve RSVP\'d To', 'partyminder'); ?></h3>
-            <span class="badge"><?php echo count($rsvp_events); ?></span>
-        </div>
-        
-        <div class="card-body">
-            <div class="grid grid-auto">
-                <?php foreach ($rsvp_events as $event): ?>
-                    <?php
-                    $event_date = new DateTime($event->event_date);
-                    $is_past = $event_date < new DateTime();
-                    $badge_text = array(
-                        'confirmed' => __('Going', 'partyminder'),
-                        'maybe' => __('Maybe', 'partyminder'),
-                        'declined' => __('Can\'t Go', 'partyminder'),
-                        'pending' => __('Pending', 'partyminder')
-                    );
-                    $badge_class = 'badge-' . ($event->rsvp_status === 'confirmed' ? 'success' : ($event->rsvp_status === 'declined' ? 'danger' : 'warning'));
-                    ?>
-                    <article class="card">
-                        <div class="card-header flex flex-between">
-                            <h4 class="heading heading-sm ">
-                                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="text-primary" ><?php echo esc_html($event->title); ?></a>
-                            </h4>
-                            <div class="badge <?php echo esc_attr($badge_class); ?>">
-                                <?php echo esc_html($badge_text[$event->rsvp_status] ?? __('RSVP\'d', 'partyminder')); ?>
-                            </div>
-                        </div>
-                        
-                        <div class="card-body">
-                            <div class="mb-4">
-                                <div class="flex">
-                                    <span>📅</span>
-                                    <span class="text-muted"><?php echo $event_date->format('M j, Y'); ?></span>
-                                </div>
-                                <div class="flex">
-                                    <span>🕐</span>
-                                    <span class="text-muted"><?php echo $event_date->format('g:i A'); ?></span>
-                                </div>
-                                <?php if ($event->venue_info): ?>
-                                <div class="flex">
-                                    <span>📍</span>
-                                    <span class="text-muted"><?php echo esc_html($event->venue_info); ?></span>
-                                </div>
-                                <?php endif; ?>
-                                <div class="flex">
-                                    <span>✉️</span>
-                                    <span class="text-muted"><?php echo esc_html($event->host_email); ?></span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="card-footer flex gap-4">
-                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="btn btn-small btn-secondary">
-                                <?php _e('View Event', 'partyminder'); ?>
-                            </a>
-                            <?php if (!$is_past): ?>
-                            <a href="<?php echo home_url('/events/' . $event->slug); ?>#rsvp" class="btn btn-small">
-                                <?php _e('Update RSVP', 'partyminder'); ?>
-                            </a>
-                            <?php endif; ?>
-                        </div>
-                    </article>
-                <?php endforeach; ?>
+                    <div class="pm-text-center">
+                        <div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->pending; ?></div>
+                        <div class="pm-stat-label"><?php _e('Pending', 'partyminder'); ?></div>
+                    </div>
+                </div>
+                
+                <div class="pm-flex pm-gap pm-flex-wrap">
+                    <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-btn pm-btn-secondary pm-btn-sm">
+                        👀 <?php _e('View Event', 'partyminder'); ?>
+                    </a>
+                    <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-btn pm-btn-secondary pm-btn-sm">
+                        ⚙️ <?php _e('Manage', 'partyminder'); ?>
+                    </a>
+                    <a href="<?php echo PartyMinder::get_edit_event_url($event->id); ?>" class="pm-btn pm-btn-secondary pm-btn-sm">
+                        ✏️ <?php _e('Edit', 'partyminder'); ?>
+                    </a>
+                </div>
             </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- RSVP'd Events Section -->
+<?php if ($user_email && !empty($rsvp_events)): ?>
+<div class="pm-section pm-mb">
+    <div class="pm-section-header">
+        <div class="pm-flex pm-flex-between pm-flex-wrap pm-gap">
+            <h3 class="pm-heading pm-heading-md pm-text-primary">💌 <?php _e('Events You\'ve RSVP\'d To', 'partyminder'); ?></h3>
+            <span class="pm-badge pm-badge-primary"><?php echo count($rsvp_events); ?></span>
         </div>
     </div>
-    <?php endif; ?>
-
-    <!-- No Events Message -->
-    <?php if ((is_user_logged_in() && empty($created_events) && empty($rsvp_events)) || (!is_user_logged_in() && $user_email && empty($rsvp_events))): ?>
-    <div class="card mb-4">
-        <div class="card-body text-center pm-placeholder">
-            <div class="pm-icon-lg pm-placeholder-icon">🎭</div>
-            <h3 class="heading heading-md mb-4"><?php _e('No Events Found', 'partyminder'); ?></h3>
-            <?php if (is_user_logged_in()): ?>
-                <p class="text-muted mb-4"><?php _e('You haven\'t created any events yet, and no RSVPs found.', 'partyminder'); ?></p>
-                <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="btn">
-                    <span>✨</span>
-                    <?php _e('Create Your First Event', 'partyminder'); ?>
-                </a>
-            <?php else: ?>
-                <p class="text-muted"><?php _e('No RSVPs found for this email address.', 'partyminder'); ?></p>
-            <?php endif; ?>
-        </div>
+    
+    <div class="pm-grid pm-grid-auto pm-gap">
+        <?php foreach ($rsvp_events as $event): ?>
+            <?php
+            $event_date = new DateTime($event->event_date);
+            $is_past = $event_date < new DateTime();
+            $badge_text = array(
+                'confirmed' => __('Going', 'partyminder'),
+                'maybe' => __('Maybe', 'partyminder'),
+                'declined' => __('Can\'t Go', 'partyminder'),
+                'pending' => __('Pending', 'partyminder')
+            );
+            $badge_class = 'pm-badge-' . ($event->rsvp_status === 'confirmed' ? 'success' : ($event->rsvp_status === 'declined' ? 'danger' : 'warning'));
+            ?>
+            <div class="pm-section">
+                <div class="pm-section-header">
+                    <div class="pm-flex pm-flex-between pm-flex-wrap pm-gap">
+                        <h4 class="pm-heading pm-heading-sm">
+                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-text-primary"><?php echo esc_html($event->title); ?></a>
+                        </h4>
+                        <span class="pm-badge <?php echo esc_attr($badge_class); ?>">
+                            <?php echo esc_html($badge_text[$event->rsvp_status] ?? __('RSVP\'d', 'partyminder')); ?>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="pm-mb">
+                    <div class="pm-flex pm-gap pm-mb">
+                        <span>📅</span>
+                        <span class="pm-text-muted"><?php echo $event_date->format('M j, Y'); ?></span>
+                    </div>
+                    <div class="pm-flex pm-gap pm-mb">
+                        <span>🕐</span>
+                        <span class="pm-text-muted"><?php echo $event_date->format('g:i A'); ?></span>
+                    </div>
+                    <?php if ($event->venue_info): ?>
+                    <div class="pm-flex pm-gap pm-mb">
+                        <span>📍</span>
+                        <span class="pm-text-muted"><?php echo esc_html($event->venue_info); ?></span>
+                    </div>
+                    <?php endif; ?>
+                    <div class="pm-flex pm-gap pm-mb">
+                        <span>✉️</span>
+                        <span class="pm-text-muted"><?php echo esc_html($event->host_email); ?></span>
+                    </div>
+                </div>
+                
+                <div class="pm-flex pm-gap pm-flex-wrap">
+                    <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-btn pm-btn-secondary pm-btn-sm">
+                        👀 <?php _e('View Event', 'partyminder'); ?>
+                    </a>
+                    <?php if (!$is_past): ?>
+                    <a href="<?php echo home_url('/events/' . $event->slug); ?>#rsvp" class="pm-btn pm-btn-secondary pm-btn-sm">
+                        📝 <?php _e('Update RSVP', 'partyminder'); ?>
+                    </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
     </div>
-    <?php endif; ?>
+</div>
+<?php endif; ?>
 
-    <!-- Quick Actions -->
+<!-- No Events Message -->
+<?php if ((is_user_logged_in() && empty($created_events) && empty($rsvp_events)) || (!is_user_logged_in() && $user_email && empty($rsvp_events))): ?>
+<div class="pm-section pm-text-center">
+    <div class="pm-text-6xl pm-mb">🎭</div>
+    <h3 class="pm-heading pm-heading-md pm-mb"><?php _e('No Events Found', 'partyminder'); ?></h3>
     <?php if (is_user_logged_in()): ?>
-    <div class="card mb-4">
-        <div class="card-header">
-            <h3 class="heading heading-md text-primary "><?php _e('⚡ Quick Actions', 'partyminder'); ?></h3>
+        <p class="pm-text-muted pm-mb"><?php _e('You haven\'t created any events yet, and no RSVPs found.', 'partyminder'); ?></p>
+        <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn">
+            ✨ <?php _e('Create Your First Event', 'partyminder'); ?>
+        </a>
+    <?php else: ?>
+        <p class="pm-text-muted"><?php _e('No RSVPs found for this email address.', 'partyminder'); ?></p>
+    <?php endif; ?>
+</div>
+<?php endif; ?>
+
+<?php
+$main_content = ob_get_clean();
+
+// Sidebar content
+ob_start();
+?>
+
+<?php if (is_user_logged_in()): ?>
+<div class="pm-section pm-mb">
+    <div class="pm-section-header">
+        <h3 class="pm-heading pm-heading-sm">⚡ <?php _e('Quick Actions', 'partyminder'); ?></h3>
+    </div>
+    <div class="pm-flex pm-gap pm-flex-column">
+        <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn">
+            🎉 <?php _e('Create Event', 'partyminder'); ?>
+        </a>
+        <a href="<?php echo PartyMinder::get_profile_url(); ?>" class="pm-btn pm-btn-secondary">
+            👤 <?php _e('My Profile', 'partyminder'); ?>
+        </a>
+        <a href="<?php echo get_permalink(get_the_ID()) . ($show_past ? '' : '?show_past=1'); ?>" class="pm-btn pm-btn-secondary">
+            📅 <?php echo $show_past ? __('Hide Past Events', 'partyminder') : __('Show Past Events', 'partyminder'); ?>
+        </a>
+    </div>
+</div>
+<?php endif; ?>
+
+<div class="pm-section pm-mb">
+    <div class="pm-section-header">
+        <h3 class="pm-heading pm-heading-sm">📊 <?php _e('Summary', 'partyminder'); ?></h3>
+    </div>
+    <div class="pm-stat-list">
+        <div class="pm-stat-item">
+            <span class="pm-stat-label"><?php _e('Events Created', 'partyminder'); ?></span>
+            <span class="pm-stat-value"><?php echo count($created_events); ?></span>
         </div>
-        
-        <div class="card-body">
-            <div class="flex gap-4 flex-column">
-                <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="btn">
-                    <span>🎉</span>
-                    <?php _e('Create Event', 'partyminder'); ?>
-                </a>
-                <a href="<?php echo PartyMinder::get_profile_url(); ?>" class="btn btn-secondary">
-                    <span>👤</span>
-                    <?php _e('My Profile', 'partyminder'); ?>
-                </a>
-                <a href="<?php echo get_permalink(get_the_ID()) . ($show_past ? '' : '?show_past=1'); ?>" class="btn btn-secondary">
-                    <span>📅</span>
-                    <?php echo $show_past ? __('Hide Past Events', 'partyminder') : __('Show Past Events', 'partyminder'); ?>
-                </a>
-            </div>
+        <div class="pm-stat-item">
+            <span class="pm-stat-label"><?php _e('RSVPs', 'partyminder'); ?></span>
+            <span class="pm-stat-value"><?php echo count($rsvp_events); ?></span>
+        </div>
+        <div class="pm-stat-item">
+            <span class="pm-stat-label"><?php _e('Total Events', 'partyminder'); ?></span>
+            <span class="pm-stat-value"><?php echo count($created_events) + count($rsvp_events); ?></span>
         </div>
     </div>
-    <?php endif; ?>
-
 </div>
 
 <?php
-// Event management functionality is now inline in single event pages
-?>
+$sidebar_content = ob_get_clean();
 
-<script>
-// Event management is now handled inline on individual event pages
-// No modal JavaScript needed
-</script>
+// Include two-column template
+include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php');
+?>
