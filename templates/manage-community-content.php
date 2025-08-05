@@ -88,6 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 ?>
 
 
+
 <div class="pm-manage-community pm-container-wide" style="--pm-primary: <?php echo esc_attr($primary_color); ?>; --pm-secondary: <?php echo esc_attr($secondary_color); ?>;">
     <!-- Header -->
     <div class="pm-manage-header pm-mb-8">
@@ -160,6 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     <div class="pm-stat-label"><?php _e('Pending Invites', 'partyminder'); ?></div>
                 </div>
                 <div class="pm-stat-box">
+
                     <div class="pm-stat-number" id="community-events">-</div>
                     <div class="pm-stat-label"><?php _e('Community Events', 'partyminder'); ?></div>
                 </div>
