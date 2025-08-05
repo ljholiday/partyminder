@@ -3020,23 +3020,6 @@ class PartyMinder {
         $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
         
         if ($page_type) {
-            // Add theme compatibility CSS
-            wp_enqueue_style(
-                'partyminder-theme-integration',
-                PARTYMINDER_PLUGIN_URL . 'assets/css/theme-integration.css',
-                array(),
-                PARTYMINDER_VERSION
-            );
-            
-            // Add page-specific CSS
-            if (file_exists(PARTYMINDER_PLUGIN_DIR . 'assets/css/page-' . $page_type . '.css')) {
-                wp_enqueue_style(
-                    'partyminder-page-' . $page_type,
-                    PARTYMINDER_PLUGIN_URL . 'assets/css/page-' . $page_type . '.css',
-                    array('partyminder-theme-integration'),
-                    PARTYMINDER_VERSION
-                );
-            }
             
             // Add page-specific JavaScript
             if ($page_type === 'conversations') {

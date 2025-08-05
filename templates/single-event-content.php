@@ -185,9 +185,9 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
                         📤 Share Event
                     </button>
                     
-                    <button type="button" class="pm-btn pm-btn-secondary" onclick="openEventConversationModal(<?php echo $event->id; ?>, '<?php echo esc_js($event->title); ?>')">
+                    <a href="<?php echo add_query_arg('event_id', $event->id, PartyMinder::get_create_conversation_url()); ?>" class="pm-btn pm-btn-secondary">
                         💬 Create Conversation
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -309,9 +309,9 @@ $event_conversations = $conversation_manager->get_event_conversations($event->id
         <div class="pm-card-header">
             <div class="pm-flex pm-flex-between">
                 <h3 class="pm-title-secondary ">💬 Event Conversations</h3>
-                <button type="button" class="btn btn-small" onclick="openEventConversationModal(<?php echo $event->id; ?>, '<?php echo esc_js($event->title); ?>')">
+                <a href="<?php echo add_query_arg('event_id', $event->id, PartyMinder::get_create_conversation_url()); ?>" class="pm-btn pm-btn-sm">
                     Create Conversation
-                </button>
+                </a>
             </div>
         </div>
         <div class="pm-card-body">

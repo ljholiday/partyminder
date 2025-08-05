@@ -28,6 +28,18 @@ if ($selected_topic_id) {
     }
 }
 
+// Get event_id from URL parameter for event-specific conversations
+$selected_event_id = intval($_GET['event_id'] ?? 0);
+$selected_event = null;
+if ($selected_event_id) {
+    global $wpdb;
+    $events_table = $wpdb->prefix . 'partyminder_events';
+    $selected_event = $wpdb->get_row($wpdb->prepare(
+        "SELECT * FROM $events_table WHERE id = %d AND event_status = 'active'",
+        $selected_event_id
+    ));
+}
+
 // Get current user info
 $current_user = wp_get_current_user();
 $is_logged_in = is_user_logged_in();
@@ -63,8 +75,17 @@ $breadcrumbs = array(
     array('title' => __('Start New Conversation', 'partyminder'))
 );
 
-// If we have a selected topic, add it to breadcrumbs
-if ($selected_topic) {
+// If we have a selected event, update breadcrumbs and title
+if ($selected_event) {
+    $breadcrumbs = array(
+        array('title' => __('Events', 'partyminder'), 'url' => PartyMinder::get_events_page_url()),
+        array('title' => $selected_event->title, 'url' => home_url('/events/' . $selected_event->slug)),
+        array('title' => __('Start Event Conversation', 'partyminder'))
+    );
+    $page_title = __('Start Event Conversation', 'partyminder');
+    $page_description = sprintf(__('Start a conversation about %s', 'partyminder'), $selected_event->title);
+} elseif ($selected_topic) {
+    // If we have a selected topic, add it to breadcrumbs
     $breadcrumbs = array(
         array('title' => __('Conversations', 'partyminder'), 'url' => PartyMinder::get_conversations_url()),
         array('title' => $selected_topic->icon . ' ' . $selected_topic->name, 'url' => home_url('/conversations/' . $selected_topic->slug)),
@@ -106,9 +127,12 @@ ob_start();
     </div>
 <?php endif; ?>
 
-<form method="post" class="pm-form" id="partyminder-conversation-form">
-    <?php wp_nonce_field('create_partyminder_conversation', 'partyminder_conversation_nonce'); ?>
+<form method="post" action="<?php echo admin_url('admin-ajax.php'); ?>" class="pm-form" id="partyminder-conversation-form">
+    <?php wp_nonce_field('partyminder_nonce', 'nonce'); ?>
     <input type="hidden" name="action" value="partyminder_create_conversation">
+    <?php if ($selected_event_id): ?>
+        <input type="hidden" name="event_id" value="<?php echo esc_attr($selected_event_id); ?>">
+    <?php endif; ?>
     
     <?php if (!$is_logged_in): ?>
         <div class="pm-mb-4">
@@ -134,6 +158,14 @@ ob_start();
     
     <div class="pm-mb-4">
         <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e('Conversation Details', 'partyminder'); ?></h3>
+        
+        <?php if ($selected_event): ?>
+            <div class="pm-alert pm-alert-success pm-mb-4">
+                <h4><?php _e('🎪 Event Conversation', 'partyminder'); ?></h4>
+                <p><?php printf(__('This conversation will be associated with the event: <strong>%s</strong>', 'partyminder'), esc_html($selected_event->title)); ?></p>
+                <p class="pm-text-muted"><?php _e('Event-specific conversations appear on the event page and help attendees coordinate and discuss details.', 'partyminder'); ?></p>
+            </div>
+        <?php endif; ?>
         
         <div class="pm-form-group">
             <label for="topic_id" class="pm-form-label"><?php _e('Topic *', 'partyminder'); ?></label>
