@@ -212,7 +212,7 @@ ob_start();
         </div>
 
         <div class="pm-flex pm-gap pm-mt-4">
-            <button type="submit" name="partyminder_create_event" class="pm-btn pm-btn-large">
+            <button type="submit" name="partyminder_create_event" class="pm-btn pm-btn-lg">
                 <span>🎉</span>
                 <?php _e('Create Event', 'partyminder'); ?>
             </button>
