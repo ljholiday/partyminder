@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 ?>
-<div class="page two-column">
+<div class="page content-columns">
     <div class="column">
         <?php echo $main_content ?? ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
     </div>

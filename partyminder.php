@@ -227,8 +227,8 @@ class PartyMinder {
         $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         
         $custom_css = ":root {
-            --pm-primary: {$primary_color} !important;
-            --pm-secondary: {$secondary_color} !important;
+            --wp--preset--color--primary: {$primary_color} !important;
+            --wp--preset--color--secondary: {$secondary_color} !important;
         }";
         
         wp_add_inline_style('partyminder', $custom_css);
@@ -267,8 +267,8 @@ class PartyMinder {
             $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             
             $custom_css = ":root {
-                --pm-primary: {$primary_color} !important;
-                --pm-secondary: {$secondary_color} !important;
+                --wp--preset--color--primary: {$primary_color} !important;
+                --wp--preset--color--secondary: {$secondary_color} !important;
             }";
             
             wp_add_inline_style('partyminder-admin', $custom_css);
