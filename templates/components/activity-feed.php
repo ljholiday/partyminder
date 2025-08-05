@@ -30,14 +30,14 @@ if ($user_id) {
 ?>
 
 <?php if (!empty($activities)): ?>
-    <div class="activity-feed">
+    <div class="content-activity-feed">
         <?php foreach ($activities as $activity): ?>
-            <div class="card activity-item">
-                <div class="activity-icon">
+            <div class="card content-activity-item">
+                <div class="content-activity-icon">
                     <?php echo $activity_manager->get_activity_icon($activity); ?>
                 </div>
-                <div class="activity-content">
-                    <div class="activity-description">
+                <div class="content-activity-content">
+                    <div class="content-activity-description">
                         <?php echo $activity_manager->get_activity_description($activity); ?>
                         <?php if ($show_user_names && isset($activity->author_name)): ?>
                             <span class="text-muted"><?php printf(__('by %s', 'partyminder'), esc_html($activity->author_name)); ?></span>
@@ -50,7 +50,7 @@ if ($user_id) {
                     <?php if ($metadata): ?>
                         <div class="text-muted"><?php echo $metadata; ?></div>
                     <?php endif; ?>
-                    <div class="activity-time text-muted">
+                    <div class="content-activity-time text-muted">
                         <?php echo human_time_diff(strtotime($activity->activity_date), current_time('timestamp')) . ' ' . __('ago', 'partyminder'); ?>
                     </div>
                 </div>
@@ -58,7 +58,7 @@ if ($user_id) {
         <?php endforeach; ?>
     </div>
 <?php elseif ($show_empty_state): ?>
-    <div class="activity-feed-empty">
+    <div class="content-activity-empty">
         <h4><?php echo $user_id ? __('No Activity Yet', 'partyminder') : __('No Recent Activity', 'partyminder'); ?></h4>
         <p class="text-muted">
             <?php echo $user_id ? __('Start by creating an event or joining a conversation!', 'partyminder') : __('Be the first to create an event or start a conversation!', 'partyminder'); ?>
