@@ -103,7 +103,7 @@ class PartyMinder_Community_Manager {
     /**
      * Get community by ID
      */
-    public function get_community($community_id, $include_stats = false) {
+    public function get_community($community_id) {
         global $wpdb;
         
         $communities_table = $wpdb->prefix . 'partyminder_communities';
@@ -118,10 +118,6 @@ class PartyMinder_Community_Manager {
         
         // Parse JSON settings
         $community->settings = json_decode($community->settings ?: '{}', true);
-        
-        if ($include_stats) {
-            $community->stats = $this->get_community_stats($community_id);
-        }
         
         return $community;
     }
@@ -269,40 +265,6 @@ class PartyMinder_Community_Manager {
         return $wpdb->insert_id;
     }
     
-    /**
-     * Get community stats
-     */
-    public function get_community_stats($community_id) {
-        global $wpdb;
-        
-        $members_table = $wpdb->prefix . 'partyminder_community_members';
-        $events_table = $wpdb->prefix . 'partyminder_community_events';
-        
-        // Get member count
-        $member_count = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM $members_table WHERE community_id = %d AND status = 'active'",
-            $community_id
-        ));
-        
-        // Get event count
-        $event_count = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM $events_table WHERE community_id = %d",
-            $community_id
-        ));
-        
-        // Get recent activity count (last 30 days)
-        $recent_activity = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM $members_table 
-             WHERE community_id = %d AND last_seen_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)",
-            $community_id
-        ));
-        
-        return (object) array(
-            'member_count' => (int) $member_count,
-            'event_count' => (int) $event_count,
-            'recent_activity' => (int) $recent_activity
-        );
-    }
     
     /**
      * Generate unique slug for community

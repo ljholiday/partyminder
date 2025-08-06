@@ -41,8 +41,6 @@ if ($is_logged_in) {
     $user_role = $community_manager->get_member_role($community->id, $current_user->ID);
 }
 
-// Get community stats
-$stats = $community_manager->get_community_stats($community->id);
 
 // Get styling options
 $primary_color = get_option('partyminder_primary_color', '#667eea');
@@ -93,20 +91,6 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         </div>
         
         <div class="community-actions">
-            <div class="community-stats">
-                <div class="stat-item">
-                    <span>👥</span>
-                    <span><span class="pm-stat-number"><?php echo $stats->member_count; ?></span> <?php echo $stats->member_count === 1 ? __('member', 'partyminder') : __('members', 'partyminder'); ?></span>
-                </div>
-                <div class="stat-item">
-                    <span>🗓️</span>
-                    <span><span class="pm-stat-number"><?php echo $stats->event_count; ?></span> <?php echo $stats->event_count === 1 ? __('event', 'partyminder') : __('events', 'partyminder'); ?></span>
-                </div>
-                <div class="stat-item">
-                    <span>📈</span>
-                    <span><span class="pm-stat-number"><?php echo $stats->recent_activity; ?></span> <?php _e('active this month', 'partyminder'); ?></span>
-                </div>
-            </div>
             
             <div class="action-buttons">
                 <?php if (!$is_logged_in): ?>
@@ -166,12 +150,6 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     </p>
                 </div>
                 
-                <div class="card p-4">
-                    <h4 class=" mb-4 text-primary">📅 Recent Activity</h4>
-                    <p class=" text-muted">
-                        <?php printf(__('%d members have been active this month', 'partyminder'), $stats->recent_activity); ?>
-                    </p>
-                </div>
                 
                 <div class="card p-4">
                     <h4 class=" mb-4 text-primary">🎉 Get Started</h4>

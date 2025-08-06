@@ -186,26 +186,6 @@ ob_start();
     </div>
 </div>
 
-<!-- Community Stats -->
-<div class="pm-section pm-mb">
-    <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm">📊 <?php _e('Community Stats', 'partyminder'); ?></h3>
-    </div>
-    <div class="grid gap-4">
-        <div class="pm-text-center">
-            <div class="pm-stat-number pm-text-primary"><?php echo count($topics); ?></div>
-            <div class="pm-stat-label"><?php _e('Topics', 'partyminder'); ?></div>
-        </div>
-        <div class="pm-text-center">
-            <div class="pm-stat-number pm-text-primary"><?php echo array_sum(array_map(function($t) { return intval($t->conversation_count ?? 0); }, $topics)); ?></div>
-            <div class="pm-stat-label"><?php _e('Total Conversations', 'partyminder'); ?></div>
-        </div>
-        <div class="pm-text-center">
-            <div class="pm-stat-number pm-text-primary"><?php echo rand(5, 25); ?></div>
-            <div class="pm-stat-label"><?php _e('Active Today', 'partyminder'); ?></div>
-        </div>
-    </div>
-</div>
 <?php
 $sidebar_content = ob_get_clean();
 

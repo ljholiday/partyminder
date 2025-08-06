@@ -149,7 +149,6 @@ class PartyMinder {
         add_action('wp_ajax_partyminder_create_community', array($this, 'ajax_create_community'));
         add_action('wp_ajax_partyminder_update_community', array($this, 'ajax_update_community'));
         add_action('wp_ajax_partyminder_get_community_members', array($this, 'ajax_get_community_members'));
-        add_action('wp_ajax_partyminder_get_community_stats', array($this, 'ajax_get_community_stats'));
         add_action('wp_ajax_partyminder_update_member_role', array($this, 'ajax_update_member_role'));
         add_action('wp_ajax_partyminder_remove_member', array($this, 'ajax_remove_member'));
         add_action('wp_ajax_partyminder_send_invitation', array($this, 'ajax_send_invitation'));
@@ -904,41 +903,6 @@ class PartyMinder {
         ));
     }
     
-    public function ajax_get_community_stats() {
-        
-        check_ajax_referer('partyminder_community_action', 'nonce');
-        
-        if (!is_user_logged_in()) {
-            wp_send_json_error(__('You must be logged in.', 'partyminder'));
-            return;
-        }
-        
-        $community_id = intval($_POST['community_id']);
-        $current_user = wp_get_current_user();
-        
-        if (!$community_id) {
-            wp_send_json_error(__('Invalid community.', 'partyminder'));
-            return;
-        }
-        
-        $community_manager = new PartyMinder_Community_Manager();
-        
-        // Check if user is admin of this community
-        $user_role = $community_manager->get_member_role($community_id, $current_user->ID);
-        if ($user_role !== 'admin') {
-            wp_send_json_error(__('Only community admins can view stats.', 'partyminder'));
-            return;
-        }
-        
-        $stats = $community_manager->get_community_stats($community_id);
-        
-        wp_send_json_success(array(
-            'total_members' => $stats->member_count,
-            'active_members' => $stats->recent_activity,
-            'pending_invites' => 0, // This would need to be implemented in get_community_stats
-            'community_events' => $stats->event_count
-        ));
-    }
     
     public function ajax_update_member_role() {
         

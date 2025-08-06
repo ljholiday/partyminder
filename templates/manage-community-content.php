@@ -135,24 +135,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         <div id="overview-tab" class="tab-pane <?php echo $current_tab === 'overview' ? 'active' : ''; ?>">
             <h3><?php _e('Community Overview', 'partyminder'); ?></h3>
             
-            <div class="pm-stats-grid" id="community-stats">
-                <div class="pm-stat-card">
-                    <div class="pm-stat-number" id="total-members">-</div>
-                    <div class="pm-stat-label"><?php _e('Total Members', 'partyminder'); ?></div>
-                </div>
-                <div class="pm-stat-card">
-                    <div class="pm-stat-number" id="active-members">-</div>
-                    <div class="pm-stat-label"><?php _e('Active Members', 'partyminder'); ?></div>
-                </div>
-                <div class="pm-stat-card">
-                    <div class="pm-stat-number" id="pending-invites">-</div>
-                    <div class="pm-stat-label"><?php _e('Pending Invites', 'partyminder'); ?></div>
-                </div>
-                <div class="pm-stat-card">
-                    <div class="pm-stat-number" id="community-events">-</div>
-                    <div class="pm-stat-label"><?php _e('Community Events', 'partyminder'); ?></div>
-                </div>
-            </div>
 
             <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 30px;">
                 <a href="?community_id=<?php echo $community_id; ?>&tab=settings" class="pm-btn">
@@ -273,9 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentTab = '<?php echo esc_js($current_tab); ?>';
     
     // Load appropriate tab content based on current tab
-    if (currentTab === 'overview') {
-        loadCommunityStats(communityId);
-    } else if (currentTab === 'members') {
+    if (currentTab === 'members') {
         loadCommunityMembers(communityId);
     } else if (currentTab === 'invitations') {
         loadCommunityInvitations(communityId);
@@ -320,10 +300,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (currentTab === 'invitations') {
                             loadCommunityInvitations(communityId);
                         }
-                        // Update stats if we're on overview tab  
-                        if (currentTab === 'overview') {
-                            loadCommunityStats(communityId);
-                        }
                     } else {
                         alert(response.data || '<?php _e('Failed to send invitation. Please try again.', 'partyminder'); ?>');
                     }
@@ -339,30 +315,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Load community statistics
-    function loadCommunityStats(communityId) {
-        jQuery.ajax({
-            url: partyminder_ajax.ajax_url,
-            type: 'POST',
-            data: {
-                action: 'partyminder_get_community_stats',
-                community_id: communityId,
-                nonce: partyminder_ajax.community_nonce
-            },
-            success: function(response) {
-                if (response.success) {
-                    const data = response.data;
-                    document.getElementById('total-members').textContent = data.total_members || 0;
-                    document.getElementById('active-members').textContent = data.active_members || 0;
-                    document.getElementById('pending-invites').textContent = data.pending_invites || 0;
-                    document.getElementById('community-events').textContent = data.community_events || 0;
-                }
-            },
-            error: function() {
-                console.error('Failed to load community stats');
-            }
-        });
-    }
     
     // Load community members
     function loadCommunityMembers(communityId) {
@@ -595,10 +547,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert(response.data.message);
                     // Reload members list
                     loadCommunityMembers(communityId);
-                    // Update stats if we're on overview tab
-                    if (currentTab === 'overview') {
-                        loadCommunityStats(communityId);
-                    }
                 } else {
                     alert(response.data || '<?php _e('Failed to remove member.', 'partyminder'); ?>');
                 }
@@ -625,10 +573,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     alert(response.data.message);
                     // Reload invitations list
                     loadCommunityInvitations(communityId);
-                    // Update stats if we're on overview tab
-                    if (currentTab === 'overview') {
-                        loadCommunityStats(communityId);
-                    }
                 } else {
                     alert(response.data || '<?php _e('Failed to cancel invitation.', 'partyminder'); ?>');
                 }
