@@ -74,7 +74,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <div>
                     <h1 class="pm-heading pm-heading-lg"><?php echo esc_html($community->name); ?></h1>
                     <div class="flex gap-4 text-muted" style="font-size:14px;">
-                        <span><?php echo esc_html(ucfirst($community->type)); ?> <?php _e('Community', 'partyminder'); ?></span>
+                        <span><?php _e('Community', 'partyminder'); ?></span>
                         <span><?php echo date('M Y', strtotime($community->created_at)); ?></span>
                         <?php if ($is_member): ?>
                             <span class="badge <?php echo $user_role === 'admin' ? '' : 'badge-success'; ?>">
@@ -162,24 +162,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <div class="card p-4">
                     <h4 class=" mb-4 text-primary">🎯 Community Purpose</h4>
                     <p class=" text-muted">
-                        <?php 
-                        switch ($community->type) {
-                            case 'work':
-                                _e('A professional community for workplace events and team building activities.', 'partyminder');
-                                break;
-                            case 'faith':
-                                _e('A faith-based community for religious gatherings and spiritual events.', 'partyminder');
-                                break;
-                            case 'family':
-                                _e('A family community for reunions, celebrations, and family gatherings.', 'partyminder');
-                                break;
-                            case 'hobby':
-                                _e('A hobby-based community for enthusiasts with shared interests.', 'partyminder');
-                                break;
-                            default:
-                                _e('A community for members to plan and attend events together.', 'partyminder');
-                        }
-                        ?>
+                        <?php _e('A community for members to plan and attend events together.', 'partyminder'); ?>
                     </p>
                 </div>
                 

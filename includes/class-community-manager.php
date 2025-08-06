@@ -51,7 +51,6 @@ class PartyMinder_Community_Manager {
                 'name' => sanitize_text_field($community_data['name']),
                 'slug' => $slug,
                 'description' => wp_kses_post(wp_unslash($community_data['description'] ?? '')),
-                'type' => sanitize_text_field($community_data['type'] ?? 'standard'),
                 'privacy' => sanitize_text_field($community_data['privacy'] ?? 'public'),
                 'creator_id' => $current_user->ID,
                 'creator_email' => $current_user->user_email,
@@ -62,7 +61,7 @@ class PartyMinder_Community_Manager {
                 'member_count' => 1, // Creator is the first member
                 'created_at' => current_time('mysql')
             ),
-            array('%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%d', '%d', '%d', '%s')
+            array('%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%d', '%d', '%d', '%s')
         );
         
         if ($result === false) {

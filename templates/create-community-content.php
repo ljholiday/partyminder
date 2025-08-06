@@ -38,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             'name' => sanitize_text_field($_POST['name']),
             'description' => sanitize_textarea_field($_POST['description']),
             'privacy' => sanitize_text_field($_POST['privacy']),
-            'type' => sanitize_text_field($_POST['type'])
         );
         
         $result = $community_manager->create_community($community_data);
@@ -127,33 +126,6 @@ ob_start();
             </div>
         </div>
 
-        <!-- Community Type Section -->
-        <div class="pm-mb-4">
-            <h3 class="heading heading-sm mb-4"><?php _e('Community Type', 'partyminder'); ?></h3>
-            <div class="grid grid-2 gap-4 type-options">
-                <div class="section text-center option-card" data-option="general" style="cursor: pointer;">
-                    <div class="text-xl mb-4">🌟</div>
-                    <h4 class="heading heading-sm mb-4"><?php _e('General Community', 'partyminder'); ?></h4>
-                    <p class="pm-text-muted"><?php _e('For any kind of social gathering or mixed interests', 'partyminder'); ?></p>
-                </div>
-                <div class="section text-center option-card" data-option="food" style="cursor: pointer;">
-                    <div class="text-xl mb-4">🍽️</div>
-                    <h4 class="heading heading-sm mb-4"><?php _e('Food & Dining', 'partyminder'); ?></h4>
-                    <p class="pm-text-muted"><?php _e('Dinner parties, cooking clubs, restaurant meetups', 'partyminder'); ?></p>
-                </div>
-                <div class="section text-center option-card" data-option="hobby" style="cursor: pointer;">
-                    <div class="text-xl mb-4">🎨</div>
-                    <h4 class="heading heading-sm mb-4"><?php _e('Hobby & Interest', 'partyminder'); ?></h4>
-                    <p class="pm-text-muted"><?php _e('Book clubs, game nights, art groups, crafting', 'partyminder'); ?></p>
-                </div>
-                <div class="section text-center option-card" data-option="professional" style="cursor: pointer;">
-                    <div class="text-xl mb-4">💼</div>
-                    <h4 class="heading heading-sm mb-4"><?php _e('Professional', 'partyminder'); ?></h4>
-                    <p class="pm-text-muted"><?php _e('Networking events, work celebrations, team building', 'partyminder'); ?></p>
-                </div>
-            </div>
-            <input type="hidden" name="type" id="community-type" value="general">
-        </div>
 
         <!-- Privacy Settings Section -->
         <div class="pm-mb-4">
@@ -207,9 +179,7 @@ include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-form.php');
 document.addEventListener('DOMContentLoaded', function() {
     // Handle option card selections
     const privacyOptions = document.querySelectorAll('.privacy-options .option-card');
-    const typeOptions = document.querySelectorAll('.type-options .option-card');
     const privacyInput = document.getElementById('community-privacy');
-    const typeInput = document.getElementById('community-type');
     
     // Privacy option handling
     privacyOptions.forEach(card => {
@@ -217,15 +187,6 @@ document.addEventListener('DOMContentLoaded', function() {
             privacyOptions.forEach(c => c.classList.remove('selected'));
             this.classList.add('selected');
             privacyInput.value = this.getAttribute('data-option');
-        });
-    });
-    
-    // Type option handling
-    typeOptions.forEach(card => {
-        card.addEventListener('click', function() {
-            typeOptions.forEach(c => c.classList.remove('selected'));
-            this.classList.add('selected');
-            typeInput.value = this.getAttribute('data-option');
         });
     });
     

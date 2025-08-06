@@ -129,7 +129,6 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <div class="pm-invitation-details">
                     <h4><?php _e('Community Details', 'partyminder'); ?></h4>
                     <p><strong><?php _e('Community:', 'partyminder'); ?></strong> <?php echo esc_html($community->name); ?></p>
-                    <p><strong><?php _e('Type:', 'partyminder'); ?></strong> <?php echo esc_html(ucfirst($community->type)); ?></p>
                     <p><strong><?php _e('Privacy:', 'partyminder'); ?></strong> <?php echo esc_html(ucfirst($community->privacy)); ?></p>
                     <p><strong><?php _e('Invited by:', 'partyminder'); ?></strong> <?php echo esc_html($invitation->inviter_name ?: __('Unknown', 'partyminder')); ?></p>
                     <p><strong><?php _e('Expires:', 'partyminder'); ?></strong> <?php echo date('F j, Y g:i A', strtotime($invitation->expires_at)); ?></p>

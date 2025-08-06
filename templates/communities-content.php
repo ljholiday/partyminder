@@ -69,10 +69,6 @@ ob_start();
                                         <span>👥</span>
                                         <span class="pm-text-muted"><?php echo (int) $community->member_count; ?> <?php _e('members', 'partyminder'); ?></span>
                                     </div>
-                                    <div class="pm-flex pm-gap">
-                                        <span>📂</span>
-                                        <span class="pm-text-muted"><?php echo ucfirst($community->type); ?></span>
-                                    </div>
                                 </div>
                             
                             <?php if ($community->description): ?>
