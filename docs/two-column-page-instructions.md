@@ -97,6 +97,8 @@
   4. Update CSS Classes: Replace all classes with pm- prefixed versions
   5. Remove Emojis: Clean out all emoji characters and empty containers
   6. Add Wrapper: Ensure the main plugin adds partyminder-content wrapper around the template
+  7. Verify Method Calls: Check that all Manager class methods exist before calling them
+  8. Test URL Patterns: Use correct home_url() patterns for links, not non-existent static methods
 
   Reference Files
 
@@ -112,6 +114,9 @@
   - ❌ Using non-prefixed CSS classes
   - ❌ Including emojis anywhere in the content
   - ❌ Not adding the wrapper in the main plugin's content injection/rendering
+  - ❌ Calling non-existent methods (verify all method calls exist before using)
+  - ❌ Using incorrect URL patterns (use `home_url('/events/' . $slug)` not `PartyMinder::get_event_url()`)
+  - ❌ Not checking Event Manager and Community Manager for available methods first
 
 ⏺ The key insight is that the partyminder-content wrapper is essential for overriding WordPress theme width constraints,
   but it must be added by the main plugin during content injection or page rendering, NOT within the template itself. The
