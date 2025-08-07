@@ -159,8 +159,8 @@ ob_start();
         </a>
     </div>
 </div>
-
 <!-- Community Types -->
+<!--
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
         <h3 class="pm-heading pm-heading-sm"> <?php _e('Community Types', 'partyminder'); ?></h3>
@@ -197,6 +197,7 @@ ob_start();
         </div>
     </div>
 </div>
+-->
 <?php
 $sidebar_content = ob_get_clean();
 
