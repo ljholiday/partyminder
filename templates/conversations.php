@@ -53,7 +53,7 @@ ob_start();
         <div class="pm-section pm-mb">
             <div class="pm-flex pm-flex-between pm-mb-4">
                 <div class="pm-flex pm-gap">
-                    <span class="pm-text-xl"><?php echo esc_html($topic->icon ?? '💬'); ?></span>
+                    <span class="pm-text-xl"><?php echo esc_html($topic->icon ?? ''); ?></span>
                     <div>
                         <h3 class="pm-heading pm-heading-sm">
                             <a href="<?php echo home_url('/conversations/' . ($topic->slug ?? '')); ?>" class="pm-text-primary">
@@ -121,7 +121,7 @@ ob_start();
                 <p class="pm-text-muted"><?php _e('No conversations in this topic yet.', 'partyminder'); ?></p>
                 <?php if ($user_logged_in): ?>
                 <a href="<?php echo add_query_arg(array('topic_id' => $topic->id), PartyMinder::get_create_conversation_url()); ?>" class="pm-btn">
-                    ✨ <?php _e('Start First Conversation', 'partyminder'); ?>
+                     <?php _e('Start First Conversation', 'partyminder'); ?>
                 </a>
                 <?php endif; ?>
             </div>
@@ -131,12 +131,12 @@ ob_start();
 </div>
 <?php else: ?>
 <div class="pm-section pm-text-center">
-    <div class="pm-text-xl pm-mb-4">💬</div>
+    <div class="pm-text-xl pm-mb-4"></div>
     <h3 class="pm-heading pm-heading-sm pm-mb-4"><?php _e('No Topics Yet', 'partyminder'); ?></h3>
     <p class="pm-text-muted mb-4"><?php _e('Conversation topics will appear here once they are created.', 'partyminder'); ?></p>
     <?php if ($user_logged_in): ?>
     <a href="<?php echo PartyMinder::get_create_conversation_url(); ?>" class="pm-btn">
-        ✨ <?php _e('Start First Conversation', 'partyminder'); ?>
+         <?php _e('Start First Conversation', 'partyminder'); ?>
     </a>
     <?php endif; ?>
 </div>
@@ -149,11 +149,11 @@ ob_start();
     <p class="pm-text-muted mb-4"><?php _e('Sign in to participate in discussions, ask questions, and share your hosting experiences!', 'partyminder'); ?></p>
     <div class="pm-flex pm-gap pm-flex-center pm-flex-wrap">
         <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="pm-btn">
-            🔑 <?php _e('Login', 'partyminder'); ?>
+             <?php _e('Login', 'partyminder'); ?>
         </a>
         <?php if (get_option('users_can_register')): ?>
         <a href="<?php echo add_query_arg(array('action' => 'register', 'redirect_to' => urlencode($_SERVER['REQUEST_URI'])), PartyMinder::get_login_url()); ?>" class="pm-btn pm-btn-secondary">
-            ✨ <?php _e('Sign Up', 'partyminder'); ?>
+             <?php _e('Sign Up', 'partyminder'); ?>
         </a>
         <?php endif; ?>
     </div>
@@ -169,19 +169,19 @@ ob_start();
 <!-- Quick Actions -->
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm">⚡ <?php _e('Quick Actions', 'partyminder'); ?></h3>
+        <h3 class="pm-heading pm-heading-sm"> <?php _e('Quick Actions', 'partyminder'); ?></h3>
     </div>
     <div class="pm-flex pm-gap pm-flex-wrap">
         <?php if ($user_logged_in): ?>
         <a href="<?php echo PartyMinder::get_create_conversation_url(); ?>" class="pm-btn">
-            ✨ <?php _e('Start Conversation', 'partyminder'); ?>
+             <?php _e('Start Conversation', 'partyminder'); ?>
         </a>
         <?php endif; ?>
         <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="pm-btn pm-btn-secondary">
             🎪 <?php _e('Create Event', 'partyminder'); ?>
         </a>
         <a href="<?php echo esc_url(PartyMinder::get_events_page_url()); ?>" class="pm-btn pm-btn-secondary">
-            📅 <?php _e('Browse Events', 'partyminder'); ?>
+             <?php _e('Browse Events', 'partyminder'); ?>
         </a>
     </div>
 </div>

@@ -153,7 +153,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         <h4><?php _e('Login Required', 'partyminder'); ?></h4>
                         <p><?php _e('You need to be logged in to accept this invitation.', 'partyminder'); ?></p>
                         <a href="<?php echo wp_login_url(home_url('/communities/join?token=' . urlencode($token))); ?>" class="pm-btn">
-                            <span>🔑</span> <?php _e('Login to Accept', 'partyminder'); ?>
+                            <span></span> <?php _e('Login to Accept', 'partyminder'); ?>
                         </a>
                     </div>
                 <?php elseif ($message_type === 'success'): ?>

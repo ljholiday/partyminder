@@ -82,7 +82,7 @@ ob_start();
     
     <div class="pm-flex pm-flex-between pm-flex-wrap pm-gap">
         <div class="pm-flex pm-gap pm-text-muted">
-            <span>💬 <?php echo $conversation->reply_count; ?> <?php echo $conversation->reply_count === 1 ? __('reply', 'partyminder') : __('replies', 'partyminder'); ?></span>
+            <span> <?php echo $conversation->reply_count; ?> <?php echo $conversation->reply_count === 1 ? __('reply', 'partyminder') : __('replies', 'partyminder'); ?></span>
             <?php if ($conversation->reply_count > 0): ?>
                 <span>🕐 <?php printf(__('Last activity %s ago', 'partyminder'), human_time_diff(strtotime($conversation->last_reply_date), current_time('timestamp'))); ?></span>
             <?php endif; ?>
@@ -91,7 +91,7 @@ ob_start();
         <div class="pm-flex pm-gap">
             <?php if ($event_data): ?>
                 <a href="<?php echo home_url('/events/' . $event_data->slug); ?>" class="pm-btn pm-btn-secondary pm-btn-sm">
-                    📅 <?php _e('Go To Event', 'partyminder'); ?>
+                     <?php _e('Go To Event', 'partyminder'); ?>
                 </a>
             <?php endif; ?>
             <?php if ($user_email): ?>
@@ -105,7 +105,7 @@ ob_start();
                 </button>
             <?php endif; ?>
             <a href="#reply-form" class="pm-btn pm-btn-sm">
-                💬 <?php _e('Reply', 'partyminder'); ?>
+                 <?php _e('Reply', 'partyminder'); ?>
             </a>
         </div>
     </div>
@@ -248,7 +248,7 @@ ob_start();
 <!-- Quick Actions -->
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm">⚡ <?php _e('Quick Actions', 'partyminder'); ?></h3>
+        <h3 class="pm-heading pm-heading-sm"> <?php _e('Quick Actions', 'partyminder'); ?></h3>
     </div>
     <div class="pm-flex pm-gap pm-flex-column">
         <a href="<?php echo home_url('/conversations/' . $topic->slug); ?>" class="pm-btn pm-btn-secondary">
@@ -259,7 +259,7 @@ ob_start();
         </a>
         <?php if ($event_data): ?>
         <a href="<?php echo home_url('/events/' . $event_data->slug); ?>" class="pm-btn pm-btn-secondary">
-            📅 <?php _e('View Event', 'partyminder'); ?>
+             <?php _e('View Event', 'partyminder'); ?>
         </a>
         <?php endif; ?>
     </div>

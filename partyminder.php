@@ -2304,7 +2304,9 @@ class PartyMinder {
     public function inject_event_content($content) {
         if (isset($GLOBALS['partyminder_is_single_event']) && in_the_loop() && is_main_query()) {
             ob_start();
+            echo '<div class="partyminder-content partyminder-single-event-page">';
             include PARTYMINDER_PLUGIN_DIR . 'templates/single-event-content.php';
+            echo '</div>';
             return ob_get_clean();
         }
         return $content;

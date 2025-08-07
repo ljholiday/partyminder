@@ -330,7 +330,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
             <?php if (is_user_logged_in()): ?>
                 <?php printf(__('👋 Hi %s, here are your events', 'partyminder'), esc_html($current_user->display_name)); ?>
             <?php else: ?>
-                <?php _e('🎉 My Events', 'partyminder'); ?>
+                <?php _e(' My Events', 'partyminder'); ?>
             <?php endif; ?>
         </h2>
         <p>
@@ -366,7 +366,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     <?php if (is_user_logged_in() && !empty($created_events)): ?>
     <div class="events-section">
         <div class="pm-section-header">
-            <h3 class="section-title"><?php _e('🎨 Events You Created', 'partyminder'); ?></h3>
+            <h3 class="section-title"><?php _e(' Events You Created', 'partyminder'); ?></h3>
             <span class="event-count"><?php echo count($created_events); ?></span>
         </div>
         
@@ -388,7 +388,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                         
                         <div class="event-meta">
                             <div class="meta-item">
-                                <span class="meta-icon">📅</span>
+                                <span class="meta-icon"></span>
                                 <span><?php echo $event_date->format('M j, Y'); ?></span>
                             </div>
                             <div class="meta-item">
@@ -397,7 +397,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                             </div>
                             <?php if ($event->venue_info): ?>
                             <div class="meta-item">
-                                <span class="meta-icon">📍</span>
+                                <span class="meta-icon"></span>
                                 <span><?php echo esc_html($event->venue_info); ?></span>
                             </div>
                             <?php endif; ?>
@@ -438,7 +438,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     <?php if ($user_email && !empty($rsvp_events)): ?>
     <div class="events-section">
         <div class="pm-section-header">
-            <h3 class="section-title"><?php _e('💌 Events You\'ve RSVP\'d To', 'partyminder'); ?></h3>
+            <h3 class="section-title"><?php _e(' Events You\'ve RSVP\'d To', 'partyminder'); ?></h3>
             <span class="event-count"><?php echo count($rsvp_events); ?></span>
         </div>
         
@@ -467,7 +467,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                         
                         <div class="event-meta">
                             <div class="meta-item">
-                                <span class="meta-icon">📅</span>
+                                <span class="meta-icon"></span>
                                 <span><?php echo $event_date->format('M j, Y'); ?></span>
                             </div>
                             <div class="meta-item">
@@ -476,7 +476,7 @@ $button_style = get_option('partyminder_button_style', 'rounded');
                             </div>
                             <?php if ($event->venue_info): ?>
                             <div class="meta-item">
-                                <span class="meta-icon">📍</span>
+                                <span class="meta-icon"></span>
                                 <span><?php echo esc_html($event->venue_info); ?></span>
                             </div>
                             <?php endif; ?>
@@ -506,12 +506,12 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     <!-- No Events Message -->
     <?php if ((is_user_logged_in() && empty($created_events) && empty($rsvp_events)) || (!is_user_logged_in() && $user_email && empty($rsvp_events))): ?>
     <div class="no-events">
-        <div class="no-events-icon">🎭</div>
+        <div class="no-events-icon"></div>
         <h3><?php _e('No Events Found', 'partyminder'); ?></h3>
         <?php if (is_user_logged_in()): ?>
             <p><?php _e('You haven\'t created any events yet, and no RSVPs found.', 'partyminder'); ?></p>
             <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn">
-                <span>✨</span>
+                <span></span>
                 <?php _e('Create Your First Event', 'partyminder'); ?>
             </a>
         <?php else: ?>
@@ -524,16 +524,16 @@ $button_style = get_option('partyminder_button_style', 'rounded');
     <?php if (is_user_logged_in()): ?>
     <div class="events-section">
         <div class="pm-section-header">
-            <h3 class="section-title"><?php _e('⚡ Quick Actions', 'partyminder'); ?></h3>
+            <h3 class="section-title"><?php _e(' Quick Actions', 'partyminder'); ?></h3>
         </div>
         
         <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
             <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn">
-                <span style="margin-right: 8px;">✨</span>
+                <span style="margin-right: 8px;"></span>
                 <?php _e('Create New Event', 'partyminder'); ?>
             </a>
             <a href="<?php echo get_permalink(get_the_ID()) . '?show_past=1'; ?>" class="pm-btn pm-btn-secondary">
-                <span style="margin-right: 8px;">📅</span>
+                <span style="margin-right: 8px;"></span>
                 <?php echo $show_past ? __('Hide Past Events', 'partyminder') : __('Show Past Events', 'partyminder'); ?>
             </a>
         </div>

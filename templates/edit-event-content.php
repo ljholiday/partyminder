@@ -120,7 +120,7 @@ ob_start();
 ?>
 <!-- Event Info Summary -->
 <div class="pm-event-info-summary">
-    <div class="pm-event-icon">🎉</div>
+    <div class="pm-event-icon"></div>
     <div class="pm-event-details">
         <h3><?php echo esc_html($event->title); ?></h3>
         <p>

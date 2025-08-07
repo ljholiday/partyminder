@@ -236,9 +236,9 @@ if ($is_editing) {
                     
                     <div class="pm-flex pm-gap pm-flex-wrap pm-mb pm-text-muted">
                         <?php if (!empty($profile_data['location'])): ?>
-                        <span>📍 <?php echo esc_html($profile_data['location']); ?></span>
+                        <span> <?php echo esc_html($profile_data['location']); ?></span>
                         <?php endif; ?>
-                        <span>📅 <?php printf(__('Member since %s', 'partyminder'), date('M Y', strtotime($user_data->user_registered))); ?></span>
+                        <span> <?php printf(__('Member since %s', 'partyminder'), date('M Y', strtotime($user_data->user_registered))); ?></span>
                         <span>⭐ <?php _e('Active Host', 'partyminder'); ?></span>
                     </div>
                     
@@ -248,7 +248,7 @@ if ($is_editing) {
                             ✏️ <?php _e('Edit Profile', 'partyminder'); ?>
                         </a>
                         <a href="<?php echo esc_url(PartyMinder::get_my_events_url()); ?>" class="pm-btn pm-btn-secondary">
-                            📅 <?php _e('My Events', 'partyminder'); ?>
+                             <?php _e('My Events', 'partyminder'); ?>
                         </a>
                     </div>
                     <?php endif; ?>
@@ -326,7 +326,7 @@ if ($is_editing) {
                 ✏️ <?php _e('Edit Profile', 'partyminder'); ?>
             </a>
             <a href="<?php echo esc_url(PartyMinder::get_my_events_url()); ?>" class="pm-btn pm-btn-secondary">
-                📅 <?php _e('My Events', 'partyminder'); ?>
+                 <?php _e('My Events', 'partyminder'); ?>
             </a>
         </div>
     </div>
@@ -334,21 +334,21 @@ if ($is_editing) {
 
     <div class="pm-section pm-mb">
         <div class="pm-section-header">
-            <h3 class="pm-heading pm-heading-sm">⚡ <?php _e('Quick Actions', 'partyminder'); ?></h3>
+            <h3 class="pm-heading pm-heading-sm"> <?php _e('Quick Actions', 'partyminder'); ?></h3>
         </div>
         <div class="pm-flex pm-gap pm-flex-column">
             <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="pm-btn pm-btn-secondary">
-                ✨ <?php _e('Create Event', 'partyminder'); ?>
+                 <?php _e('Create Event', 'partyminder'); ?>
             </a>
             <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-btn pm-btn-secondary">
-                💬 <?php _e('Browse Conversations', 'partyminder'); ?>
+                 <?php _e('Browse Conversations', 'partyminder'); ?>
             </a>
         </div>
     </div>
 
     <div class="pm-section pm-mb">
         <div class="pm-section-header">
-            <h3 class="pm-heading pm-heading-sm">🌟 <?php _e('Community Stats', 'partyminder'); ?></h3>
+            <h3 class="pm-heading pm-heading-sm"> <?php _e('Community Stats', 'partyminder'); ?></h3>
         </div>
         <div class="pm-stat-list">
             <div class="pm-stat-item">

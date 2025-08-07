@@ -141,7 +141,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         <?php elseif (empty($members)): ?>
             <!-- No Members Yet -->
             <div class="no-members">
-                <h3><?php _e('🎭 No Members Yet', 'partyminder'); ?></h3>
+                <h3><?php _e(' No Members Yet', 'partyminder'); ?></h3>
                 <p><?php _e('This community is just getting started. Be the first to join!', 'partyminder'); ?></p>
                 
                 <?php if (!$is_logged_in): ?>

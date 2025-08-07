@@ -40,7 +40,7 @@ ob_start();
 ?>
 <div class="pm-section pm-mb">
     <a href="<?php echo esc_url(site_url('/create-community')); ?>" class="pm-btn">
-        <span>✨</span>
+        <span></span>
         <?php _e('Create Community', 'partyminder'); ?>
     </a>
 </div>
@@ -138,23 +138,23 @@ ob_start();
 <!-- Quick Actions -->
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm">⚡ <?php _e('Quick Actions', 'partyminder'); ?></h3>
+        <h3 class="pm-heading pm-heading-sm"> <?php _e('Quick Actions', 'partyminder'); ?></h3>
     </div>
     <div class="pm-flex pm-gap pm-flex-wrap">
         <?php if (PartyMinder_Feature_Flags::can_user_create_community()): ?>
             <a href="<?php echo esc_url(site_url('/create-community')); ?>" class="pm-btn">
-                <span>✨</span>
+                <span></span>
                 <?php _e('Create Community', 'partyminder'); ?>
             </a>
         <?php endif; ?>
         
         <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn pm-btn-secondary">
-            <span>🎉</span>
+            <span></span>
             <?php _e('Create Event', 'partyminder'); ?>
         </a>
         
         <a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
-            <span>💬</span>
+            <span></span>
             <?php _e('Join Conversations', 'partyminder'); ?>
         </a>
     </div>
@@ -163,7 +163,7 @@ ob_start();
 <!-- Community Types -->
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm">🏷️ <?php _e('Community Types', 'partyminder'); ?></h3>
+        <h3 class="pm-heading pm-heading-sm"> <?php _e('Community Types', 'partyminder'); ?></h3>
         <p class="pm-text-muted mt-4"><?php _e('Different ways to organize', 'partyminder'); ?></p>
     </div>
     <div>

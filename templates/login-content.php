@@ -200,7 +200,7 @@ ob_start();
         
         <div class="pm-text-center">
             <button type="submit" class="btn btn-large">
-                <span>✨</span>
+                <span></span>
                 <?php _e('Create Account & Setup Profile', 'partyminder'); ?>
             </button>
         </div>
@@ -271,13 +271,13 @@ ob_start();
         </div>
         
         <div class="text-center p-4">
-            <div class="text-xl mb-4">💌</div>
+            <div class="text-xl mb-4"></div>
             <h4 class="heading heading-sm mb-4"><?php _e('RSVP & Attend', 'partyminder'); ?></h4>
             <p class="pm-text-muted"><?php _e('Discover local events and connect with your community.', 'partyminder'); ?></p>
         </div>
         
         <div class="text-center p-4">
-            <div class="text-xl mb-4">💬</div>
+            <div class="text-xl mb-4"></div>
             <h4 class="heading heading-sm mb-4"><?php _e('Connect', 'partyminder'); ?></h4>
             <p class="pm-text-muted"><?php _e('Share tips, recipes, and stories with fellow party enthusiasts.', 'partyminder'); ?></p>
         </div>

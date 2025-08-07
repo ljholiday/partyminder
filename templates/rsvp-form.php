@@ -99,7 +99,7 @@ $form_layout = get_option('partyminder_form_layout', 'card');
         
         <div class="event-meta">
             <div class="meta-item">
-                <span class="meta-icon">📅</span>
+                <span class="meta-icon"></span>
                 <span><?php echo $event_date->format('l, F j, Y'); ?></span>
             </div>
             
@@ -112,7 +112,7 @@ $form_layout = get_option('partyminder_form_layout', 'card');
             
             <?php if ($event->venue_info): ?>
             <div class="meta-item">
-                <span class="meta-icon">📍</span>
+                <span class="meta-icon"></span>
                 <span><?php echo esc_html($event->venue_info); ?></span>
             </div>
             <?php endif; ?>
@@ -187,9 +187,9 @@ $form_layout = get_option('partyminder_form_layout', 'card');
             <div class="form-header">
                 <h2>
                     <?php if ($existing_rsvp): ?>
-                        <?php _e('💌 Update Your RSVP', 'partyminder'); ?>
+                        <?php _e(' Update Your RSVP', 'partyminder'); ?>
                     <?php else: ?>
-                        <?php _e('💌 RSVP for This Event', 'partyminder'); ?>
+                        <?php _e(' RSVP for This Event', 'partyminder'); ?>
                     <?php endif; ?>
                 </h2>
                 <p>
@@ -240,7 +240,7 @@ $form_layout = get_option('partyminder_form_layout', 'card');
                         <?php 
                         $current_status = $existing_rsvp ? $existing_rsvp->status : ($_POST['rsvp_status'] ?? '');
                         $statuses = array(
-                            'confirmed' => array('icon' => '🎉', 'title' => __('Yes, I\'ll be there!', 'partyminder'), 'desc' => __('Count me in', 'partyminder')),
+                            'confirmed' => array('icon' => '', 'title' => __('Yes, I\'ll be there!', 'partyminder'), 'desc' => __('Count me in', 'partyminder')),
                             'maybe' => array('icon' => '🤔', 'title' => __('Maybe', 'partyminder'), 'desc' => __('I\'ll try to make it', 'partyminder')),
                             'declined' => array('icon' => '😔', 'title' => __('Sorry, can\'t make it', 'partyminder'), 'desc' => __('Have fun without me', 'partyminder'))
                         );

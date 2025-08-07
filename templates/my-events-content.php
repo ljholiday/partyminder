@@ -105,7 +105,7 @@ ob_start();
     </div>
     <p class="pm-text-muted pm-mb"><?php _e('Log in to see events you\'ve created and your RSVPs.', 'partyminder'); ?></p>
     <a href="<?php echo esc_url(add_query_arg('redirect_to', get_permalink(get_the_ID()), PartyMinder::get_login_url())); ?>" class="pm-btn">
-        🔑 <?php _e('Login', 'partyminder'); ?>
+         <?php _e('Login', 'partyminder'); ?>
     </a>
 </div>
 
@@ -126,7 +126,7 @@ ob_start();
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
         <div class="pm-flex pm-flex-between pm-flex-wrap pm-gap">
-            <h3 class="pm-heading pm-heading-md pm-text-primary">🎨 <?php _e('Events You Created', 'partyminder'); ?></h3>
+            <h3 class="pm-heading pm-heading-md pm-text-primary"> <?php _e('Events You Created', 'partyminder'); ?></h3>
             <span class="pm-badge pm-badge-success"><?php echo count($created_events); ?></span>
         </div>
     </div>
@@ -149,7 +149,7 @@ ob_start();
                 
                 <div class="pm-mb">
                     <div class="pm-flex pm-gap pm-mb">
-                        <span>📅</span>
+                        <span></span>
                         <span class="pm-text-muted"><?php echo $event_date->format('M j, Y'); ?></span>
                     </div>
                     <div class="pm-flex pm-gap pm-mb">
@@ -158,7 +158,7 @@ ob_start();
                     </div>
                     <?php if ($event->venue_info): ?>
                     <div class="pm-flex pm-gap pm-mb">
-                        <span>📍</span>
+                        <span></span>
                         <span class="pm-text-muted"><?php echo esc_html($event->venue_info); ?></span>
                     </div>
                     <?php endif; ?>
@@ -201,7 +201,7 @@ ob_start();
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
         <div class="pm-flex pm-flex-between pm-flex-wrap pm-gap">
-            <h3 class="pm-heading pm-heading-md pm-text-primary">💌 <?php _e('Events You\'ve RSVP\'d To', 'partyminder'); ?></h3>
+            <h3 class="pm-heading pm-heading-md pm-text-primary"> <?php _e('Events You\'ve RSVP\'d To', 'partyminder'); ?></h3>
             <span class="pm-badge pm-badge-primary"><?php echo count($rsvp_events); ?></span>
         </div>
     </div>
@@ -233,7 +233,7 @@ ob_start();
                 
                 <div class="pm-mb">
                     <div class="pm-flex pm-gap pm-mb">
-                        <span>📅</span>
+                        <span></span>
                         <span class="pm-text-muted"><?php echo $event_date->format('M j, Y'); ?></span>
                     </div>
                     <div class="pm-flex pm-gap pm-mb">
@@ -242,7 +242,7 @@ ob_start();
                     </div>
                     <?php if ($event->venue_info): ?>
                     <div class="pm-flex pm-gap pm-mb">
-                        <span>📍</span>
+                        <span></span>
                         <span class="pm-text-muted"><?php echo esc_html($event->venue_info); ?></span>
                     </div>
                     <?php endif; ?>
@@ -271,12 +271,12 @@ ob_start();
 <!-- No Events Message -->
 <?php if ((is_user_logged_in() && empty($created_events) && empty($rsvp_events)) || (!is_user_logged_in() && $user_email && empty($rsvp_events))): ?>
 <div class="pm-section pm-text-center">
-    <div class="pm-text-6xl pm-mb">🎭</div>
+    <div class="pm-text-6xl pm-mb"></div>
     <h3 class="pm-heading pm-heading-md pm-mb"><?php _e('No Events Found', 'partyminder'); ?></h3>
     <?php if (is_user_logged_in()): ?>
         <p class="pm-text-muted pm-mb"><?php _e('You haven\'t created any events yet, and no RSVPs found.', 'partyminder'); ?></p>
         <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn">
-            ✨ <?php _e('Create Your First Event', 'partyminder'); ?>
+             <?php _e('Create Your First Event', 'partyminder'); ?>
         </a>
     <?php else: ?>
         <p class="pm-text-muted"><?php _e('No RSVPs found for this email address.', 'partyminder'); ?></p>
@@ -294,17 +294,17 @@ ob_start();
 <?php if (is_user_logged_in()): ?>
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm">⚡ <?php _e('Quick Actions', 'partyminder'); ?></h3>
+        <h3 class="pm-heading pm-heading-sm"> <?php _e('Quick Actions', 'partyminder'); ?></h3>
     </div>
     <div class="pm-flex pm-gap pm-flex-column">
         <a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn">
-            🎉 <?php _e('Create Event', 'partyminder'); ?>
+             <?php _e('Create Event', 'partyminder'); ?>
         </a>
         <a href="<?php echo PartyMinder::get_profile_url(); ?>" class="pm-btn pm-btn-secondary">
             👤 <?php _e('My Profile', 'partyminder'); ?>
         </a>
         <a href="<?php echo get_permalink(get_the_ID()) . ($show_past ? '' : '?show_past=1'); ?>" class="pm-btn pm-btn-secondary">
-            📅 <?php echo $show_past ? __('Hide Past Events', 'partyminder') : __('Show Past Events', 'partyminder'); ?>
+             <?php echo $show_past ? __('Hide Past Events', 'partyminder') : __('Show Past Events', 'partyminder'); ?>
         </a>
     </div>
 </div>

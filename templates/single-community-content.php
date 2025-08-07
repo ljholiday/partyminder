@@ -106,7 +106,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         </a>
                     <?php endif; ?>
                     <a href="#" class="btn btn-secondary create-event-btn">
-                        <span>🎉</span>
+                        <span></span>
                         <?php _e('Create Event', 'partyminder'); ?>
                     </a>
                 <?php else: ?>
@@ -152,7 +152,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 
                 
                 <div class="card p-4">
-                    <h4 class=" mb-4 text-primary">🎉 Get Started</h4>
+                    <h4 class=" mb-4 text-primary"> Get Started</h4>
                     <p class=" text-muted">
                         <?php if ($is_member): ?>
                             <?php _e('Create your first community event or browse upcoming events.', 'partyminder'); ?>

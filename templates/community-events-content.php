@@ -100,7 +100,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
             <div class="events-actions">
                 <?php if ($is_member): ?>
                     <a href="#" class="btn create-event-btn">
-                        <span>🎉</span>
+                        <span></span>
                         <?php _e('Create Event', 'partyminder'); ?>
                     </a>
                 <?php endif; ?>
@@ -150,12 +150,12 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         <?php elseif (empty($events)): ?>
             <!-- No Events Yet -->
             <div class="no-events">
-                <h3><?php _e('🎭 No Events Yet', 'partyminder'); ?></h3>
+                <h3><?php _e(' No Events Yet', 'partyminder'); ?></h3>
                 <p><?php _e('This community hasn\'t created any events yet. Be the first to plan something amazing!', 'partyminder'); ?></p>
                 
                 <?php if ($is_member): ?>
                     <a href="#" class="btn create-event-btn">
-                        <span>🎉</span>
+                        <span></span>
                         <?php _e('Create First Event', 'partyminder'); ?>
                     </a>
                 <?php elseif (!$is_logged_in): ?>
@@ -225,7 +225,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                             
                             <div class="event-meta">
                                 <div class="event-meta-item">
-                                    <span>📅</span>
+                                    <span></span>
                                     <span><?php echo $event_date->format('F j, Y'); ?></span>
                                 </div>
                                 
@@ -238,7 +238,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                                 
                                 <?php if ($event->venue_info): ?>
                                 <div class="event-meta-item">
-                                    <span>📍</span>
+                                    <span></span>
                                     <span><?php echo esc_html(wp_trim_words($event->venue_info, 8)); ?></span>
                                 </div>
                                 <?php endif; ?>

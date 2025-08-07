@@ -90,11 +90,11 @@ if ($user_id) {
             <div class="pm-flex pm-gap pm-flex-wrap">
                 <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" 
                    class="pm-btn pm-btn-sm">
-                    ✨ <?php _e('Create Event', 'partyminder'); ?>
+                     <?php _e('Create Event', 'partyminder'); ?>
                 </a>
                 <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" 
                    class="pm-btn pm-btn-secondary pm-btn-sm">
-                    💬 <?php _e('Join Conversations', 'partyminder'); ?>
+                     <?php _e('Join Conversations', 'partyminder'); ?>
                 </a>
             </div>
         <?php endif; ?>

@@ -61,7 +61,7 @@ ob_start();
             </div>
             <div class="pm-flex pm-gap pm-flex-wrap">
                 <a href="<?php echo add_query_arg('topic_id', $topic->id, PartyMinder::get_create_conversation_url()); ?>" class="pm-btn">
-                    💬 <?php _e('Start New Conversation', 'partyminder'); ?>
+                     <?php _e('Start New Conversation', 'partyminder'); ?>
                 </a>
                 <a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
                     ← <?php _e('Back to All Topics', 'partyminder'); ?>
@@ -79,7 +79,7 @@ ob_start();
                 <?php printf(__('%d Conversations', 'partyminder'), count($conversations)); ?>
             </h3>
             <a href="<?php echo add_query_arg('topic_id', $topic->id, PartyMinder::get_create_conversation_url()); ?>" class="pm-btn pm-btn-sm">
-                💬 <?php _e('Start New Conversation', 'partyminder'); ?>
+                 <?php _e('Start New Conversation', 'partyminder'); ?>
             </a>
         </div>
     </div>
@@ -147,7 +147,7 @@ ob_start();
                 <?php _e('Be the first to start a conversation in this topic!', 'partyminder'); ?>
             </p>
             <a href="<?php echo add_query_arg('topic_id', $topic->id, PartyMinder::get_create_conversation_url()); ?>" class="pm-btn">
-                ✨ <?php _e('Start the First Conversation', 'partyminder'); ?>
+                 <?php _e('Start the First Conversation', 'partyminder'); ?>
             </a>
         </div>
     <?php endif; ?>
@@ -184,11 +184,11 @@ ob_start();
 <!-- Quick Actions -->
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm">⚡ <?php _e('Quick Actions', 'partyminder'); ?></h3>
+        <h3 class="pm-heading pm-heading-sm"> <?php _e('Quick Actions', 'partyminder'); ?></h3>
     </div>
     <div class="pm-flex pm-gap pm-flex-column">
         <a href="<?php echo add_query_arg('topic_id', $topic->id, PartyMinder::get_create_conversation_url()); ?>" class="pm-btn">
-            💬 <?php _e('Start New Conversation', 'partyminder'); ?>
+             <?php _e('Start New Conversation', 'partyminder'); ?>
         </a>
         <a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
             🏠 <?php _e('All Topics', 'partyminder'); ?>

@@ -154,7 +154,7 @@ ob_start();
                 <?php _e('Cancel', 'partyminder'); ?>
             </a>
             <button type="submit" class="pm-btn" id="create-btn">
-                ✨ <?php _e('Create Community', 'partyminder'); ?>
+                 <?php _e('Create Community', 'partyminder'); ?>
             </button>
         </div>
     </form>

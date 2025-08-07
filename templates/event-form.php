@@ -51,7 +51,7 @@ $form_layout = get_option('partyminder_form_layout', 'card');
     <?php if ($event_created): ?>
         <!-- Success Message -->
         <div class="partyminder-success">
-            <h3><?php _e('🎉 Event Created Successfully!', 'partyminder'); ?></h3>
+            <h3><?php _e(' Event Created Successfully!', 'partyminder'); ?></h3>
             <p><?php _e('Your party event has been created and is ready for guests.', 'partyminder'); ?></p>
             <div class="pm-success-actions">
                 <a href="<?php echo esc_url($event_url); ?>" class="pm-btn">
@@ -184,7 +184,7 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success) {
                     // Show success message
-                    $form.before('<div class="partyminder-success partyminder-js-success"><h3><?php _e("🎉 Event Created Successfully!", "partyminder"); ?></h3><p><?php _e("Your party event has been created and is ready for guests.", "partyminder"); ?></p><div class="pm-success-actions"><a href="' + response.data.event_url + '" class="pm-btn"><?php _e("View Event", "partyminder"); ?></a></div></div>');
+                    $form.before('<div class="partyminder-success partyminder-js-success"><h3><?php _e(" Event Created Successfully!", "partyminder"); ?></h3><p><?php _e("Your party event has been created and is ready for guests.", "partyminder"); ?></p><div class="pm-success-actions"><a href="' + response.data.event_url + '" class="pm-btn"><?php _e("View Event", "partyminder"); ?></a></div></div>');
                     
                     // Hide the form
                     $form.hide();

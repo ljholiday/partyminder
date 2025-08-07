@@ -60,7 +60,7 @@ ob_start();
 <?php if ($event_created): ?>
     <!-- Success Message -->
     <div class="pm-alert pm-alert-success pm-mb-4">
-        <h3 class="pm-heading pm-heading-md pm-mb-4"><?php _e('🎉 Event Created Successfully!', 'partyminder'); ?></h3>
+        <h3 class="pm-heading pm-heading-md pm-mb-4"><?php _e(' Event Created Successfully!', 'partyminder'); ?></h3>
         <p class="pm-mb-4"><?php _e('Your event has been created and is ready for guests to RSVP.', 'partyminder'); ?></p>
         <div class="pm-flex pm-gap">
             <a href="<?php echo $creation_data['event_url']; ?>" class="pm-btn">
@@ -213,7 +213,7 @@ ob_start();
 
         <div class="pm-flex pm-gap pm-mt-4">
             <button type="submit" name="partyminder_create_event" class="pm-btn pm-btn-lg">
-                <span>🎉</span>
+                <span></span>
                 <?php _e('Create Event', 'partyminder'); ?>
             </button>
             <a href="<?php echo PartyMinder::get_events_page_url(); ?>" class="pm-btn pm-btn-secondary">

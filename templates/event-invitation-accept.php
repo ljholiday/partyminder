@@ -313,7 +313,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
     <!-- Page Header -->
     <div class="invitation-card">
         <div class="invitation-header">
-            <div class="invitation-icon">🎉</div>
+            <div class="invitation-icon"></div>
             <h1 class="invitation-title"><?php _e('Event Invitation', 'partyminder'); ?></h1>
             <p class="invitation-subtitle"><?php _e('You\'ve been invited to an event', 'partyminder'); ?></p>
         </div>
@@ -330,11 +330,11 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                     <h4><?php _e('Event Details', 'partyminder'); ?></h4>
                     <div class="event-info">
                         <div class="event-info-item">
-                            <span>🎉</span>
+                            <span></span>
                             <span><strong><?php _e('Event:', 'partyminder'); ?></strong> <?php echo esc_html($invitation->event_title); ?></span>
                         </div>
                         <div class="event-info-item">
-                            <span>📅</span>
+                            <span></span>
                             <span><strong><?php _e('Date:', 'partyminder'); ?></strong> <?php echo date('F j, Y', strtotime($invitation->event_date)); ?></span>
                         </div>
                         <?php if ($invitation->event_time): ?>
@@ -345,7 +345,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         <?php endif; ?>
                         <?php if ($invitation->venue_info): ?>
                         <div class="event-info-item">
-                            <span>📍</span>
+                            <span></span>
                             <span><strong><?php _e('Venue:', 'partyminder'); ?></strong> <?php echo esc_html($invitation->venue_info); ?></span>
                         </div>
                         <?php endif; ?>
@@ -374,14 +374,14 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                         <h4><?php _e('Login Required', 'partyminder'); ?></h4>
                         <p><?php _e('You need to be logged in to RSVP to this event.', 'partyminder'); ?></p>
                         <a href="<?php echo add_query_arg('redirect_to', urlencode(home_url('/events/join?token=' . urlencode($token))), PartyMinder::get_login_url()); ?>" class="pm-btn">
-                            <span>🔑</span> <?php _e('Login to RSVP', 'partyminder'); ?>
+                            <span></span> <?php _e('Login to RSVP', 'partyminder'); ?>
                         </a>
                     </div>
                 <?php elseif ($message_type === 'success'): ?>
                     <div class="pm-text-center">
                         <p><?php _e('Redirecting to the event page...', 'partyminder'); ?></p>
                         <a href="<?php echo home_url('/events/' . $invitation->event_slug); ?>" class="pm-btn">
-                            <span>🎉</span> <?php _e('Go to Event', 'partyminder'); ?>
+                            <span></span> <?php _e('Go to Event', 'partyminder'); ?>
                         </a>
                     </div>
                 <?php else: ?>
@@ -430,7 +430,7 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
                 <div class="pm-text-center">
                     <p><?php _e('Return to events to explore other options.', 'partyminder'); ?></p>
                     <a href="<?php echo home_url('/events'); ?>" class="pm-btn pm-btn-secondary">
-                        <span>🎉</span> <?php _e('Browse Events', 'partyminder'); ?>
+                        <span></span> <?php _e('Browse Events', 'partyminder'); ?>
                     </a>
                 </div>
             <?php endif; ?>

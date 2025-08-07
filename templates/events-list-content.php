@@ -68,10 +68,10 @@ ob_start();
         <?php if (is_user_logged_in()): ?>
         <div class="pm-flex pm-gap">
             <a href="<?php echo esc_url(PartyMinder::get_my_events_url()); ?>" class="pm-btn pm-btn-secondary">
-                📅 <?php _e('My Events', 'partyminder'); ?>
+                <?php _e('My Events', 'partyminder'); ?>
             </a>
             <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="pm-btn">
-                ✨ <?php _e('Create Event', 'partyminder'); ?>
+                <?php _e('Create Event', 'partyminder'); ?>
             </a>
         </div>
         <?php endif; ?>
@@ -98,7 +98,6 @@ ob_start();
                     
                     <div class="pm-mb-4">
                         <div class="pm-flex pm-gap pm-mb-4">
-                            <span>📅</span>
                             <span class="pm-text-muted">
                                 <?php if ($is_today): ?>
                                     <?php _e('Today', 'partyminder'); ?>
@@ -115,7 +114,6 @@ ob_start();
                         
                         <?php if ($event->venue_info): ?>
                         <div class="pm-flex pm-gap pm-mb-4">
-                            <span>📍</span>
                             <span class="pm-text-muted"><?php echo esc_html($event->venue_info); ?></span>
                         </div>
                         <?php endif; ?>
@@ -140,14 +138,14 @@ ob_start();
                         
                         <?php if ($is_past): ?>
                             <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-btn pm-btn-secondary">
-                                📖 <?php _e('View Details', 'partyminder'); ?>
+                                <?php _e('View Details', 'partyminder'); ?>
                             </a>
                         <?php else: ?>
                             <?php 
                             $is_full = $event->guest_limit > 0 && $event->guest_stats->confirmed >= $event->guest_limit;
                             ?>
                             <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-btn">
-                                💌 <?php echo $is_full ? __('Join Waitlist', 'partyminder') : __('RSVP Now', 'partyminder'); ?>
+                                <?php echo $is_full ? __('Join Waitlist', 'partyminder') : __('RSVP Now', 'partyminder'); ?>
                             </a>
                         <?php endif; ?>
                     </div>
@@ -157,7 +155,6 @@ ob_start();
         
     <?php else: ?>
         <div class="pm-text-center pm-p-4">
-            <div class="pm-text-xl pm-mb-4">🎭</div>
             <h3 class="pm-heading pm-heading-sm pm-mb-4"><?php _e('No Events Found', 'partyminder'); ?></h3>
             <?php if ($show_past): ?>
                 <p class="pm-text-muted"><?php _e('There are no past events to display.', 'partyminder'); ?></p>
@@ -170,16 +167,16 @@ ob_start();
 
 <?php if (!is_user_logged_in()): ?>
 <div class="pm-section pm-text-center">
-    <div class="pm-text-xl pm-mb-4">🎉</div>
+    <div class="pm-text-xl pm-mb-4"></div>
     <h3 class="pm-heading pm-heading-md pm-mb-4"><?php _e('Ready to Join the Fun?', 'partyminder'); ?></h3>
     <p class="pm-text-muted mb-4"><?php _e('Sign in to RSVP to events, connect with hosts, and never miss an amazing party!', 'partyminder'); ?></p>
     <div class="pm-flex pm-gap pm-flex-center pm-flex-wrap">
         <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="pm-btn">
-            🔑 <?php _e('Login', 'partyminder'); ?>
+            <?php _e('Login', 'partyminder'); ?>
         </a>
         <?php if (get_option('users_can_register')): ?>
         <a href="<?php echo add_query_arg(array('action' => 'register', 'redirect_to' => urlencode($_SERVER['REQUEST_URI'])), PartyMinder::get_login_url()); ?>" class="pm-btn pm-btn-secondary">
-            ✨ <?php _e('Sign Up', 'partyminder'); ?>
+            <?php _e('Sign Up', 'partyminder'); ?>
         </a>
         <?php endif; ?>
     </div>
@@ -195,14 +192,14 @@ ob_start();
 <!-- Quick Actions -->
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm">⚡ <?php _e('Quick Actions', 'partyminder'); ?></h3>
+        <h3 class="pm-heading pm-heading-sm"><?php _e('Quick Actions', 'partyminder'); ?></h3>
     </div>
     <div class="pm-flex pm-gap pm-flex-wrap">
         <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="pm-btn">
-            ✨ <?php _e('Create Event', 'partyminder'); ?>
+            <?php _e('Create Event', 'partyminder'); ?>
         </a>
         <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-btn pm-btn-secondary">
-            💬 <?php _e('Join Conversations', 'partyminder'); ?>
+            <?php _e('Join Conversations', 'partyminder'); ?>
         </a>
     </div>
 </div>
@@ -210,30 +207,30 @@ ob_start();
 <!-- Event Categories -->
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm">🏷️ <?php _e('Event Types', 'partyminder'); ?></h3>
+        <h3 class="pm-heading pm-heading-sm"><?php _e('Event Types', 'partyminder'); ?></h3>
     </div>
     <div class="pm-text-muted">
         <div class="pm-mb-4">
             <div class="pm-flex pm-gap pm-mb-4">
-                <span>🍽️</span>
+                <span></span>
                 <strong><?php _e('Dinner Parties', 'partyminder'); ?></strong>
             </div>
         </div>
         <div class="pm-mb-4">
             <div class="pm-flex pm-gap pm-mb-4">
-                <span>🎮</span>
+                <span></span>
                 <strong><?php _e('Game Nights', 'partyminder'); ?></strong>
             </div>
         </div>
         <div class="pm-mb-4">
             <div class="pm-flex pm-gap pm-mb-4">
-                <span>🎨</span>
+                <span></span>
                 <strong><?php _e('Creative Workshops', 'partyminder'); ?></strong>
             </div>
         </div>
         <div class="pm-mb-4">
             <div class="pm-flex pm-gap pm-mb-4">
-                <span>🌟</span>
+                <span></span>
                 <strong><?php _e('Social Gatherings', 'partyminder'); ?></strong>
             </div>
         </div>

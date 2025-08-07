@@ -201,7 +201,7 @@ ob_start();
     
     <div class="pm-form-actions">
         <button type="submit" name="partyminder_create_conversation" class="pm-btn">
-            <span>💬</span>
+            <span></span>
             <?php _e('Start Conversation', 'partyminder'); ?>
         </button>
         <a href="<?php echo esc_url($selected_topic ? home_url('/conversations/' . $selected_topic->slug) : PartyMinder::get_conversations_url()); ?>" class="pm-btn pm-btn-secondary">
