@@ -741,77 +741,50 @@ class PartyMinder {
     }
     
     public function ajax_create_community() {
+        // Use the correct nonce from the form
+        check_ajax_referer('create_partyminder_community', 'partyminder_community_nonce');
         
-        check_ajax_referer('partyminder_community_action', 'nonce');
-        
-        if (!is_user_logged_in()) {
-            wp_send_json_error(__('You must be logged in to create a community.', 'partyminder'));
-            return;
+        // Validate required fields
+        $form_errors = array();
+        if (empty($_POST['name'])) {
+            $form_errors[] = __('Community name is required.', 'partyminder');
         }
         
-        if (!PartyMinder_Feature_Flags::can_user_create_community()) {
-            wp_send_json_error(__('You do not have permission to create communities.', 'partyminder'));
-            return;
-        }
-        
-        $community_manager = new PartyMinder_Community_Manager();
-        $current_user = wp_get_current_user();
-        
-        // Validate input
-        $name = sanitize_text_field($_POST['name']);
-        $description = sanitize_textarea_field($_POST['description']);
-        $type = sanitize_text_field($_POST['type']);
-        $privacy = sanitize_text_field($_POST['privacy']);
-        
-        if (empty($name)) {
-            wp_send_json_error(__('Community name is required.', 'partyminder'));
-            return;
-        }
-        
-        if (strlen($name) < 3 || strlen($name) > 100) {
-            wp_send_json_error(__('Community name must be between 3 and 100 characters.', 'partyminder'));
-            return;
-        }
-        
-        $valid_types = array('standard', 'work', 'faith', 'family', 'hobby');
-        if (!in_array($type, $valid_types)) {
-            $type = 'standard';
-        }
-        
-        $valid_privacy = array('public', 'private');
-        if (!in_array($privacy, $valid_privacy)) {
-            $privacy = 'public';
+        if (!empty($form_errors)) {
+            wp_send_json_error(implode(' ', $form_errors));
         }
         
         $community_data = array(
-            'name' => $name,
-            'description' => $description,
-            'type' => $type,
-            'privacy' => $privacy,
-            'creator_id' => $current_user->ID,
-            'creator_email' => $current_user->user_email
+            'name' => sanitize_text_field(wp_unslash($_POST['name'])),
+            'description' => wp_kses_post(wp_unslash($_POST['description'] ?? '')),
+            'privacy' => sanitize_text_field($_POST['privacy'] ?? 'public')
         );
+        
+        // Ensure community manager is available
+        require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
+        $community_manager = new PartyMinder_Community_Manager();
         
         $community_id = $community_manager->create_community($community_data);
         
-        if (is_wp_error($community_id)) {
-            wp_send_json_error($community_id->get_error_message());
-            return;
-        }
-        
-        if ($community_id) {
-            $community = $community_manager->get_community($community_id);
-            if ($community) {
-                wp_send_json_success(array(
-                    'message' => sprintf(__('Community "%s" created successfully!', 'partyminder'), $name),
-                    'community_id' => $community_id,
-                    'redirect_url' => home_url('/communities/' . $community->slug)
-                ));
-            } else {
-                wp_send_json_error(__('Community created but could not retrieve details.', 'partyminder'));
-            }
+        if (!is_wp_error($community_id)) {
+            // Get the created community to get its slug
+            $created_community = $community_manager->get_community($community_id);
+            
+            // Set transient for success message display
+            $creation_data = array(
+                'community_id' => $community_id,
+                'community_url' => home_url('/communities/' . $created_community->slug),
+                'community_name' => $created_community->name
+            );
+            set_transient('partyminder_community_created_' . get_current_user_id(), $creation_data, 300); // 5 minutes
+            
+            wp_send_json_success(array(
+                'community_id' => $community_id,
+                'message' => __('Community created successfully!', 'partyminder'),
+                'community_url' => home_url('/communities/' . $created_community->slug)
+            ));
         } else {
-            wp_send_json_error(__('Failed to create community. Please try again.', 'partyminder'));
+            wp_send_json_error($community_id->get_error_message());
         }
     }
     
@@ -1687,6 +1660,10 @@ class PartyMinder {
         return self::get_page_url('communities');
     }
     
+    public static function get_create_community_url() {
+        return self::get_page_url('create-community');
+    }
+    
     public static function get_community_url($community_slug) {
         return home_url('/communities/' . $community_slug . '/');
     }
@@ -1938,6 +1915,13 @@ class PartyMinder {
                 add_filter('body_class', array($this, 'add_create_conversation_body_class'));
                 break;
                 
+            case 'create-community':
+                if (PartyMinder_Feature_Flags::is_communities_enabled()) {
+                    add_filter('the_content', array($this, 'inject_create_community_content'));
+                    add_filter('body_class', array($this, 'add_create_community_body_class'));
+                }
+                break;
+                
             case 'profile':
                 // Handle user parameter for viewing other profiles
                 if (!get_query_var('user') && isset($_GET['user'])) {
@@ -2012,17 +1996,6 @@ class PartyMinder {
                 }
                 break;
                 
-            case 'create-community':
-                // Handle community creation page (only if communities enabled) 
-                if (PartyMinder_Feature_Flags::is_communities_enabled()) {
-                    add_filter('the_content', array($this, 'inject_create_community_content'));
-                    add_filter('body_class', array($this, 'add_create_community_body_class'));
-                } else {
-                    // Feature disabled - redirect to home page
-                    wp_redirect(home_url('/'));
-                    exit;
-                }
-                break;
         }
     }
     
@@ -2143,7 +2116,7 @@ class PartyMinder {
         }
         
         // Modify titles for our dedicated pages
-        $page_keys = array('events', 'create-event', 'my-events', 'edit-event', 'create-conversation');
+        $page_keys = array('events', 'create-event', 'my-events', 'edit-event', 'create-conversation', 'create-community');
         
         foreach ($page_keys as $key) {
             $page_id = get_option('partyminder_page_' . $key);
@@ -2176,6 +2149,9 @@ class PartyMinder {
                         } else {
                             $title_parts['title'] = __('Edit Event - Update Event Details', 'partyminder');
                         }
+                        break;
+                    case 'create-community':
+                        $title_parts['title'] = __('Create New Community - Build Your Community', 'partyminder');
                         break;
                 }
                 break;
@@ -2781,6 +2757,7 @@ class PartyMinder {
         return $classes;
     }
     
+    
     /**
      * Inject communities content (main page)
      */
@@ -2929,9 +2906,14 @@ class PartyMinder {
         }
         
         ob_start();
+        
         echo '<div class="partyminder-content partyminder-create-community-page">';
+        
+        // Include create community template
         include PARTYMINDER_PLUGIN_DIR . 'templates/create-community-content.php';
+        
         echo '</div>';
+        
         return ob_get_clean();
     }
     
@@ -3122,5 +3104,5 @@ class PartyMinder {
         
         return $custom_login_url;
     }
-    
+
 }

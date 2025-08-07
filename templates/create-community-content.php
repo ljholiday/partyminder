@@ -1,7 +1,7 @@
 <?php
 /**
  * Create Community Content Template
- * Single-page community creation interface (replaces community-creation-modal.php)
+ * Uses unified form template system
  */
 
 // Prevent direct access
@@ -9,164 +9,122 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Check if user can create communities
-if (!PartyMinder_Feature_Flags::can_user_create_community()) {
-    echo '<div class="pm-text-center pm-p-16">';
-    echo '<h2>' . __('Cannot Create Community', 'partyminder') . '</h2>';
-    echo '<p>' . __('You do not have permission to create communities.', 'partyminder') . '</p>';
-    echo '</div>';
-    return;
-}
-
 // Load required classes
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
 
-$community_manager = new PartyMinder_Community_Manager();
-
-// Get current user
+// Get current user info
 $current_user = wp_get_current_user();
+$is_logged_in = is_user_logged_in();
 
-// Get styling options
-$primary_color = get_option('partyminder_primary_color', '#667eea');
-$secondary_color = get_option('partyminder_secondary_color', '#764ba2');
+// Check for form submission success
+$community_created = false;
+$form_errors = array();
 
-// Process form submissions
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create_community') {
-    if (wp_verify_nonce($_POST['nonce'], 'partyminder_create_community')) {
-        
-        $community_data = array(
-            'name' => sanitize_text_field($_POST['name']),
-            'description' => sanitize_textarea_field($_POST['description']),
-            'privacy' => sanitize_text_field($_POST['privacy']),
-        );
-        
-        $result = $community_manager->create_community($community_data);
-        
-        if (!is_wp_error($result)) {
-            $success_message = __('Community created successfully!', 'partyminder');
-            $created_community = $community_manager->get_community($result);
-            
-            // Redirect to the new community page after a short delay
-            $redirect_url = PartyMinder::get_community_url($created_community->slug);
-            echo '<script>setTimeout(function() { window.location.href = "' . esc_url($redirect_url) . '"; }, 2000);</script>';
-        } else {
-            $error_message = $result->get_error_message();
-        }
-    } else {
-        $error_message = __('Security check failed. Please try again.', 'partyminder');
+// Check if community was just created
+if (isset($_GET['partyminder_created']) && $_GET['partyminder_created'] == '1') {
+    $create_data = get_transient('partyminder_community_created_' . get_current_user_id());
+    if ($create_data) {
+        $community_created = true;
+        $created_community = $create_data;
+        // Clear the transient
+        delete_transient('partyminder_community_created_' . get_current_user_id());
     }
+}
+
+// Check for form errors
+$stored_errors = get_transient('partyminder_create_community_errors_' . get_current_user_id());
+if ($stored_errors) {
+    $form_errors = $stored_errors;
+    // Clear the transient
+    delete_transient('partyminder_create_community_errors_' . get_current_user_id());
 }
 
 // Set up template variables
 $page_title = __('Create New Community', 'partyminder');
-$page_description = __('Build a community around shared interests and host amazing events together', 'partyminder');
+$page_description = __('Build a community around shared interests and host amazing events together.', 'partyminder');
 $breadcrumbs = array(
-    array('title' => __('Dashboard', 'partyminder'), 'url' => PartyMinder::get_dashboard_url()),
     array('title' => __('Communities', 'partyminder'), 'url' => PartyMinder::get_communities_url()),
-    array('title' => __('Create Community', 'partyminder'))
+    array('title' => __('Create New Community', 'partyminder'))
 );
 
-// Capture content
+// Main content
 ob_start();
 ?>
 
-<!-- Success/Error Messages -->
-<?php if (isset($success_message)): ?>
-<div class="alert alert-success mb-4">
-    <strong><?php echo esc_html($success_message); ?></strong>
-    <br><small><?php _e('Redirecting to your new community...', 'partyminder'); ?></small>
-</div>
-<?php endif; ?>
-
-<?php if (isset($error_message)): ?>
-<div class="alert alert-error mb-4">
-    <strong><?php _e('Error:', 'partyminder'); ?></strong> <?php echo esc_html($error_message); ?>
-</div>
-<?php endif; ?>
-
-<!-- Creation Form -->
-<div class="pm-section">
-    <form method="post" class="pm-form" id="create-community-form">
-            <input type="hidden" name="action" value="create_community">
-            <input type="hidden" name="nonce" value="<?php echo wp_create_nonce('partyminder_create_community'); ?>">
-            
-        <!-- Basic Information Section -->
-        <div class="pm-mb-4">
-            <h3 class="heading heading-sm mb-4"><?php _e('Basic Information', 'partyminder'); ?></h3>
-                
-            <div class="pm-form-group">
-                <label class="pm-form-label" for="community-name">
-                    <?php _e('Community Name', 'partyminder'); ?> <span style="color: var(--danger);">*</span>
-                </label>
-                <input type="text" 
-                       id="community-name" 
-                       name="name" 
-                       class="pm-form-input" 
-                       placeholder="<?php _e('Enter community name...', 'partyminder'); ?>" 
-                       required
-                       maxlength="100"
-                       value="<?php echo isset($_POST['name']) ? esc_attr($_POST['name']) : ''; ?>">
-                <div class="pm-text-muted">
-                    <?php _e('Choose a descriptive name that reflects your community\'s purpose', 'partyminder'); ?>
-                </div>
-            </div>
-            
-            <div class="pm-form-group">
-                <label class="pm-form-label" for="community-description">
-                    <?php _e('Description', 'partyminder'); ?>
-                </label>
-                <textarea id="community-description" 
-                          name="description" 
-                          class="pm-form-textarea" 
-                          placeholder="<?php _e('Describe what your community is about...', 'partyminder'); ?>"
-                          maxlength="500"><?php echo isset($_POST['description']) ? esc_textarea($_POST['description']) : ''; ?></textarea>
-                <div class="pm-text-muted">
-                    <?php _e('Optional: Tell people what your community is about and what kind of events you might host', 'partyminder'); ?>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Privacy Settings Section -->
-        <div class="pm-mb-4">
-            <h3 class="heading heading-sm mb-4"><?php _e('Privacy Settings', 'partyminder'); ?></h3>
-            <div class="grid grid-2 gap-4 privacy-options">
-                <div class="section text-center option-card selected" data-option="public" style="cursor: pointer;">
-                    <div class="text-xl mb-4">🌍</div>
-                    <h4 class="heading heading-sm mb-4"><?php _e('Public Community', 'partyminder'); ?></h4>
-                    <p class="pm-text-muted"><?php _e('Anyone can find and join this community', 'partyminder'); ?></p>
-                </div>
-                <div class="section text-center option-card" data-option="private" style="cursor: pointer;">
-                    <div class="text-xl mb-4">🔒</div>
-                    <h4 class="heading heading-sm mb-4"><?php _e('Private Community', 'partyminder'); ?></h4>
-                    <p class="pm-text-muted"><?php _e('Only invited members can join this community', 'partyminder'); ?></p>
-                </div>
-            </div>
-            <input type="hidden" name="privacy" id="community-privacy" value="public">
-            <div class="pm-text-muted mt-4">
-                <?php _e('You can change this setting later from your community management page', 'partyminder'); ?>
-            </div>
-        </div>
-
-        <!-- Form Actions -->
-        <div class="pm-flex pm-gap">
-            <a href="<?php echo esc_url(PartyMinder::get_communities_url()); ?>" class="pm-btn pm-btn-secondary">
-                <?php _e('Cancel', 'partyminder'); ?>
+<?php if ($community_created): ?>
+    <!-- Success Message -->
+    <div class="pm-alert pm-alert-success pm-mb-4">
+        <h3><?php _e('Community Created Successfully!', 'partyminder'); ?></h3>
+        <p><?php _e('Your community has been created and is now live.', 'partyminder'); ?></p>
+        <div class="pm-success-actions">
+            <a href="<?php echo esc_url($created_community['url'] ?? PartyMinder::get_communities_url()); ?>" class="pm-btn">
+                <?php _e('View Community', 'partyminder'); ?>
             </a>
-            <button type="submit" class="pm-btn" id="create-btn">
-                 <?php _e('Create Community', 'partyminder'); ?>
-            </button>
+            <a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('All Communities', 'partyminder'); ?>
+            </a>
         </div>
-    </form>
-</div>
-
-<!-- Loading Overlay -->
-<div class="loading-overlay" id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
-    <div class="loading-content text-center p-4 bg-white rounded">
-        <div class="loading-spinner"></div>
-        <p><?php _e('Creating your community...', 'partyminder'); ?></p>
     </div>
-</div>
+<?php endif; ?>
+
+<?php if (!empty($form_errors)): ?>
+    <div class="pm-alert pm-alert-error pm-mb-4">
+        <h4><?php _e('Please fix the following issues:', 'partyminder'); ?></h4>
+        <ul>
+            <?php foreach ($form_errors as $error): ?>
+                <li><?php echo esc_html($error); ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
+
+<form method="post" action="<?php echo admin_url('admin-ajax.php'); ?>" class="pm-form" id="partyminder-community-form">
+    <?php wp_nonce_field('create_partyminder_community', 'partyminder_community_nonce'); ?>
+    <input type="hidden" name="action" value="partyminder_create_community">
+    
+    <div class="pm-mb-4">
+        <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e('Community Details', 'partyminder'); ?></h3>
+        
+        <div class="pm-form-group">
+            <label for="community_name" class="pm-form-label"><?php _e('Community Name *', 'partyminder'); ?></label>
+            <input type="text" id="community_name" name="name" class="pm-form-input" 
+                   value="<?php echo esc_attr($_POST['name'] ?? ''); ?>" 
+                   placeholder="<?php esc_attr_e('Enter your community name', 'partyminder'); ?>" 
+                   maxlength="255" required>
+            <p class="pm-form-help pm-text-muted"><?php _e('Choose a clear, memorable name that describes your community', 'partyminder'); ?></p>
+        </div>
+        
+        <div class="pm-form-group">
+            <label for="community_description" class="pm-form-label"><?php _e('Description', 'partyminder'); ?></label>
+            <textarea id="community_description" name="description" class="pm-form-textarea" 
+                      rows="6"
+                      placeholder="<?php esc_attr_e('Describe what your community is about, what activities you plan, and who should join...', 'partyminder'); ?>"><?php echo esc_textarea($_POST['description'] ?? ''); ?></textarea>
+            <p class="pm-form-help pm-text-muted"><?php _e('Help potential members understand what your community offers and how they can participate', 'partyminder'); ?></p>
+        </div>
+        
+        <div class="pm-form-group">
+            <label for="community_privacy" class="pm-form-label"><?php _e('Privacy Setting *', 'partyminder'); ?></label>
+            <select id="community_privacy" name="privacy" class="pm-form-input" required>
+                <option value="public" <?php selected($_POST['privacy'] ?? 'public', 'public'); ?>>
+                    <?php _e('Public - Anyone can find and join this community', 'partyminder'); ?>
+                </option>
+                <option value="private" <?php selected($_POST['privacy'] ?? '', 'private'); ?>>
+                    <?php _e('Private - Members must be invited to join', 'partyminder'); ?>
+                </option>
+            </select>
+            <p class="pm-form-help pm-text-muted"><?php _e('Public communities appear in listings and can be joined by anyone. Private communities are invitation-only.', 'partyminder'); ?></p>
+        </div>
+    </div>
+    
+    <div class="pm-form-actions">
+        <button type="submit" name="partyminder_create_community" class="pm-btn">
+            <?php _e('Create Community', 'partyminder'); ?>
+        </button>
+        <a href="<?php echo esc_url(PartyMinder::get_communities_url()); ?>" class="pm-btn pm-btn-secondary">
+            <?php _e('Back to Communities', 'partyminder'); ?>
+        </a>
+    </div>
+</form>
 
 <?php
 $content = ob_get_clean();
@@ -176,94 +134,55 @@ include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-form.php');
 ?>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle option card selections
-    const privacyOptions = document.querySelectorAll('.privacy-options .option-card');
-    const privacyInput = document.getElementById('community-privacy');
-    
-    // Privacy option handling
-    privacyOptions.forEach(card => {
-        card.addEventListener('click', function() {
-            privacyOptions.forEach(c => c.classList.remove('selected'));
-            this.classList.add('selected');
-            privacyInput.value = this.getAttribute('data-option');
+jQuery(document).ready(function($) {
+    $('#partyminder-community-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const $form = $(this);
+        const $submitBtn = $form.find('button[type="submit"]');
+        const originalText = $submitBtn.html();
+        
+        // Disable submit button and show loading
+        $submitBtn.prop('disabled', true).html('<?php _e("Creating Community...", "partyminder"); ?>');
+        
+        // Prepare form data
+        const formData = new FormData(this);
+        formData.append('action', 'partyminder_create_community');
+        
+        // Convert FormData to regular object for jQuery
+        const data = {};
+        for (let [key, value] of formData.entries()) {
+            data[key] = value;
+        }
+        
+        $.ajax({
+            url: '<?php echo admin_url("admin-ajax.php"); ?>',
+            type: 'POST',
+            data: data,
+            success: function(response) {
+                if (response.success) {
+                    // Redirect to success page or community
+                    const redirectUrl = response.data.redirect_url || '<?php echo PartyMinder::get_create_community_url(); ?>?partyminder_created=1';
+                    window.location.href = redirectUrl;
+                } else {
+                    // Show error message
+                    $form.before('<div class="pm-alert pm-alert-error pm-mb-4"><h4><?php _e("Please fix the following issues:", "partyminder"); ?></h4><ul><li>' + (response.data || 'Unknown error occurred') + '</li></ul></div>');
+                    
+                    // Scroll to top to show error message
+                    $('html, body').animate({scrollTop: 0}, 500);
+                }
+            },
+            error: function() {
+                $form.before('<div class="pm-alert pm-alert-error pm-mb-4"><h4><?php _e("Error", "partyminder"); ?></h4><p><?php _e("Network error. Please try again.", "partyminder"); ?></p></div>');
+                
+                // Scroll to top to show error message
+                $('html, body').animate({scrollTop: 0}, 500);
+            },
+            complete: function() {
+                // Re-enable submit button
+                $submitBtn.prop('disabled', false).html(originalText);
+            }
         });
     });
-    
-    // Form submission handling
-    const form = document.getElementById('create-community-form');
-    const createBtn = document.getElementById('create-btn');
-    const loadingOverlay = document.getElementById('loading-overlay');
-    
-    form.addEventListener('submit', function(e) {
-        // Show loading overlay
-        loadingOverlay.style.display = 'flex';
-        createBtn.disabled = true;
-        createBtn.textContent = '<?php _e('Creating...', 'partyminder'); ?>';
-        
-        // Basic validation
-        const name = document.getElementById('community-name').value.trim();
-        if (!name) {
-            e.preventDefault();
-            alert('<?php _e('Please enter a community name.', 'partyminder'); ?>');
-            loadingOverlay.style.display = 'none';
-            createBtn.disabled = false;
-            createBtn.textContent = '<?php _e('Create Community', 'partyminder'); ?>';
-            return;
-        }
-        
-        if (name.length > 100) {
-            e.preventDefault();
-            alert('<?php _e('Community name must be 100 characters or less.', 'partyminder'); ?>');
-            loadingOverlay.style.display = 'none';
-            createBtn.disabled = false;
-            createBtn.textContent = '<?php _e('Create Community', 'partyminder'); ?>';
-            return;
-        }
-        
-        const description = document.getElementById('community-description').value.trim();
-        if (description.length > 500) {
-            e.preventDefault();
-            alert('<?php _e('Description must be 500 characters or less.', 'partyminder'); ?>');
-            loadingOverlay.style.display = 'none';
-            createBtn.disabled = false;
-            createBtn.textContent = '<?php _e('Create Community', 'partyminder'); ?>';
-            return;
-        }
-    });
-    
-    // Character counter for name field
-    const nameInput = document.getElementById('community-name');
-    const descriptionInput = document.getElementById('community-description');
-    
-    function updateCharCounter(input, maxLength) {
-        const currentLength = input.value.length;
-        const remaining = maxLength - currentLength;
-        
-        // Find or create counter element
-        let counter = input.parentNode.querySelector('.char-counter');
-        if (!counter) {
-            counter = document.createElement('div');
-            counter.className = 'char-counter text-muted';
-            counter.style.textAlign = 'right';
-            counter.style.fontSize = '12px';
-            input.parentNode.appendChild(counter);
-        }
-        
-        counter.textContent = remaining + ' <?php _e('characters remaining', 'partyminder'); ?>';
-        counter.style.color = remaining < 20 ? '#dc3545' : '#6b7280';
-    }
-    
-    nameInput.addEventListener('input', function() {
-        updateCharCounter(this, 100);
-    });
-    
-    descriptionInput.addEventListener('input', function() {
-        updateCharCounter(this, 500);
-    });
-    
-    // Initialize character counters
-    updateCharCounter(nameInput, 100);
-    updateCharCounter(descriptionInput, 500);
 });
 </script>
