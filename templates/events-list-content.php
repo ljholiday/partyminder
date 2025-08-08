@@ -141,6 +141,12 @@ ob_start();
                             <span class="pm-text-muted"><?php echo esc_html($event->venue_info); ?></span>
                         </div>
                         <?php endif; ?>
+                        
+                        <div class="pm-flex pm-gap pm-mb-4">
+                            <span class="pm-text-muted">
+                                <?php printf(__('Hosted by %s', 'partyminder'), esc_html($event->host_email)); ?>
+                            </span>
+                        </div>
                     </div>
                     
                     <?php if ($event->excerpt || $event->description): ?>
@@ -177,7 +183,7 @@ ob_start();
                                 </a>
                             <?php elseif ($is_host): ?>
                                 <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-btn pm-btn-secondary">
-                                    <?php _e('Manage Event', 'partyminder'); ?>
+                                    <?php _e('View Details', 'partyminder'); ?>
                                 </a>
                             <?php else: ?>
                                 <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-btn pm-btn-secondary">

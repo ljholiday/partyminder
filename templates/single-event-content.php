@@ -238,7 +238,7 @@ ob_start();
             <div class="pm-flex pm-flex-column pm-gap">
                 <?php if ($is_event_host): ?>
                     <a href="<?php echo PartyMinder::get_edit_event_url($event->id); ?>" class="pm-btn">
-                        Edit Event Details
+                        Edit Event
                     </a>
                 <?php else: ?>
                     <a href="#rsvp" class="pm-btn">
