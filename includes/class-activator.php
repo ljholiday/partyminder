@@ -42,6 +42,7 @@ class PartyMinder_Activator {
             host_email varchar(100) DEFAULT '',
             host_notes text,
             ai_plan longtext,
+            privacy varchar(20) DEFAULT 'public',
             event_status varchar(20) DEFAULT 'active',
             author_id bigint(20) UNSIGNED DEFAULT 1,
             featured_image varchar(255) DEFAULT '',
@@ -53,7 +54,8 @@ class PartyMinder_Activator {
             UNIQUE KEY slug (slug),
             KEY event_date (event_date),
             KEY event_status (event_status),
-            KEY author_id (author_id)
+            KEY author_id (author_id),
+            KEY privacy (privacy)
         ) $charset_collate;";
 
         // Guests table for RSVP management

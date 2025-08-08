@@ -258,6 +258,49 @@ ob_start();
 </div>
 <?php endif; ?>
 
+<?php if ($is_event_host && !$is_past): ?>
+<div class="pm-section pm-mb">
+    <div class="pm-card">
+        <div class="pm-card-header">
+            <h3 class="pm-heading pm-heading-md">Invite Guests</h3>
+        </div>
+        <div class="pm-card-body">
+            <!-- Email Invitation Form -->
+            <form id="send-event-invitation-form" class="pm-form pm-mb-4">
+                <div class="pm-form-group">
+                    <label class="pm-form-label">
+                        <?php _e('Guest Email', 'partyminder'); ?>
+                    </label>
+                    <input type="email" class="pm-form-input" id="event-invitation-email" 
+                           placeholder="<?php _e('Enter guest email address...', 'partyminder'); ?>" required>
+                </div>
+                
+                <div class="pm-form-group">
+                    <label class="pm-form-label">
+                        <?php _e('Personal Message (Optional)', 'partyminder'); ?>
+                    </label>
+                    <textarea class="pm-form-textarea" id="event-invitation-message" rows="3"
+                              placeholder="<?php _e('Add a personal note to your invitation...', 'partyminder'); ?>"></textarea>
+                </div>
+                
+                <button type="submit" class="pm-btn pm-btn-sm">
+                    <?php _e('Send Invitation', 'partyminder'); ?>
+                </button>
+            </form>
+            
+            <div>
+                <h4 class="pm-heading pm-heading-sm pm-mb-4"><?php _e('Pending Invitations', 'partyminder'); ?></h4>
+                <div id="event-invitations-list">
+                    <div class="pm-text-center pm-text-muted">
+                        <?php _e('Loading invitations...', 'partyminder'); ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <div class="pm-section pm-mb">
     <div class="pm-card">
         <div class="pm-card-header">
@@ -305,6 +348,139 @@ include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php');
 ?>
 
 <script>
+jQuery(document).ready(function($) {
+    // Load pending invitations on page load
+    if ($('#event-invitations-list').length > 0) {
+        loadEventInvitations();
+    }
+    
+    // Handle invitation form submission
+    $('#send-event-invitation-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const email = $('#event-invitation-email').val().trim();
+        const message = $('#event-invitation-message').val().trim();
+        
+        if (!email) {
+            alert('<?php _e('Please enter an email address.', 'partyminder'); ?>');
+            return;
+        }
+        
+        const $form = $(this);
+        const $submitBtn = $form.find('button[type="submit"]');
+        const originalText = $submitBtn.text();
+        
+        // Disable form and show loading
+        $submitBtn.prop('disabled', true).text('<?php _e('Sending...', 'partyminder'); ?>');
+        $form.find('input, textarea').prop('disabled', true);
+        
+        $.ajax({
+            url: '<?php echo admin_url("admin-ajax.php"); ?>',
+            type: 'POST',
+            data: {
+                action: 'partyminder_send_event_invitation',
+                event_id: <?php echo $event->id; ?>,
+                email: email,
+                message: message,
+                nonce: '<?php echo wp_create_nonce('partyminder_event_action'); ?>'
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Clear form
+                    $form[0].reset();
+                    
+                    // Reload invitations list
+                    loadEventInvitations();
+                    
+                    // Show success message briefly
+                    const $successMsg = $('<div class="pm-alert pm-alert-success pm-mb-4">' + 
+                        '<?php _e('Invitation sent successfully!', 'partyminder'); ?>' + 
+                        '</div>');
+                    $form.before($successMsg);
+                    setTimeout(() => $successMsg.fadeOut(() => $successMsg.remove()), 3000);
+                } else {
+                    alert(response.data || '<?php _e('Failed to send invitation.', 'partyminder'); ?>');
+                }
+            },
+            error: function() {
+                alert('<?php _e('Network error. Please try again.', 'partyminder'); ?>');
+            },
+            complete: function() {
+                // Re-enable form
+                $submitBtn.prop('disabled', false).text(originalText);
+                $form.find('input, textarea').prop('disabled', false);
+            }
+        });
+    });
+    
+    // Handle invitation cancellation
+    $(document).on('click', '.cancel-event-invitation', function() {
+        if (!confirm('<?php _e('Are you sure you want to cancel this invitation?', 'partyminder'); ?>')) {
+            return;
+        }
+        
+        const invitationId = $(this).data('invitation-id');
+        const $button = $(this);
+        const originalText = $button.text();
+        
+        $button.prop('disabled', true).text('<?php _e('Cancelling...', 'partyminder'); ?>');
+        
+        $.ajax({
+            url: '<?php echo admin_url("admin-ajax.php"); ?>',
+            type: 'POST',
+            data: {
+                action: 'partyminder_cancel_event_invitation',
+                event_id: <?php echo $event->id; ?>,
+                invitation_id: invitationId,
+                nonce: '<?php echo wp_create_nonce('partyminder_event_action'); ?>'
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Reload invitations list
+                    loadEventInvitations();
+                } else {
+                    alert(response.data || '<?php _e('Failed to cancel invitation.', 'partyminder'); ?>');
+                    $button.prop('disabled', false).text(originalText);
+                }
+            },
+            error: function() {
+                alert('<?php _e('Network error. Please try again.', 'partyminder'); ?>');
+                $button.prop('disabled', false).text(originalText);
+            }
+        });
+    });
+    
+    function loadEventInvitations() {
+        $.ajax({
+            url: '<?php echo admin_url("admin-ajax.php"); ?>',
+            type: 'POST',
+            data: {
+                action: 'partyminder_get_event_invitations',
+                event_id: <?php echo $event->id; ?>,
+                nonce: '<?php echo wp_create_nonce('partyminder_event_action'); ?>'
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#event-invitations-list').html(response.data.html);
+                } else {
+                    $('#event-invitations-list').html(
+                        '<div class="pm-text-center pm-text-muted">' + 
+                        '<?php _e('Unable to load invitations.', 'partyminder'); ?>' + 
+                        '</div>'
+                    );
+                }
+            },
+            error: function() {
+                $('#event-invitations-list').html(
+                    '<div class="pm-text-center pm-text-muted">' + 
+                    '<?php _e('Unable to load invitations.', 'partyminder'); ?>' + 
+                    '</div>'
+                );
+            }
+        });
+    }
+});
+
 function shareEvent() {
     const url = window.location.href;
     const title = '<?php echo esc_js($event->title); ?>';

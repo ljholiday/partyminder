@@ -1171,8 +1171,47 @@ class PartyMinder {
             return;
         }
         
+        // Generate HTML for invitations list
+        ob_start();
+        if (empty($invitations)) {
+            ?>
+            <div class="pm-text-center pm-text-muted">
+                <?php _e('No pending invitations.', 'partyminder'); ?>
+            </div>
+            <?php
+        } else {
+            foreach ($invitations as $invitation) {
+                $created_date = date('M j, Y', strtotime($invitation->created_at));
+                $expires_date = date('M j, Y', strtotime($invitation->expires_at));
+                ?>
+                <div class="pm-flex pm-flex-between pm-p-4 pm-mb-4 pm-border">
+                    <div class="pm-flex pm-gap pm-flex-1">
+                        <div>
+                            <strong class="pm-text-primary"><?php echo esc_html($invitation->invited_email); ?></strong><br>
+                            <span class="pm-text-muted pm-text-sm">
+                                <?php printf(__('Sent %s • Expires %s', 'partyminder'), $created_date, $expires_date); ?>
+                            </span>
+                            <?php if ($invitation->message): ?>
+                                <br><span class="pm-text-muted pm-text-sm"><?php echo esc_html(wp_trim_words($invitation->message, 10)); ?></span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div>
+                        <button type="button" 
+                                class="cancel-event-invitation pm-btn pm-btn-danger pm-btn-sm" 
+                                data-invitation-id="<?php echo esc_attr($invitation->id); ?>">
+                            <?php _e('Cancel', 'partyminder'); ?>
+                        </button>
+                    </div>
+                </div>
+                <?php
+            }
+        }
+        $html = ob_get_clean();
+        
         wp_send_json_success(array(
-            'invitations' => $invitations
+            'invitations' => $invitations,
+            'html' => $html
         ));
     }
     
@@ -2248,7 +2287,13 @@ class PartyMinder {
                 // This is an individual event URL
                 $event = $this->get_event_by_slug($event_slug);
                 
-                if ($event) {
+                // Load event manager to check privacy
+                if (!$this->event_manager) {
+                    $this->load_dependencies();
+                    $this->event_manager = new PartyMinder_Event_Manager();
+                }
+                
+                if ($event && $this->event_manager->can_user_view_event($event)) {
                     // Set up global event data for content injection
                     $GLOBALS['partyminder_current_event'] = $event;
                     $GLOBALS['partyminder_is_single_event'] = true;

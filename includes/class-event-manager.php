@@ -32,12 +32,13 @@ class PartyMinder_Event_Manager {
                 'venue_info' => sanitize_text_field($event_data['venue'] ?? ''),
                 'host_email' => sanitize_email($event_data['host_email'] ?? ''),
                 'host_notes' => wp_kses_post(wp_unslash($event_data['host_notes'] ?? '')),
+                'privacy' => sanitize_text_field($event_data['privacy'] ?? 'public'),
                 'event_status' => 'active',
                 'author_id' => get_current_user_id() ?: 1,
                 'meta_title' => sanitize_text_field(wp_unslash($event_data['title'])),
                 'meta_description' => wp_trim_words(wp_kses_post(wp_unslash($event_data['description'] ?? '')), 20)
             ),
-            array('%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s')
+            array('%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s')
         );
         
         if ($result === false) {
@@ -111,20 +112,101 @@ class PartyMinder_Event_Manager {
         return $event;
     }
     
+    /**
+     * Check if the current user can view an event based on privacy settings
+     */
+    public function can_user_view_event($event) {
+        if (!$event) {
+            return false;
+        }
+        
+        // Public events can be viewed by anyone
+        if ($event->privacy === 'public') {
+            return true;
+        }
+        
+        // Private events can only be viewed by the creator
+        $current_user_id = get_current_user_id();
+        if ($current_user_id && $event->author_id == $current_user_id) {
+            return true;
+        }
+        
+        // Check if current user is an invited guest (RSVP'd)
+        if (is_user_logged_in()) {
+            $current_user = wp_get_current_user();
+            $user_email = $current_user->user_email;
+            
+            global $wpdb;
+            $guests_table = $wpdb->prefix . 'partyminder_guests';
+            
+            $guest_record = $wpdb->get_var($wpdb->prepare(
+                "SELECT id FROM $guests_table 
+                 WHERE event_id = %d AND email = %s",
+                $event->id,
+                $user_email
+            ));
+            
+            if ($guest_record) {
+                return true;
+            }
+            
+            // Also check if user has a pending invitation
+            $invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
+            $invitation_record = $wpdb->get_var($wpdb->prepare(
+                "SELECT id FROM $invitations_table 
+                 WHERE event_id = %d AND invited_email = %s AND status = 'pending' AND expires_at > NOW()",
+                $event->id,
+                $user_email
+            ));
+            
+            if ($invitation_record) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
     
     public function get_upcoming_events($limit = 10) {
         global $wpdb;
         
         $events_table = $wpdb->prefix . 'partyminder_events';
+        $guests_table = $wpdb->prefix . 'partyminder_guests';
+        $invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
+        $current_user_id = get_current_user_id();
         
-        $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM $events_table 
-             WHERE event_date >= CURDATE()
-             AND event_status = 'active'
-             ORDER BY event_date ASC 
-             LIMIT %d",
-            $limit
-        ));
+        // Build privacy clause - show public events to everyone, private events to creator and invited guests
+        $privacy_clause = "e.privacy = 'public'";
+        if ($current_user_id && is_user_logged_in()) {
+            $current_user = wp_get_current_user();
+            $user_email = $current_user->user_email;
+            
+            $privacy_clause = "(e.privacy = 'public' OR 
+                              (e.privacy = 'private' AND e.author_id = $current_user_id) OR 
+                              (e.privacy = 'private' AND EXISTS(
+                                  SELECT 1 FROM $guests_table g 
+                                  WHERE g.event_id = e.id AND g.email = %s
+                              )) OR
+                              (e.privacy = 'private' AND EXISTS(
+                                  SELECT 1 FROM $invitations_table i 
+                                  WHERE i.event_id = e.id AND i.invited_email = %s 
+                                  AND i.status = 'pending' AND i.expires_at > NOW()
+                              )))";
+        }
+        
+        $query = "SELECT DISTINCT e.* FROM $events_table e
+                 WHERE e.event_date >= CURDATE()
+                 AND e.event_status = 'active'
+                 AND ($privacy_clause)
+                 ORDER BY e.event_date ASC 
+                 LIMIT %d";
+        
+        if ($current_user_id && is_user_logged_in()) {
+            $current_user = wp_get_current_user();
+            $results = $wpdb->get_results($wpdb->prepare($query, $current_user->user_email, $current_user->user_email, $limit));
+        } else {
+            $results = $wpdb->get_results($wpdb->prepare($query, $limit));
+        }
         
         // Add guest stats to each event
         foreach ($results as $event) {
@@ -223,6 +305,7 @@ class PartyMinder_Event_Manager {
             'venue_info' => sanitize_text_field($event_data['venue'] ?? ''),
             'host_email' => sanitize_email($event_data['host_email'] ?? ''),
             'host_notes' => wp_kses_post(wp_unslash($event_data['host_notes'] ?? '')),
+            'privacy' => sanitize_text_field($event_data['privacy'] ?? 'public'),
             'meta_title' => sanitize_text_field(wp_unslash($event_data['title'])),
             'meta_description' => wp_trim_words(wp_kses_post(wp_unslash($event_data['description'] ?? '')), 20)
         );
@@ -231,7 +314,7 @@ class PartyMinder_Event_Manager {
             $events_table,
             $update_data,
             array('id' => $event_id),
-            array('%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s'),
+            array('%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s'),
             array('%d')
         );
         

@@ -152,6 +152,18 @@ ob_start();
                 <textarea id="host_notes" name="host_notes" rows="3" class="pm-form-textarea"
                           placeholder="<?php esc_attr_e('Any special instructions, parking info, what to bring...', 'partyminder'); ?>"><?php echo esc_textarea($_POST['host_notes'] ?? ''); ?></textarea>
             </div>
+            <div class="pm-form-group">
+                <label for="privacy" class="pm-form-label"><?php _e('Event Privacy *', 'partyminder'); ?></label>
+                <select id="privacy" name="privacy" class="pm-form-input" required>
+                    <option value="public" <?php selected($_POST['privacy'] ?? 'public', 'public'); ?>>
+                        <?php _e('Public - Anyone can find and RSVP to this event', 'partyminder'); ?>
+                    </option>
+                    <option value="private" <?php selected($_POST['privacy'] ?? '', 'private'); ?>>
+                        <?php _e('Private - Only invited guests can see and RSVP', 'partyminder'); ?>
+                    </option>
+                </select>
+                <p class="pm-form-help pm-text-muted"><?php _e('Public events appear in event listings. Private events are only accessible to people you invite.', 'partyminder'); ?></p>
+            </div>
         </div>
 
         <!-- Invitation Section for Create Event -->
@@ -194,7 +206,7 @@ ob_start();
             <!-- Manual Email Preview -->
             <div class="pm-card">
                 <div class="pm-card-body">
-                    <h5 class="pm-heading pm-heading-sm pm-mb-4">📧 <?php _e('Manual Email Invitations', 'partyminder'); ?></h5>
+                    <h5 class="pm-heading pm-heading-sm pm-mb-4"><?php _e('Manual Email Invitations', 'partyminder'); ?></h5>
                     <p class="pm-text-muted pm-mb-4">
                         <?php _e('After creating your event, you\'ll be able to send email invitations to specific guests.', 'partyminder'); ?>
                     </p>
@@ -217,7 +229,6 @@ ob_start();
                 <?php _e('Create Event', 'partyminder'); ?>
             </button>
             <a href="<?php echo PartyMinder::get_events_page_url(); ?>" class="pm-btn pm-btn-secondary">
-                <span>👈</span>
                 <?php _e('Back to Events', 'partyminder'); ?>
             </a>
         </div>
