@@ -82,6 +82,13 @@ $primary_color = get_option('partyminder_primary_color', '#667eea');
 $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 $button_style = get_option('partyminder_button_style', 'rounded');
 $form_layout = get_option('partyminder_form_layout', 'card');
+
+// Set up template variables
+$page_title = sprintf(__('RSVP: %s', 'partyminder'), esc_html($event->title));
+$page_description = sprintf(__('%s - %s', 'partyminder'), $event_date->format('l, F j, Y'), ($event->venue_info ? esc_html($event->venue_info) : ''));
+
+// Main content
+ob_start();
 ?>
 
 <style>
@@ -314,6 +321,15 @@ $form_layout = get_option('partyminder_form_layout', 'card');
     </div>
     <?php endif; ?>
 </div>
+<?php
+$main_content = ob_get_clean();
+
+// Sidebar content (empty for RSVP form)
+$sidebar_content = '';
+
+// Include base template
+include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-form.php');
+?>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

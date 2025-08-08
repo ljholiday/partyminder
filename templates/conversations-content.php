@@ -16,10 +16,20 @@ if ($on_dedicated_page) {
     // Include the full conversations template
     include PARTYMINDER_PLUGIN_DIR . 'templates/conversations.php';
 } else {
-    // Fallback embedded version
-    echo '<div class="partyminder-shortcode-wrapper card text-center p-4 pm-m-5">';
-    echo '<h3>' . __('Community Conversations', 'partyminder') . '</h3>';
-    echo '<p>' . __('Connect with fellow hosts and guests, share tips, and plan amazing gatherings together.', 'partyminder') . '</p>';
-    echo '<a href="' . esc_url(PartyMinder::get_conversations_url()) . '" class="pm-btn">' . __('Join Conversations', 'partyminder') . '</a>';
-    echo '</div>';
+    // Fallback embedded version - set up template variables
+    $page_title = __('Community Conversations', 'partyminder');
+    $page_description = __('Connect with fellow hosts and guests, share tips, and plan amazing gatherings together.', 'partyminder');
+    
+    // Main content
+    ob_start();
+    ?>
+    <div class="text-center p-4">
+        <p><?php echo esc_html($page_description); ?></p>
+        <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-btn"><?php _e('Join Conversations', 'partyminder'); ?></a>
+    </div>
+    <?php
+    $content = ob_get_clean();
+    
+    // Include base template
+    include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-page.php');
 }

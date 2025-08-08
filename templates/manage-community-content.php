@@ -9,7 +9,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-
 // Load required classes
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
 
@@ -20,22 +19,20 @@ $community_id = isset($_GET['community_id']) ? intval($_GET['community_id']) : 0
 $current_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'overview';
 
 if (!$community_id) {
-    echo '<div class="page text-center pm-p-16">';
-    echo '<h2>' . __('Community Not Found', 'partyminder') . '</h2>';
-    echo '<p>' . __('No community ID provided.', 'partyminder') . '</p>';
-    echo '<a href="' . esc_url(PartyMinder::get_communities_url()) . '" class="pm-btn">' . __('Back to Communities', 'partyminder') . '</a>';
-    echo '</div>';
+    $page_title = __('Community Not Found', 'partyminder');
+    $main_content = '<div class="text-center pm-p-16"><h2>' . __('Community Not Found', 'partyminder') . '</h2><p>' . __('No community ID provided.', 'partyminder') . '</p><a href="' . esc_url(PartyMinder::get_communities_url()) . '" class="pm-btn">' . __('Back to Communities', 'partyminder') . '</a></div>';
+    $sidebar_content = '';
+    include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php');
     return;
 }
 
 // Get community data
 $community = $community_manager->get_community($community_id);
 if (!$community) {
-    echo '<div class="page text-center pm-p-16">';
-    echo '<h2>' . __('Community Not Found', 'partyminder') . '</h2>';
-    echo '<p>' . __('The requested community does not exist.', 'partyminder') . '</p>';
-    echo '<a href="' . esc_url(PartyMinder::get_communities_url()) . '" class="pm-btn">' . __('Back to Communities', 'partyminder') . '</a>';
-    echo '</div>';
+    $page_title = __('Community Not Found', 'partyminder');
+    $main_content = '<div class="text-center pm-p-16"><h2>' . __('Community Not Found', 'partyminder') . '</h2><p>' . __('The requested community does not exist.', 'partyminder') . '</p><a href="' . esc_url(PartyMinder::get_communities_url()) . '" class="pm-btn">' . __('Back to Communities', 'partyminder') . '</a></div>';
+    $sidebar_content = '';
+    include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php');
     return;
 }
 
@@ -45,11 +42,10 @@ $user_role = is_user_logged_in() ? $community_manager->get_member_role($communit
 
 // Check if user can manage this community
 if (!$user_role || $user_role !== 'admin') {
-    echo '<div class="page text-center pm-p-16">';
-    echo '<h2>' . __('Access Denied', 'partyminder') . '</h2>';
-    echo '<p>' . __('You do not have permission to manage this community.', 'partyminder') . '</p>';
-    echo '<a href="' . esc_url(PartyMinder::get_community_url($community->slug)) . '" class="pm-btn">' . __('View Community', 'partyminder') . '</a>';
-    echo '</div>';
+    $page_title = __('Access Denied', 'partyminder');
+    $main_content = '<div class="text-center pm-p-16"><h2>' . __('Access Denied', 'partyminder') . '</h2><p>' . __('You do not have permission to manage this community.', 'partyminder') . '</p><a href="' . esc_url(PartyMinder::get_community_url($community->slug)) . '" class="pm-btn">' . __('View Community', 'partyminder') . '</a></div>';
+    $sidebar_content = '';
+    include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php');
     return;
 }
 
@@ -77,57 +73,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 }
-?>
+
+// Set up template variables
+$page_title = sprintf(__('Manage %s', 'partyminder'), esc_html($community->name));
+$page_description = __('Manage settings, members, and invitations for your community', 'partyminder');
+
+// Breadcrumbs
+$breadcrumbs = array(
+    array('title' => __('Dashboard', 'partyminder'), 'url' => PartyMinder::get_dashboard_url()),
+    array('title' => __('Communities', 'partyminder'), 'url' => PartyMinder::get_communities_url()),
+    array('title' => esc_html($community->name), 'url' => PartyMinder::get_community_url($community->slug)),
+    array('title' => __('Manage', 'partyminder'))
+);
+
+// Navigation tabs
+$nav_items = array(
+    array('title' => __('Overview', 'partyminder'), 'url' => "?community_id={$community_id}&tab=overview", 'active' => $current_tab === 'overview'),
+    array('title' => __('Settings', 'partyminder'), 'url' => "?community_id={$community_id}&tab=settings", 'active' => $current_tab === 'settings'),
+    array('title' => __('Members', 'partyminder'), 'url' => "?community_id={$community_id}&tab=members", 'active' => $current_tab === 'members'),
+    array('title' => __('Invitations', 'partyminder'), 'url' => "?community_id={$community_id}&tab=invitations", 'active' => $current_tab === 'invitations')
+);
+
+// Main content
+ob_start();
+<!-- Success/Error Messages -->
+<?php if (isset($success_message)): ?>
+    <div class="pm-alert pm-alert-success">
+        <?php echo esc_html($success_message); ?>
+    </div>
+<?php endif; ?>
+
+<?php if (isset($error_message)): ?>
+    <div class="pm-alert pm-alert-error">
+        <?php echo esc_html($error_message); ?>
+    </div>
+<?php endif; ?>
 
 <div class="partyminder-manage-community">
-    <!-- Header -->
-    <div class="pm-community-header">
-        <div class="pm-breadcrumb" style="margin-bottom: 15px;">
-            <a href="<?php echo esc_url(PartyMinder::get_dashboard_url()); ?>">🏠 <?php _e('Dashboard', 'partyminder'); ?></a>
-            →
-            <a href="<?php echo esc_url(PartyMinder::get_communities_url()); ?>"><?php _e('Communities', 'partyminder'); ?></a>
-            →
-            <a href="<?php echo esc_url(PartyMinder::get_community_url($community->slug)); ?>"><?php echo esc_html($community->name); ?></a>
-            →
-            <span><?php _e('Manage', 'partyminder'); ?></span>
-        </div>
-        <h1>⚙️ <?php printf(__('Manage %s', 'partyminder'), esc_html($community->name)); ?></h1>
-        <p style="margin: 0; opacity: 0.9;"><?php _e('Manage settings, members, and invitations for your community', 'partyminder'); ?></p>
-    </div>
-
-    <!-- Success/Error Messages -->
-    <?php if (isset($success_message)): ?>
-        <div class="pm-alert pm-alert-success">
-            <?php echo esc_html($success_message); ?>
-        </div>
-    <?php endif; ?>
-    
-    <?php if (isset($error_message)): ?>
-        <div class="pm-alert pm-alert-error">
-            <?php echo esc_html($error_message); ?>
-        </div>
-    <?php endif; ?>
-
-    <!-- Tab Navigation -->
-    <div class="pm-management-tabs">
-        <a href="?community_id=<?php echo $community_id; ?>&tab=overview" 
-           class="management-tab-btn <?php echo $current_tab === 'overview' ? 'active' : ''; ?>">
-            <?php _e('Overview', 'partyminder'); ?>
-        </a>
-        <a href="?community_id=<?php echo $community_id; ?>&tab=settings" 
-           class="management-tab-btn <?php echo $current_tab === 'settings' ? 'active' : ''; ?>">
-            <?php _e('Settings', 'partyminder'); ?>
-        </a>
-        <a href="?community_id=<?php echo $community_id; ?>&tab=members" 
-           class="management-tab-btn <?php echo $current_tab === 'members' ? 'active' : ''; ?>">
-            <?php _e('Members', 'partyminder'); ?>
-        </a>
-        <a href="?community_id=<?php echo $community_id; ?>&tab=invitations" 
-           class="management-tab-btn <?php echo $current_tab === 'invitations' ? 'active' : ''; ?>">
-            <?php _e('Invitations', 'partyminder'); ?>
-        </a>
-    </div>
-
     <!-- Tab Content -->
     <div class="pm-management-content">
         
@@ -584,3 +566,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+    </div>
+</div>
+<?php
+$main_content = ob_get_clean();
+
+// Sidebar content - empty for management interface
+$sidebar_content = '';
+
+// Include base template
+include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php');

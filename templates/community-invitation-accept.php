@@ -106,9 +106,14 @@ if ($_POST && $invitation && $community && wp_verify_nonce($_POST['invitation_no
 // Get styling options
 $primary_color = get_option('partyminder_primary_color', '#667eea');
 $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
+
+// Set up template variables
+$page_title = __('Community Invitation', 'partyminder');
+$page_description = __('You\'ve been invited to join a community', 'partyminder');
+
+// Main content
+ob_start();
 ?>
-
-
 <div class="partyminder-invitation-accept">
     <!-- Page Header -->
     <div class="invitation-card">
@@ -199,3 +204,8 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         </div>
     </div>
 </div>
+<?php
+$content = ob_get_clean();
+
+// Include base template
+include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-page.php');

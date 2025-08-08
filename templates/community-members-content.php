@@ -58,66 +58,29 @@ if ($can_view_members) {
 // Get styling options
 $primary_color = get_option('partyminder_primary_color', '#667eea');
 $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
+
+// Set up template variables
+$page_title = __('👥 Community Members', 'partyminder');
+$page_description = sprintf(__('%s - %d Members', 'partyminder'), esc_html($community->name), $member_count);
+
+// Breadcrumbs
+$breadcrumbs = array(
+    array('title' => __('Communities', 'partyminder'), 'url' => PartyMinder::get_communities_url()),
+    array('title' => esc_html($community->name), 'url' => home_url('/communities/' . $community->slug)),
+    array('title' => __('Members', 'partyminder'))
+);
+
+// Navigation tabs
+$nav_items = array(
+    array('title' => __('Overview', 'partyminder'), 'url' => home_url('/communities/' . $community->slug), 'active' => false),
+    array('title' => __('Events', 'partyminder'), 'url' => home_url('/communities/' . $community->slug . '/events'), 'active' => false),
+    array('title' => __('Members', 'partyminder'), 'url' => home_url('/communities/' . $community->slug . '/members'), 'active' => true)
+);
+
+// Main content
+ob_start();
 ?>
-
-
 <div class="partyminder-community-members">
-    <!-- Breadcrumbs -->
-    <div class="breadcrumbs">
-        <a href="<?php echo PartyMinder::get_communities_url(); ?>">
-            <?php _e('🏘️ Communities', 'partyminder'); ?>
-        </a>
-        <span> › </span>
-        <a href="<?php echo home_url('/communities/' . $community->slug); ?>">
-            <?php echo esc_html($community->name); ?>
-        </a>
-        <span> › </span>
-        <span><?php _e('Members', 'partyminder'); ?></span>
-    </div>
-
-    <!-- Members Header -->
-    <div class="members-header">
-        <div class="members-hero">
-            <div class="members-title-section">
-                <h1><?php _e('👥 Community Members', 'partyminder'); ?></h1>
-                <div class="members-meta">
-                    <span><?php echo esc_html($community->name); ?></span>
-                    <span class="member-count-badge">
-                        <?php printf(__('%d Members', 'partyminder'), $member_count); ?>
-                    </span>
-                </div>
-            </div>
-            
-            <div class="members-actions">
-                <?php if ($is_member && $user_role === 'admin'): ?>
-                    <a href="#" class="btn invite-members-btn">
-                        <span>✉️</span>
-                        <?php _e('Invite Members', 'partyminder'); ?>
-                    </a>
-                <?php endif; ?>
-                
-                <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="btn btn btn-secondary">
-                    <span>🔙</span>
-                    <?php _e('Back to Community', 'partyminder'); ?>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Navigation Tabs -->
-    <div class="members-nav">
-        <div class="nav-tabs">
-            <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="nav-tab">
-                <span>🏠</span> <?php _e('Overview', 'partyminder'); ?>
-            </a>
-            <a href="<?php echo home_url('/communities/' . $community->slug . '/events'); ?>" class="nav-tab">
-                <span>🗓️</span> <?php _e('Events', 'partyminder'); ?>
-            </a>
-            <a href="<?php echo home_url('/communities/' . $community->slug . '/members'); ?>" class="nav-tab active">
-                <span>👥</span> <?php _e('Members', 'partyminder'); ?>
-            </a>
-        </div>
-    </div>
 
     <!-- Members Content -->
     <div class="members-content">
@@ -222,6 +185,31 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         <?php endif; ?>
     </div>
 </div>
+<?php
+$main_content = ob_get_clean();
+
+// Sidebar content
+ob_start();
+?>
+<div class="members-actions">
+    <?php if ($is_member && $user_role === 'admin'): ?>
+        <a href="#" class="pm-btn invite-members-btn">
+            <span>✉️</span>
+            <?php _e('Invite Members', 'partyminder'); ?>
+        </a>
+    <?php endif; ?>
+    
+    <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-btn pm-btn-secondary">
+        <span>🔙</span>
+        <?php _e('Back to Community', 'partyminder'); ?>
+    </a>
+</div>
+<?php
+$sidebar_content = ob_get_clean();
+
+// Include base template
+include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php');
+?>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

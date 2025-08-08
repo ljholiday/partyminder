@@ -2230,11 +2230,6 @@ class PartyMinder {
                 return $theme_template;
             }
             
-            // Fall back to our plugin template
-            $plugin_template = PARTYMINDER_PLUGIN_DIR . 'templates/single-event.php';
-            if (file_exists($plugin_template)) {
-                return $plugin_template;
-            }
         }
         
         return $template;

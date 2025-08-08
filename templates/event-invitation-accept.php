@@ -75,6 +75,13 @@ if ($_POST && $invitation && wp_verify_nonce($_POST['invitation_nonce'], 'accept
 // Get styling options
 $primary_color = get_option('partyminder_primary_color', '#667eea');
 $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
+
+// Set up template variables
+$page_title = __('Event Invitation', 'partyminder');
+$page_description = __('You\'ve been invited to an event', 'partyminder');
+
+// Main content
+ob_start();
 ?>
 
 <style>
@@ -437,6 +444,15 @@ $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
         </div>
     </div>
 </div>
+<?php
+$main_content = ob_get_clean();
+
+// Sidebar content (empty for invitation page)
+$sidebar_content = '';
+
+// Include base template
+include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-form.php');
+?>
 
 <script>
 function togglePlusOne() {
