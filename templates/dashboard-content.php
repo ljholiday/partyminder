@@ -97,7 +97,7 @@ ob_start();
 <!-- Events Section -->
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
-        <h2 class="pm-heading pm-heading-md pm-mb">🎪 <?php _e('Recent Events', 'partyminder'); ?></h2>
+        <h2 class="pm-heading pm-heading-md pm-mb"><?php _e('Events', 'partyminder'); ?></h2>
         <p class="pm-text-muted"><?php _e('Events you\'ve created or RSVP\'d to', 'partyminder'); ?></p>
     </div>
     <?php if (!empty($recent_events)): ?>
@@ -194,7 +194,7 @@ ob_start();
 <!-- Event Conversations Section -->
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
-        <h2 class="pm-heading pm-heading-md pm-mb">🎪 <?php _e('Event Planning Discussions', 'partyminder'); ?></h2>
+        <h2 class="pm-heading pm-heading-md pm-mb"><?php _e('Event Planning Discussions', 'partyminder'); ?></h2>
         <p class="pm-text-muted"><?php _e('Active conversations about specific events', 'partyminder'); ?></p>
     </div>
     <?php if (!empty($conversations_by_event)): ?>
@@ -373,7 +373,7 @@ ob_start();
              <?php _e('Create Event', 'partyminder'); ?>
         </a>
         <a href="<?php echo esc_url(PartyMinder::get_events_page_url()); ?>" class="pm-btn pm-btn-secondary">
-            🎪 <?php _e('Browse Events', 'partyminder'); ?>
+             <?php _e('Browse Events', 'partyminder'); ?>
         </a>
         <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-btn pm-btn-secondary">
              <?php _e('Join Conversations', 'partyminder'); ?>
@@ -403,7 +403,7 @@ ob_start();
 <!-- Your Profile -->
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm">👤 <?php _e('Your Profile', 'partyminder'); ?></h3>
+        <h3 class="pm-heading pm-heading-sm"><?php _e('Your Profile', 'partyminder'); ?></h3>
     </div>
     <div class="pm-flex pm-gap pm-mb">
         <div class="pm-avatar">
@@ -421,7 +421,7 @@ ob_start();
             <?php _e('View Profile', 'partyminder'); ?>
         </a>
         <a href="<?php echo esc_url(PartyMinder::get_logout_url()); ?>" class="pm-btn pm-btn-secondary">
-            🚪 <?php _e('Logout', 'partyminder'); ?>
+            <?php _e('Logout', 'partyminder'); ?>
         </a>
     </div>
 </div>

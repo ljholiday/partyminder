@@ -251,6 +251,9 @@ ob_start();
         <a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-btn pm-btn-secondary">
             <?php _e('Back to My Events', 'partyminder'); ?>
         </a>
+        <button type="button" onclick="deleteEvent()" class="pm-btn pm-btn-danger">
+            <?php _e('Delete Event', 'partyminder'); ?>
+        </button>
     </div>
 </form>
 <?php
@@ -310,5 +313,44 @@ jQuery(document).ready(function($) {
             }
         });
     });
+    
+    // Delete Event functionality
+    window.deleteEvent = function() {
+        if (!confirm('<?php _e("Are you sure you want to delete this event? This action cannot be undone.", "partyminder"); ?>')) {
+            return;
+        }
+        
+        const $deleteBtn = $('button[onclick="deleteEvent()"]');
+        const originalText = $deleteBtn.html();
+        
+        // Disable button and show loading
+        $deleteBtn.prop('disabled', true).html('<?php _e("Deleting...", "partyminder"); ?>');
+        
+        $.ajax({
+            url: '<?php echo admin_url("admin-ajax.php"); ?>',
+            type: 'POST',
+            data: {
+                action: 'partyminder_delete_event',
+                event_id: <?php echo $event_id; ?>,
+                nonce: '<?php echo wp_create_nonce("partyminder_event_action"); ?>'
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Show success message briefly then redirect
+                    $deleteBtn.html('<?php _e("Event Deleted!", "partyminder"); ?>');
+                    setTimeout(function() {
+                        window.location.href = response.data.redirect_url || '<?php echo PartyMinder::get_my_events_url(); ?>';
+                    }, 1000);
+                } else {
+                    alert(response.data || '<?php _e("Failed to delete event.", "partyminder"); ?>');
+                    $deleteBtn.prop('disabled', false).html(originalText);
+                }
+            },
+            error: function() {
+                alert('<?php _e("Network error. Please try again.", "partyminder"); ?>');
+                $deleteBtn.prop('disabled', false).html(originalText);
+            }
+        });
+    };
 });
 </script>

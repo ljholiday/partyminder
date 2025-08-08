@@ -245,7 +245,7 @@ if ($is_editing) {
                     <?php if ($is_own_profile): ?>
                     <div class="pm-flex pm-gap pm-flex-wrap">
                         <a href="<?php echo add_query_arg('edit', '1', PartyMinder::get_profile_url()); ?>" class="pm-btn">
-                            ✏️ <?php _e('Edit Profile', 'partyminder'); ?>
+                            <?php _e('Edit Profile', 'partyminder'); ?>
                         </a>
                         <a href="<?php echo esc_url(PartyMinder::get_my_events_url()); ?>" class="pm-btn pm-btn-secondary">
                              <?php _e('My Events', 'partyminder'); ?>
@@ -323,7 +323,7 @@ if ($is_editing) {
         </div>
         <div class="pm-flex pm-gap pm-flex-column">
             <a href="<?php echo add_query_arg('edit', '1', PartyMinder::get_profile_url()); ?>" class="pm-btn">
-                ✏️ <?php _e('Edit Profile', 'partyminder'); ?>
+                <?php _e('Edit Profile', 'partyminder'); ?>
             </a>
             <a href="<?php echo esc_url(PartyMinder::get_my_events_url()); ?>" class="pm-btn pm-btn-secondary">
                  <?php _e('My Events', 'partyminder'); ?>
