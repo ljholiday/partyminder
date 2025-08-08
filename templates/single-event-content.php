@@ -61,6 +61,13 @@ ob_start();
                         <div class="pm-badge pm-badge-warning pm-mb-2">Tomorrow</div>
                     <?php endif; ?>
                 </div>
+                <div>
+                    <?php if ($event->privacy === 'private'): ?>
+                        <div class="pm-badge pm-badge-danger pm-mb-2">Private Event</div>
+                    <?php else: ?>
+                        <div class="pm-badge pm-badge-primary pm-mb-2">Public Event</div>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
         

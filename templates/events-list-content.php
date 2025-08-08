@@ -167,11 +167,17 @@ ob_start();
                         <?php else: ?>
                             <?php 
                             $is_full = $event->guest_limit > 0 && $event->guest_stats->confirmed >= $event->guest_limit;
-                            $can_rsvp = $event_manager->can_user_view_event($event);
+                            $can_view = $event_manager->can_user_view_event($event);
+                            $is_host = is_user_logged_in() && get_current_user_id() == $event->author_id;
+                            $can_rsvp = $can_view && !$is_host;
                             ?>
                             <?php if ($can_rsvp): ?>
                                 <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-btn">
                                     <?php echo $is_full ? __('Join Waitlist', 'partyminder') : __('RSVP Now', 'partyminder'); ?>
+                                </a>
+                            <?php elseif ($is_host): ?>
+                                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-btn pm-btn-secondary">
+                                    <?php _e('Manage Event', 'partyminder'); ?>
                                 </a>
                             <?php else: ?>
                                 <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-btn pm-btn-secondary">
