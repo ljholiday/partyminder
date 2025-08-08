@@ -11,8 +11,10 @@ if (!defined('ABSPATH')) {
 
 // Load required classes
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
+require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-manager.php';
 
 $community_manager = new PartyMinder_Community_Manager();
+$conversation_manager = new PartyMinder_Conversation_Manager();
 
 // Get community slug from URL
 $community_slug = get_query_var('community_slug');
@@ -41,6 +43,9 @@ if ($is_logged_in) {
     $user_role = $community_manager->get_member_role($community->id, $current_user->ID);
 }
 
+// Get community conversations
+$community_conversations = $conversation_manager->get_community_conversations($community->id, 5);
+
 // Set up template variables
 $page_title = esc_html($community->name);
 $page_description = '';
@@ -50,6 +55,7 @@ $breadcrumbs = array(
 );
 $nav_items = array(
     array('title' => 'Overview', 'url' => home_url('/communities/' . $community->slug), 'active' => true),
+    array('title' => 'Conversations', 'url' => home_url('/communities/' . $community->slug . '/conversations')),
     array('title' => 'Events', 'url' => home_url('/communities/' . $community->slug . '/events')),
     array('title' => 'Members', 'url' => home_url('/communities/' . $community->slug . '/members'))
 );
@@ -128,6 +134,73 @@ ob_start();
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Community Conversations Section -->
+<div class="pm-section pm-mb">
+    <div class="pm-card">
+        <div class="pm-card-header">
+            <div class="pm-flex pm-flex-between">
+                <h3 class="pm-heading pm-heading-md">Community Conversations</h3>
+                <?php if ($is_member): ?>
+                    <div>
+                        <a href="<?php echo esc_url(site_url('/create-conversation?community_id=' . $community->id)); ?>" class="pm-btn pm-btn-secondary">
+                            Start Conversation
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <div class="pm-card-body">
+            <?php if (!empty($community_conversations)): ?>
+                <div class="pm-flex pm-gap pm-flex-column">
+                    <?php foreach ($community_conversations as $conversation): ?>
+                        <div class="pm-flex pm-flex-between pm-p-4">
+                            <div class="pm-flex-1">
+                                <div class="pm-flex pm-gap">
+                                    <?php if ($conversation->is_pinned): ?>
+                                        <span class="pm-badge pm-badge-secondary">Pinned</span>
+                                    <?php endif; ?>
+                                    <h4 class="pm-heading pm-heading-sm">
+                                        <a href="<?php echo home_url('/conversations/' . ($conversation->topic_slug ?? 'general') . '/' . $conversation->slug); ?>" class="pm-text-primary">
+                                            <?php echo esc_html($conversation->title); ?>
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="pm-text-muted">
+                                    <?php printf(__('by %s • %s ago', 'partyminder'), 
+                                        esc_html($conversation->author_name),
+                                        human_time_diff(strtotime($conversation->last_reply_date), current_time('timestamp'))
+                                    ); ?>
+                                </div>
+                            </div>
+                            <div class="pm-text-center">
+                                <div class="pm-stat-number pm-text-primary"><?php echo $conversation->reply_count; ?></div>
+                                <div class="pm-stat-label"><?php _e('replies', 'partyminder'); ?></div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="pm-card-footer pm-text-center">
+                    <a href="<?php echo esc_url(home_url('/communities/' . $community->slug . '/conversations')); ?>" class="pm-btn pm-btn-secondary">
+                        <?php _e('View All Conversations', 'partyminder'); ?>
+                    </a>
+                </div>
+            <?php else: ?>
+                <div class="pm-text-center pm-p-4">
+                    <h4 class="pm-heading pm-heading-sm pm-mb"><?php _e('No Conversations Yet', 'partyminder'); ?></h4>
+                    <p class="pm-text-muted"><?php _e('Be the first to start a discussion in this community!', 'partyminder'); ?></p>
+                    <?php if ($is_member): ?>
+                        <div class="pm-mt-4">
+                            <a href="<?php echo esc_url(site_url('/create-conversation?community_id=' . $community->id)); ?>" class="pm-btn">
+                                <?php _e('Start First Conversation', 'partyminder'); ?>
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

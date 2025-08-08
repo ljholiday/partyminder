@@ -11,7 +11,9 @@ if (!defined('ABSPATH')) {
 
 // Load required classes
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-manager.php';
+require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
 $conversation_manager = new PartyMinder_Conversation_Manager();
+$community_manager = new PartyMinder_Community_Manager();
 
 // Get topics for dropdown
 $topics = $conversation_manager->get_topics();
@@ -38,6 +40,13 @@ if ($selected_event_id) {
         "SELECT * FROM $events_table WHERE id = %d AND event_status = 'active'",
         $selected_event_id
     ));
+}
+
+// Get community_id from URL parameter for community-specific conversations
+$selected_community_id = intval($_GET['community_id'] ?? 0);
+$selected_community = null;
+if ($selected_community_id) {
+    $selected_community = $community_manager->get_community($selected_community_id);
 }
 
 // Get current user info
@@ -84,6 +93,14 @@ if ($selected_event) {
     );
     $page_title = __('Start Event Conversation', 'partyminder');
     $page_description = sprintf(__('Start a conversation about %s', 'partyminder'), $selected_event->title);
+} elseif ($selected_community) {
+    $breadcrumbs = array(
+        array('title' => __('Communities', 'partyminder'), 'url' => PartyMinder::get_communities_url()),
+        array('title' => $selected_community->name, 'url' => home_url('/communities/' . $selected_community->slug)),
+        array('title' => __('Start Community Conversation', 'partyminder'))
+    );
+    $page_title = __('Start Community Conversation', 'partyminder');
+    $page_description = sprintf(__('Start a conversation in the %s community', 'partyminder'), $selected_community->name);
 } elseif ($selected_topic) {
     // If we have a selected topic, add it to breadcrumbs
     $breadcrumbs = array(
@@ -101,15 +118,13 @@ ob_start();
 <?php if ($conversation_created): ?>
     <!-- Success Message -->
     <div class="pm-alert pm-alert-success pm-mb-4">
-        <h3><?php _e('✅ Conversation Started Successfully!', 'partyminder'); ?></h3>
+        <h3><?php _e('Conversation Started Successfully!', 'partyminder'); ?></h3>
         <p><?php _e('Your conversation has been created and is now live.', 'partyminder'); ?></p>
         <div class="pm-success-actions">
             <a href="<?php echo esc_url($created_conversation['url'] ?? PartyMinder::get_conversations_url()); ?>" class="pm-btn">
-                <span>👀</span>
                 <?php _e('View Conversation', 'partyminder'); ?>
             </a>
             <a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
-                <span>🏠</span>
                 <?php _e('All Conversations', 'partyminder'); ?>
             </a>
         </div>
@@ -132,6 +147,9 @@ ob_start();
     <input type="hidden" name="action" value="partyminder_create_conversation">
     <?php if ($selected_event_id): ?>
         <input type="hidden" name="event_id" value="<?php echo esc_attr($selected_event_id); ?>">
+    <?php endif; ?>
+    <?php if ($selected_community_id): ?>
+        <input type="hidden" name="community_id" value="<?php echo esc_attr($selected_community_id); ?>">
     <?php endif; ?>
     
     <?php if (!$is_logged_in): ?>
@@ -161,9 +179,15 @@ ob_start();
         
         <?php if ($selected_event): ?>
             <div class="pm-alert pm-alert-success pm-mb-4">
-                <h4><?php _e('🎪 Event Conversation', 'partyminder'); ?></h4>
+                <h4><?php _e('Event Conversation', 'partyminder'); ?></h4>
                 <p><?php printf(__('This conversation will be associated with the event: <strong>%s</strong>', 'partyminder'), esc_html($selected_event->title)); ?></p>
                 <p class="pm-text-muted"><?php _e('Event-specific conversations appear on the event page and help attendees coordinate and discuss details.', 'partyminder'); ?></p>
+            </div>
+        <?php elseif ($selected_community): ?>
+            <div class="pm-alert pm-alert-success pm-mb-4">
+                <h4><?php _e('Community Conversation', 'partyminder'); ?></h4>
+                <p><?php printf(__('This conversation will be part of the community: <strong>%s</strong>', 'partyminder'), esc_html($selected_community->name)); ?></p>
+                <p class="pm-text-muted"><?php _e('Community conversations appear on the community page and help members connect and share ideas.', 'partyminder'); ?></p>
             </div>
         <?php endif; ?>
         

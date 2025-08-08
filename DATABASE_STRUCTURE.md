@@ -27,7 +27,7 @@
   - `id, name, slug, description, icon, color, is_active, sort_order, created_at`
 
 - **`partyminder_conversations`** - Discussion threads
-  - `id, topic_id, event_id, title, slug, description, author_id, is_pinned, is_locked, reply_count, last_reply_at, created_at, updated_at`
+  - `id, topic_id, event_id, community_id, title, slug, description, author_id, is_pinned, is_locked, reply_count, last_reply_at, created_at, updated_at`
 
 - **`partyminder_replies`** - Conversation replies
   - `id, conversation_id, parent_reply_id, content, author_id, is_ai_response, created_at, updated_at`
@@ -59,6 +59,7 @@ partyminder_events (1) → (many) partyminder_conversations
 ```
 partyminder_communities (1) → (many) partyminder_community_members
 partyminder_communities (1) → (many) partyminder_community_invitations
+partyminder_communities (1) → (many) partyminder_conversations
 ```
 
 ### Conversations Flow

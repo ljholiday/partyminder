@@ -96,6 +96,7 @@ $nav_items = array(
 
 // Main content
 ob_start();
+?>
 <!-- Success/Error Messages -->
 <?php if (isset($success_message)): ?>
     <div class="pm-alert pm-alert-success">

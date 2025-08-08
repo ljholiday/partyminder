@@ -97,6 +97,17 @@ class PartyMinder_Community_Manager {
             }
         }
         
+        // Auto-create welcome conversation for the community
+        require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-manager.php';
+        $conversation_manager = new PartyMinder_Conversation_Manager();
+        $welcome_conversation_data = array(
+            'name' => $community_data['name'],
+            'creator_id' => $current_user->ID,
+            'creator_name' => $current_user->display_name ?: $current_user->user_login,
+            'creator_email' => $current_user->user_email
+        );
+        $conversation_manager->create_community_conversation($community_id, $welcome_conversation_data);
+        
         return $community_id;
     }
     

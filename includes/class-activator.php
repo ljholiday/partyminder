@@ -124,6 +124,7 @@ class PartyMinder_Activator {
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             topic_id mediumint(9) NOT NULL,
             event_id mediumint(9) DEFAULT NULL,
+            community_id mediumint(9) DEFAULT NULL,
             title varchar(255) NOT NULL,
             slug varchar(255) NOT NULL,
             content longtext NOT NULL,
@@ -140,6 +141,7 @@ class PartyMinder_Activator {
             PRIMARY KEY (id),
             KEY topic_id (topic_id),
             KEY event_id (event_id),
+            KEY community_id (community_id),
             KEY author_id (author_id),
             KEY is_pinned (is_pinned),
             KEY last_reply_date (last_reply_date),
@@ -203,6 +205,9 @@ class PartyMinder_Activator {
         
         // Create default conversation topics
         self::create_default_conversation_topics();
+        
+        // Upgrade existing installations
+        self::upgrade_database_schema();
     }
 
     private static function set_default_options() {
@@ -703,5 +708,24 @@ class PartyMinder_Activator {
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($invitations_sql);
+    }
+
+    /**
+     * Upgrade existing database schema for new features
+     */
+    private static function upgrade_database_schema() {
+        global $wpdb;
+        
+        // Check if community_id column exists in conversations table
+        $conversations_table = $wpdb->prefix . 'partyminder_conversations';
+        $column_exists = $wpdb->get_results($wpdb->prepare("
+            SHOW COLUMNS FROM $conversations_table LIKE %s
+        ", 'community_id'));
+        
+        if (empty($column_exists)) {
+            // Add community_id column
+            $wpdb->query("ALTER TABLE $conversations_table ADD COLUMN community_id mediumint(9) DEFAULT NULL AFTER event_id");
+            $wpdb->query("ALTER TABLE $conversations_table ADD INDEX community_id (community_id)");
+        }
     }
 }

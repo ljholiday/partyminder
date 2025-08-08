@@ -483,6 +483,7 @@ class PartyMinder {
         // Validate input
         $topic_id = intval($_POST['topic_id'] ?? 0);
         $event_id = intval($_POST['event_id'] ?? 0);
+        $community_id = intval($_POST['community_id'] ?? 0);
         $title = sanitize_text_field($_POST['title'] ?? '');
         $content = wp_kses_post($_POST['content'] ?? '');
         
@@ -512,6 +513,7 @@ class PartyMinder {
         $conversation_data = array(
             'topic_id' => $topic_id,
             'event_id' => $event_id ?: null,
+            'community_id' => $community_id ?: null,
             'title' => $title,
             'content' => $content,
             'author_id' => $user_id,
@@ -537,6 +539,18 @@ class PartyMinder {
                 if ($event) {
                     $success_data['redirect_url'] = home_url('/events/' . $event->slug);
                     $success_data['message'] = __('Event conversation created successfully!', 'partyminder');
+                }
+            }
+            // If this is a community conversation, provide the community URL for redirect
+            elseif ($community_id) {
+                if (!$this->community_manager) {
+                    $this->load_dependencies();
+                    $this->community_manager = new PartyMinder_Community_Manager();
+                }
+                $community = $this->community_manager->get_community($community_id);
+                if ($community) {
+                    $success_data['redirect_url'] = home_url('/communities/' . $community->slug);
+                    $success_data['message'] = __('Community conversation created successfully!', 'partyminder');
                 }
             }
             
@@ -1594,6 +1608,7 @@ class PartyMinder {
         add_rewrite_rule('^communities/?$', 'index.php?pagename=communities', 'top');
         add_rewrite_rule('^communities/join/?$', 'index.php?pagename=communities&community_action=join', 'top');
         add_rewrite_rule('^communities/([^/]+)/?$', 'index.php?pagename=communities&community_slug=$matches[1]', 'top');
+        add_rewrite_rule('^communities/([^/]+)/conversations/?$', 'index.php?pagename=communities&community_slug=$matches[1]&community_view=conversations', 'top');
         add_rewrite_rule('^communities/([^/]+)/events/?$', 'index.php?pagename=communities&community_slug=$matches[1]&community_view=events', 'top');
         add_rewrite_rule('^communities/([^/]+)/members/?$', 'index.php?pagename=communities&community_slug=$matches[1]&community_view=members', 'top');
         add_rewrite_rule('^manage-community/?$', 'index.php?pagename=manage-community', 'top');
@@ -2015,7 +2030,11 @@ class PartyMinder {
                 $community_slug = get_query_var('community_slug');
                 $community_view = get_query_var('community_view');
                 
-                if ($community_slug && $community_view === 'members') {
+                if ($community_slug && $community_view === 'conversations') {
+                    // Community conversations view
+                    add_filter('the_content', array($this, 'inject_community_conversations_content'));
+                    add_filter('body_class', array($this, 'add_community_conversations_body_class'));
+                } elseif ($community_slug && $community_view === 'members') {
                     // Community members view
                     add_filter('the_content', array($this, 'inject_community_members_content'));
                     add_filter('body_class', array($this, 'add_community_members_body_class'));
@@ -2912,6 +2931,25 @@ class PartyMinder {
         return ob_get_clean();
     }
     
+    public function inject_community_conversations_content($content) {
+        global $post;
+        
+        if (!is_page() || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+        
+        $page_type = get_post_meta($post->ID, '_partyminder_page_type', true);
+        if ($page_type !== 'communities') {
+            return $content;
+        }
+        
+        ob_start();
+        echo '<div class="partyminder-content partyminder-community-conversations-page">';
+        include PARTYMINDER_PLUGIN_DIR . 'templates/community-conversations-content.php';
+        echo '</div>';
+        return ob_get_clean();
+    }
+    
     public function inject_manage_community_content($content) {
         global $post;
         
@@ -2990,6 +3028,12 @@ class PartyMinder {
     public function add_community_events_body_class($classes) {
         $classes[] = 'partyminder-communities';
         $classes[] = 'partyminder-community-events';
+        return $classes;
+    }
+    
+    public function add_community_conversations_body_class($classes) {
+        $classes[] = 'partyminder-communities';
+        $classes[] = 'partyminder-community-conversations';
         return $classes;
     }
     

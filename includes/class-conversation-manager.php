@@ -41,17 +41,18 @@ class PartyMinder_Conversation_Manager {
     /**
      * Get recent conversations across all topics
      */
-    public function get_recent_conversations($limit = 10, $exclude_event_conversations = false) {
+    public function get_recent_conversations($limit = 10, $exclude_event_conversations = false, $exclude_community_conversations = false) {
         global $wpdb;
         
         $conversations_table = $wpdb->prefix . 'partyminder_conversations';
         $event_clause = $exclude_event_conversations ? 'AND event_id IS NULL' : '';
+        $community_clause = $exclude_community_conversations ? 'AND community_id IS NULL' : '';
         
         return $wpdb->get_results($wpdb->prepare("
             SELECT c.*, t.name as topic_name, t.icon as topic_icon, t.slug as topic_slug
             FROM $conversations_table c
             LEFT JOIN {$wpdb->prefix}partyminder_conversation_topics t ON c.topic_id = t.id
-            WHERE 1=1 $event_clause
+            WHERE 1=1 $event_clause $community_clause
             ORDER BY c.last_reply_date DESC
             LIMIT %d
         ", $limit));
@@ -81,6 +82,29 @@ class PartyMinder_Conversation_Manager {
     }
 
     /**
+     * Get community-related conversations
+     */
+    public function get_community_conversations($community_id = null, $limit = 10) {
+        global $wpdb;
+        
+        $conversations_table = $wpdb->prefix . 'partyminder_conversations';
+        $communities_table = $wpdb->prefix . 'partyminder_communities';
+        
+        $where_clause = $community_id ? 'WHERE c.community_id = %d' : 'WHERE c.community_id IS NOT NULL';
+        $prepare_values = $community_id ? array($community_id, $limit) : array($limit);
+        
+        return $wpdb->get_results($wpdb->prepare("
+            SELECT DISTINCT c.*, cm.name as community_name, cm.slug as community_slug, t.slug as topic_slug
+            FROM $conversations_table c
+            LEFT JOIN $communities_table cm ON c.community_id = cm.id
+            LEFT JOIN {$wpdb->prefix}partyminder_conversation_topics t ON c.topic_id = t.id
+            $where_clause
+            ORDER BY c.last_reply_date DESC
+            LIMIT %d
+        ", ...$prepare_values));
+    }
+
+    /**
      * Create a new conversation
      */
     public function create_conversation($data) {
@@ -96,6 +120,7 @@ class PartyMinder_Conversation_Manager {
             array(
                 'topic_id' => $data['topic_id'],
                 'event_id' => $data['event_id'] ?? null,
+                'community_id' => $data['community_id'] ?? null,
                 'title' => sanitize_text_field($data['title']),
                 'slug' => $slug,
                 'content' => wp_kses_post($data['content']),
@@ -107,7 +132,7 @@ class PartyMinder_Conversation_Manager {
                 'last_reply_date' => current_time('mysql'),
                 'last_reply_author' => sanitize_text_field($data['author_name'])
             ),
-            array('%d', '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%d', '%s', '%s', '%s')
+            array('%d', '%d', '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%d', '%s', '%s', '%s')
         );
         
         if ($result === false) {
@@ -354,6 +379,33 @@ class PartyMinder_Conversation_Manager {
             'author_id' => $event_data['author_id'],
             'author_name' => $event_data['author_name'],
             'author_email' => $event_data['author_email']
+        );
+        
+        return $this->create_conversation($conversation_data);
+    }
+
+    /**
+     * Auto-create community conversation when community is created
+     */
+    public function create_community_conversation($community_id, $community_data) {
+        // Find the welcome & introductions topic
+        $welcome_topic = $this->get_topic_by_slug('welcome-introductions');
+        if (!$welcome_topic) {
+            return false;
+        }
+        
+        $conversation_data = array(
+            'topic_id' => $welcome_topic->id,
+            'community_id' => $community_id,
+            'title' => sprintf(__('Welcome to %s!', 'partyminder'), $community_data['name']),
+            'content' => sprintf(
+                __('Welcome to the %s community! This is our gathering place to connect, share experiences, and plan amazing events together. Please introduce yourself and let us know what brings you here!', 'partyminder'),
+                $community_data['name']
+            ),
+            'author_id' => $community_data['creator_id'],
+            'author_name' => $community_data['creator_name'],
+            'author_email' => $community_data['creator_email'],
+            'is_pinned' => 1 // Pin the welcome conversation
         );
         
         return $this->create_conversation($conversation_data);

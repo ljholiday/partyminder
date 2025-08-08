@@ -56,8 +56,12 @@ $recent_conversations = $conversation_manager->get_recent_conversations(3, true)
 // Get recent event conversations for dashboard, grouped by event
 $recent_event_conversations = $conversation_manager->get_event_conversations(null, 10);
 
+// Get recent community conversations for dashboard, grouped by community
+$recent_community_conversations = $conversation_manager->get_community_conversations(null, 10);
+
 // Group conversations by event
 $conversations_by_event = array();
+$conversations_by_community = array();
 if (!empty($recent_event_conversations)) {
     foreach ($recent_event_conversations as $conversation) {
         $event_key = $conversation->event_id;
@@ -81,6 +85,31 @@ if (!empty($recent_event_conversations)) {
     
     // Limit to 3 most active events
     $conversations_by_event = array_slice($conversations_by_event, 0, 3, true);
+}
+
+// Group conversations by community
+if (!empty($recent_community_conversations)) {
+    foreach ($recent_community_conversations as $conversation) {
+        $community_key = $conversation->community_id;
+        if (!isset($conversations_by_community[$community_key])) {
+            $conversations_by_community[$community_key] = array(
+                'community_name' => $conversation->community_name,
+                'community_slug' => $conversation->community_slug,
+                'conversations' => array()
+            );
+        }
+        $conversations_by_community[$community_key]['conversations'][] = $conversation;
+    }
+    
+    // Sort communities by most recent conversation activity
+    uasort($conversations_by_community, function($a, $b) {
+        $a_latest = max(array_map(function($conv) { return strtotime($conv->last_reply_date); }, $a['conversations']));
+        $b_latest = max(array_map(function($conv) { return strtotime($conv->last_reply_date); }, $b['conversations']));
+        return $b_latest - $a_latest;
+    });
+    
+    // Limit to 3 most active communities
+    $conversations_by_community = array_slice($conversations_by_community, 0, 3, true);
 }
 
 // Set up template variables
@@ -144,7 +173,7 @@ ob_start();
 <!-- Conversations Section -->
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
-        <h2 class="pm-heading pm-heading-md pm-mb"> <?php _e('Community Conversations', 'partyminder'); ?></h2>
+        <h2 class="pm-heading pm-heading-md pm-mb"> <?php _e('Conversations', 'partyminder'); ?></h2>
         <p class="pm-text-muted"><?php _e('Latest discussions about hosting and party planning', 'partyminder'); ?></p>
     </div>
     <?php if (!empty($recent_conversations)): ?>
@@ -276,6 +305,88 @@ ob_start();
     </div>
 </div>
 
+<!-- Community Conversations Section -->
+<div class="pm-section pm-mb">
+    <div class="pm-section-header">
+        <h2 class="pm-heading pm-heading-md pm-mb"><?php _e('Community Discussions', 'partyminder'); ?></h2>
+        <p class="pm-text-muted"><?php _e('Active conversations in your communities', 'partyminder'); ?></p>
+    </div>
+    <?php if (!empty($conversations_by_community)): ?>
+        <div class="pm-community-conversations-grouped">
+            <?php foreach ($conversations_by_community as $community_id => $community_data): ?>
+                <?php 
+                $conversation_count = count($community_data['conversations']);
+                ?>
+                <div class="pm-community-conversation-group pm-mb-4">
+                    <!-- Community Header (Clickable to expand/collapse) -->
+                    <div class="pm-community-group-header pm-flex pm-flex-between pm-p-4" 
+                         onclick="toggleCommunityConversations('community-<?php echo $community_id; ?>')">
+                        <div class="pm-flex pm-gap-4 pm-flex-1">
+                            <div class="pm-flex-1">
+                                <h4 class="pm-heading pm-heading-sm pm-text-primary">
+                                    <?php echo esc_html($community_data['community_name']); ?>
+                                </h4>
+                                <div class="pm-text-muted">
+                                    <?php printf(_n('%d conversation', '%d conversations', $conversation_count, 'partyminder'), $conversation_count); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pm-flex pm-gap">
+                            <div class="pm-stat pm-text-center">
+                                <div class="pm-stat-number pm-text-primary">
+                                    <?php echo array_sum(array_map(function($conv) { return $conv->reply_count; }, $community_data['conversations'])); ?>
+                                </div>
+                                <div class="pm-stat-label"><?php _e('Replies', 'partyminder'); ?></div>
+                            </div>
+                            <span class="pm-expand-icon pm-text-muted" id="icon-community-<?php echo $community_id; ?>">▼</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Conversations List (Initially collapsed) -->
+                    <div class="pm-community-conversations-list pm-mt-4" id="community-<?php echo $community_id; ?>" style="display: none;">
+                        <?php foreach ($community_data['conversations'] as $conversation): ?>
+                            <div class="pm-flex pm-flex-between pm-p-4 pm-mb-4">
+                                <div class="pm-flex-1">
+                                    <div class="pm-flex pm-gap">
+                                        <?php if ($conversation->is_pinned): ?>
+                                            <span class="pm-badge pm-badge-secondary">📌</span>
+                                        <?php endif; ?>
+                                        <h5 class="pm-heading pm-heading-sm">
+                                            <a href="<?php echo home_url('/conversations/' . ($conversation->topic_slug ?? 'general') . '/' . $conversation->slug); ?>" 
+                                               class="pm-text-primary">
+                                                <?php echo esc_html($conversation->title); ?>
+                                            </a>
+                                        </h5>
+                                    </div>
+                                    <div class="pm-text-muted">
+                                        <?php printf(__('by %s • %s ago', 'partyminder'), 
+                                            esc_html($conversation->author_name),
+                                            human_time_diff(strtotime($conversation->last_reply_date), current_time('timestamp'))
+                                        ); ?>
+                                    </div>
+                                </div>
+                                <div class="pm-stat pm-text-center">
+                                    <div class="pm-stat-number pm-text-primary"><?php echo $conversation->reply_count; ?></div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php else: ?>
+        <div class="pm-text-center pm-p-4">
+            <h3 class="pm-heading pm-heading-sm pm-mb"><?php _e('No Community Discussions Yet', 'partyminder'); ?></h3>
+            <p class="pm-text-muted"><?php _e('Join communities and start conversations to see them here!', 'partyminder'); ?></p>
+        </div>
+    <?php endif; ?>
+    <div class="pm-text-center pm-mt-4">
+        <a href="<?php echo esc_url(PartyMinder::get_communities_url()); ?>" class="pm-btn pm-btn-secondary">
+            <?php _e('Browse Communities', 'partyminder'); ?>
+        </a>
+    </div>
+</div>
+
 <!-- Community Activity Section -->
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
@@ -340,7 +451,6 @@ ob_start();
             </div>
         </div>
         <div class="pm-flex pm-gap-4 pm-p-4">
-            <div class="pm-text-xl">👥</div>
             <div class="pm-flex-1">
                 <h4 class="pm-heading pm-heading-sm"><?php _e('Build Communities', 'partyminder'); ?></h4>
                 <p class="pm-text-muted"><?php _e('Create groups around shared interests and plan together', 'partyminder'); ?></p>
@@ -437,6 +547,19 @@ include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php');
 
 <script>
 function toggleEventConversations(elementId) {
+    const conversationsList = document.getElementById(elementId);
+    const icon = document.getElementById('icon-' + elementId);
+    
+    if (conversationsList.style.display === 'none' || conversationsList.style.display === '') {
+        conversationsList.style.display = 'block';
+        icon.textContent = '▲';
+    } else {
+        conversationsList.style.display = 'none';
+        icon.textContent = '▼';
+    }
+}
+
+function toggleCommunityConversations(elementId) {
     const conversationsList = document.getElementById(elementId);
     const icon = document.getElementById('icon-' + elementId);
     
