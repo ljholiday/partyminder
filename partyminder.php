@@ -2953,7 +2953,9 @@ class PartyMinder {
         echo '<div class="partyminder-content partyminder-create-community-page">';
         
         // Include create community template
-        include PARTYMINDER_PLUGIN_DIR . 'templates/create-community-content.php';
+        // TODO: Re-implement create community functionality - file was removed in commit 782cbc2
+        // include PARTYMINDER_PLUGIN_DIR . 'templates/create-community-content.php';
+        echo '<div class="pm-error-wrapper"><h3>Community Creation Temporarily Disabled</h3><p>This feature is being rebuilt and will be available soon.</p></div>';
         
         echo '</div>';
         
