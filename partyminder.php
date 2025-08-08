@@ -400,7 +400,8 @@ class PartyMinder {
             'venue' => sanitize_text_field($_POST['venue_info']),
             'guest_limit' => intval($_POST['guest_limit']),
             'host_email' => sanitize_email($_POST['host_email']),
-            'host_notes' => wp_kses_post(wp_unslash($_POST['host_notes']))
+            'host_notes' => wp_kses_post(wp_unslash($_POST['host_notes'])),
+            'privacy' => sanitize_text_field($_POST['privacy'] ?? 'public')
         );
         
         // Update the event
@@ -551,6 +552,22 @@ class PartyMinder {
         $event_id = intval($_POST['event_id'] ?? 0);
         if (!$event_id) {
             wp_send_json_error(__('Event ID is required.', 'partyminder'));
+        }
+        
+        // Load event manager to check privacy
+        if (!$this->event_manager) {
+            $this->load_dependencies();
+            $this->event_manager = new PartyMinder_Event_Manager();
+        }
+        
+        // Get event and check privacy
+        $event = $this->event_manager->get_event($event_id);
+        if (!$event) {
+            wp_send_json_error(__('Event not found.', 'partyminder'));
+        }
+        
+        if (!$this->event_manager->can_user_view_event($event)) {
+            wp_send_json_error(__('You do not have permission to view this event.', 'partyminder'));
         }
         
         if (!$this->conversation_manager) {
@@ -2282,15 +2299,16 @@ class PartyMinder {
             $event_slug = get_query_var('event_slug');
             
             if (!empty($event_slug)) {
-                // This is an individual event URL
-                $event = $this->get_event_by_slug($event_slug);
-                
-                // Load event manager to check privacy
+                // Load event manager first
                 if (!$this->event_manager) {
                     $this->load_dependencies();
                     $this->event_manager = new PartyMinder_Event_Manager();
                 }
                 
+                // Use Event Manager's privacy-aware get_event_by_slug method
+                $event = $this->event_manager->get_event_by_slug($event_slug);
+                
+                // Check privacy permissions
                 if ($event && $this->event_manager->can_user_view_event($event)) {
                     // Set up global event data for content injection
                     $GLOBALS['partyminder_current_event'] = $event;
@@ -2345,24 +2363,6 @@ class PartyMinder {
         return $title_parts;
     }
     
-    private function get_event_by_slug($slug) {
-        global $wpdb;
-        $events_table = $wpdb->prefix . 'partyminder_events';
-        
-        $event = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM $events_table WHERE slug = %s AND event_status = 'active'",
-            $slug
-        ));
-        
-        if ($event) {
-            // Add guest stats
-            require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
-            $event_manager = new PartyMinder_Event_Manager();
-            $event->guest_stats = $event_manager->get_guest_stats($event->id);
-        }
-        
-        return $event;
-    }
     
     /**
      * Inject events page content

@@ -233,7 +233,7 @@ ob_start();
                 <option value="public" <?php selected($_POST['privacy'] ?? $event->privacy ?? 'public', 'public'); ?>>
                     <?php _e('Public - Anyone can find and RSVP to this event', 'partyminder'); ?>
                 </option>
-                <option value="private" <?php selected($_POST['privacy'] ?? $event->privacy ?? '', 'private'); ?>>
+                <option value="private" <?php selected($_POST['privacy'] ?? $event->privacy ?? 'public', 'private'); ?>>
                     <?php _e('Private - Only invited guests can see and RSVP', 'partyminder'); ?>
                 </option>
             </select>

@@ -21,31 +21,55 @@ require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
 $event_manager = new PartyMinder_Event_Manager();
 $guest_manager = new PartyMinder_Guest_Manager();
 
-// Get events from custom table
-global $wpdb;
-$events_table = $wpdb->prefix . 'partyminder_events';
-
-$where_clause = "WHERE event_status = 'active'";
-if (!$show_past && !$upcoming_only) {
-    // Default: show upcoming events only
-    $where_clause .= " AND event_date >= CURDATE()";
-} elseif ($upcoming_only) {
-    // Explicitly requested upcoming only
-    $where_clause .= " AND event_date >= CURDATE()";
-}
-// If $show_past is true, show all events including past ones
-
-$events = $wpdb->get_results($wpdb->prepare(
-    "SELECT * FROM $events_table 
-     $where_clause
-     ORDER BY event_date ASC 
-     LIMIT %d",
-    $limit
-));
-
-// Add guest stats to each event
-foreach ($events as $event) {
-    $event->guest_stats = $event_manager->get_guest_stats($event->id);
+// Get events using privacy-aware method
+if ($show_past) {
+    // For past events, we need to build our own query with privacy filtering
+    // This is a more complex case that would need custom implementation
+    // For now, use the get_upcoming_events method and filter past events
+    $all_events = $event_manager->get_upcoming_events($limit * 2); // Get more to account for filtering
+    $events = array();
+    
+    // Note: This is a temporary solution. A proper get_all_events() method with privacy filtering should be implemented
+    global $wpdb;
+    $events_table = $wpdb->prefix . 'partyminder_events';
+    $guests_table = $wpdb->prefix . 'partyminder_guests';
+    $invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
+    $current_user_id = get_current_user_id();
+    
+    // Build privacy clause - show public events to everyone, private events to creator and invited guests
+    $privacy_clause = "e.privacy = 'public'";
+    if ($current_user_id && is_user_logged_in()) {
+        $current_user = wp_get_current_user();
+        $user_email = $current_user->user_email;
+        
+        $privacy_clause = "(e.privacy = 'public' OR 
+                          (e.privacy = 'private' AND e.author_id = $current_user_id) OR 
+                          (e.privacy = 'private' AND EXISTS(
+                              SELECT 1 FROM $guests_table g 
+                              WHERE g.event_id = e.id AND g.email = %s
+                          )) OR
+                          (e.privacy = 'private' AND EXISTS(
+                              SELECT 1 FROM $invitations_table i 
+                              WHERE i.event_id = e.id AND i.invited_email = %s 
+                              AND i.status = 'pending' AND i.expires_at > NOW()
+                          )))";
+    }
+    
+    $query = "SELECT DISTINCT e.* FROM $events_table e
+             WHERE e.event_status = 'active'
+             AND ($privacy_clause)
+             ORDER BY e.event_date ASC 
+             LIMIT %d";
+    
+    if ($current_user_id && is_user_logged_in()) {
+        $current_user = wp_get_current_user();
+        $events = $wpdb->get_results($wpdb->prepare($query, $current_user->user_email, $current_user->user_email, $limit));
+    } else {
+        $events = $wpdb->get_results($wpdb->prepare($query, $limit));
+    }
+} else {
+    // Use the privacy-aware get_upcoming_events method
+    $events = $event_manager->get_upcoming_events($limit);
 }
 
 // Set up template variables
@@ -143,10 +167,17 @@ ob_start();
                         <?php else: ?>
                             <?php 
                             $is_full = $event->guest_limit > 0 && $event->guest_stats->confirmed >= $event->guest_limit;
+                            $can_rsvp = $event_manager->can_user_view_event($event);
                             ?>
-                            <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-btn">
-                                <?php echo $is_full ? __('Join Waitlist', 'partyminder') : __('RSVP Now', 'partyminder'); ?>
-                            </a>
+                            <?php if ($can_rsvp): ?>
+                                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-btn">
+                                    <?php echo $is_full ? __('Join Waitlist', 'partyminder') : __('RSVP Now', 'partyminder'); ?>
+                                </a>
+                            <?php else: ?>
+                                <a href="<?php echo home_url('/events/' . $event->slug); ?>" class="pm-btn pm-btn-secondary">
+                                    <?php _e('View Details', 'partyminder'); ?>
+                                </a>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </div>
                 </div>
