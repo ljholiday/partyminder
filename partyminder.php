@@ -1184,23 +1184,21 @@ class PartyMinder {
                 $created_date = date('M j, Y', strtotime($invitation->created_at));
                 $expires_date = date('M j, Y', strtotime($invitation->expires_at));
                 ?>
-                <div class="pm-flex pm-flex-between pm-p-4 pm-mb-4 pm-border">
-                    <div class="pm-flex pm-gap pm-flex-1">
-                        <div>
-                            <strong class="pm-text-primary"><?php echo esc_html($invitation->invited_email); ?></strong><br>
-                            <span class="pm-text-muted pm-text-sm">
-                                <?php printf(__('Sent %s • Expires %s', 'partyminder'), $created_date, $expires_date); ?>
-                            </span>
-                            <?php if ($invitation->message): ?>
-                                <br><span class="pm-text-muted pm-text-sm"><?php echo esc_html(wp_trim_words($invitation->message, 10)); ?></span>
-                            <?php endif; ?>
-                        </div>
+                <div class="pm-p-4 pm-mb-4 pm-border">
+                    <div class="pm-mb-4">
+                        <strong class="pm-text-primary"><?php echo esc_html($invitation->invited_email); ?></strong><br>
+                        <span class="pm-text-muted pm-text-sm">
+                            <?php printf(__('Sent %s • Expires %s', 'partyminder'), $created_date, $expires_date); ?>
+                        </span>
+                        <?php if ($invitation->message): ?>
+                            <br><span class="pm-text-muted pm-text-sm"><?php echo esc_html(wp_trim_words($invitation->message, 10)); ?></span>
+                        <?php endif; ?>
                     </div>
-                    <div>
+                    <div class="pm-text-right">
                         <button type="button" 
                                 class="cancel-event-invitation pm-btn pm-btn-danger pm-btn-sm" 
                                 data-invitation-id="<?php echo esc_attr($invitation->id); ?>">
-                            <?php _e('Cancel', 'partyminder'); ?>
+                            <?php _e('Cancel Invitation', 'partyminder'); ?>
                         </button>
                     </div>
                 </div>
