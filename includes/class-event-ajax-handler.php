@@ -224,7 +224,7 @@ class PartyMinder_Event_Ajax_Handler {
         $invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
         
         $existing = $wpdb->get_var($wpdb->prepare(
-            "SELECT id FROM $invitations_table WHERE event_id = %d AND email = %s",
+            "SELECT id FROM $invitations_table WHERE event_id = %d AND invited_email = %s",
             $event_id,
             $email
         ));
@@ -234,17 +234,23 @@ class PartyMinder_Event_Ajax_Handler {
             return;
         }
         
-        $invitation_id = wp_generate_uuid4();
+        $invitation_token = wp_generate_uuid4();
+        $message = sanitize_textarea_field($_POST['message'] ?? '');
+        $expires_at = date('Y-m-d H:i:s', strtotime('+7 days'));
+        
         $result = $wpdb->insert(
             $invitations_table,
             array(
-                'invitation_id' => $invitation_id,
                 'event_id' => $event_id,
-                'email' => $email,
-                'invited_by' => $current_user->ID,
+                'invited_by_user_id' => $current_user->ID,
+                'invited_email' => $email,
+                'invitation_token' => $invitation_token,
+                'message' => $message,
+                'status' => 'pending',
+                'expires_at' => $expires_at,
                 'created_at' => current_time('mysql')
             ),
-            array('%s', '%d', '%s', '%d', '%s')
+            array('%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s')
         );
         
         if ($result === false) {
@@ -254,7 +260,7 @@ class PartyMinder_Event_Ajax_Handler {
         
         $invitation_url = add_query_arg(
             array(
-                'invitation' => $invitation_id,
+                'invitation' => $invitation_token,
                 'event' => $event_id
             ),
             home_url('/events/' . $event->slug)
@@ -310,7 +316,7 @@ class PartyMinder_Event_Ajax_Handler {
         $invitations = $wpdb->get_results($wpdb->prepare(
             "SELECT ei.*, u.display_name as invited_by_name 
              FROM $invitations_table ei 
-             LEFT JOIN {$wpdb->users} u ON ei.invited_by = u.ID 
+             LEFT JOIN {$wpdb->users} u ON ei.invited_by_user_id = u.ID 
              WHERE ei.event_id = %d 
              ORDER BY ei.created_at DESC",
             $event_id
@@ -319,15 +325,48 @@ class PartyMinder_Event_Ajax_Handler {
         foreach ($invitations as &$invitation) {
             $invitation->invitation_url = add_query_arg(
                 array(
-                    'invitation' => $invitation->invitation_id,
+                    'invitation' => $invitation->invitation_token,
                     'event' => $event_id
                 ),
                 home_url('/events/' . $event->slug)
             );
         }
         
+        // Generate HTML for invitations list
+        $html = '';
+        if (empty($invitations)) {
+            $html = '<div class="pm-text-center pm-text-muted">' . __('No pending invitations.', 'partyminder') . '</div>';
+        } else {
+            foreach ($invitations as $invitation) {
+                $html .= '<div class="pm-flex pm-flex-between pm-p-4 pm-mb-4 pm-border-bottom">';
+                $html .= '<div class="pm-flex-1">';
+                $html .= '<div class="pm-flex pm-gap">';
+                $html .= '<strong>' . esc_html($invitation->invited_email) . '</strong>';
+                $html .= '<span class="pm-badge pm-badge-' . ($invitation->status === 'pending' ? 'warning' : 'success') . '">' . esc_html(ucfirst($invitation->status)) . '</span>';
+                $html .= '</div>';
+                $html .= '<div class="pm-text-muted pm-mt-2">';
+                $html .= sprintf(__('Invited by %s on %s', 'partyminder'), 
+                    esc_html($invitation->invited_by_name ?? 'Unknown'),
+                    date('M j, Y', strtotime($invitation->created_at))
+                );
+                $html .= '</div>';
+                if (!empty($invitation->message)) {
+                    $html .= '<div class="pm-text-muted pm-mt-2"><em>"' . esc_html($invitation->message) . '"</em></div>';
+                }
+                $html .= '</div>';
+                if ($invitation->status === 'pending') {
+                    $html .= '<div class="pm-flex pm-gap">';
+                    $html .= '<button type="button" class="pm-btn pm-btn-sm pm-btn-secondary" onclick="copyInvitationUrl(\'' . esc_js($invitation->invitation_url) . '\')">' . __('Copy Link', 'partyminder') . '</button>';
+                    $html .= '<button type="button" class="pm-btn pm-btn-sm pm-btn-danger cancel-event-invitation" data-invitation-id="' . esc_attr($invitation->invitation_token) . '">' . __('Cancel', 'partyminder') . '</button>';
+                    $html .= '</div>';
+                }
+                $html .= '</div>';
+            }
+        }
+        
         wp_send_json_success(array(
-            'invitations' => $invitations
+            'invitations' => $invitations,
+            'html' => $html
         ));
     }
     
@@ -339,8 +378,8 @@ class PartyMinder_Event_Ajax_Handler {
             return;
         }
         
-        $invitation_id = sanitize_text_field($_POST['invitation_id']);
-        if (!$invitation_id) {
+        $invitation_token = sanitize_text_field($_POST['invitation_id']);
+        if (!$invitation_token) {
             wp_send_json_error(__('Invitation ID is required.', 'partyminder'));
             return;
         }
@@ -349,8 +388,8 @@ class PartyMinder_Event_Ajax_Handler {
         $invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
         
         $invitation = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM $invitations_table WHERE invitation_id = %s",
-            $invitation_id
+            "SELECT * FROM $invitations_table WHERE invitation_token = %s",
+            $invitation_token
         ));
         
         if (!$invitation) {
@@ -374,7 +413,7 @@ class PartyMinder_Event_Ajax_Handler {
         
         $result = $wpdb->delete(
             $invitations_table,
-            array('invitation_id' => $invitation_id),
+            array('invitation_token' => $invitation_token),
             array('%s')
         );
         
