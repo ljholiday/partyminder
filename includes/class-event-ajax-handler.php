@@ -263,20 +263,47 @@ class PartyMinder_Event_Ajax_Handler {
                 'invitation' => $invitation_token,
                 'event' => $event_id
             ),
-            home_url('/events/' . $event->slug)
+            home_url('/events/join')
         );
         
-        $subject = sprintf(__('Invitation to %s', 'partyminder'), $event->title);
-        $message = sprintf(
-            __("You've been invited to %s!\n\nEvent Details:\n%s\n\nDate: %s\nVenue: %s\n\nRSVP here: %s", 'partyminder'),
+        // Create RSVP action URLs
+        $rsvp_yes_url = add_query_arg('quick_rsvp', 'attending', $invitation_url);
+        $rsvp_maybe_url = add_query_arg('quick_rsvp', 'maybe', $invitation_url);
+        $rsvp_no_url = add_query_arg('quick_rsvp', 'not_attending', $invitation_url);
+        
+        $subject = sprintf(__('You\'re invited: %s', 'partyminder'), $event->title);
+        
+        // Generate HTML email template
+        $html_message = self::generate_invitation_email_html(array(
+            'event' => $event,
+            'invitation_url' => $invitation_url,
+            'rsvp_yes_url' => $rsvp_yes_url,
+            'rsvp_maybe_url' => $rsvp_maybe_url,
+            'rsvp_no_url' => $rsvp_no_url,
+            'host_name' => $current_user->display_name,
+            'personal_message' => $message,
+            'invited_email' => $email
+        ));
+        
+        // Plain text fallback
+        $plain_message = sprintf(
+            __("You've been invited to %s!\n\nEvent Details:\n%s\n\nDate: %s\nVenue: %s\n\nPersonal message: \"%s\"\n\nRSVP here: %s\n\n---\nThis invitation was sent through PartyMinder.", 'partyminder'),
             $event->title,
             $event->description,
-            $event->event_date,
-            $event->venue,
+            date('F j, Y \a\t g:i A', strtotime($event->event_date)),
+            $event->venue_info,
+            $message,
             $invitation_url
         );
         
-        $sent = wp_mail($email, $subject, $message);
+        // Set HTML email headers
+        $headers = array(
+            'Content-Type: text/html; charset=UTF-8',
+            'Reply-To: ' . $current_user->user_email . ' <' . $current_user->user_email . '>',
+            'From: ' . $current_user->display_name . ' via PartyMinder <' . get_option('admin_email') . '>'
+        );
+        
+        $sent = wp_mail($email, $subject, $html_message, $headers);
         
         if ($sent) {
             wp_send_json_success(array(
@@ -589,5 +616,122 @@ class PartyMinder_Event_Ajax_Handler {
         } else {
             wp_send_json_error(__('Failed to delete event.', 'partyminder'));
         }
+    }
+    
+    /**
+     * Generate HTML email template for event invitations
+     */
+    private static function generate_invitation_email_html($data) {
+        $event = $data['event'];
+        $invitation_url = $data['invitation_url'];
+        $rsvp_yes_url = $data['rsvp_yes_url'];
+        $rsvp_maybe_url = $data['rsvp_maybe_url'];
+        $rsvp_no_url = $data['rsvp_no_url'];
+        $host_name = $data['host_name'];
+        $personal_message = $data['personal_message'];
+        $invited_email = $data['invited_email'];
+        
+        $event_date = date('F j, Y', strtotime($event->event_date));
+        $event_time = date('g:i A', strtotime($event->event_date));
+        $event_day = date('l', strtotime($event->event_date));
+        
+        $site_name = get_bloginfo('name');
+        $site_url = home_url();
+        
+        // Create inline CSS for better email client compatibility
+        $styles = array(
+            'container' => 'max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; line-height: 1.6; color: #333;',
+            'header' => 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; text-align: center;',
+            'body' => 'background: #ffffff; padding: 30px 20px;',
+            'event_card' => 'background: #f8f9ff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;',
+            'btn_primary' => 'display: inline-block; background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 8px 8px 8px 0;',
+            'btn_secondary' => 'display: inline-block; background: #e2e8f0; color: #4a5568; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 8px 8px 8px 0;',
+            'btn_danger' => 'display: inline-block; background: #f56565; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 8px 8px 8px 0;',
+            'footer' => 'background: #f7fafc; color: #718096; padding: 20px; text-align: center; font-size: 12px;'
+        );
+        
+        ob_start();
+        ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo esc_html($event->title); ?> - Event Invitation</title>
+</head>
+<body style="margin: 0; padding: 20px; background: #f7fafc;">
+    <div style="<?php echo $styles['container']; ?>">
+        <!-- Header -->
+        <div style="<?php echo $styles['header']; ?>">
+            <h1 style="margin: 0; font-size: 28px;">🎉 You're Invited!</h1>
+            <p style="margin: 10px 0 0 0; font-size: 18px; opacity: 0.9;"><?php echo esc_html($event->title); ?></p>
+        </div>
+        
+        <!-- Main Content -->
+        <div style="<?php echo $styles['body']; ?>">
+            <p style="font-size: 18px; margin-top: 0;">Hi there!</p>
+            
+            <p><strong><?php echo esc_html($host_name); ?></strong> has invited you to their event. Here are all the details:</p>
+            
+            <!-- Event Details Card -->
+            <div style="<?php echo $styles['event_card']; ?>">
+                <h2 style="margin-top: 0; color: #4a5568;"><?php echo esc_html($event->title); ?></h2>
+                
+                <div style="margin: 15px 0;">
+                    <p style="margin: 5px 0;"><strong>📅 When:</strong> <?php echo $event_day; ?>, <?php echo $event_date; ?> at <?php echo $event_time; ?></p>
+                    <?php if ($event->venue_info): ?>
+                    <p style="margin: 5px 0;"><strong>📍 Where:</strong> <?php echo esc_html($event->venue_info); ?></p>
+                    <?php endif; ?>
+                    <?php if ($event->description): ?>
+                    <p style="margin: 15px 0 5px 0;"><strong>ℹ️ Details:</strong></p>
+                    <p style="margin: 5px 0;"><?php echo nl2br(esc_html($event->description)); ?></p>
+                    <?php endif; ?>
+                </div>
+                
+                <?php if ($personal_message): ?>
+                <div style="background: white; border-left: 4px solid #667eea; padding: 15px; margin: 15px 0;">
+                    <p style="margin: 0;"><strong>💬 Personal message from <?php echo esc_html($host_name); ?>:</strong></p>
+                    <p style="margin: 10px 0 0 0; font-style: italic;">"<?php echo esc_html($personal_message); ?>"</p>
+                </div>
+                <?php endif; ?>
+            </div>
+            
+            <!-- RSVP Buttons -->
+            <div style="text-align: center; margin: 30px 0;">
+                <p style="font-size: 18px; font-weight: bold; margin-bottom: 20px;">Can you make it?</p>
+                <div>
+                    <a href="<?php echo esc_url($rsvp_yes_url); ?>" style="<?php echo $styles['btn_primary']; ?>">
+                        🎉 Yes, I'll be there!
+                    </a>
+                    <a href="<?php echo esc_url($rsvp_maybe_url); ?>" style="<?php echo $styles['btn_secondary']; ?>">
+                        🤔 Maybe
+                    </a>
+                    <a href="<?php echo esc_url($rsvp_no_url); ?>" style="<?php echo $styles['btn_danger']; ?>">
+                        😢 Can't make it
+                    </a>
+                </div>
+                <p style="margin-top: 20px; font-size: 14px; color: #718096;">
+                    Or <a href="<?php echo esc_url($invitation_url); ?>" style="color: #667eea;">click here to RSVP with more details</a>
+                </p>
+            </div>
+            
+            <!-- Host Contact -->
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; margin-top: 30px;">
+                <p style="font-size: 14px; color: #718096;">
+                    Questions about the event? Just reply to this email to reach <?php echo esc_html($host_name); ?> directly.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div style="<?php echo $styles['footer']; ?>">
+            <p>This invitation was sent through <a href="<?php echo esc_url($site_url); ?>" style="color: #667eea;"><?php echo esc_html($site_name); ?></a></p>
+            <p>If you can't click the buttons above, copy and paste this link: <br><?php echo esc_url($invitation_url); ?></p>
+        </div>
+    </div>
+</body>
+</html>
+        <?php
+        return ob_get_clean();
     }
 }

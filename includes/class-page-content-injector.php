@@ -38,7 +38,7 @@ class PartyMinder_Page_Content_Injector {
         if ($event_action === 'join') {
             ob_start();
             echo '<div class="partyminder-content partyminder-events-join-page">';
-            include PARTYMINDER_PLUGIN_DIR . 'templates/event-invitation-accept.php';
+            include PARTYMINDER_PLUGIN_DIR . 'templates/event-rsvp-guest.php';
             echo '</div>';
             return ob_get_clean();
         }

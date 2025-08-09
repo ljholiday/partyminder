@@ -197,6 +197,9 @@ class PartyMinder_Activator {
         // Event invitations table
         self::create_event_invitations_table();
         
+        // Event RSVPs table (separate from guests for modern flow)
+        self::create_event_rsvps_table();
+        
         // User profiles table
         self::create_user_profiles_table();
         
@@ -714,6 +717,41 @@ class PartyMinder_Activator {
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($invitations_sql);
+    }
+    
+    private static function create_event_rsvps_table() {
+        global $wpdb;
+        
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        // Event RSVPs table (modernized guest management)
+        $rsvps_table = $wpdb->prefix . 'partyminder_rsvps';
+        $rsvps_sql = "CREATE TABLE $rsvps_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            event_id mediumint(9) NOT NULL,
+            name varchar(100) NOT NULL,
+            email varchar(100) NOT NULL,
+            phone varchar(20) DEFAULT '',
+            status varchar(20) DEFAULT 'attending',
+            dietary_restrictions text DEFAULT '',
+            plus_one tinyint(1) DEFAULT 0,
+            plus_one_name varchar(100) DEFAULT '',
+            notes text DEFAULT '',
+            invitation_token varchar(64) DEFAULT '',
+            rsvp_date datetime DEFAULT CURRENT_TIMESTAMP,
+            reminder_sent tinyint(1) DEFAULT 0,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY event_id (event_id),
+            KEY email (email),
+            KEY status (status),
+            KEY invitation_token (invitation_token),
+            UNIQUE KEY unique_guest_event (event_id, email)
+        ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($rsvps_sql);
     }
 
     /**
