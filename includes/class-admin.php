@@ -28,14 +28,6 @@ class PartyMinder_Admin {
             array($this, 'dashboard_page')
         );
         
-        add_submenu_page(
-            'partyminder',
-            __('Create Event', 'partyminder'),
-            __('Create Event', 'partyminder'),
-            'manage_options',
-            'partyminder-create',
-            array($this, 'create_event_page')
-        );
         
         add_submenu_page(
             'partyminder',
@@ -174,7 +166,7 @@ class PartyMinder_Admin {
                 <div class="quick-actions">
                     <h2><?php _e('Quick Actions', 'partyminder'); ?></h2>
                     <div class="action-buttons">
-                        <a href="<?php echo admin_url('admin.php?page=partyminder-create'); ?>" class="button button-primary button-large">
+                        <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="button button-primary button-large">
                             <span class="dashicons dashicons-plus-alt"></span>
                             <?php _e('Create New Event', 'partyminder'); ?>
                         </a>
@@ -241,7 +233,7 @@ class PartyMinder_Admin {
                             <div class="step-content">
                                 <h3><?php _e('Create Your First Event', 'partyminder'); ?></h3>
                                 <p><?php _e('Set up a party event and start inviting guests.', 'partyminder'); ?></p>
-                                <a href="<?php echo admin_url('admin.php?page=partyminder-create'); ?>"><?php _e('Create Event', 'partyminder'); ?></a>
+                                <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>"><?php _e('Create Event', 'partyminder'); ?></a>
                             </div>
                         </div>
                         
@@ -277,14 +269,14 @@ class PartyMinder_Admin {
         <div class="wrap">
             <h1><?php _e('All Events', 'partyminder'); ?></h1>
             
-            <a href="<?php echo admin_url('admin.php?page=partyminder-create'); ?>" class="page-title-action">
+            <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="page-title-action">
                 <?php _e('Add New Event', 'partyminder'); ?>
             </a>
             
             <?php if (empty($events)): ?>
                 <div class="no-events">
                     <p><?php _e('No events found.', 'partyminder'); ?></p>
-                    <a href="<?php echo admin_url('admin.php?page=partyminder-create'); ?>" class="button button-primary">
+                    <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="button button-primary">
                         <?php _e('Create Your First Event', 'partyminder'); ?>
                     </a>
                 </div>
@@ -409,150 +401,15 @@ class PartyMinder_Admin {
         <?php
     }
     
-    public function create_event_page() {
-        $event_created = false;
-        $form_errors = array();
-        
-        // Handle form submission
-        if (isset($_POST['partyminder_create_admin_event']) && wp_verify_nonce($_POST['partyminder_admin_nonce'], 'create_admin_event')) {
-            
-            // Validate required fields
-            if (empty($_POST['event_title'])) {
-                $form_errors[] = __('Event title is required.', 'partyminder');
-            }
-            if (empty($_POST['event_date'])) {
-                $form_errors[] = __('Event date is required.', 'partyminder');
-            }
-            if (empty($_POST['host_email'])) {
-                $form_errors[] = __('Host email is required.', 'partyminder');
-            }
-            
-            // If no errors, create the event
-            if (empty($form_errors)) {
-                $event_data = array(
-                    'title' => sanitize_text_field(wp_unslash($_POST['event_title'])),
-                    'description' => wp_kses_post(wp_unslash($_POST['event_description'])),
-                    'event_date' => sanitize_text_field($_POST['event_date']),
-                    'venue' => sanitize_text_field($_POST['venue_info']),
-                    'guest_limit' => intval($_POST['guest_limit']),
-                    'host_email' => sanitize_email($_POST['host_email']),
-                    'host_notes' => wp_kses_post(wp_unslash($_POST['host_notes']))
-                );
-                
-                $event_manager = new PartyMinder_Event_Manager();
-                $event_id = $event_manager->create_event($event_data);
-                
-                if (!is_wp_error($event_id)) {
-                    $event_created = true;
-                } else {
-                    $form_errors[] = $event_id->get_error_message();
-                }
-            }
-        }
-        ?>
-        <div class="wrap">
-            <h1><?php _e('Create New Event', 'partyminder'); ?></h1>
-            
-            <?php if ($event_created): ?>
-                <div class="notice notice-success">
-                    <p><strong><?php _e('Event created successfully!', 'partyminder'); ?></strong></p>
-                    <p>
-                        <a href="<?php echo admin_url('admin.php?page=partyminder-events'); ?>" class="button button-primary"><?php _e('View All Events', 'partyminder'); ?></a>
-                        <a href="<?php echo admin_url('admin.php?page=partyminder-create'); ?>" class="button"><?php _e('Create Another Event', 'partyminder'); ?></a>
-                    </p>
-                </div>
-            <?php else: ?>
-                
-                <?php if (!empty($form_errors)): ?>
-                    <div class="notice notice-error">
-                        <p><strong><?php _e('Please fix the following issues:', 'partyminder'); ?></strong></p>
-                        <ul>
-                            <?php foreach ($form_errors as $error): ?>
-                                <li><?php echo esc_html($error); ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
-                <?php endif; ?>
-                
-                <form method="post" class="partyminder-admin-form">
-                    <?php wp_nonce_field('create_admin_event', 'partyminder_admin_nonce'); ?>
-                    
-                    <table class="form-table">
-                        <tr>
-                            <th scope="row"><label for="event_title"><?php _e('Event Title *', 'partyminder'); ?></label></th>
-                            <td>
-                                <input type="text" id="event_title" name="event_title" 
-                                       value="<?php echo esc_attr($_POST['event_title'] ?? ''); ?>" 
-                                       class="regular-text" required />
-                            </td>
-                        </tr>
-                        
-                        <tr>
-                            <th scope="row"><label for="event_date"><?php _e('Event Date & Time *', 'partyminder'); ?></label></th>
-                            <td>
-                                <input type="datetime-local" id="event_date" name="event_date" 
-                                       value="<?php echo esc_attr($_POST['event_date'] ?? ''); ?>" 
-                                       min="<?php echo date('Y-m-d\TH:i'); ?>" class="regular-text" required />
-                            </td>
-                        </tr>
-                        
-                        <tr>
-                            <th scope="row"><label for="venue_info"><?php _e('Venue/Location', 'partyminder'); ?></label></th>
-                            <td>
-                                <input type="text" id="venue_info" name="venue_info" 
-                                       value="<?php echo esc_attr($_POST['venue_info'] ?? ''); ?>" 
-                                       class="regular-text" />
-                            </td>
-                        </tr>
-                        
-                        <tr>
-                            <th scope="row"><label for="guest_limit"><?php _e('Guest Limit', 'partyminder'); ?></label></th>
-                            <td>
-                                <input type="number" id="guest_limit" name="guest_limit" 
-                                       value="<?php echo esc_attr($_POST['guest_limit'] ?? '10'); ?>" 
-                                       min="1" max="100" class="small-text" />
-                                <p class="description"><?php _e('Maximum number of guests allowed.', 'partyminder'); ?></p>
-                            </td>
-                        </tr>
-                        
-                        <tr>
-                            <th scope="row"><label for="host_email"><?php _e('Host Email *', 'partyminder'); ?></label></th>
-                            <td>
-                                <input type="email" id="host_email" name="host_email" 
-                                       value="<?php echo esc_attr($_POST['host_email'] ?? wp_get_current_user()->user_email); ?>" 
-                                       class="regular-text" required />
-                            </td>
-                        </tr>
-                        
-                        <tr>
-                            <th scope="row"><label for="event_description"><?php _e('Event Description', 'partyminder'); ?></label></th>
-                            <td>
-                                <textarea id="event_description" name="event_description" rows="5" class="large-text"><?php echo esc_textarea($_POST['event_description'] ?? ''); ?></textarea>
-                                <p class="description"><?php _e('Describe your event for guests.', 'partyminder'); ?></p>
-                            </td>
-                        </tr>
-                        
-                        <tr>
-                            <th scope="row"><label for="host_notes"><?php _e('Host Notes', 'partyminder'); ?></label></th>
-                            <td>
-                                <textarea id="host_notes" name="host_notes" rows="3" class="large-text"><?php echo esc_textarea($_POST['host_notes'] ?? ''); ?></textarea>
-                                <p class="description"><?php _e('Special instructions, parking info, etc.', 'partyminder'); ?></p>
-                            </td>
-                        </tr>
-                    </table>
-                    
-                    <p class="submit">
-                        <button type="submit" name="partyminder_create_admin_event" class="button button-primary">
-                            <?php _e('Create Event', 'partyminder'); ?>
-                        </button>
-                        <a href="<?php echo admin_url('admin.php?page=partyminder'); ?>" class="button"><?php _e('Cancel', 'partyminder'); ?></a>
-                    </p>
-                </form>
-                
-            <?php endif; ?>
-        </div>
-        <?php
-    }
+    /**
+     * Event creation is now handled by the public page at /create-event/
+     * 
+     * This admin method was removed as part of standardizing all pages to use
+     * Method 2 (Public Pages with Content Injection) rather than duplicate admin pages.
+     * 
+     * @deprecated Use public create-event page instead
+     */
+    // create_event_page method removed - see /create-event/ public page
     
     public function ai_page() {
         $ai_assistant = new PartyMinder_AI_Assistant();

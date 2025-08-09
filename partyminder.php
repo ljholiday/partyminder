@@ -171,6 +171,8 @@ class PartyMinder {
         
         // Communities shortcode
         add_shortcode('partyminder_communities', array($this, 'communities_shortcode'));
+        add_shortcode('partyminder_manage_community', array($this, 'manage_community_shortcode'));
+        add_shortcode('partyminder_create_community', array($this, 'create_community_shortcode'));
     }
     
     public function init() {

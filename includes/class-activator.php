@@ -313,6 +313,12 @@ class PartyMinder_Activator {
                 'content' => '<p>Loading community creation...</p>',
                 'slug' => 'create-community',
                 'description' => __('Create a new community to connect with like-minded hosts and guests.', 'partyminder')
+            ),
+            'create-group' => array(
+                'title' => __('Create Group', 'partyminder'),
+                'content' => '<p>Loading group creation...</p>',
+                'slug' => 'create-group',
+                'description' => __('Create a new group to organize events with specific people.', 'partyminder')
             )
         );
         

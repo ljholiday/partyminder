@@ -137,4 +137,10 @@ class PartyMinder_Page_Body_Class_Manager {
         $classes[] = 'partyminder-community-creation';
         return $classes;
     }
+    
+    public function add_create_group_body_class($classes) {
+        $classes[] = 'partyminder-groups';
+        $classes[] = 'partyminder-group-creation';
+        return $classes;
+    }
 }

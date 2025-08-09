@@ -114,6 +114,18 @@ class PartyMinder_Page_Content_Injector {
         return ob_get_clean();
     }
     
+    public function inject_create_group_content($content) {
+        if (!$this->should_inject_content('create-group')) {
+            return $content;
+        }
+        
+        ob_start();
+        echo '<div class="partyminder-content partyminder-create-group-page">';
+        include PARTYMINDER_PLUGIN_DIR . 'templates/create-group-content.php';
+        echo '</div>';
+        return ob_get_clean();
+    }
+    
     public function inject_profile_content($content) {
         if (!$this->should_inject_content('profile')) {
             return $content;

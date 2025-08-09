@@ -66,7 +66,7 @@ class PartyMinder_Page_Router {
             return;
         }
         
-        $page_keys = array('dashboard', 'events', 'create-event', 'my-events', 'edit-event', 'create-conversation', 'create-community', 'conversations', 'communities', 'profile', 'login', 'manage-community');
+        $page_keys = array('dashboard', 'events', 'create-event', 'my-events', 'edit-event', 'create-conversation', 'create-community', 'create-group', 'conversations', 'communities', 'profile', 'login', 'manage-community');
         $current_page_key = null;
         
         foreach ($page_keys as $key) {
@@ -145,6 +145,11 @@ class PartyMinder_Page_Router {
                     add_filter('the_content', array($this->content_injector, 'inject_create_community_content'));
                     add_filter('body_class', array($this->body_class_manager, 'add_create_community_body_class'));
                 }
+                break;
+                
+            case 'create-group':
+                add_filter('the_content', array($this->content_injector, 'inject_create_group_content'));
+                add_filter('body_class', array($this->body_class_manager, 'add_create_group_body_class'));
                 break;
                 
             case 'profile':
