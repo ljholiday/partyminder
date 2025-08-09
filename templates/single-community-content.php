@@ -53,12 +53,7 @@ $breadcrumbs = array(
     array('title' => 'Communities', 'url' => PartyMinder::get_communities_url()),
     array('title' => $community->name)
 );
-$nav_items = array(
-    array('title' => 'Overview', 'url' => home_url('/communities/' . $community->slug), 'active' => true),
-    array('title' => 'Conversations', 'url' => home_url('/communities/' . $community->slug . '/conversations')),
-    array('title' => 'Events', 'url' => home_url('/communities/' . $community->slug . '/events')),
-    array('title' => 'Members', 'url' => home_url('/communities/' . $community->slug . '/members'))
-);
+// No navigation items - using sidebar navigation instead
 
 // Main content
 ob_start();
@@ -211,6 +206,28 @@ $main_content = ob_get_clean();
 // Sidebar content
 ob_start();
 ?>
+<div class="pm-section pm-mb-4">
+    <!-- Community Navigation -->
+    <div class="pm-card">
+        <div class="pm-card-header">
+            <h3 class="pm-heading pm-heading-md pm-text-primary"><?php _e('Community Pages', 'partyminder'); ?></h3>
+        </div>
+        <div class="pm-card-body">
+            <div class="pm-flex pm-flex-column pm-gap-4">
+                <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-btn pm-btn-primary">
+                    <?php _e('Overview', 'partyminder'); ?>
+                </a>
+                <a href="<?php echo home_url('/communities/' . $community->slug . '/events'); ?>" class="pm-btn pm-btn-secondary">
+                    <?php _e('Events', 'partyminder'); ?>
+                </a>
+                <a href="<?php echo home_url('/communities/' . $community->slug . '/members'); ?>" class="pm-btn pm-btn-secondary">
+                    <?php _e('Members', 'partyminder'); ?>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="pm-section pm-mb">
     <div class="pm-card">
         <div class="pm-card-header">

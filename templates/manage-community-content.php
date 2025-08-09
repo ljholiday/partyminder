@@ -86,13 +86,7 @@ $breadcrumbs = array(
     array('title' => __('Manage', 'partyminder'))
 );
 
-// Navigation tabs
-$nav_items = array(
-    array('title' => __('Overview', 'partyminder'), 'url' => "?community_id={$community_id}&tab=overview", 'active' => $current_tab === 'overview'),
-    array('title' => __('Settings', 'partyminder'), 'url' => "?community_id={$community_id}&tab=settings", 'active' => $current_tab === 'settings'),
-    array('title' => __('Members', 'partyminder'), 'url' => "?community_id={$community_id}&tab=members", 'active' => $current_tab === 'members'),
-    array('title' => __('Invitations', 'partyminder'), 'url' => "?community_id={$community_id}&tab=invitations", 'active' => $current_tab === 'invitations')
-);
+// No navigation tabs - using sidebar navigation instead
 
 // Main content
 ob_start();
@@ -573,8 +567,52 @@ document.addEventListener('DOMContentLoaded', function() {
 <?php
 $main_content = ob_get_clean();
 
-// Sidebar content - empty for management interface
-$sidebar_content = '';
+// Sidebar content
+ob_start();
+?>
+<div class="pm-section pm-mb-4">
+    <!-- Management Navigation -->
+    <div class="pm-card">
+        <div class="pm-card-header">
+            <h3 class="pm-heading pm-heading-md pm-text-primary"><?php _e('Management', 'partyminder'); ?></h3>
+        </div>
+        <div class="pm-card-body">
+            <div class="pm-flex pm-flex-column pm-gap-4">
+                <a href="?community_id=<?php echo $community_id; ?>&tab=overview" class="pm-btn <?php echo $current_tab === 'overview' ? 'pm-btn-primary' : 'pm-btn-secondary'; ?>">
+                    <?php _e('Overview', 'partyminder'); ?>
+                </a>
+                <a href="?community_id=<?php echo $community_id; ?>&tab=settings" class="pm-btn <?php echo $current_tab === 'settings' ? 'pm-btn-primary' : 'pm-btn-secondary'; ?>">
+                    <?php _e('Settings', 'partyminder'); ?>
+                </a>
+                <a href="?community_id=<?php echo $community_id; ?>&tab=members" class="pm-btn <?php echo $current_tab === 'members' ? 'pm-btn-primary' : 'pm-btn-secondary'; ?>">
+                    <?php _e('Members', 'partyminder'); ?>
+                </a>
+                <a href="?community_id=<?php echo $community_id; ?>&tab=invitations" class="pm-btn <?php echo $current_tab === 'invitations' ? 'pm-btn-primary' : 'pm-btn-secondary'; ?>">
+                    <?php _e('Invitations', 'partyminder'); ?>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pm-section pm-mb-4">
+    <!-- Quick Actions -->
+    <div class="pm-card">
+        <div class="pm-card-header">
+            <h3 class="pm-heading pm-heading-md pm-text-primary"><?php _e('Quick Actions', 'partyminder'); ?></h3>
+        </div>
+        <div class="pm-card-body">
+            <div class="pm-flex pm-flex-column pm-gap-4">
+                <a href="<?php echo esc_url(PartyMinder::get_community_url($community->slug)); ?>" class="pm-btn pm-btn-secondary">
+                    <span>👁️</span>
+                    <?php _e('View Community', 'partyminder'); ?>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<?php
+$sidebar_content = ob_get_clean();
 
 // Include base template
 include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php');

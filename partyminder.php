@@ -127,8 +127,7 @@ class PartyMinder {
         add_action('wp', array($this->page_router, 'handle_page_routing'), 5);
         add_action('template_redirect', array($this, 'handle_form_submissions'));
         
-        // Handle individual event pages through content injection
-        add_action('wp', array($this, 'detect_individual_event_page'), 5);
+        // Individual event page routing is now handled by Page Router
         
         // No longer need post meta suppression - using pages now
         
@@ -932,66 +931,7 @@ class PartyMinder {
         }
     }
     
-    public function detect_individual_event_page() {
-        // Check if we're on the events page with an event slug
-        if (is_page() && get_post_field('post_name') === 'events') {
-            $event_slug = get_query_var('event_slug');
-            
-            if (!empty($event_slug)) {
-                // Load event manager first
-                if (!$this->event_manager) {
-                    $this->load_dependencies();
-                    $this->event_manager = new PartyMinder_Event_Manager();
-                }
-                
-                // Use Event Manager's privacy-aware get_event_by_slug method
-                $event = $this->event_manager->get_event_by_slug($event_slug);
-                
-                // Check privacy permissions
-                if ($event && $this->event_manager->can_user_view_event($event)) {
-                    // Set up global event data for content injection
-                    $GLOBALS['partyminder_current_event'] = $event;
-                    $GLOBALS['partyminder_is_single_event'] = true;
-                    
-                    // Modify the page title and content
-                    add_filter('the_title', array($this, 'inject_event_title'), 10, 2);
-                    add_filter('the_content', array($this, 'inject_event_content'), 10);
-                    add_filter('wp_title', array($this, 'inject_event_wp_title'), 10, 3);
-                    add_filter('document_title_parts', array($this, 'inject_event_document_title'));
-                } else {
-                    // Event not found - show 404
-                    global $wp_query;
-                    $wp_query->set_404();
-                    status_header(404);
-                }
-            }
-        }
-    }
-    
-    public function inject_event_title($title, $id = null) {
-        if (isset($GLOBALS['partyminder_is_single_event']) && 
-            isset($GLOBALS['partyminder_current_event']) && 
-            ($id === get_the_ID() || is_null($id))) {
-            return $GLOBALS['partyminder_current_event']->title;
-        }
-        return $title;
-    }
-    
-    // inject_event_content method moved to Page_Content_Injector class
-    
-    public function inject_event_wp_title($title, $sep, $seplocation) {
-        if (isset($GLOBALS['partyminder_is_single_event']) && isset($GLOBALS['partyminder_current_event'])) {
-            return $GLOBALS['partyminder_current_event']->title . ' ' . $sep . ' ' . get_bloginfo('name');
-        }
-        return $title;
-    }
-    
-    public function inject_event_document_title($title_parts) {
-        if (isset($GLOBALS['partyminder_is_single_event']) && isset($GLOBALS['partyminder_current_event'])) {
-            $title_parts['title'] = $GLOBALS['partyminder_current_event']->title;
-        }
-        return $title_parts;
-    }
+    // Individual event page detection and content injection moved to Page Router and Page Content Injector classes
     
     
     // inject_events_content method moved to Page_Content_Injector class

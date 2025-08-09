@@ -69,18 +69,6 @@ ob_start();
 ?>
 
 <div class="pm-section pm-mb-4">
-    <!-- Community Navigation Tabs -->
-    <div class="pm-nav-tabs pm-mb-4">
-        <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-nav-tab">
-            <?php _e('Overview', 'partyminder'); ?>
-        </a>
-        <a href="<?php echo home_url('/communities/' . $community->slug . '/events'); ?>" class="pm-nav-tab pm-nav-tab-active">
-            <?php _e('Events', 'partyminder'); ?>
-        </a>
-        <a href="<?php echo home_url('/communities/' . $community->slug . '/members'); ?>" class="pm-nav-tab">
-            <?php _e('Members', 'partyminder'); ?>
-        </a>
-    </div>
 
     <!-- Page Header -->
     <div class="pm-flex pm-flex-between pm-mb-4">
@@ -234,6 +222,28 @@ $main_content = ob_get_clean();
 // Sidebar content
 ob_start();
 ?>
+
+<div class="pm-section pm-mb-4">
+    <!-- Community Navigation -->
+    <div class="pm-card">
+        <div class="pm-card-header">
+            <h3 class="pm-heading pm-heading-md pm-text-primary"><?php _e('Community Pages', 'partyminder'); ?></h3>
+        </div>
+        <div class="pm-card-body">
+            <div class="pm-flex pm-flex-column pm-gap-4">
+                <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-btn pm-btn-secondary">
+                    <?php _e('Overview', 'partyminder'); ?>
+                </a>
+                <a href="<?php echo home_url('/communities/' . $community->slug . '/events'); ?>" class="pm-btn pm-btn-primary">
+                    <?php _e('Events', 'partyminder'); ?>
+                </a>
+                <a href="<?php echo home_url('/communities/' . $community->slug . '/members'); ?>" class="pm-btn pm-btn-secondary">
+                    <?php _e('Members', 'partyminder'); ?>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="pm-section pm-mb-4">
     <!-- Community Info -->
