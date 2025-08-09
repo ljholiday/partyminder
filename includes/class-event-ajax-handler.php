@@ -224,7 +224,7 @@ class PartyMinder_Event_Ajax_Handler {
         $invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
         
         $existing = $wpdb->get_var($wpdb->prepare(
-            "SELECT id FROM $invitations_table WHERE event_id = %d AND invited_email = %s",
+            "SELECT id FROM $invitations_table WHERE event_id = %d AND invited_email = %s AND status IN ('pending', 'accepted')",
             $event_id,
             $email
         ));
@@ -382,7 +382,7 @@ class PartyMinder_Event_Ajax_Handler {
                 }
                 $html .= '</div>';
                 if ($invitation->status === 'pending') {
-                    $html .= '<div class="pm-flex pm-gap-4" style="align-items: center; min-height: 40px;">';
+                    $html .= '<div class="pm-flex pm-flex-column pm-gap-4" style="align-items: stretch; min-height: 80px;">';
                     $html .= '<button type="button" class="pm-btn pm-btn-secondary" onclick="copyInvitationUrl(\'' . esc_js($invitation->invitation_url) . '\')">' . __('Copy Link', 'partyminder') . '</button>';
                     $html .= '<button type="button" class="pm-btn pm-btn-danger cancel-event-invitation" data-invitation-id="' . esc_attr($invitation->invitation_token) . '">' . __('Cancel', 'partyminder') . '</button>';
                     $html .= '</div>';

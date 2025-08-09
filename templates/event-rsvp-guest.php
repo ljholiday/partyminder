@@ -34,7 +34,7 @@ $invitation = $wpdb->get_row($wpdb->prepare(
      FROM $invitations_table ei
      LEFT JOIN {$wpdb->prefix}partyminder_events e ON ei.event_id = e.id
      LEFT JOIN {$wpdb->users} u ON ei.invited_by_user_id = u.ID
-     WHERE ei.invitation_token = %s AND ei.event_id = %d AND ei.status = 'pending'
+     WHERE ei.invitation_token = %s AND ei.event_id = %d AND ei.status IN ('pending', 'accepted')
      AND ei.expires_at > %s",
     $invitation_token,
     $event_id,
