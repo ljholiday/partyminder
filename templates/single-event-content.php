@@ -200,70 +200,48 @@ $main_content = ob_get_clean();
 // Sidebar content
 ob_start();
 ?>
-<div class="pm-section pm-mb">
-    <div class="pm-card">
-        <div class="pm-card-header">
-            <h3 class="pm-heading pm-heading-md">Event Stats</h3>
-        </div>
-        <div class="pm-card-body">
-            <div class="pm-grid pm-grid-2 pm-gap">
-                <div class="pm-stat pm-text-center">
-                    <div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->confirmed ?? 0; ?></div>
-                    <div class="pm-stat-label">Confirmed</div>
-                </div>
-                <div class="pm-stat pm-text-center">
-                    <div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->pending ?? 0; ?></div>
-                    <div class="pm-stat-label">Pending</div>
-                </div>
-                <?php if (($event->guest_stats->maybe ?? 0) > 0): ?>
-                <div class="pm-stat pm-text-center">
-                    <div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->maybe ?? 0; ?></div>
-                    <div class="pm-stat-label">Maybe</div>
-                </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-</div>
 
-<?php if (!$is_past): ?>
-<div class="pm-section pm-mb">
-    <div class="pm-card">
-        <div class="pm-card-header">
-            <h3 class="pm-heading pm-heading-sm">Quick Actions</h3>
-        </div>
-        <div class="pm-card-body">
-            <?php $is_full = $event->guest_limit > 0 && $event->guest_stats->confirmed >= $event->guest_limit; ?>
-            
-            <div class="pm-flex pm-flex-column pm-gap">
+<!-- Quick Actions (No Heading) -->
+<div class="pm-card pm-mb-4">
+    <div class="pm-card-body">
+        <div class="pm-flex pm-flex-column pm-gap-4">
+            <?php if (!$is_past): ?>
+                <?php $is_full = $event->guest_limit > 0 && $event->guest_stats->confirmed >= $event->guest_limit; ?>
                 <?php if ($is_event_host): ?>
                     <a href="<?php echo PartyMinder::get_edit_event_url($event->id); ?>" class="pm-btn">
-                        Edit Event
+                        <?php _e('Edit Event', 'partyminder'); ?>
                     </a>
                 <?php else: ?>
                     <a href="#rsvp" class="pm-btn">
                         <?php if ($is_full): ?>
-                            Join Waitlist
+                            <?php _e('Join Waitlist', 'partyminder'); ?>
                         <?php else: ?>
-                            RSVP Now
+                            <?php _e('RSVP Now', 'partyminder'); ?>
                         <?php endif; ?>
                     </a>
                 <?php endif; ?>
                 
                 <button type="button" class="pm-btn pm-btn-secondary" onclick="shareEvent()">
-                    Share Event
+                    <?php _e('Share Event', 'partyminder'); ?>
                 </button>
                 
                 <?php if (is_user_logged_in()): ?>
                 <a href="<?php echo add_query_arg('event_id', $event->id, PartyMinder::get_create_conversation_url()); ?>" class="pm-btn pm-btn-secondary">
-                    Create Conversation
+                    <?php _e('Create Conversation', 'partyminder'); ?>
                 </a>
                 <?php endif; ?>
-            </div>
+            <?php else: ?>
+                <button type="button" class="pm-btn pm-btn-secondary" onclick="shareEvent()">
+                    <?php _e('Share Event', 'partyminder'); ?>
+                </button>
+            <?php endif; ?>
+            
+            <a href="<?php echo esc_url(PartyMinder::get_events_page_url()); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('← All Events', 'partyminder'); ?>
+            </a>
         </div>
     </div>
 </div>
-<?php endif; ?>
 
 <?php if ($is_event_host && !$is_past): ?>
 <div class="pm-section pm-mb">

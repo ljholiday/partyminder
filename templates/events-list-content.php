@@ -232,18 +232,25 @@ $main_content = ob_get_clean();
 // Sidebar content
 ob_start();
 ?>
-<!-- Quick Actions -->
-<div class="pm-section pm-mb">
-    <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm"><?php _e('Quick Actions', 'partyminder'); ?></h3>
-    </div>
-    <div class="pm-flex pm-gap pm-flex-wrap">
-        <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="pm-btn">
-            <?php _e('Create Event', 'partyminder'); ?>
-        </a>
-        <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-btn pm-btn-secondary">
-            <?php _e('Join Conversations', 'partyminder'); ?>
-        </a>
+<!-- Quick Actions (No Heading) -->
+<div class="pm-card pm-mb-4">
+    <div class="pm-card-body">
+        <div class="pm-flex pm-flex-column pm-gap-4">
+            <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="pm-btn">
+                <?php _e('Create Event', 'partyminder'); ?>
+            </a>
+            <?php if (is_user_logged_in()): ?>
+                <a href="<?php echo esc_url(PartyMinder::get_my_events_url()); ?>" class="pm-btn pm-btn-secondary">
+                    <?php _e('My Events', 'partyminder'); ?>
+                </a>
+            <?php endif; ?>
+            <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('Join Conversations', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo esc_url(PartyMinder::get_dashboard_url()); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('← Dashboard', 'partyminder'); ?>
+            </a>
+        </div>
     </div>
 </div>
 

@@ -316,10 +316,27 @@ if ($is_editing) {
     ob_start();
     ?>
     
+    <!-- Quick Actions (No Heading) -->
+    <div class="pm-card pm-mb-4">
+        <div class="pm-card-body">
+            <div class="pm-flex pm-flex-column pm-gap-4">
+                <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="pm-btn">
+                     <?php _e('Create Event', 'partyminder'); ?>
+                </a>
+                <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-btn pm-btn-secondary">
+                     <?php _e('Browse Conversations', 'partyminder'); ?>
+                </a>
+                <a href="<?php echo esc_url(PartyMinder::get_dashboard_url()); ?>" class="pm-btn pm-btn-secondary">
+                    <?php _e('← Dashboard', 'partyminder'); ?>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <?php if ($is_own_profile): ?>
     <div class="pm-section pm-mb">
         <div class="pm-section-header">
-            <h3 class="pm-heading pm-heading-sm">⚙️ <?php _e('Profile Management', 'partyminder'); ?></h3>
+            <h3 class="pm-heading pm-heading-sm"><?php _e('Profile Management', 'partyminder'); ?></h3>
         </div>
         <div class="pm-flex pm-gap pm-flex-column">
             <a href="<?php echo add_query_arg('edit', '1', PartyMinder::get_profile_url()); ?>" class="pm-btn">
@@ -331,20 +348,6 @@ if ($is_editing) {
         </div>
     </div>
     <?php endif; ?>
-
-    <div class="pm-section pm-mb">
-        <div class="pm-section-header">
-            <h3 class="pm-heading pm-heading-sm"> <?php _e('Quick Actions', 'partyminder'); ?></h3>
-        </div>
-        <div class="pm-flex pm-gap pm-flex-column">
-            <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="pm-btn pm-btn-secondary">
-                 <?php _e('Create Event', 'partyminder'); ?>
-            </a>
-            <a href="<?php echo esc_url(PartyMinder::get_conversations_url()); ?>" class="pm-btn pm-btn-secondary">
-                 <?php _e('Browse Conversations', 'partyminder'); ?>
-            </a>
-        </div>
-    </div>
 
     <div class="pm-section pm-mb">
         <div class="pm-section-header">

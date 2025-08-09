@@ -139,7 +139,7 @@ ob_start();
         </div>
     <?php else: ?>
         <div class="pm-section pm-text-center pm-p-8">
-            <div class="pm-text-6xl pm-mb">💭</div>
+            <div class="pm-text-6xl pm-mb"></div>
             <h3 class="pm-heading pm-heading-md pm-text-primary pm-mb">
                 <?php _e('No conversations yet', 'partyminder'); ?>
             </h3>
@@ -160,10 +160,27 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
+<!-- Quick Actions (No Heading) -->
+<div class="pm-card pm-mb-4">
+    <div class="pm-card-body">
+        <div class="pm-flex pm-flex-column pm-gap-4">
+            <a href="<?php echo add_query_arg('topic_id', $topic->id, PartyMinder::get_create_conversation_url()); ?>" class="pm-btn">
+                 <?php _e('Start New Conversation', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('← All Topics', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo PartyMinder::get_dashboard_url(); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('← Dashboard', 'partyminder'); ?>
+            </a>
+        </div>
+    </div>
+</div>
+
 <!-- Topic Info -->
 <div class="pm-section pm-mb">
     <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm">📋 <?php _e('Topic Info', 'partyminder'); ?></h3>
+        <h3 class="pm-heading pm-heading-sm"><?php _e('Topic Info', 'partyminder'); ?></h3>
     </div>
     <div class="pm-stat-list">
         <div class="pm-stat-item">
@@ -178,24 +195,6 @@ ob_start();
             <span class="pm-stat-label"><?php _e('Total Replies', 'partyminder'); ?></span>
             <span class="pm-stat-value"><?php echo array_sum(array_column($conversations, 'reply_count')); ?></span>
         </div>
-    </div>
-</div>
-
-<!-- Quick Actions -->
-<div class="pm-section pm-mb">
-    <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm"> <?php _e('Quick Actions', 'partyminder'); ?></h3>
-    </div>
-    <div class="pm-flex pm-gap pm-flex-column">
-        <a href="<?php echo add_query_arg('topic_id', $topic->id, PartyMinder::get_create_conversation_url()); ?>" class="pm-btn">
-             <?php _e('Start New Conversation', 'partyminder'); ?>
-        </a>
-        <a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
-            🏠 <?php _e('All Topics', 'partyminder'); ?>
-        </a>
-        <a href="<?php echo PartyMinder::get_dashboard_url(); ?>" class="pm-btn pm-btn-secondary">
-            📊 <?php _e('Dashboard', 'partyminder'); ?>
-        </a>
     </div>
 </div>
 

@@ -226,44 +226,61 @@ $main_content = ob_get_clean();
 // Sidebar content
 ob_start();
 ?>
-<div class="pm-section pm-mb">
-    <div class="pm-card">
-        <div class="pm-card-header">
-            <h3 class="pm-heading pm-heading-md">Community Info</h3>
-        </div>
-        <div class="pm-card-body">
-            <div class="pm-text-center pm-mb-4">
-                <div class="pm-avatar pm-avatar-xl pm-mb-2">
-                    <?php echo strtoupper(substr($community->name, 0, 2)); ?>
-                </div>
-                <h4 class="pm-heading pm-heading-sm"><?php echo esc_html($community->name); ?></h4>
-                <div class="pm-flex pm-gap pm-text-muted pm-mb-2">
-                    <span>Community</span>
-                    <span><?php echo date('M Y', strtotime($community->created_at)); ?></span>
-                    <?php if ($is_member): ?>
-                        <span class="pm-badge pm-badge-<?php echo $user_role === 'admin' ? 'primary' : 'success'; ?>">
-                            <?php echo esc_html(ucfirst($user_role)); ?>
-                        </span>
-                    <?php endif; ?>
-                </div>
-            </div>
-            
-            <?php if ($community->description): ?>
-                <div class="pm-text-muted pm-mb-4">
-                    <?php echo wpautop(esc_html($community->description)); ?>
-                </div>
+
+<!-- Quick Actions (No Heading) -->
+<div class="pm-card pm-mb-4">
+    <div class="pm-card-body">
+        <div class="pm-flex pm-flex-column pm-gap-4">
+            <?php if (!$is_logged_in): ?>
+                <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-btn">
+                    <?php _e('Login to Join', 'partyminder'); ?>
+                </a>
+            <?php elseif ($is_member): ?>
+                <?php if ($user_role === 'admin' && isset($community->id)): ?>
+                    <a href="<?php echo esc_url(site_url('/manage-community?community_id=' . intval($community->id) . '&tab=conversations')); ?>" class="pm-btn">
+                        <?php _e('Manage Community', 'partyminder'); ?>
+                    </a>
+                <?php endif; ?>
+                <a href="<?php echo esc_url(site_url('/create-conversation?community_id=' . intval($community->id))); ?>" class="pm-btn pm-btn-secondary">
+                    <?php _e('Start Conversation', 'partyminder'); ?>
+                </a>
+                <a href="<?php echo esc_url(site_url('/create-event?community_id=' . intval($community->id))); ?>" class="pm-btn pm-btn-secondary">
+                    <?php _e('Create Event', 'partyminder'); ?>
+                </a>
+            <?php else: ?>
+                <button class="pm-btn join-community-btn" data-community-id="<?php echo esc_attr(intval($community->id)); ?>">
+                    <?php _e('Join Community', 'partyminder'); ?>
+                </button>
             <?php endif; ?>
-            
-            <div class="pm-stats-grid pm-text-center">
-                <div class="pm-stat">
-                    <div class="pm-stat-number pm-text-primary"><?php echo $community->member_count ?? 0; ?></div>
-                    <div class="pm-stat-label"><?php _e('Members', 'partyminder'); ?></div>
-                </div>
-                <div class="pm-stat">
-                    <div class="pm-stat-number pm-text-primary"><?php echo $total_conversations; ?></div>
-                    <div class="pm-stat-label"><?php _e('Conversations', 'partyminder'); ?></div>
-                </div>
-            </div>
+            <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('← Back to Community', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('← All Communities', 'partyminder'); ?>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Community Navigation -->
+<div class="pm-card pm-mb-4">
+    <div class="pm-card-header">
+        <h3 class="pm-heading pm-heading-md pm-text-primary"><?php _e('Community Pages', 'partyminder'); ?></h3>
+    </div>
+    <div class="pm-card-body">
+        <div class="pm-flex pm-flex-column pm-gap-4">
+            <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('Overview', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo home_url('/communities/' . $community->slug . '/events'); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('Events', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo home_url('/communities/' . $community->slug . '/members'); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('Members', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo home_url('/communities/' . $community->slug . '/conversations'); ?>" class="pm-btn pm-btn-primary">
+                <?php _e('Conversations', 'partyminder'); ?>
+            </a>
         </div>
     </div>
 </div>
@@ -271,31 +288,25 @@ ob_start();
 <div class="pm-section pm-mb">
     <div class="pm-card">
         <div class="pm-card-header">
-            <h3 class="pm-heading pm-heading-md">Community Actions</h3>
+            <h3 class="pm-heading pm-heading-md"><?php echo esc_html($community->name); ?></h3>
         </div>
         <div class="pm-card-body">
-            <div class="pm-flex pm-flex-column pm-gap">
-                <?php if (!$is_logged_in): ?>
-                    <a href="<?php echo wp_login_url(get_permalink()); ?>" class="pm-btn">
-                        Login to Join
-                    </a>
-                <?php elseif ($is_member): ?>
-                    <?php if ($user_role === 'admin' && isset($community->id)): ?>
-                        <a href="<?php echo esc_url(site_url('/manage-community?community_id=' . intval($community->id) . '&tab=conversations')); ?>" class="pm-btn">
-                            Manage Community
-                        </a>
-                    <?php endif; ?>
-                    <a href="<?php echo esc_url(site_url('/create-conversation?community_id=' . intval($community->id))); ?>" class="pm-btn pm-btn-secondary">
-                        Start Conversation
-                    </a>
-                    <a href="<?php echo esc_url(site_url('/create-event?community_id=' . intval($community->id))); ?>" class="pm-btn pm-btn-secondary">
-                        Create Event
-                    </a>
-                <?php else: ?>
-                    <a href="#" class="pm-btn join-community-btn" data-community-id="<?php echo esc_attr(intval($community->id)); ?>">
-                        Join Community
-                    </a>
-                <?php endif; ?>
+        <?php if ($community->description): ?>
+            <p class="pm-text-muted pm-mb-4"><?php echo esc_html($community->description); ?></p>
+        <?php endif; ?>
+        
+        <div class="pm-flex pm-flex-column pm-gap-4">
+            <div>
+                <strong class="pm-text-primary"><?php _e('Members:', 'partyminder'); ?></strong><br>
+                <span class="pm-text-muted"><?php echo $community->member_count ?? 0; ?></span>
+            </div>
+            <div>
+                <strong class="pm-text-primary"><?php _e('Conversations:', 'partyminder'); ?></strong><br>
+                <span class="pm-text-muted"><?php echo $total_conversations; ?></span>
+            </div>
+            <div>
+                <strong class="pm-text-primary"><?php _e('Privacy:', 'partyminder'); ?></strong><br>
+                <span class="pm-text-muted"><?php echo esc_html(ucfirst($community->privacy)); ?></span>
             </div>
         </div>
     </div>

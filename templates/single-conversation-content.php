@@ -214,54 +214,31 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
-<!-- Conversation Info -->
-<div class="pm-section pm-mb">
-    <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm">📋 <?php _e('Conversation Info', 'partyminder'); ?></h3>
-    </div>
-    <div class="pm-stat-list">
-        <div class="pm-stat-item">
-            <span class="pm-stat-label"><?php _e('Topic', 'partyminder'); ?></span>
-            <span class="pm-stat-value"><?php echo esc_html($topic->icon . ' ' . $topic->name); ?></span>
-        </div>
-        <div class="pm-stat-item">
-            <span class="pm-stat-label"><?php _e('Started', 'partyminder'); ?></span>
-            <span class="pm-stat-value"><?php echo date('M j, Y', strtotime($conversation->created_at)); ?></span>
-        </div>
-        <div class="pm-stat-item">
-            <span class="pm-stat-label"><?php _e('Replies', 'partyminder'); ?></span>
-            <span class="pm-stat-value"><?php echo $conversation->reply_count; ?></span>
-        </div>
-        <?php if ($event_data): ?>
-        <div class="pm-stat-item">
-            <span class="pm-stat-label"><?php _e('Related Event', 'partyminder'); ?></span>
-            <span class="pm-stat-value">
-                <a href="<?php echo home_url('/events/' . $event_data->slug); ?>" class="pm-text-primary">
-                    <?php echo esc_html($event_data->title); ?>
+<!-- Quick Actions (No Heading) -->
+<div class="pm-card pm-mb-4">
+    <div class="pm-card-body">
+        <div class="pm-flex pm-flex-column pm-gap-4">
+            <?php if ($user_email): ?>
+                <button class="pm-btn follow-btn" data-conversation-id="<?php echo esc_attr($conversation->id); ?>">
+                    <?php if ($is_following): ?>
+                         <?php _e('Unfollow', 'partyminder'); ?>
+                    <?php else: ?>
+                         <?php _e('Follow', 'partyminder'); ?>
+                    <?php endif; ?>
+                </button>
+            <?php endif; ?>
+            <?php if ($event_data): ?>
+                <a href="<?php echo home_url('/events/' . $event_data->slug); ?>" class="pm-btn pm-btn-secondary">
+                     <?php _e('View Event', 'partyminder'); ?>
                 </a>
-            </span>
+            <?php endif; ?>
+            <a href="<?php echo home_url('/conversations/' . $topic->slug); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('← Back to Topic', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('← All Conversations', 'partyminder'); ?>
+            </a>
         </div>
-        <?php endif; ?>
-    </div>
-</div>
-
-<!-- Quick Actions -->
-<div class="pm-section pm-mb">
-    <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm"> <?php _e('Quick Actions', 'partyminder'); ?></h3>
-    </div>
-    <div class="pm-flex pm-gap pm-flex-column">
-        <a href="<?php echo home_url('/conversations/' . $topic->slug); ?>" class="pm-btn pm-btn-secondary">
-            ← <?php _e('Back to Topic', 'partyminder'); ?>
-        </a>
-        <a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
-            🏠 <?php _e('All Conversations', 'partyminder'); ?>
-        </a>
-        <?php if ($event_data): ?>
-        <a href="<?php echo home_url('/events/' . $event_data->slug); ?>" class="pm-btn pm-btn-secondary">
-             <?php _e('View Event', 'partyminder'); ?>
-        </a>
-        <?php endif; ?>
     </div>
 </div>
 

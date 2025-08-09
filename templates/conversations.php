@@ -144,7 +144,7 @@ ob_start();
 
 <?php if (!$user_logged_in): ?>
 <div class="pm-section pm-text-center">
-    <div class="pm-text-xl pm-mb-4">🔐</div>
+    <div class="pm-text-xl pm-mb-4"></div>
     <h3 class="pm-heading pm-heading-md pm-mb-4"><?php _e('Join the Conversation', 'partyminder'); ?></h3>
     <p class="pm-text-muted mb-4"><?php _e('Sign in to participate in discussions, ask questions, and share your hosting experiences!', 'partyminder'); ?></p>
     <div class="pm-flex pm-gap pm-flex-center pm-flex-wrap">
@@ -166,23 +166,29 @@ $main_content = ob_get_clean();
 // Sidebar content
 ob_start();
 ?>
-<!-- Quick Actions -->
-<div class="pm-section pm-mb">
-    <div class="pm-section-header">
-        <h3 class="pm-heading pm-heading-sm"> <?php _e('Quick Actions', 'partyminder'); ?></h3>
-    </div>
-    <div class="pm-flex pm-gap pm-flex-wrap">
-        <?php if ($user_logged_in): ?>
-        <a href="<?php echo PartyMinder::get_create_conversation_url(); ?>" class="pm-btn">
-             <?php _e('Start Conversation', 'partyminder'); ?>
-        </a>
-        <?php endif; ?>
-        <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="pm-btn pm-btn-secondary">
-            🎪 <?php _e('Create Event', 'partyminder'); ?>
-        </a>
-        <a href="<?php echo esc_url(PartyMinder::get_events_page_url()); ?>" class="pm-btn pm-btn-secondary">
-             <?php _e('Browse Events', 'partyminder'); ?>
-        </a>
+<!-- Quick Actions (No Heading) -->
+<div class="pm-card pm-mb-4">
+    <div class="pm-card-body">
+        <div class="pm-flex pm-flex-column pm-gap-4">
+            <?php if ($user_logged_in): ?>
+                <a href="<?php echo PartyMinder::get_create_conversation_url(); ?>" class="pm-btn">
+                     <?php _e('Start Conversation', 'partyminder'); ?>
+                </a>
+            <?php else: ?>
+                <a href="<?php echo add_query_arg('redirect_to', urlencode($_SERVER['REQUEST_URI']), PartyMinder::get_login_url()); ?>" class="pm-btn">
+                     <?php _e('Login to Participate', 'partyminder'); ?>
+                </a>
+            <?php endif; ?>
+            <a href="<?php echo esc_url(PartyMinder::get_create_event_url()); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('Create Event', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo esc_url(PartyMinder::get_events_page_url()); ?>" class="pm-btn pm-btn-secondary">
+                 <?php _e('Browse Events', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo esc_url(PartyMinder::get_dashboard_url()); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('← Dashboard', 'partyminder'); ?>
+            </a>
+        </div>
     </div>
 </div>
 

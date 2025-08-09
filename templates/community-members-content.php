@@ -60,7 +60,7 @@ $primary_color = get_option('partyminder_primary_color', '#667eea');
 $secondary_color = get_option('partyminder_secondary_color', '#764ba2');
 
 // Set up template variables
-$page_title = __('👥 Community Members', 'partyminder');
+$page_title = __('Community Members', 'partyminder');
 $page_description = sprintf(__('%s - %d Members', 'partyminder'), esc_html($community->name), $member_count);
 
 // Breadcrumbs
@@ -82,7 +82,7 @@ ob_start();
         <?php if (!$can_view_members): ?>
             <!-- Private Community - No Access -->
             <div class="no-access">
-                <h3><?php _e('🔒 Private Community', 'partyminder'); ?></h3>
+                <h3><?php _e('Private Community', 'partyminder'); ?></h3>
                 <p><?php _e('This community\'s member list is private. You need to be a member to view other members.', 'partyminder'); ?></p>
                 
                 <?php if (!$is_logged_in): ?>
@@ -151,7 +151,7 @@ ob_start();
                         <div class="pm-flex pm-gap-4">
                             <button type="submit" class="pm-btn"><?php _e('Send Invitation', 'partyminder'); ?></button>
                             <div class="pm-text-muted pm-flex-1">
-                                <small><?php _e('💡 BlueSky contact integration coming soon!', 'partyminder'); ?></small>
+                                <small><?php _e('BlueSky contact integration coming soon!', 'partyminder'); ?></small>
                             </div>
                         </div>
                     </form>
@@ -210,7 +210,7 @@ ob_start();
                                             
                                             <?php if (!empty($member->location)): ?>
                                                 <div class="pm-text-muted">
-                                                    <span>📍 <?php echo esc_html($member->location); ?></span>
+                                                    <span><?php echo esc_html($member->location); ?></span>
                                                 </div>
                                             <?php endif; ?>
                                         </div>
@@ -264,47 +264,63 @@ $main_content = ob_get_clean();
 // Sidebar content
 ob_start();
 ?>
-<div class="pm-section pm-mb-4">
-    <!-- Community Navigation -->
-    <div class="pm-card">
-        <div class="pm-card-header">
-            <h3 class="pm-heading pm-heading-md pm-text-primary"><?php _e('Community Pages', 'partyminder'); ?></h3>
-        </div>
-        <div class="pm-card-body">
-            <div class="pm-flex pm-flex-column pm-gap-4">
-                <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-btn pm-btn-secondary">
-                    <?php _e('Overview', 'partyminder'); ?>
-                </a>
-                <a href="<?php echo home_url('/communities/' . $community->slug . '/events'); ?>" class="pm-btn pm-btn-secondary">
-                    <?php _e('Events', 'partyminder'); ?>
-                </a>
-                <a href="<?php echo home_url('/communities/' . $community->slug . '/members'); ?>" class="pm-btn pm-btn-primary">
-                    <?php _e('Members', 'partyminder'); ?>
-                </a>
-            </div>
+
+<!-- Quick Actions (No Heading) -->
+<div class="pm-card pm-mb-4">
+    <div class="pm-card-body">
+        <div class="pm-flex pm-flex-column pm-gap-4">
+            <?php if ($is_member && $user_role === 'admin'): ?>
+                <!-- Admin gets invite functionality -->
+                <span class="pm-text-muted"><?php _e('Use invite form above ↑', 'partyminder'); ?></span>
+            <?php elseif (!$is_member && $is_logged_in): ?>
+                <button class="pm-btn join-community-btn" data-community-id="<?php echo esc_attr($community->id); ?>">
+                    <?php _e('Join Community', 'partyminder'); ?>
+                </button>
+            <?php endif; ?>
+            <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('← Back to Overview', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('← All Communities', 'partyminder'); ?>
+            </a>
         </div>
     </div>
 </div>
 
-<div class="pm-section pm-mb-4">
-    <!-- Member Actions -->
-    <div class="pm-card">
-        <div class="pm-card-header">
-            <h3 class="pm-heading pm-heading-md pm-text-primary"><?php _e('Actions', 'partyminder'); ?></h3>
+<!-- Community Navigation -->
+<div class="pm-card pm-mb-4">
+    <div class="pm-card-header">
+        <h3 class="pm-heading pm-heading-md pm-text-primary"><?php _e('Community Pages', 'partyminder'); ?></h3>
+    </div>
+    <div class="pm-card-body">
+        <div class="pm-flex pm-flex-column pm-gap-4">
+            <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('Overview', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo home_url('/communities/' . $community->slug . '/events'); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e('Events', 'partyminder'); ?>
+            </a>
+            <a href="<?php echo home_url('/communities/' . $community->slug . '/members'); ?>" class="pm-btn pm-btn-primary">
+                <?php _e('Members', 'partyminder'); ?>
+            </a>
         </div>
-        <div class="pm-card-body">
-            <div class="pm-flex pm-flex-column pm-gap-4">
-                <?php if ($is_member && $user_role === 'admin'): ?>
-                    <a href="#" class="pm-btn invite-members-btn">
-                        <span>✉️</span>
-                        <?php _e('Invite Members', 'partyminder'); ?>
-                    </a>
-                <?php endif; ?>
-                
-                <a href="<?php echo home_url('/communities/' . $community->slug); ?>" class="pm-btn pm-btn-secondary">
-                    <span>🔙</span>
-                    <?php _e('Back to Community', 'partyminder'); ?>
-                </a>
+    </div>
+</div>
+
+<!-- Community Stats -->
+<div class="pm-card">
+    <div class="pm-card-header">
+        <h3 class="pm-heading pm-heading-md pm-text-primary"><?php echo esc_html($community->name); ?></h3>
+    </div>
+    <div class="pm-card-body">
+        <div class="pm-flex pm-gap-4">
+            <div class="pm-stat pm-text-center">
+                <div class="pm-stat-number pm-text-primary"><?php echo count($members); ?></div>
+                <div class="pm-stat-label pm-text-muted"><?php _e('Members', 'partyminder'); ?></div>
+            </div>
+            <div class="pm-stat pm-text-center">
+                <div class="pm-stat-number pm-text-primary"><?php echo esc_html(ucfirst($community->privacy)); ?></div>
+                <div class="pm-stat-label pm-text-muted"><?php _e('Privacy', 'partyminder'); ?></div>
             </div>
         </div>
     </div>
@@ -419,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Show loading state
             const originalText = this.innerHTML;
-            this.innerHTML = '<span>⏳</span> <?php _e('Joining...', 'partyminder'); ?>';
+            this.innerHTML = '<?php _e('Joining...', 'partyminder'); ?>';
             this.disabled = true;
             
             // Make AJAX request
