@@ -12,6 +12,7 @@ if (!defined('ABSPATH')) {
 // Get invitation token from URL
 $invitation_token = isset($_GET['invitation']) ? sanitize_text_field($_GET['invitation']) : '';
 $event_id = isset($_GET['event']) ? intval($_GET['event']) : 0;
+$quick_rsvp = isset($_GET['quick_rsvp']) ? sanitize_text_field($_GET['quick_rsvp']) : '';
 
 if (!$invitation_token || !$event_id) {
     wp_redirect(home_url('/events'));
@@ -55,6 +56,87 @@ $existing_rsvp = $wpdb->get_row($wpdb->prepare(
     $event_id,
     $invitation->invited_email
 ));
+
+// Handle quick RSVP from email button click
+if ($quick_rsvp && in_array($quick_rsvp, array('attending', 'maybe', 'not_attending'))) {
+    $guest_name = $existing_rsvp ? $existing_rsvp->name : 'Guest';
+    
+    if ($existing_rsvp) {
+        // Update existing RSVP
+        $result = $wpdb->update(
+            $wpdb->prefix . 'partyminder_rsvps',
+            array(
+                'status' => $quick_rsvp,
+                'rsvp_date' => current_time('mysql')
+            ),
+            array('id' => $existing_rsvp->id),
+            array('%s', '%s'),
+            array('%d')
+        );
+    } else {
+        // Create new quick RSVP
+        $result = $wpdb->insert(
+            $wpdb->prefix . 'partyminder_rsvps',
+            array(
+                'event_id' => $event_id,
+                'name' => $guest_name,
+                'email' => $invitation->invited_email,
+                'status' => $quick_rsvp,
+                'invitation_token' => $invitation_token,
+                'rsvp_date' => current_time('mysql')
+            ),
+            array('%d', '%s', '%s', '%s', '%s', '%s')
+        );
+    }
+    
+    if ($result !== false) {
+        // Update invitation status
+        $wpdb->update(
+            $invitations_table,
+            array(
+                'status' => 'accepted',
+                'responded_at' => current_time('mysql')
+            ),
+            array('invitation_token' => $invitation_token),
+            array('%s', '%s'),
+            array('%s')
+        );
+        
+        // Send notification to host
+        $host_email = $invitation->host_email;
+        $status_text = array(
+            'attending' => __('will be attending', 'partyminder'),
+            'not_attending' => __('cannot attend', 'partyminder'),
+            'maybe' => __('might attend', 'partyminder')
+        );
+        
+        $subject = sprintf(__('[%s] Quick RSVP from %s', 'partyminder'), $invitation->title, $guest_name);
+        $message = sprintf(
+            __("%s has quickly responded to your invitation for \"%s\".\n\nResponse: %s %s\n\nEvent: %s\nDate: %s\n\nView full details: %s", 'partyminder'),
+            $guest_name,
+            $invitation->title,
+            $guest_name,
+            $status_text[$quick_rsvp] ?? $quick_rsvp,
+            $invitation->title,
+            date('F j, Y \a\t g:i A', strtotime($invitation->event_date)),
+            home_url('/events/' . $invitation->slug)
+        );
+        
+        wp_mail($host_email, $subject, $message);
+        
+        // Redirect to show success with the quick response
+        $redirect_url = add_query_arg(array(
+            'invitation' => $invitation_token,
+            'event' => $event_id,
+            'quick_response' => $quick_rsvp
+        ), home_url('/events/join'));
+        wp_redirect($redirect_url);
+        exit;
+    }
+}
+
+// Check for quick response confirmation
+$quick_response = isset($_GET['quick_response']) ? sanitize_text_field($_GET['quick_response']) : '';
 
 // Handle RSVP submission
 $rsvp_submitted = false;
@@ -144,11 +226,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rsvp_response']) && w
 }
 
 // Set up template variables
-$page_title = $rsvp_submitted 
+$is_success_state = $rsvp_submitted || $quick_response;
+$display_status = $rsvp_submitted ? $rsvp_status : $quick_response;
+
+$page_title = $is_success_state
     ? __('RSVP Submitted!', 'partyminder') 
     : sprintf(__('RSVP: %s', 'partyminder'), $invitation->title);
 
-$page_description = $rsvp_submitted
+$page_description = $is_success_state
     ? __('Thank you for your response. The host has been notified.', 'partyminder')
     : __('Please let us know if you can attend this event', 'partyminder');
 
@@ -156,20 +241,17 @@ $page_description = $rsvp_submitted
 ob_start();
 ?>
 
-<?php if ($rsvp_submitted): ?>
+<?php if ($is_success_state): ?>
     <!-- Success State -->
     <div class="pm-section pm-text-center">
         <div class="pm-mb-4">
-            <?php if ($rsvp_status === 'attending'): ?>
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
+            <?php if ($display_status === 'attending'): ?>
                 <h2 class="pm-heading pm-heading-lg pm-text-primary pm-mb"><?php _e('Great! See you there!', 'partyminder'); ?></h2>
                 <p class="pm-text-muted"><?php _e('Your RSVP has been confirmed. The host has been notified that you\'ll be attending.', 'partyminder'); ?></p>
-            <?php elseif ($rsvp_status === 'maybe'): ?>
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🤔</div>
+            <?php elseif ($display_status === 'maybe'): ?>
                 <h2 class="pm-heading pm-heading-lg pm-text-primary pm-mb"><?php _e('Thanks for letting us know!', 'partyminder'); ?></h2>
                 <p class="pm-text-muted"><?php _e('Your maybe response has been recorded. The host has been notified.', 'partyminder'); ?></p>
             <?php else: ?>
-                <div style="font-size: 3rem; margin-bottom: 1rem;">😢</div>
                 <h2 class="pm-heading pm-heading-lg pm-text-primary pm-mb"><?php _e('Sorry you can\'t make it!', 'partyminder'); ?></h2>
                 <p class="pm-text-muted"><?php _e('Your response has been recorded. The host has been notified.', 'partyminder'); ?></p>
             <?php endif; ?>
@@ -264,17 +346,17 @@ ob_start();
                     <label class="pm-form-radio">
                         <input type="radio" name="rsvp_response" value="attending" 
                                <?php checked($existing_rsvp && $existing_rsvp->status === 'attending'); ?> required>
-                        <span>🎉 <?php _e('Yes, I\'ll be there!', 'partyminder'); ?></span>
+                        <span><?php _e('Yes, I\'ll be there!', 'partyminder'); ?></span>
                     </label>
                     <label class="pm-form-radio">
                         <input type="radio" name="rsvp_response" value="maybe" 
                                <?php checked($existing_rsvp && $existing_rsvp->status === 'maybe'); ?> required>
-                        <span>🤔 <?php _e('Maybe, I\'m not sure yet', 'partyminder'); ?></span>
+                        <span><?php _e('Maybe, I\'m not sure yet', 'partyminder'); ?></span>
                     </label>
                     <label class="pm-form-radio">
                         <input type="radio" name="rsvp_response" value="not_attending" 
                                <?php checked($existing_rsvp && $existing_rsvp->status === 'not_attending'); ?> required>
-                        <span>😢 <?php _e('Sorry, I can\'t make it', 'partyminder'); ?></span>
+                        <span><?php _e('Sorry, I can\'t make it', 'partyminder'); ?></span>
                     </label>
                 </div>
             </div>
@@ -350,7 +432,7 @@ ob_start();
     </div>
 </div>
 
-<?php if (!$rsvp_submitted): ?>
+<?php if (!$is_success_state): ?>
 <!-- Quick RSVP Buttons -->
 <div class="pm-card pm-mb-4">
     <div class="pm-card-header">
@@ -359,13 +441,13 @@ ob_start();
     <div class="pm-card-body">
         <div class="pm-flex pm-flex-column pm-gap-4">
             <button type="button" class="pm-btn quick-rsvp-btn" data-response="attending">
-                🎉 <?php _e('Yes, I\'ll be there!', 'partyminder'); ?>
+                <?php _e('Yes, I\'ll be there!', 'partyminder'); ?>
             </button>
             <button type="button" class="pm-btn pm-btn-secondary quick-rsvp-btn" data-response="maybe">
-                🤔 <?php _e('Maybe', 'partyminder'); ?>
+                <?php _e('Maybe', 'partyminder'); ?>
             </button>
             <button type="button" class="pm-btn pm-btn-secondary quick-rsvp-btn" data-response="not_attending">
-                😢 <?php _e('Can\'t make it', 'partyminder'); ?>
+                <?php _e('Can\'t make it', 'partyminder'); ?>
             </button>
         </div>
     </div>

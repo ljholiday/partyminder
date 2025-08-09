@@ -663,7 +663,7 @@ class PartyMinder_Event_Ajax_Handler {
     <div style="<?php echo $styles['container']; ?>">
         <!-- Header -->
         <div style="<?php echo $styles['header']; ?>">
-            <h1 style="margin: 0; font-size: 28px;">🎉 You're Invited!</h1>
+            <h1 style="margin: 0; font-size: 28px;">You're Invited!</h1>
             <p style="margin: 10px 0 0 0; font-size: 18px; opacity: 0.9;"><?php echo esc_html($event->title); ?></p>
         </div>
         
@@ -678,19 +678,19 @@ class PartyMinder_Event_Ajax_Handler {
                 <h2 style="margin-top: 0; color: #4a5568;"><?php echo esc_html($event->title); ?></h2>
                 
                 <div style="margin: 15px 0;">
-                    <p style="margin: 5px 0;"><strong>📅 When:</strong> <?php echo $event_day; ?>, <?php echo $event_date; ?> at <?php echo $event_time; ?></p>
+                    <p style="margin: 5px 0;"><strong>When:</strong> <?php echo $event_day; ?>, <?php echo $event_date; ?> at <?php echo $event_time; ?></p>
                     <?php if ($event->venue_info): ?>
-                    <p style="margin: 5px 0;"><strong>📍 Where:</strong> <?php echo esc_html($event->venue_info); ?></p>
+                    <p style="margin: 5px 0;"><strong>Where:</strong> <?php echo esc_html($event->venue_info); ?></p>
                     <?php endif; ?>
                     <?php if ($event->description): ?>
-                    <p style="margin: 15px 0 5px 0;"><strong>ℹ️ Details:</strong></p>
+                    <p style="margin: 15px 0 5px 0;"><strong>Details:</strong></p>
                     <p style="margin: 5px 0;"><?php echo nl2br(esc_html($event->description)); ?></p>
                     <?php endif; ?>
                 </div>
                 
                 <?php if ($personal_message): ?>
                 <div style="background: white; border-left: 4px solid #667eea; padding: 15px; margin: 15px 0;">
-                    <p style="margin: 0;"><strong>💬 Personal message from <?php echo esc_html($host_name); ?>:</strong></p>
+                    <p style="margin: 0;"><strong>Personal message from <?php echo esc_html($host_name); ?>:</strong></p>
                     <p style="margin: 10px 0 0 0; font-style: italic;">"<?php echo esc_html($personal_message); ?>"</p>
                 </div>
                 <?php endif; ?>
@@ -701,13 +701,13 @@ class PartyMinder_Event_Ajax_Handler {
                 <p style="font-size: 18px; font-weight: bold; margin-bottom: 20px;">Can you make it?</p>
                 <div>
                     <a href="<?php echo esc_url($rsvp_yes_url); ?>" style="<?php echo $styles['btn_primary']; ?>">
-                        🎉 Yes, I'll be there!
+                        Yes, I'll be there!
                     </a>
                     <a href="<?php echo esc_url($rsvp_maybe_url); ?>" style="<?php echo $styles['btn_secondary']; ?>">
-                        🤔 Maybe
+                        Maybe
                     </a>
                     <a href="<?php echo esc_url($rsvp_no_url); ?>" style="<?php echo $styles['btn_danger']; ?>">
-                        😢 Can't make it
+                        Can't make it
                     </a>
                 </div>
                 <p style="margin-top: 20px; font-size: 14px; color: #718096;">
