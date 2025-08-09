@@ -355,7 +355,7 @@ class PartyMinder_Event_Ajax_Handler {
                     'invitation' => $invitation->invitation_token,
                     'event' => $event_id
                 ),
-                home_url('/events/' . $event->slug)
+                home_url('/events/join')
             );
         }
         
@@ -365,9 +365,9 @@ class PartyMinder_Event_Ajax_Handler {
             $html = '<div class="pm-text-center pm-text-muted">' . __('No pending invitations.', 'partyminder') . '</div>';
         } else {
             foreach ($invitations as $invitation) {
-                $html .= '<div class="pm-flex pm-flex-between pm-p-4 pm-mb-4 pm-border-bottom">';
+                $html .= '<div class="pm-flex pm-flex-between pm-p-4 pm-mb-4">';
                 $html .= '<div class="pm-flex-1">';
-                $html .= '<div class="pm-flex pm-gap">';
+                $html .= '<div class="pm-flex pm-gap-4">';
                 $html .= '<strong>' . esc_html($invitation->invited_email) . '</strong>';
                 $html .= '<span class="pm-badge pm-badge-' . ($invitation->status === 'pending' ? 'warning' : 'success') . '">' . esc_html(ucfirst($invitation->status)) . '</span>';
                 $html .= '</div>';
@@ -382,9 +382,9 @@ class PartyMinder_Event_Ajax_Handler {
                 }
                 $html .= '</div>';
                 if ($invitation->status === 'pending') {
-                    $html .= '<div class="pm-flex pm-gap">';
-                    $html .= '<button type="button" class="pm-btn pm-btn-sm pm-btn-secondary" onclick="copyInvitationUrl(\'' . esc_js($invitation->invitation_url) . '\')">' . __('Copy Link', 'partyminder') . '</button>';
-                    $html .= '<button type="button" class="pm-btn pm-btn-sm pm-btn-danger cancel-event-invitation" data-invitation-id="' . esc_attr($invitation->invitation_token) . '">' . __('Cancel', 'partyminder') . '</button>';
+                    $html .= '<div class="pm-flex pm-gap-4" style="align-items: center; min-height: 40px;">';
+                    $html .= '<button type="button" class="pm-btn pm-btn-secondary" onclick="copyInvitationUrl(\'' . esc_js($invitation->invitation_url) . '\')">' . __('Copy Link', 'partyminder') . '</button>';
+                    $html .= '<button type="button" class="pm-btn pm-btn-danger cancel-event-invitation" data-invitation-id="' . esc_attr($invitation->invitation_token) . '">' . __('Cancel', 'partyminder') . '</button>';
                     $html .= '</div>';
                 }
                 $html .= '</div>';

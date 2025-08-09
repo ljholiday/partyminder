@@ -146,6 +146,49 @@ ob_start();
 </div>
 <?php endif; ?>
 
+<?php if ($is_event_host && !$is_past): ?>
+<div class="pm-section pm-mb">
+    <div class="pm-card">
+        <div class="pm-card-header">
+            <h3 class="pm-heading pm-heading-md">Invite Guests</h3>
+        </div>
+        <div class="pm-card-body">
+            <!-- Email Invitation Form -->
+            <form id="send-event-invitation-form" class="pm-form pm-mb-4">
+                <div class="pm-form-group">
+                    <label class="pm-form-label">
+                        <?php _e('Guest Email', 'partyminder'); ?>
+                    </label>
+                    <input type="email" class="pm-form-input" id="event-invitation-email" 
+                           placeholder="<?php _e('Enter guest email address...', 'partyminder'); ?>" required>
+                </div>
+                
+                <div class="pm-form-group">
+                    <label class="pm-form-label">
+                        <?php _e('Personal Message (Optional)', 'partyminder'); ?>
+                    </label>
+                    <textarea class="pm-form-textarea" id="event-invitation-message" rows="3"
+                              placeholder="<?php _e('Add a personal note to your invitation...', 'partyminder'); ?>"></textarea>
+                </div>
+                
+                <button type="submit" class="pm-btn pm-btn-sm">
+                    <?php _e('Send Invitation', 'partyminder'); ?>
+                </button>
+            </form>
+            
+            <div>
+                <h4 class="pm-heading pm-heading-sm pm-mb-4"><?php _e('Pending Invitations', 'partyminder'); ?></h4>
+                <div id="event-invitations-list">
+                    <div class="pm-text-center pm-text-muted">
+                        <?php _e('Loading invitations...', 'partyminder'); ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <div class="pm-section">
     <div class="pm-card">
         <div class="pm-card-header">
@@ -242,49 +285,6 @@ ob_start();
         </div>
     </div>
 </div>
-
-<?php if ($is_event_host && !$is_past): ?>
-<div class="pm-section pm-mb">
-    <div class="pm-card">
-        <div class="pm-card-header">
-            <h3 class="pm-heading pm-heading-md">Invite Guests</h3>
-        </div>
-        <div class="pm-card-body">
-            <!-- Email Invitation Form -->
-            <form id="send-event-invitation-form" class="pm-form pm-mb-4">
-                <div class="pm-form-group">
-                    <label class="pm-form-label">
-                        <?php _e('Guest Email', 'partyminder'); ?>
-                    </label>
-                    <input type="email" class="pm-form-input" id="event-invitation-email" 
-                           placeholder="<?php _e('Enter guest email address...', 'partyminder'); ?>" required>
-                </div>
-                
-                <div class="pm-form-group">
-                    <label class="pm-form-label">
-                        <?php _e('Personal Message (Optional)', 'partyminder'); ?>
-                    </label>
-                    <textarea class="pm-form-textarea" id="event-invitation-message" rows="3"
-                              placeholder="<?php _e('Add a personal note to your invitation...', 'partyminder'); ?>"></textarea>
-                </div>
-                
-                <button type="submit" class="pm-btn pm-btn-sm">
-                    <?php _e('Send Invitation', 'partyminder'); ?>
-                </button>
-            </form>
-            
-            <div>
-                <h4 class="pm-heading pm-heading-sm pm-mb-4"><?php _e('Pending Invitations', 'partyminder'); ?></h4>
-                <div id="event-invitations-list">
-                    <div class="pm-text-center pm-text-muted">
-                        <?php _e('Loading invitations...', 'partyminder'); ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<?php endif; ?>
 
 <div class="pm-section pm-mb">
     <div class="pm-card">
