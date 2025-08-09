@@ -483,4 +483,21 @@ function shareEvent() {
         window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(title), '_blank');
     }
 }
+
+function copyInvitationUrl(url) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function() {
+            alert('<?php _e('Invitation link copied to clipboard!', 'partyminder'); ?>');
+        });
+    } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('<?php _e('Invitation link copied to clipboard!', 'partyminder'); ?>');
+    }
+}
 </script>
