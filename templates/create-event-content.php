@@ -114,8 +114,11 @@ ob_start();
 				<div class="pm-form-group">
 					<label for="event_date" class="pm-form-label"><?php _e( 'Event Date *', 'partyminder' ); ?></label>
 					<input type="datetime-local" id="event_date" name="event_date" class="pm-form-input"
-							value="<?php echo esc_attr( $_POST['event_date'] ?? '' ); ?>" 
+							value="<?php echo esc_attr( $_POST['event_date'] ?? date('Y-m-d\TH:i', strtotime('next Saturday 6:00 PM')) ); ?>" 
 							min="<?php echo date( 'Y-m-d\TH:i' ); ?>" required />
+					<button type="button" id="confirm-date-btn" class="pm-btn pm-btn-secondary pm-mt-2">
+						<?php _e( 'Select This Date', 'partyminder' ); ?>
+					</button>
 				</div>
 
 				<div class="pm-form-group">
@@ -306,6 +309,38 @@ jQuery(document).ready(function($) {
 				$submitBtn.prop('disabled', false).html(originalText);
 			}
 		});
+	});
+	
+	// Date confirmation button functionality
+	$('#confirm-date-btn').on('click', function() {
+		const dateInput = $('#event_date');
+		const selectedDate = dateInput.val();
+		
+		if (selectedDate) {
+			const date = new Date(selectedDate);
+			const formattedDate = date.toLocaleDateString('en-US', {
+				weekday: 'long',
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit'
+			});
+			
+			$(this).html('<span>✅</span> ' + formattedDate)
+				.removeClass('pm-btn-secondary')
+				.addClass('pm-btn-success')
+				.prop('disabled', true);
+		}
+	});
+	
+	// Reset confirmation when date changes
+	$('#event_date').on('change', function() {
+		$('#confirm-date-btn')
+			.html('<?php _e( 'Select This Date', 'partyminder' ); ?>')
+			.removeClass('pm-btn-success')
+			.addClass('pm-btn-secondary')
+			.prop('disabled', false);
 	});
 	
 	<?php if ( PartyMinder_Feature_Flags::is_at_protocol_enabled() ) : ?>
