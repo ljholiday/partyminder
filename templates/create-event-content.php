@@ -108,8 +108,14 @@ ob_start();
                 <div class="pm-form-group">
                     <label for="event_date" class="pm-form-label"><?php _e('Event Date *', 'partyminder'); ?></label>
                     <input type="datetime-local" id="event_date" name="event_date" class="pm-form-input"
-                           value="<?php echo esc_attr($_POST['event_date'] ?? ''); ?>" 
+                           value="<?php echo esc_attr($_POST['event_date'] ?? date('Y-m-d\TH:i', strtotime('next Saturday 6:00 PM'))); ?>" 
                            min="<?php echo date('Y-m-d\TH:i'); ?>" required />
+                    <button type="button" id="confirm-date-btn" class="pm-btn pm-btn-secondary pm-mt-2">
+                        <?php _e('Select This Date', 'partyminder'); ?>
+                    </button>
+                    <div id="selected-date-display" class="pm-text-success pm-mt-2" style="display: none;">
+                        <strong><?php _e('Selected:', 'partyminder'); ?></strong> <span id="selected-date-text"></span>
+                    </div>
                 </div>
 
                 <div class="pm-form-group">
@@ -244,6 +250,32 @@ include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-form.php');
 
 <script>
 jQuery(document).ready(function($) {
+    // Date picker confirmation functionality
+    $('#confirm-date-btn').on('click', function() {
+        const dateValue = $('#event_date').val();
+        if (dateValue) {
+            const dateObj = new Date(dateValue);
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: 'numeric', 
+                minute: '2-digit' 
+            };
+            const formattedDate = dateObj.toLocaleDateString('en-US', options);
+            $('#selected-date-text').text(formattedDate);
+            $('#selected-date-display').show();
+            $(this).text('<?php _e("Date Confirmed", "partyminder"); ?>').removeClass('pm-btn-secondary').addClass('pm-btn-success');
+        }
+    });
+    
+    // Reset confirmation when date changes
+    $('#event_date').on('change', function() {
+        $('#selected-date-display').hide();
+        $('#confirm-date-btn').text('<?php _e("Select This Date", "partyminder"); ?>').removeClass('pm-btn-success').addClass('pm-btn-secondary');
+    });
+    
     // Initialize Bluesky connection check on page load
     <?php if (PartyMinder_Feature_Flags::is_at_protocol_enabled()): ?>
     checkCreateBlueskyConnection();
