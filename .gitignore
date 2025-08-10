@@ -9,9 +9,15 @@ CLAUDE.md
 # Only a local file
 debug.log
 
-# Temporary test files
-tmp/
+# Test infrastructure files
+vendor/
+composer.json
+composer.lock
+phpunit.xml
+tests/
+bin/install-wp-tests.sh
 .phpunit.result.cache
 coverage/
+tmp/
 
 
