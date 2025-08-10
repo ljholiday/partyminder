@@ -9,4 +9,9 @@ CLAUDE.md
 # Only a local file
 debug.log
 
+# Temporary test files
+tmp/
+.phpunit.result.cache
+coverage/
+
 

@@ -1,6 +1,6 @@
 <?php
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-include PARTYMINDER_PLUGIN_DIR . 'templates/base/template-form.php';
+require PARTYMINDER_PLUGIN_DIR . 'templates/base/template-form.php';
