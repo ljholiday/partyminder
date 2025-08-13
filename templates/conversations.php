@@ -36,7 +36,7 @@ $topics         = $conversation_manager->get_topics();
 $user_logged_in = is_user_logged_in();
 
 // Set up template variables
-$page_title       = __( 'Community Conversations', 'partyminder' );
+$page_title       = __( 'Conversations', 'partyminder' );
 $page_description = __( 'Connect, share tips, and plan amazing gatherings with fellow hosts and guests', 'partyminder' );
 
 // Main content
@@ -45,7 +45,7 @@ ob_start();
 <?php if ( ! empty( $topics ) ) : ?>
 <div class="pm-section">
 	<div class="pm-section-header">
-		<h2 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Discussion Topics', 'partyminder' ); ?></h2>
+		<h2 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Topics', 'partyminder' ); ?></h2>
 		<p class="pm-text-muted"><?php _e( 'Join conversations about hosting and party planning', 'partyminder' ); ?></p>
 	</div>
 	

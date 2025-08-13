@@ -73,7 +73,7 @@ if ( $show_past ) {
 }
 
 // Set up template variables
-$page_title       = $show_past ? __( 'All Events', 'partyminder' ) : __( 'Upcoming Events', 'partyminder' );
+$page_title       = $show_past ? __( 'All Events', 'partyminder' ) : __( 'Events', 'partyminder' );
 $page_description = $show_past
 	? __( 'Browse through our collection of events and gatherings', 'partyminder' )
 	: __( 'Discover amazing events happening near you. Join the community!', 'partyminder' );
@@ -81,6 +81,8 @@ $page_description = $show_past
 // Main content
 ob_start();
 ?>
+
+<!--
 <div class="pm-section pm-mb">
 	<div class="pm-flex pm-flex-between pm-mb-4">
 		<div>
@@ -101,6 +103,7 @@ ob_start();
 		<?php endif; ?>
 	</div>
 </div>
+-->
 
 <div class="pm-section">
 	<?php if ( ! empty( $events ) ) : ?>
