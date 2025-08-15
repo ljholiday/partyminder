@@ -35,13 +35,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 </div>
 <?php endif; ?>
 
-<!-- Page Header - Spans Full Width -->
-<div class="pm-header pm-mb">
-	<h1 class="pm-heading pm-heading-lg pm-text-primary"><?php echo esc_html( $page_title ); ?></h1>
-	<?php if ( ! empty( $page_description ) ) : ?>
-		<p class="pm-text-muted"><?php echo esc_html( $page_description ); ?></p>
-	<?php endif; ?>
-</div>
 
 <?php if ( ! empty( $nav_items ) ) : ?>
 <!-- Navigation - Spans Full Width -->
