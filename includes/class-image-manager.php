@@ -14,11 +14,13 @@ class PartyMinder_Image_Manager {
 	const PROFILE_IMAGE_MAX_HEIGHT = 400;
 	const COVER_IMAGE_MAX_WIDTH    = 1200;
 	const COVER_IMAGE_MAX_HEIGHT   = 400;
+	const POST_IMAGE_MAX_WIDTH     = 800;
+	const POST_IMAGE_MAX_HEIGHT    = 600;
 
 	/**
 	 * Handle image upload
 	 */
-	public static function handle_image_upload( $file, $image_type, $entity_id, $entity_type = 'user' ) {
+	public static function handle_image_upload( $file, $image_type, $entity_id, $entity_type = 'user', $event_id = null ) {
 		// Validate file
 		$validation = self::validate_image_file( $file, $image_type );
 		if ( ! $validation['success'] ) {
@@ -26,7 +28,7 @@ class PartyMinder_Image_Manager {
 		}
 
 		// Set up upload directory
-		$upload_info = self::get_upload_directory( $entity_type );
+		$upload_info = self::get_upload_directory( $entity_type, $event_id );
 		if ( ! $upload_info['success'] ) {
 			return $upload_info;
 		}
@@ -93,10 +95,17 @@ class PartyMinder_Image_Manager {
 	/**
 	 * Get upload directory for entity type
 	 */
-	private static function get_upload_directory( $entity_type ) {
-		$upload_dir      = wp_upload_dir();
-		$partyminder_dir = $upload_dir['basedir'] . '/partyminder/' . $entity_type . 's/';
-		$partyminder_url = $upload_dir['baseurl'] . '/partyminder/' . $entity_type . 's/';
+	private static function get_upload_directory( $entity_type, $event_id = null ) {
+		$upload_dir = wp_upload_dir();
+		
+		// Handle post images for events
+		if ( $entity_type === 'post' && $event_id ) {
+			$partyminder_dir = $upload_dir['basedir'] . '/partyminder/events/' . $event_id . '/posts/';
+			$partyminder_url = $upload_dir['baseurl'] . '/partyminder/events/' . $event_id . '/posts/';
+		} else {
+			$partyminder_dir = $upload_dir['basedir'] . '/partyminder/' . $entity_type . 's/';
+			$partyminder_url = $upload_dir['baseurl'] . '/partyminder/' . $entity_type . 's/';
+		}
 
 		// Create directory if it doesn't exist
 		if ( ! file_exists( $partyminder_dir ) ) {
@@ -127,6 +136,11 @@ class PartyMinder_Image_Manager {
 			$extension = 'jpg';
 		}
 
+		// For post images, include a random component for multiple images
+		if ( $image_type === 'post' ) {
+			return $entity_type . '-' . $entity_id . '-' . $image_type . '-' . time() . '-' . wp_generate_password( 8, false ) . '.' . $extension;
+		}
+
 		return $entity_type . '-' . $entity_id . '-' . $image_type . '-' . time() . '.' . $extension;
 	}
 
@@ -135,8 +149,20 @@ class PartyMinder_Image_Manager {
 	 */
 	private static function process_and_save_image( $file, $file_path, $image_type ) {
 		// Get max dimensions based on image type
-		$max_width  = ( $image_type === 'cover' ) ? self::COVER_IMAGE_MAX_WIDTH : self::PROFILE_IMAGE_MAX_WIDTH;
-		$max_height = ( $image_type === 'cover' ) ? self::COVER_IMAGE_MAX_HEIGHT : self::PROFILE_IMAGE_MAX_HEIGHT;
+		switch ( $image_type ) {
+			case 'cover':
+				$max_width  = self::COVER_IMAGE_MAX_WIDTH;
+				$max_height = self::COVER_IMAGE_MAX_HEIGHT;
+				break;
+			case 'post':
+				$max_width  = self::POST_IMAGE_MAX_WIDTH;
+				$max_height = self::POST_IMAGE_MAX_HEIGHT;
+				break;
+			default:
+				$max_width  = self::PROFILE_IMAGE_MAX_WIDTH;
+				$max_height = self::PROFILE_IMAGE_MAX_HEIGHT;
+				break;
+		}
 
 		// Load image
 		$image_info       = getimagesize( $file['tmp_name'] );
@@ -279,5 +305,140 @@ class PartyMinder_Image_Manager {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Save post image metadata to database
+	 */
+	public static function save_post_image_metadata( $event_id, $user_id, $upload_result, $caption = '', $alt_text = '' ) {
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . 'partyminder_post_images';
+
+		// Get image dimensions
+		$image_info = getimagesize( $upload_result['path'] );
+		$width      = $image_info ? $image_info[0] : 0;
+		$height     = $image_info ? $image_info[1] : 0;
+
+		$result = $wpdb->insert(
+			$table_name,
+			array(
+				'event_id'          => $event_id,
+				'user_id'           => $user_id,
+				'filename'          => $upload_result['filename'],
+				'original_filename' => sanitize_text_field( $_FILES['post_image']['name'] ?? $upload_result['filename'] ),
+				'file_url'          => $upload_result['url'],
+				'file_path'         => $upload_result['path'],
+				'file_size'         => filesize( $upload_result['path'] ),
+				'mime_type'         => wp_check_filetype( $upload_result['path'] )['type'],
+				'width'             => $width,
+				'height'            => $height,
+				'caption'           => sanitize_textarea_field( $caption ),
+				'alt_text'          => sanitize_text_field( $alt_text ),
+				'sort_order'        => self::get_next_sort_order( $event_id ),
+			),
+			array( '%d', '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%d', '%d', '%s', '%s', '%d' )
+		);
+
+		return $result ? $wpdb->insert_id : false;
+	}
+
+	/**
+	 * Get next sort order for event post images
+	 */
+	private static function get_next_sort_order( $event_id ) {
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . 'partyminder_post_images';
+		$max_order  = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT MAX(sort_order) FROM $table_name WHERE event_id = %d",
+				$event_id
+			)
+		);
+
+		return $max_order ? $max_order + 1 : 1;
+	}
+
+	/**
+	 * Get post images for an event
+	 */
+	public static function get_event_post_images( $event_id, $limit = null ) {
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . 'partyminder_post_images';
+		$limit_sql  = $limit ? $wpdb->prepare( ' LIMIT %d', $limit ) : '';
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM $table_name WHERE event_id = %d ORDER BY sort_order ASC, created_at ASC" . $limit_sql,
+				$event_id
+			)
+		);
+	}
+
+	/**
+	 * Delete post image
+	 */
+	public static function delete_post_image( $image_id ) {
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . 'partyminder_post_images';
+
+		// Get image data before deleting
+		$image = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT * FROM $table_name WHERE id = %d",
+				$image_id
+			)
+		);
+
+		if ( ! $image ) {
+			return false;
+		}
+
+		// Delete file from filesystem
+		if ( file_exists( $image->file_path ) ) {
+			unlink( $image->file_path );
+		}
+
+		// Delete from database
+		return $wpdb->delete(
+			$table_name,
+			array( 'id' => $image_id ),
+			array( '%d' )
+		);
+	}
+
+	/**
+	 * Update post image metadata
+	 */
+	public static function update_post_image( $image_id, $data ) {
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . 'partyminder_post_images';
+
+		$allowed_fields = array( 'caption', 'alt_text', 'sort_order', 'is_featured' );
+		$update_data    = array();
+		$update_format  = array();
+
+		foreach ( $data as $field => $value ) {
+			if ( in_array( $field, $allowed_fields ) ) {
+				$update_data[ $field ] = $value;
+				$update_format[]       = in_array( $field, array( 'sort_order', 'is_featured' ) ) ? '%d' : '%s';
+			}
+		}
+
+		if ( empty( $update_data ) ) {
+			return false;
+		}
+
+		return $wpdb->update(
+			$table_name,
+			$update_data,
+			array( 'id' => $image_id ),
+			$update_format,
+			array( '%d' )
+		);
 	}
 }

@@ -88,7 +88,7 @@ class PartyMinder {
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-admin.php';
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-feature-flags.php';
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-image-manager.php';
-		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-image-upload-component.php';
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-avatar-upload.php';
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-profile-manager.php';
 
 		// AJAX handler classes
@@ -151,9 +151,9 @@ class PartyMinder {
 		add_action( 'wp_ajax_nopriv_partyminder_rsvp', array( $this, 'ajax_rsvp' ) );
 		add_action( 'wp_ajax_partyminder_generate_ai_plan', array( $this, 'ajax_generate_ai_plan' ) );
 
-		// Image upload AJAX handler
-		add_action( 'wp_ajax_partyminder_upload_image', array( 'PartyMinder_Image_Upload_Component', 'handle_ajax_upload' ) );
-		add_action( 'wp_ajax_nopriv_partyminder_upload_image', array( 'PartyMinder_Image_Upload_Component', 'handle_ajax_upload' ) );
+		// Avatar and cover upload AJAX handlers
+		add_action( 'wp_ajax_partyminder_avatar_upload', array( 'PartyMinder_Avatar_Upload', 'handle_avatar_upload' ) );
+		add_action( 'wp_ajax_partyminder_cover_upload', array( 'PartyMinder_Avatar_Upload', 'handle_cover_upload' ) );
 		// All AJAX handlers are now handled by dedicated handler classes
 
 		// Smart login override - frontend only, preserves wp-admin access

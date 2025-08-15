@@ -128,11 +128,6 @@ if ( $is_editing ) {
 		<div class="pm-mb-4">
 			<h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e( 'Profile Images', 'partyminder' ); ?></h3>
 			
-			<?php
-			// Enqueue image upload assets
-			PartyMinder_Image_Upload_Component::enqueue_assets();
-			?>
-			
 			<div class="pm-form-row">
 				<!-- Profile Photo Upload -->
 				<div class="pm-form-group">
@@ -144,35 +139,32 @@ if ( $is_editing ) {
 					</div>
 					<p class="pm-form-help pm-text-muted pm-mb"><?php _e( 'Your profile photo appears throughout the site', 'partyminder' ); ?></p>
 					
-					<?php
-					echo PartyMinder_Image_Upload_Component::render(
-						array(
-							'entity_type'   => 'user',
-							'entity_id'     => $user_id,
-							'image_type'    => 'profile',
-							'current_image' => $profile_data['profile_image'] ?? '',
-							'button_text'   => __( 'Upload Profile Photo', 'partyminder' ),
-							'button_icon'   => '📷',
-							'button_class'  => 'pm-btn pm-btn-secondary',
-							'modal_title'   => __( 'Upload Profile Photo', 'partyminder' ),
-							'show_preview'  => false,
-							'dimensions'    => __( 'Recommended: 400x400 pixels (square)', 'partyminder' ),
-						)
-					);
-					?>
+					<div class="pm-avatar-upload">
+						<input type="file" id="avatar_upload" accept="image/*" style="display: none;">
+						<button type="button" class="pm-btn pm-btn-secondary" onclick="document.getElementById('avatar_upload').click()">
+							Upload Profile Photo
+						</button>
+						<div class="pm-upload-progress" style="display: none; margin-top: 10px;">
+							<div class="pm-progress-bar">
+								<div class="pm-progress-fill"></div>
+							</div>
+							<div class="pm-progress-text">0%</div>
+						</div>
+						<div class="pm-upload-message" style="margin-top: 10px;"></div>
+					</div>
 				</div>
 				
 				<!-- Cover Photo Upload -->
 				<div class="pm-form-group">
 					<label class="pm-form-label"><?php _e( 'Cover Photo', 'partyminder' ); ?></label>
 					<div class="pm-text-center pm-mb">
-						<div style="width: 200px; height: 80px; margin: 0 auto; border-radius: 0.5rem; overflow: hidden; border: 2px solid var(--pm-border);">
+						<div style="width: 200px; height: 80px; margin: 0 auto; border-radius: 0.5rem; overflow: hidden; border: 2px solid #e2e8f0;">
 							<?php if ( ! empty( $profile_data['cover_image'] ) ) : ?>
 							<img src="<?php echo esc_url( $profile_data['cover_image'] ); ?>" 
 								style="width: 100%; height: 100%; object-fit: cover;" 
 								alt="<?php _e( 'Cover photo preview', 'partyminder' ); ?>">
 							<?php else : ?>
-							<div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--pm-primary) 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem;">
+							<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #3b82f6 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem;">
 								<?php _e( 'No cover photo', 'partyminder' ); ?>
 							</div>
 							<?php endif; ?>
@@ -180,37 +172,109 @@ if ( $is_editing ) {
 					</div>
 					<p class="pm-form-help pm-text-muted pm-mb"><?php _e( 'Your cover photo appears at the top of your profile', 'partyminder' ); ?></p>
 					
-					<?php
-					echo PartyMinder_Image_Upload_Component::render(
-						array(
-							'entity_type'   => 'user',
-							'entity_id'     => $user_id,
-							'image_type'    => 'cover',
-							'current_image' => $profile_data['cover_image'] ?? '',
-							'button_text'   => __( 'Upload Cover Photo', 'partyminder' ),
-							'button_icon'   => '🖼️',
-							'button_class'  => 'pm-btn pm-btn-secondary',
-							'modal_title'   => __( 'Upload Cover Photo', 'partyminder' ),
-							'show_preview'  => false,
-							'dimensions'    => __( 'Recommended: 1200x400 pixels (3:1 ratio)', 'partyminder' ),
-						)
-					);
-					?>
+					<div class="pm-cover-upload">
+						<input type="file" id="cover_upload" accept="image/*" style="display: none;">
+						<button type="button" class="pm-btn pm-btn-secondary" onclick="document.getElementById('cover_upload').click()">
+							Upload Cover Photo
+						</button>
+						<div class="pm-upload-progress" style="display: none; margin-top: 10px;">
+							<div class="pm-progress-bar">
+								<div class="pm-progress-fill"></div>
+							</div>
+							<div class="pm-progress-text">0%</div>
+						</div>
+						<div class="pm-upload-message" style="margin-top: 10px;"></div>
+					</div>
 				</div>
 			</div>
 		</div>
 		
 		<div class="pm-form-actions">
 			<button type="submit" class="pm-btn">
-				<span>💾</span>
-				<?php _e( 'Save Changes', 'partyminder' ); ?>
+				<?php _e( 'Save Profile Info', 'partyminder' ); ?>
 			</button>
 			<a href="<?php echo esc_url( PartyMinder::get_profile_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<span>👤</span>
 				<?php _e( 'View Profile', 'partyminder' ); ?>
 			</a>
 		</div>
 	</form>
+
+
+	<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		// Avatar upload
+		document.getElementById('avatar_upload').addEventListener('change', function() {
+			if (this.files.length > 0) {
+				uploadImage(this.files[0], 'avatar', '.pm-avatar-upload');
+			}
+		});
+
+		// Cover upload
+		document.getElementById('cover_upload').addEventListener('change', function() {
+			if (this.files.length > 0) {
+				uploadImage(this.files[0], 'cover', '.pm-cover-upload');
+			}
+		});
+
+		function uploadImage(file, type, containerSelector) {
+			const container = document.querySelector(containerSelector);
+			const progress = container.querySelector('.pm-upload-progress');
+			const progressFill = container.querySelector('.pm-progress-fill');
+			const progressText = container.querySelector('.pm-progress-text');
+			const message = container.querySelector('.pm-upload-message');
+
+			// Show progress
+			progress.style.display = 'block';
+			message.innerHTML = '';
+			progressFill.style.width = '0%';
+			progressText.textContent = '0%';
+
+			// Create form data
+			const formData = new FormData();
+			formData.append(type, file);
+			formData.append('action', 'partyminder_' + type + '_upload');
+			if (type === 'avatar') {
+				formData.append('nonce', '<?php echo wp_create_nonce( 'partyminder_avatar_upload' ); ?>');
+			} else {
+				formData.append('nonce', '<?php echo wp_create_nonce( 'partyminder_cover_upload' ); ?>');
+			}
+
+			// Upload
+			const xhr = new XMLHttpRequest();
+
+			xhr.upload.addEventListener('progress', function(e) {
+				if (e.lengthComputable) {
+					const percent = Math.round((e.loaded / e.total) * 100);
+					progressFill.style.width = percent + '%';
+					progressText.textContent = percent + '%';
+				}
+			});
+
+			xhr.addEventListener('load', function() {
+				progress.style.display = 'none';
+				
+				try {
+					const response = JSON.parse(xhr.responseText);
+					if (response.success) {
+						message.innerHTML = response.data.message;
+						message.className = 'pm-upload-message success';
+						// Reload page to show new image
+						setTimeout(() => window.location.reload(), 1500);
+					} else {
+						message.innerHTML = response.data;
+						message.className = 'pm-upload-message error';
+					}
+				} catch (e) {
+					message.innerHTML = 'Upload failed';
+					message.className = 'pm-upload-message error';
+				}
+			});
+
+			xhr.open('POST', '<?php echo admin_url( 'admin-ajax.php' ); ?>');
+			xhr.send(formData);
+		}
+	});
+	</script>
 
 	<?php
 	$content = ob_get_clean();

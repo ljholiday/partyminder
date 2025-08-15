@@ -209,6 +209,9 @@ class PartyMinder_Activator {
 		// Create default conversation topics
 		self::create_default_conversation_topics();
 
+		// Create post images table
+		self::create_post_images_table();
+
 		// Upgrade existing installations
 		self::upgrade_database_schema();
 	}
@@ -752,6 +755,42 @@ class PartyMinder_Activator {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $rsvps_sql );
+	}
+
+	private static function create_post_images_table() {
+		global $wpdb;
+
+		$charset_collate = $wpdb->get_charset_collate();
+
+		// Post images table for event post images
+		$post_images_table = $wpdb->prefix . 'partyminder_post_images';
+		$post_images_sql   = "CREATE TABLE $post_images_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            event_id mediumint(9) NOT NULL,
+            user_id bigint(20) UNSIGNED NOT NULL,
+            filename varchar(255) NOT NULL,
+            original_filename varchar(255) NOT NULL,
+            file_url varchar(500) NOT NULL,
+            file_path varchar(500) NOT NULL,
+            file_size int(11) DEFAULT 0,
+            mime_type varchar(100) DEFAULT '',
+            width int(11) DEFAULT 0,
+            height int(11) DEFAULT 0,
+            caption text DEFAULT '',
+            alt_text varchar(255) DEFAULT '',
+            sort_order int(11) DEFAULT 0,
+            is_featured tinyint(1) DEFAULT 0,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY event_id (event_id),
+            KEY user_id (user_id),
+            KEY sort_order (sort_order),
+            KEY is_featured (is_featured),
+            KEY created_at (created_at)
+        ) $charset_collate;";
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta( $post_images_sql );
 	}
 
 	/**
