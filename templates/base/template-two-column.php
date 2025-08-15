@@ -61,6 +61,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 <!-- Two Column Layout -->
 <div class="pm-page-two-column">
 	<div class="pm-main">
+		<!-- Sticky Main Navigation -->
+		<div class="pm-main-nav">
+			<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" 
+			   class="pm-main-nav-item <?php echo ( strpos( $_SERVER['REQUEST_URI'], '/events' ) !== false ) ? 'active' : ''; ?>">
+				Events
+			</a>
+			<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" 
+			   class="pm-main-nav-item <?php echo ( strpos( $_SERVER['REQUEST_URI'], '/conversations' ) !== false ) ? 'active' : ''; ?>">
+				Conversations
+			</a>
+			<a href="<?php echo esc_url( PartyMinder::get_communities_url() ); ?>" 
+			   class="pm-main-nav-item <?php echo ( strpos( $_SERVER['REQUEST_URI'], '/communities' ) !== false ) ? 'active' : ''; ?>">
+				Communities
+			</a>
+		</div>
+		
 		<!-- Main Content -->
 		<?php echo $main_content; ?>
 	</div>
