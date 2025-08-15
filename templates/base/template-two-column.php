@@ -54,7 +54,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <!-- Two Column Layout -->
 <div class="pm-page-two-column">
 	<div class="pm-main">
-		<!-- Sticky Main Navigation -->
+		<!-- Fixed Main Navigation -->
 		<div class="pm-main-nav">
 			<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" 
 			   class="pm-main-nav-item <?php echo ( strpos( $_SERVER['REQUEST_URI'], '/events' ) !== false ) ? 'active' : ''; ?>">
@@ -70,8 +70,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</a>
 		</div>
 		
-		<!-- Main Content -->
-		<?php echo $main_content; ?>
+		<!-- Scrollable Main Content -->
+		<div class="pm-main-content">
+			<?php echo $main_content; ?>
+		</div>
 	</div>
 
 	<div class="pm-sidebar">
