@@ -133,6 +133,34 @@ ob_start();
 	</div>
 </div>
 
+<?php
+// Get uploaded conversation photos
+require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-image-upload.php';
+$conversation_photos = array();
+if ( class_exists( 'PartyMinder_Image_Upload' ) ) {
+	$conversation_photos = PartyMinder_Image_Upload::get_conversation_photos( $conversation->id );
+}
+if ( ! empty( $conversation_photos ) ) :
+?>
+<div class="pm-section pm-mb">
+	<div class="pm-section-header">
+		<h3 class="pm-heading pm-heading-md">Photos</h3>
+	</div>
+	<div class="pm-flex pm-flex-column pm-gap">
+		<?php foreach ( $conversation_photos as $photo ) : ?>
+			<div class="pm-photo-item">
+				<img src="<?php echo esc_url( $photo['medium_url'] ); ?>" 
+					 alt="Conversation photo" 
+					 style="max-width: 100%; height: auto; border-radius: 0.375rem;">
+				<div class="pm-text-muted" style="font-size: 12px; margin-top: 0.25rem;">
+					<?php echo human_time_diff( $photo['uploaded'], current_time( 'timestamp' ) ) . ' ago'; ?>
+				</div>
+			</div>
+		<?php endforeach; ?>
+	</div>
+</div>
+<?php endif; ?>
+
 <!-- Replies Section -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
@@ -169,6 +197,33 @@ ob_start();
 		</div>
 	<?php endif; ?>
 </div>
+
+<!-- Photo Upload Section -->
+<?php if ( is_user_logged_in() ) : ?>
+<div class="pm-section pm-mb">
+	<div class="pm-section-header">
+		<h3 class="pm-heading pm-heading-md"><?php _e( 'Share a Photo', 'partyminder' ); ?></h3>
+	</div>
+	
+	<form id="conversation-photo-upload-form" enctype="multipart/form-data">
+		<div class="pm-form-group">
+			<label class="pm-form-label">Choose Photo</label>
+			<input type="file" name="conversation_photo" accept="image/*" class="pm-form-input" required>
+			<div class="pm-form-help">Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</div>
+		</div>
+		<button type="submit" class="pm-btn pm-btn-sm">Upload Photo</button>
+	</form>
+	
+	<div id="conversation-photo-progress" style="display: none;">
+		<div class="pm-progress-bar">
+			<div class="pm-progress-fill"></div>
+		</div>
+		<div class="pm-progress-text">Uploading...</div>
+	</div>
+	
+	<div id="conversation-photo-message"></div>
+</div>
+<?php endif; ?>
 
 <!-- Reply Form -->
 <div class="pm-section" id="reply-form">
@@ -257,6 +312,73 @@ require PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php';
 
 <script>
 jQuery(document).ready(function($) {
+	// Handle conversation photo upload
+	$('#conversation-photo-upload-form').on('submit', function(e) {
+		e.preventDefault();
+		
+		const formData = new FormData();
+		const fileInput = $(this).find('input[type="file"]')[0];
+		
+		if (!fileInput.files[0]) {
+			alert('Please select a photo to upload.');
+			return;
+		}
+		
+		formData.append('action', 'partyminder_conversation_photo_upload');
+		formData.append('conversation_id', <?php echo $conversation->id; ?>);
+		formData.append('conversation_photo', fileInput.files[0]);
+		formData.append('nonce', '<?php echo wp_create_nonce( 'partyminder_conversation_photo_upload' ); ?>');
+		
+		const $form = $(this);
+		const $progress = $('#conversation-photo-progress');
+		const $progressFill = $('.pm-progress-fill');
+		const $message = $('#conversation-photo-message');
+		
+		$form.hide();
+		$progress.show();
+		$message.empty();
+		
+		$.ajax({
+			url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
+			type: 'POST',
+			data: formData,
+			processData: false,
+			contentType: false,
+			xhr: function() {
+				const xhr = new window.XMLHttpRequest();
+				xhr.upload.addEventListener('progress', function(evt) {
+					if (evt.lengthComputable) {
+						const percentComplete = (evt.loaded / evt.total) * 100;
+						$progressFill.css('width', percentComplete + '%');
+					}
+				}, false);
+				return xhr;
+			},
+			success: function(response) {
+				if (response.success) {
+					$message.html('<div class="pm-upload-message success">' + response.data.message + '</div>');
+					$form[0].reset();
+					// Refresh page after 2 seconds to show the uploaded photo
+					setTimeout(function() {
+						location.reload();
+					}, 2000);
+				} else {
+					$message.html('<div class="pm-upload-message error">' + (response.data || 'Upload failed') + '</div>');
+				}
+			},
+			error: function() {
+				$message.html('<div class="pm-upload-message error">Network error. Please try again.</div>');
+			},
+			complete: function() {
+				$progress.hide();
+				$form.show();
+				setTimeout(function() {
+					$message.empty();
+				}, 5000);
+			}
+		});
+	});
+	
 	// Handle follow/unfollow
 	$('.follow-btn').on('click', function() {
 		const $btn = $(this);
@@ -327,4 +449,5 @@ jQuery(document).ready(function($) {
 		});
 	});
 });
+
 </script>
