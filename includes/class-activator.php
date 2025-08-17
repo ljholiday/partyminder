@@ -131,6 +131,7 @@ class PartyMinder_Activator {
             author_id bigint(20) UNSIGNED NOT NULL,
             author_name varchar(100) NOT NULL,
             author_email varchar(100) NOT NULL,
+            privacy varchar(20) DEFAULT 'public',
             is_pinned tinyint(1) DEFAULT 0,
             is_locked tinyint(1) DEFAULT 0,
             reply_count int(11) DEFAULT 0,

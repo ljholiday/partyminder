@@ -170,11 +170,17 @@ ob_start();
 					<option value="public" <?php selected( $_POST['privacy'] ?? 'public', 'public' ); ?>>
 						<?php _e( 'Public - Anyone can find and RSVP to this event', 'partyminder' ); ?>
 					</option>
+					<option value="friends" <?php selected( $_POST['privacy'] ?? '', 'friends' ); ?>>
+						<?php _e( 'Friends Only - Only your connections can see and RSVP', 'partyminder' ); ?>
+					</option>
+					<option value="community" <?php selected( $_POST['privacy'] ?? '', 'community' ); ?>>
+						<?php _e( 'Community Members - Only members of your communities can see', 'partyminder' ); ?>
+					</option>
 					<option value="private" <?php selected( $_POST['privacy'] ?? '', 'private' ); ?>>
 						<?php _e( 'Private - Only invited guests can see and RSVP', 'partyminder' ); ?>
 					</option>
 				</select>
-				<p class="pm-form-help pm-text-muted"><?php _e( 'Public events appear in event listings. Private events are only accessible to people you invite.', 'partyminder' ); ?></p>
+				<p class="pm-form-help pm-text-muted"><?php _e( 'Choose who can discover and join your event. You can always invite specific people regardless of privacy setting.', 'partyminder' ); ?></p>
 			</div>
 		</div>
 

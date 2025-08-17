@@ -244,6 +244,35 @@ ob_start();
 						placeholder="<?php esc_attr_e( 'Share your thoughts, ask a question, or start a discussion...', 'partyminder' ); ?>"><?php echo esc_textarea( $_POST['content'] ?? '' ); ?></textarea>
 			<p class="pm-form-help pm-text-muted"><?php _e( 'Provide context and details to encourage meaningful discussions', 'partyminder' ); ?></p>
 		</div>
+		
+		<?php if ( ! $selected_event && ! $selected_community ) : ?>
+			<!-- Privacy Settings for Standalone Conversations -->
+			<div class="pm-form-group">
+				<label for="conversation_privacy" class="pm-form-label"><?php _e( 'Conversation Visibility *', 'partyminder' ); ?></label>
+				<select id="conversation_privacy" name="privacy" class="pm-form-input" required>
+					<option value="public" <?php selected( $_POST['privacy'] ?? 'public', 'public' ); ?>>
+						<?php _e( 'Public - Anyone can see and participate', 'partyminder' ); ?>
+					</option>
+					<?php if ( $is_logged_in ) : ?>
+						<option value="friends" <?php selected( $_POST['privacy'] ?? '', 'friends' ); ?>>
+							<?php _e( 'Friends Only - Only your connections can see and participate', 'partyminder' ); ?>
+						</option>
+						<option value="members" <?php selected( $_POST['privacy'] ?? '', 'members' ); ?>>
+							<?php _e( 'Registered Members - Only logged-in users can see and participate', 'partyminder' ); ?>
+						</option>
+					<?php endif; ?>
+				</select>
+				<p class="pm-form-help pm-text-muted">
+					<?php if ( $selected_event ) : ?>
+						<?php _e( 'This conversation will inherit the privacy settings from the event.', 'partyminder' ); ?>
+					<?php elseif ( $selected_community ) : ?>
+						<?php _e( 'This conversation will inherit the privacy settings from the community.', 'partyminder' ); ?>
+					<?php else : ?>
+						<?php _e( 'Choose who can discover and participate in this conversation.', 'partyminder' ); ?>
+					<?php endif; ?>
+				</p>
+			</div>
+		<?php endif; ?>
 	</div>
 	
 	<div class="pm-form-actions">

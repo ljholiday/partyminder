@@ -32,7 +32,7 @@ class PartyMinder_Event_Manager {
 				'venue_info'       => sanitize_text_field( $event_data['venue'] ?? '' ),
 				'host_email'       => sanitize_email( $event_data['host_email'] ?? '' ),
 				'host_notes'       => wp_kses_post( wp_unslash( $event_data['host_notes'] ?? '' ) ),
-				'privacy'          => sanitize_text_field( $event_data['privacy'] ?? 'public' ),
+				'privacy'          => $this->validate_privacy_setting( $event_data['privacy'] ?? 'public' ),
 				'event_status'     => 'active',
 				'author_id'        => get_current_user_id() ?: 1,
 				'meta_title'       => sanitize_text_field( wp_unslash( $event_data['title'] ) ),
@@ -183,14 +183,22 @@ class PartyMinder_Event_Manager {
 		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
 		$current_user_id   = get_current_user_id();
 
-		// Build privacy clause - show public events to everyone, private events to creator and invited guests
+		// Build privacy clause - Enhanced privacy with friends, community, and private options
 		$privacy_clause = "e.privacy = 'public'";
 		if ( $current_user_id && is_user_logged_in() ) {
 			$current_user = wp_get_current_user();
 			$user_email   = $current_user->user_email;
+			$members_table = $wpdb->prefix . 'partyminder_community_members';
 
 			$privacy_clause = "(e.privacy = 'public' OR 
-                              (e.privacy = 'private' AND e.author_id = $current_user_id) OR 
+                              (e.author_id = $current_user_id) OR
+                              (e.privacy = 'friends' AND e.author_id = $current_user_id) OR
+                              (e.privacy = 'community' AND EXISTS(
+                                  SELECT 1 FROM $members_table cm1, $members_table cm2 
+                                  WHERE cm1.user_id = e.author_id AND cm2.user_id = $current_user_id 
+                                  AND cm1.community_id = cm2.community_id 
+                                  AND cm1.status = 'active' AND cm2.status = 'active'
+                              )) OR
                               (e.privacy = 'private' AND EXISTS(
                                   SELECT 1 FROM $guests_table g 
                                   WHERE g.event_id = e.id AND g.email = %s
@@ -745,5 +753,20 @@ The %9$s Team',
 			$wpdb->query( 'ROLLBACK' );
 			return new WP_Error( 'deletion_failed', $e->getMessage() );
 		}
+	}
+
+	/**
+	 * Validate privacy setting for events
+	 */
+	private function validate_privacy_setting( $privacy ) {
+		$allowed_privacy_settings = array( 'public', 'friends', 'community', 'private' );
+		
+		$privacy = sanitize_text_field( $privacy );
+		
+		if ( ! in_array( $privacy, $allowed_privacy_settings ) ) {
+			return 'public'; // Default to public if invalid
+		}
+		
+		return $privacy;
 	}
 }

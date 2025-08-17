@@ -50,7 +50,7 @@ class PartyMinder_Community_Manager {
 				'name'              => sanitize_text_field( $community_data['name'] ),
 				'slug'              => $slug,
 				'description'       => wp_kses_post( wp_unslash( $community_data['description'] ?? '' ) ),
-				'privacy'           => sanitize_text_field( $community_data['privacy'] ?? 'public' ),
+				'privacy'           => $this->validate_privacy_setting( $community_data['privacy'] ?? 'public' ),
 				'creator_id'        => $current_user->ID,
 				'creator_email'     => $current_user->user_email,
 				'settings'          => wp_json_encode( $community_data['settings'] ?? array() ),
@@ -188,18 +188,34 @@ class PartyMinder_Community_Manager {
 	}
 
 	/**
-	 * Get public communities
+	 * Get discoverable communities based on user's access level
 	 */
 	public function get_public_communities( $limit = 20, $offset = 0 ) {
 		global $wpdb;
 
 		$communities_table = $wpdb->prefix . 'partyminder_communities';
+		$current_user_id = get_current_user_id();
+		
+		// Build privacy clause - Enhanced privacy with friends and private options
+		$privacy_clause = "c.privacy = 'public'";
+		if ( $current_user_id && is_user_logged_in() ) {
+			$members_table = $wpdb->prefix . 'partyminder_community_members';
+			
+			$privacy_clause = "(c.privacy = 'public' OR 
+                              c.creator_id = $current_user_id OR
+                              (c.privacy = 'friends' AND EXISTS(
+                                  SELECT 1 FROM $members_table cm1, $members_table cm2 
+                                  WHERE cm1.user_id = c.creator_id AND cm2.user_id = $current_user_id 
+                                  AND cm1.community_id = cm2.community_id 
+                                  AND cm1.status = 'active' AND cm2.status = 'active'
+                              )))";
+		}
 
 		$communities = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM $communities_table 
-             WHERE privacy = 'public' AND is_active = 1
-             ORDER BY member_count DESC, created_at DESC
+				"SELECT * FROM $communities_table c
+             WHERE ($privacy_clause) AND c.is_active = 1
+             ORDER BY c.member_count DESC, c.created_at DESC
              LIMIT %d OFFSET %d",
 				$limit,
 				$offset
@@ -946,5 +962,20 @@ The %6$s Team',
 		}
 
 		return true;
+	}
+
+	/**
+	 * Validate privacy setting for communities
+	 */
+	private function validate_privacy_setting( $privacy ) {
+		$allowed_privacy_settings = array( 'public', 'friends', 'private' );
+		
+		$privacy = sanitize_text_field( $privacy );
+		
+		if ( ! in_array( $privacy, $allowed_privacy_settings ) ) {
+			return 'public'; // Default to public if invalid
+		}
+		
+		return $privacy;
 	}
 }

@@ -56,8 +56,18 @@ class PartyMinder_Conversation_Manager {
 		global $wpdb;
 
 		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
-		$event_clause        = $exclude_event_conversations ? 'AND event_id IS NULL' : '';
-		$community_clause    = $exclude_community_conversations ? 'AND community_id IS NULL' : '';
+		$events_table = $wpdb->prefix . 'partyminder_events';
+		$communities_table = $wpdb->prefix . 'partyminder_communities';
+		$members_table = $wpdb->prefix . 'partyminder_community_members';
+		$guests_table = $wpdb->prefix . 'partyminder_guests';
+		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
+		
+		$event_clause        = $exclude_event_conversations ? 'AND c.event_id IS NULL' : '';
+		$community_clause    = $exclude_community_conversations ? 'AND c.community_id IS NULL' : '';
+		$current_user_id = get_current_user_id();
+		
+		// Build privacy filter for conversations
+		$privacy_filter = $this->build_conversation_privacy_filter( $current_user_id );
 
 		return $wpdb->get_results(
 			$wpdb->prepare(
@@ -65,7 +75,9 @@ class PartyMinder_Conversation_Manager {
             SELECT c.*, t.name as topic_name, t.icon as topic_icon, t.slug as topic_slug
             FROM $conversations_table c
             LEFT JOIN {$wpdb->prefix}partyminder_conversation_topics t ON c.topic_id = t.id
-            WHERE 1=1 $event_clause $community_clause
+            LEFT JOIN $events_table e ON c.event_id = e.id
+            LEFT JOIN $communities_table cm ON c.community_id = cm.id
+            WHERE ($privacy_filter) $event_clause $community_clause
             ORDER BY c.last_reply_date DESC
             LIMIT %d
         ",
@@ -153,6 +165,7 @@ class PartyMinder_Conversation_Manager {
 				'author_id'         => $data['author_id'],
 				'author_name'       => sanitize_text_field( $data['author_name'] ),
 				'author_email'      => sanitize_email( $data['author_email'] ),
+				'privacy'           => $this->validate_conversation_privacy( $data['privacy'] ?? 'public', $data ),
 				'is_pinned'         => $data['is_pinned'] ?? 0,
 				'created_at'        => current_time( 'mysql' ),
 				'last_reply_date'   => current_time( 'mysql' ),
@@ -483,5 +496,92 @@ class PartyMinder_Conversation_Manager {
 				$slug
 			)
 		);
+	}
+
+	/**
+	 * Build privacy filter for conversations based on parent event/community privacy
+	 */
+	private function build_conversation_privacy_filter( $current_user_id ) {
+		global $wpdb;
+		
+		$members_table = $wpdb->prefix . 'partyminder_community_members';
+		$guests_table = $wpdb->prefix . 'partyminder_guests';
+		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
+		
+		if ( ! $current_user_id || ! is_user_logged_in() ) {
+			// Non-logged in users can only see conversations from public events/communities
+			return "(
+				(c.event_id IS NULL AND c.community_id IS NULL) OR
+				(c.event_id IS NOT NULL AND e.privacy = 'public') OR
+				(c.community_id IS NOT NULL AND cm.privacy = 'public')
+			)";
+		}
+		
+		$current_user = wp_get_current_user();
+		$user_email = $current_user->user_email;
+		
+		return "(
+			(c.event_id IS NULL AND c.community_id IS NULL AND (
+				c.privacy = 'public' OR
+				c.author_id = $current_user_id OR
+				(c.privacy = 'friends' AND c.author_id = $current_user_id) OR
+				(c.privacy = 'members' AND $current_user_id > 0)
+			)) OR
+			(c.event_id IS NOT NULL AND (
+				e.privacy = 'public' OR
+				e.author_id = $current_user_id OR
+				(e.privacy = 'friends' AND e.author_id = $current_user_id) OR
+				(e.privacy = 'community' AND EXISTS(
+					SELECT 1 FROM $members_table cm1, $members_table cm2 
+					WHERE cm1.user_id = e.author_id AND cm2.user_id = $current_user_id 
+					AND cm1.community_id = cm2.community_id 
+					AND cm1.status = 'active' AND cm2.status = 'active'
+				)) OR
+				(e.privacy = 'private' AND EXISTS(
+					SELECT 1 FROM $guests_table g 
+					WHERE g.event_id = e.id AND g.email = '$user_email'
+				)) OR
+				(e.privacy = 'private' AND EXISTS(
+					SELECT 1 FROM $invitations_table i 
+					WHERE i.event_id = e.id AND i.invited_email = '$user_email' 
+					AND i.status = 'pending' AND i.expires_at > NOW()
+				))
+			)) OR
+			(c.community_id IS NOT NULL AND (
+				cm.privacy = 'public' OR
+				cm.creator_id = $current_user_id OR
+				(cm.privacy = 'friends' AND EXISTS(
+					SELECT 1 FROM $members_table cm1, $members_table cm2 
+					WHERE cm1.user_id = cm.creator_id AND cm2.user_id = $current_user_id 
+					AND cm1.community_id = cm2.community_id 
+					AND cm1.status = 'active' AND cm2.status = 'active'
+				)) OR
+				EXISTS(
+					SELECT 1 FROM $members_table m 
+					WHERE m.community_id = cm.id AND m.user_id = $current_user_id 
+					AND m.status = 'active'
+				)
+			))
+		)";
+	}
+
+	/**
+	 * Validate conversation privacy setting
+	 */
+	private function validate_conversation_privacy( $privacy, $data ) {
+		// If conversation is tied to an event or community, it inherits their privacy
+		if ( ! empty( $data['event_id'] ) || ! empty( $data['community_id'] ) ) {
+			return 'inherit'; // Special value indicating inherited privacy
+		}
+		
+		$allowed_privacy_settings = array( 'public', 'friends', 'members' );
+		
+		$privacy = sanitize_text_field( $privacy );
+		
+		if ( ! in_array( $privacy, $allowed_privacy_settings ) ) {
+			return 'public'; // Default to public if invalid
+		}
+		
+		return $privacy;
 	}
 }

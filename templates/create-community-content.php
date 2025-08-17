@@ -109,13 +109,29 @@ ob_start();
 			<label for="community_privacy" class="pm-form-label"><?php _e( 'Privacy Setting *', 'partyminder' ); ?></label>
 			<select id="community_privacy" name="privacy" class="pm-form-input" required>
 				<option value="public" <?php selected( $_POST['privacy'] ?? 'public', 'public' ); ?>>
-					<?php _e( 'Public - Anyone can find and join this community', 'partyminder' ); ?>
+					<?php _e( 'Public - Anyone can find and request to join', 'partyminder' ); ?>
+				</option>
+				<option value="friends" <?php selected( $_POST['privacy'] ?? '', 'friends' ); ?>>
+					<?php _e( 'Friends Only - Only your connections can find and join', 'partyminder' ); ?>
 				</option>
 				<option value="private" <?php selected( $_POST['privacy'] ?? '', 'private' ); ?>>
 					<?php _e( 'Private - Members must be invited to join', 'partyminder' ); ?>
 				</option>
 			</select>
-			<p class="pm-form-help pm-text-muted"><?php _e( 'Public communities appear in listings and can be joined by anyone. Private communities are invitation-only.', 'partyminder' ); ?></p>
+			<p class="pm-form-help pm-text-muted"><?php _e( 'Choose who can discover and join your community. Private communities are completely hidden from non-members.', 'partyminder' ); ?></p>
+		</div>
+		
+		<div class="pm-form-group">
+			<label class="pm-form-label"><?php _e( 'Membership Approval', 'partyminder' ); ?></label>
+			<div class="pm-form-checkbox-group">
+				<label class="pm-form-checkbox-label">
+					<input type="checkbox" name="requires_approval" value="1" 
+							<?php checked( $_POST['requires_approval'] ?? false, '1' ); ?> 
+							class="pm-form-checkbox">
+					<?php _e( 'Require admin approval for new members', 'partyminder' ); ?>
+				</label>
+			</div>
+			<p class="pm-form-help pm-text-muted"><?php _e( 'When enabled, join requests will need approval before members can access the community.', 'partyminder' ); ?></p>
 		</div>
 	</div>
 	

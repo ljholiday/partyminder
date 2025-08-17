@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <?php if ( ! empty( $breadcrumbs ) ) : ?>
 <!-- Breadcrumbs -->
-<div class="pm-text-muted mb-4" style="font-size: 14px;">
+<div class="pm-text-muted mb-4" style="font-size: 18px; font-weight: 500;">
 	<?php
 	$breadcrumb_parts = array();
 	foreach ( $breadcrumbs as $crumb ) {
