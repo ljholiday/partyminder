@@ -154,7 +154,6 @@ class PartyMinder {
 		// Image upload AJAX handlers
 		add_action( 'wp_ajax_partyminder_avatar_upload', array( 'PartyMinder_Image_Upload', 'handle_avatar_upload' ) );
 		add_action( 'wp_ajax_partyminder_cover_upload', array( 'PartyMinder_Image_Upload', 'handle_cover_upload' ) );
-		add_action( 'wp_ajax_partyminder_event_photo_upload', array( 'PartyMinder_Image_Upload', 'handle_event_photo_upload' ) );
 		add_action( 'wp_ajax_partyminder_conversation_photo_upload', array( 'PartyMinder_Image_Upload', 'handle_conversation_photo_upload' ) );
 		// All AJAX handlers are now handled by dedicated handler classes
 

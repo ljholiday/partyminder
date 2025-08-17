@@ -120,37 +120,6 @@ ob_start();
 </div>
 <?php endif; ?>
 
-<?php
-// Get uploaded event photos
-require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-image-upload.php';
-$event_photos = array();
-if ( class_exists( 'PartyMinder_Image_Upload' ) ) {
-	$event_photos = PartyMinder_Image_Upload::get_event_photos( $event->id );
-}
-if ( ! empty( $event_photos ) ) :
-?>
-<div class="pm-section pm-mb">
-	<div class="pm-card">
-		<div class="pm-card-header">
-			<h3 class="pm-heading pm-heading-md">Event Photos</h3>
-		</div>
-		<div class="pm-card-body">
-			<div class="pm-grid pm-grid-3 pm-gap">
-				<?php foreach ( $event_photos as $photo ) : ?>
-					<div class="pm-photo-item">
-						<img src="<?php echo esc_url( $photo['thumb_url'] ); ?>" 
-							 alt="Event photo" 
-							 style="width: 100%; height: auto; border-radius: 0.375rem;">
-						<div class="pm-text-muted pm-text-center" style="font-size: 12px; margin-top: 0.25rem;">
-							<?php echo human_time_diff( $photo['uploaded'], current_time( 'timestamp' ) ) . ' ago'; ?>
-						</div>
-					</div>
-				<?php endforeach; ?>
-			</div>
-		</div>
-	</div>
-</div>
-<?php endif; ?>
 
 <?php if ( $event->description ) : ?>
 <div class="pm-section pm-mb">
@@ -178,35 +147,7 @@ if ( ! empty( $event_photos ) ) :
 </div>
 <?php endif; ?>
 
-<?php if ( $is_event_host && ! $is_past ) : ?>
-<div class="pm-section pm-mb">
-	<div class="pm-card">
-		<div class="pm-card-header">
-			<h3 class="pm-heading pm-heading-md">Upload Event Photo</h3>
-		</div>
-		<div class="pm-card-body">
-			<form id="event-photo-upload-form" enctype="multipart/form-data">
-				<div class="pm-form-group">
-					<label class="pm-form-label">Choose Photo</label>
-					<input type="file" name="event_photo" accept="image/*" class="pm-form-input" required>
-					<div class="pm-form-help">Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</div>
-				</div>
-				<button type="submit" class="pm-btn pm-btn-sm">Upload Photo</button>
-			</form>
-			
-			<div id="event-photo-progress" style="display: none;">
-				<div class="pm-progress-bar">
-					<div class="pm-progress-fill"></div>
-				</div>
-				<div class="pm-progress-text">Uploading...</div>
-			</div>
-			
-			<div id="event-photo-message"></div>
-		</div>
-	</div>
-</div>
-
-<div class="pm-section pm-mb">
+<?php if ( $is_event_host && ! $is_past ) : ?><div class="pm-section pm-mb">
 	<div class="pm-card">
 		<div class="pm-card-header">
 			<h3 class="pm-heading pm-heading-md">Invite Guests</h3>
@@ -393,73 +334,6 @@ require PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php';
 
 <script>
 jQuery(document).ready(function($) {
-	// Handle event photo upload
-	$('#event-photo-upload-form').on('submit', function(e) {
-		e.preventDefault();
-		
-		const formData = new FormData();
-		const fileInput = $(this).find('input[type="file"]')[0];
-		
-		if (!fileInput.files[0]) {
-			alert('Please select a photo to upload.');
-			return;
-		}
-		
-		formData.append('action', 'partyminder_event_photo_upload');
-		formData.append('event_id', <?php echo $event->id; ?>);
-		formData.append('event_photo', fileInput.files[0]);
-		formData.append('nonce', '<?php echo wp_create_nonce( 'partyminder_event_photo_upload' ); ?>');
-		
-		const $form = $(this);
-		const $progress = $('#event-photo-progress');
-		const $progressFill = $('.pm-progress-fill');
-		const $message = $('#event-photo-message');
-		
-		$form.hide();
-		$progress.show();
-		$message.empty();
-		
-		$.ajax({
-			url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
-			type: 'POST',
-			data: formData,
-			processData: false,
-			contentType: false,
-			xhr: function() {
-				const xhr = new window.XMLHttpRequest();
-				xhr.upload.addEventListener('progress', function(evt) {
-					if (evt.lengthComputable) {
-						const percentComplete = (evt.loaded / evt.total) * 100;
-						$progressFill.css('width', percentComplete + '%');
-					}
-				}, false);
-				return xhr;
-			},
-			success: function(response) {
-				if (response.success) {
-					$message.html('<div class="pm-upload-message success">' + response.data.message + '</div>');
-					$form[0].reset();
-					// Refresh page after 2 seconds to show the uploaded photo
-					setTimeout(function() {
-						location.reload();
-					}, 2000);
-				} else {
-					$message.html('<div class="pm-upload-message error">' + (response.data || 'Upload failed') + '</div>');
-				}
-			},
-			error: function() {
-				$message.html('<div class="pm-upload-message error">Network error. Please try again.</div>');
-			},
-			complete: function() {
-				$progress.hide();
-				$form.show();
-				setTimeout(function() {
-					$message.empty();
-				}, 5000);
-			}
-		});
-	});
-	
 	// Load pending invitations on page load
 	if ($('#event-invitations-list').length > 0) {
 		loadEventInvitations();
