@@ -166,7 +166,7 @@ ob_start();
 									</div>
 									
 									<h3 class="pm-heading pm-heading-sm pm-mb-2">
-										<a href="<?php echo home_url( '/conversations/' . ( $conversation->topic_slug ?? 'general' ) . '/' . $conversation->slug ); ?>" 
+										<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" 
 											class="pm-text-primary">
 											<?php echo esc_html( $conversation->title ); ?>
 										</a>

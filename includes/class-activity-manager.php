@@ -261,9 +261,9 @@ class PartyMinder_Activity_Manager {
 			case 'event_rsvp':
 				return home_url( '/events/' . $activity->slug );
 			case 'conversation_created':
-				return home_url( '/conversations/' . $activity->topic_slug . '/' . $activity->slug );
+				return home_url( '/conversations/' . $activity->slug );
 			case 'conversation_reply':
-				return home_url( '/conversations/' . $activity->topic_slug . '/' . $activity->conversation_slug );
+				return home_url( '/conversations/' . $activity->conversation_slug );
 			default:
 				return '#';
 		}

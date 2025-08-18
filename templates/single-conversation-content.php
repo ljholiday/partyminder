@@ -14,28 +14,18 @@ require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-manager.php';
 
 $conversation_manager = new PartyMinder_Conversation_Manager();
 
-// Get slugs from URL
-$topic_slug        = get_query_var( 'conversation_topic' );
+// Get slug from URL
 $conversation_slug = get_query_var( 'conversation_slug' );
 
-if ( ! $topic_slug || ! $conversation_slug ) {
+if ( ! $conversation_slug ) {
 	wp_redirect( PartyMinder::get_conversations_url() );
 	exit;
 }
 
-// Get topic and conversation
-$topic        = $conversation_manager->get_topic_by_slug( $topic_slug );
+// Get conversation by slug
 $conversation = $conversation_manager->get_conversation( $conversation_slug, true );
 
-// Get event data if this is an event conversation
-$event_data = null;
-if ( $conversation && $conversation->event_id ) {
-	require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
-	$event_manager = new PartyMinder_Event_Manager();
-	$event_data    = $event_manager->get_event( $conversation->event_id );
-}
-
-if ( ! $topic || ! $conversation ) {
+if ( ! $conversation ) {
 	global $wp_query;
 	$wp_query->set_404();
 	status_header( 404 );
@@ -44,6 +34,14 @@ if ( ! $topic || ! $conversation ) {
 
 // Get replies
 $replies = $conversation_manager->get_conversation_replies( $conversation->id );
+
+// Get event data if this is an event conversation
+$event_data = null;
+if ( $conversation->event_id ) {
+	require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+	$event_manager = new PartyMinder_Event_Manager();
+	$event_data    = $event_manager->get_event( $conversation->event_id );
+}
 
 // Get current user info
 $current_user = wp_get_current_user();
@@ -54,17 +52,23 @@ if ( $user_email ) {
 	$is_following = $conversation_manager->is_following( $conversation->id, $current_user->ID, $user_email );
 }
 
+// Determine conversation context
+$context_info = '';
+if ( $conversation->event_id ) {
+	$context_info = __( 'Event Discussion', 'partyminder' );
+} elseif ( $conversation->community_id ) {
+	$context_info = __( 'Community Discussion', 'partyminder' );
+} else {
+	$context_info = __( 'General Discussion', 'partyminder' );
+}
+
 // Set up template variables
 $page_title       = esc_html( $conversation->title );
-$page_description = sprintf( __( 'Discussion in %1$s started by %2$s' ), $topic->name, $conversation->author_name );
+$page_description = sprintf( __( '%1$s started by %2$s' ), $context_info, $conversation->author_name );
 $breadcrumbs      = array(
 	array(
 		'title' => __( 'Conversations', 'partyminder' ),
 		'url'   => PartyMinder::get_conversations_url(),
-	),
-	array(
-		'title' => $topic->icon . ' ' . $topic->name,
-		'url'   => home_url( '/conversations/' . $topic->slug ),
 	),
 	array( 'title' => $conversation->title ),
 );
@@ -261,8 +265,8 @@ if ( ! empty( $conversation_photos ) ) :
 				<span class="button-text"><?php _e( 'Post Reply', 'partyminder' ); ?></span>
 				<span class="button-spinner" style="display: none;"><?php _e( 'Posting...', 'partyminder' ); ?></span>
 			</button>
-			<a href="<?php echo home_url( '/conversations/' . $topic->slug ); ?>" class="pm-btn pm-btn-secondary">
-				← <?php _e( 'Back to Topic', 'partyminder' ); ?>
+			<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
+				← <?php _e( 'Back to Conversations', 'partyminder' ); ?>
 			</a>
 		</div>
 	</form>
@@ -293,9 +297,6 @@ ob_start();
 					<?php _e( 'View Event', 'partyminder' ); ?>
 				</a>
 			<?php endif; ?>
-			<a href="<?php echo home_url( '/conversations/' . $topic->slug ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( '← Back to Topic', 'partyminder' ); ?>
-			</a>
 			<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
 				<?php _e( '← All Conversations', 'partyminder' ); ?>
 			</a>
