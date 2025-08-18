@@ -1,7 +1,7 @@
 <?php
 /**
  * Manage Community Content Template
- * Single-page community management interface (replaces community-management-modal.php)
+ * Community management interface
  */
 
 // Prevent direct access
@@ -20,7 +20,7 @@ $current_tab  = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'o
 
 if ( ! $community_id ) {
 	$page_title      = __( 'Community Not Found', 'partyminder' );
-	$main_content    = '<div class="text-center pm-p-16"><h2>' . __( 'Community Not Found', 'partyminder' ) . '</h2><p>' . __( 'No community ID provided.', 'partyminder' ) . '</p><a href="' . esc_url( PartyMinder::get_communities_url() ) . '" class="pm-btn">' . __( 'Back to Communities', 'partyminder' ) . '</a></div>';
+	$main_content    = '<div class="pm-text-center pm-p-16"><h2>' . __( 'Community Not Found', 'partyminder' ) . '</h2><p>' . __( 'No community ID provided.', 'partyminder' ) . '</p><a href="' . esc_url( PartyMinder::get_communities_url() ) . '" class="pm-btn">' . __( 'Back to Communities', 'partyminder' ) . '</a></div>';
 	$sidebar_content = '';
 	include PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php';
 	return;
@@ -30,7 +30,7 @@ if ( ! $community_id ) {
 $community = $community_manager->get_community( $community_id );
 if ( ! $community ) {
 	$page_title      = __( 'Community Not Found', 'partyminder' );
-	$main_content    = '<div class="text-center pm-p-16"><h2>' . __( 'Community Not Found', 'partyminder' ) . '</h2><p>' . __( 'The requested community does not exist.', 'partyminder' ) . '</p><a href="' . esc_url( PartyMinder::get_communities_url() ) . '" class="pm-btn">' . __( 'Back to Communities', 'partyminder' ) . '</a></div>';
+	$main_content    = '<div class="pm-text-center pm-p-16"><h2>' . __( 'Community Not Found', 'partyminder' ) . '</h2><p>' . __( 'The requested community does not exist.', 'partyminder' ) . '</p><a href="' . esc_url( PartyMinder::get_communities_url() ) . '" class="pm-btn">' . __( 'Back to Communities', 'partyminder' ) . '</a></div>';
 	$sidebar_content = '';
 	include PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php';
 	return;
@@ -43,15 +43,11 @@ $user_role    = is_user_logged_in() ? $community_manager->get_member_role( $comm
 // Check if user can manage this community
 if ( ! $user_role || $user_role !== 'admin' ) {
 	$page_title      = __( 'Access Denied', 'partyminder' );
-	$main_content    = '<div class="text-center pm-p-16"><h2>' . __( 'Access Denied', 'partyminder' ) . '</h2><p>' . __( 'You do not have permission to manage this community.', 'partyminder' ) . '</p><a href="' . esc_url( PartyMinder::get_community_url( $community->slug ) ) . '" class="pm-btn">' . __( 'View Community', 'partyminder' ) . '</a></div>';
+	$main_content    = '<div class="pm-text-center pm-p-16"><h2>' . __( 'Access Denied', 'partyminder' ) . '</h2><p>' . __( 'You do not have permission to manage this community.', 'partyminder' ) . '</p><a href="' . esc_url( PartyMinder::get_community_url( $community->slug ) ) . '" class="pm-btn">' . __( 'View Community', 'partyminder' ) . '</a></div>';
 	$sidebar_content = '';
 	include PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php';
 	return;
 }
-
-// Get styling options
-$primary_color   = get_option( 'partyminder_primary_color', '#667eea' );
-$secondary_color = get_option( 'partyminder_secondary_color', '#764ba2' );
 
 // Process form submissions
 if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['action'] ) ) {
@@ -70,6 +66,25 @@ if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['action'] ) ) {
 			$community = $community_manager->get_community( $community_id );
 		} else {
 			$error_message = $result->get_error_message();
+		}
+	}
+	
+	// Handle community deletion
+	if ( $_POST['action'] === 'delete_community' && wp_verify_nonce( $_POST['nonce'], 'partyminder_community_management' ) ) {
+		$confirm_name = sanitize_text_field( $_POST['confirm_name'] );
+		
+		if ( $confirm_name === $community->name ) {
+			$result = $community_manager->delete_community( $community_id );
+			
+			if ( ! is_wp_error( $result ) ) {
+				// Redirect to communities page after successful deletion
+				wp_redirect( PartyMinder::get_communities_url() . '?deleted=1' );
+				exit;
+			} else {
+				$error_message = $result->get_error_message();
+			}
+		} else {
+			$error_message = __( 'Community name confirmation does not match. Community was not deleted.', 'partyminder' );
 		}
 	}
 }
@@ -95,11 +110,10 @@ $breadcrumbs = array(
 	array( 'title' => __( 'Manage', 'partyminder' ) ),
 );
 
-// No navigation tabs - using sidebar navigation instead
-
 // Main content
 ob_start();
 ?>
+
 <!-- Success/Error Messages -->
 <?php if ( isset( $success_message ) ) : ?>
 	<div class="pm-alert pm-alert-success">
@@ -113,127 +127,177 @@ ob_start();
 	</div>
 <?php endif; ?>
 
-<div class="partyminder-manage-community">
-	<!-- Tab Content -->
-	<div class="pm-management-content">
-		
-		<!-- Overview Tab -->
-		<div id="overview-tab" class="tab-pane <?php echo $current_tab === 'overview' ? 'active' : ''; ?>">
-			<h3><?php _e( 'Community Overview', 'partyminder' ); ?></h3>
-			
-
-			<div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 30px;">
-				<a href="?community_id=<?php echo $community_id; ?>&tab=settings" class="pm-btn">
-					<span>⚙️</span> <?php _e( 'Edit Settings', 'partyminder' ); ?>
-				</a>
-				<a href="?community_id=<?php echo $community_id; ?>&tab=members" class="pm-btn pm-btn-secondary">
-					<span>👥</span> <?php _e( 'Manage Members', 'partyminder' ); ?>
-				</a>
-				<a href="?community_id=<?php echo $community_id; ?>&tab=invitations" class="pm-btn pm-btn-secondary">
-					<span>📧</span> <?php _e( 'Send Invitations', 'partyminder' ); ?>
-				</a>
-				<a href="<?php echo esc_url( PartyMinder::get_community_url( $community->slug ) ); ?>" class="pm-btn pm-btn-secondary">
-					<span>👁️</span> <?php _e( 'View Community', 'partyminder' ); ?>
-				</a>
-			</div>
-
-		</div>
-
-		<!-- Settings Tab -->
-		<div id="settings-tab" class="tab-pane <?php echo $current_tab === 'settings' ? 'active' : ''; ?>">
-			<h3><?php _e( 'Community Settings', 'partyminder' ); ?></h3>
-			
-			<form method="post" class="pm-form">
-				<input type="hidden" name="action" value="update_community_settings">
-				<input type="hidden" name="nonce" value="<?php echo wp_create_nonce( 'partyminder_community_management' ); ?>">
-				
-				<div class="pm-form-group">
-					<label class="pm-form-label">
-						<?php _e( 'Community Name', 'partyminder' ); ?>
-					</label>
-					<input type="text" class="pm-form-input" value="<?php echo esc_attr( $community->name ); ?>" readonly>
-					<div class="pm-form-help">
-						<?php _e( 'Contact site administrator to change the community name', 'partyminder' ); ?>
-					</div>
-				</div>
-				
-				<div class="pm-form-group">
-					<label class="pm-form-label">
-						<?php _e( 'Description', 'partyminder' ); ?>
-					</label>
-					<textarea name="description" class="pm-form-textarea" rows="4" 
-								placeholder="<?php _e( 'Update community description...', 'partyminder' ); ?>"><?php echo esc_textarea( $community->description ); ?></textarea>
-				</div>
-				
-				<div class="pm-form-group">
-					<label class="pm-form-label">
-						<?php _e( 'Privacy Setting', 'partyminder' ); ?>
-					</label>
-					<select name="privacy" class="pm-form-select">
-						<option value="public" <?php selected( $community->privacy, 'public' ); ?>>
-							<?php _e( '🌍 Public - Anyone can join', 'partyminder' ); ?>
-						</option>
-						<option value="private" <?php selected( $community->privacy, 'private' ); ?>>
-							<?php _e( '🔒 Private - Invite only', 'partyminder' ); ?>
-						</option>
-					</select>
-				</div>
-				
-				<button type="submit" class="pm-btn">
-					<?php _e( 'Save Changes', 'partyminder' ); ?>
-				</button>
-			</form>
-		</div>
-
-		<!-- Members Tab -->
-		<div id="members-tab" class="tab-pane <?php echo $current_tab === 'members' ? 'active' : ''; ?>">
-			<h3><?php _e( 'Community Members', 'partyminder' ); ?></h3>
-			<div id="members-list">
-				<div class="pm-loading-placeholder">
-					<p><?php _e( 'Loading community members...', 'partyminder' ); ?></p>
-				</div>
-			</div>
-		</div>
-
-		<!-- Invitations Tab -->
-		<div id="invitations-tab" class="tab-pane <?php echo $current_tab === 'invitations' ? 'active' : ''; ?>">
-			<h3><?php _e( 'Send Invitations', 'partyminder' ); ?></h3>
-			
-			<!-- Email Invitation Form -->
-			<form id="send-invitation-form" class="pm-form">
-				<div class="pm-form-group">
-					<label class="pm-form-label">
-						<?php _e( 'Email Address', 'partyminder' ); ?>
-					</label>
-					<input type="email" class="pm-form-input" id="invitation-email" 
-							placeholder="<?php _e( 'Enter email address...', 'partyminder' ); ?>" required>
-				</div>
-				
-				<div class="pm-form-group">
-					<label class="pm-form-label">
-						<?php _e( 'Personal Message (Optional)', 'partyminder' ); ?>
-					</label>
-					<textarea class="pm-form-textarea" id="invitation-message" rows="3"
-								placeholder="<?php _e( 'Add a personal message to your invitation...', 'partyminder' ); ?>"></textarea>
-				</div>
-				
-				<button type="submit" class="pm-btn">
-					<?php _e( 'Send Invitation', 'partyminder' ); ?>
-				</button>
-			</form>
-			
-			<div style="margin-top: 30px;">
-				<h4><?php _e( 'Pending Invitations', 'partyminder' ); ?></h4>
-				<div id="invitations-list">
-					<div class="pm-loading-placeholder">
-						<p><?php _e( 'Loading pending invitations...', 'partyminder' ); ?></p>
-					</div>
-				</div>
-			</div>
-		</div>
-
+<!-- Secondary Menu Bar -->
+<div class="pm-section pm-mb-4">
+	<div class="pm-flex pm-gap-4">
+		<a href="?community_id=<?php echo $community_id; ?>&tab=overview" class="pm-btn <?php echo $current_tab === 'overview' ? '' : 'pm-btn-secondary'; ?>">
+			<?php _e( 'Overview', 'partyminder' ); ?>
+		</a>
+		<a href="?community_id=<?php echo $community_id; ?>&tab=settings" class="pm-btn <?php echo $current_tab === 'settings' ? '' : 'pm-btn-secondary'; ?>">
+			<?php _e( 'Settings', 'partyminder' ); ?>
+		</a>
+		<a href="?community_id=<?php echo $community_id; ?>&tab=members" class="pm-btn <?php echo $current_tab === 'members' ? '' : 'pm-btn-secondary'; ?>">
+			<?php _e( 'Members', 'partyminder' ); ?>
+		</a>
+		<a href="?community_id=<?php echo $community_id; ?>&tab=invitations" class="pm-btn <?php echo $current_tab === 'invitations' ? '' : 'pm-btn-secondary'; ?>">
+			<?php _e( 'Invitations', 'partyminder' ); ?>
+		</a>
+		<a href="<?php echo esc_url( PartyMinder::get_community_url( $community->slug ) ); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( 'View Community', 'partyminder' ); ?>
+		</a>
 	</div>
 </div>
+
+<!-- Tab Content -->
+<?php if ( $current_tab === 'overview' ) : ?>
+<div class="pm-section">
+	<div class="pm-section-header">
+		<h2 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Community Overview', 'partyminder' ); ?></h2>
+	</div>
+	
+	<div class="pm-grid pm-gap pm-mb-4">
+		<div class="pm-section pm-border pm-p-4">
+			<h3 class="pm-heading pm-heading-sm pm-mb-2"><?php _e( 'Quick Actions', 'partyminder' ); ?></h3>
+			<div class="pm-flex pm-gap pm-flex-wrap">
+				<a href="?community_id=<?php echo $community_id; ?>&tab=settings" class="pm-btn pm-btn-secondary">
+					<?php _e( 'Edit Settings', 'partyminder' ); ?>
+				</a>
+				<a href="?community_id=<?php echo $community_id; ?>&tab=members" class="pm-btn pm-btn-secondary">
+					<?php _e( 'Manage Members', 'partyminder' ); ?>
+				</a>
+				<a href="?community_id=<?php echo $community_id; ?>&tab=invitations" class="pm-btn pm-btn-secondary">
+					<?php _e( 'Send Invitations', 'partyminder' ); ?>
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<?php elseif ( $current_tab === 'settings' ) : ?>
+<div class="pm-section">
+	<div class="pm-section-header">
+		<h2 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Community Settings', 'partyminder' ); ?></h2>
+	</div>
+	
+	<form method="post" class="pm-form">
+		<input type="hidden" name="action" value="update_community_settings">
+		<input type="hidden" name="nonce" value="<?php echo wp_create_nonce( 'partyminder_community_management' ); ?>">
+		
+		<div class="pm-form-group">
+			<label class="pm-form-label">
+				<?php _e( 'Community Name', 'partyminder' ); ?>
+			</label>
+			<input type="text" class="pm-form-input" value="<?php echo esc_attr( $community->name ); ?>" readonly>
+			<div class="pm-form-help">
+				<?php _e( 'Contact site administrator to change the community name', 'partyminder' ); ?>
+			</div>
+		</div>
+		
+		<div class="pm-form-group">
+			<label class="pm-form-label">
+				<?php _e( 'Description', 'partyminder' ); ?>
+			</label>
+			<textarea name="description" class="pm-form-textarea" rows="4" 
+						placeholder="<?php _e( 'Update community description...', 'partyminder' ); ?>"><?php echo esc_textarea( $community->description ); ?></textarea>
+		</div>
+		
+		<div class="pm-form-group">
+			<label class="pm-form-label">
+				<?php _e( 'Privacy Setting', 'partyminder' ); ?>
+			</label>
+			<select name="privacy" class="pm-form-select">
+				<option value="public" <?php selected( $community->privacy, 'public' ); ?>>
+					<?php _e( '🌍 Public - Anyone can join', 'partyminder' ); ?>
+				</option>
+				<option value="private" <?php selected( $community->privacy, 'private' ); ?>>
+					<?php _e( '🔒 Private - Invite only', 'partyminder' ); ?>
+				</option>
+			</select>
+		</div>
+		
+		<button type="submit" class="pm-btn">
+			<?php _e( 'Save Changes', 'partyminder' ); ?>
+		</button>
+	</form>
+	
+	<!-- Danger Zone -->
+	<div class="pm-section pm-mt" style="border-top: 2px solid #dc3545; padding-top: 20px; margin-top: 40px;">
+		<h4 class="pm-heading pm-heading-sm" style="color: #dc3545;"><?php _e( 'Danger Zone', 'partyminder' ); ?></h4>
+		<p class="pm-text-muted pm-mb-4">
+			<?php _e( 'Once you delete a community, there is no going back. This will permanently delete the community, all its members, events, and conversations.', 'partyminder' ); ?>
+		</p>
+		
+		<form method="post" class="pm-form" id="delete-community-form" onsubmit="return confirmCommunityDeletion(event)">
+			<input type="hidden" name="action" value="delete_community">
+			<input type="hidden" name="nonce" value="<?php echo wp_create_nonce( 'partyminder_community_management' ); ?>">
+			
+			<div class="pm-form-group">
+				<label class="pm-form-label" style="color: #dc3545;">
+					<?php printf( __( 'Type "%s" to confirm deletion:', 'partyminder' ), esc_html( $community->name ) ); ?>
+				</label>
+				<input type="text" name="confirm_name" class="pm-form-input" id="delete-confirm-name" 
+						placeholder="<?php echo esc_attr( $community->name ); ?>" required>
+			</div>
+			
+			<button type="submit" class="pm-btn" style="background-color: #dc3545; border-color: #dc3545;" disabled id="delete-community-btn">
+				<?php _e( 'Delete Community Permanently', 'partyminder' ); ?>
+			</button>
+		</form>
+	</div>
+</div>
+
+<?php elseif ( $current_tab === 'members' ) : ?>
+<div class="pm-section">
+	<div class="pm-section-header">
+		<h2 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Community Members', 'partyminder' ); ?></h2>
+	</div>
+	<div id="members-list">
+		<div class="pm-loading-placeholder">
+			<p><?php _e( 'Loading community members...', 'partyminder' ); ?></p>
+		</div>
+	</div>
+</div>
+
+<?php elseif ( $current_tab === 'invitations' ) : ?>
+<div class="pm-section">
+	<div class="pm-section-header">
+		<h2 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Send Invitations', 'partyminder' ); ?></h2>
+	</div>
+	
+	<!-- Email Invitation Form -->
+	<form id="send-invitation-form" class="pm-form">
+		<div class="pm-form-group">
+			<label class="pm-form-label">
+				<?php _e( 'Email Address', 'partyminder' ); ?>
+			</label>
+			<input type="email" class="pm-form-input" id="invitation-email" 
+					placeholder="<?php _e( 'Enter email address...', 'partyminder' ); ?>" required>
+		</div>
+		
+		<div class="pm-form-group">
+			<label class="pm-form-label">
+				<?php _e( 'Personal Message (Optional)', 'partyminder' ); ?>
+			</label>
+			<textarea class="pm-form-textarea" id="invitation-message" rows="3"
+						placeholder="<?php _e( 'Add a personal message to your invitation...', 'partyminder' ); ?>"></textarea>
+		</div>
+		
+		<button type="submit" class="pm-btn">
+			<?php _e( 'Send Invitation', 'partyminder' ); ?>
+		</button>
+	</form>
+	
+	<div class="pm-mt">
+		<h4><?php _e( 'Pending Invitations', 'partyminder' ); ?></h4>
+		<div id="invitations-list">
+			<div class="pm-loading-placeholder">
+				<p><?php _e( 'Loading pending invitations...', 'partyminder' ); ?></p>
+			</div>
+		</div>
+	</div>
+</div>
+
+<?php endif; ?>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -245,6 +309,17 @@ document.addEventListener('DOMContentLoaded', function() {
 		loadCommunityMembers(communityId);
 	} else if (currentTab === 'invitations') {
 		loadCommunityInvitations(communityId);
+	}
+	
+	// Handle delete community form
+	const deleteConfirmInput = document.getElementById('delete-confirm-name');
+	const deleteBtn = document.getElementById('delete-community-btn');
+	const communityName = '<?php echo esc_js( $community->name ); ?>';
+	
+	if (deleteConfirmInput && deleteBtn) {
+		deleteConfirmInput.addEventListener('input', function() {
+			deleteBtn.disabled = this.value !== communityName;
+		});
 	}
 	
 	// Handle invitation form submission
@@ -300,7 +375,6 @@ document.addEventListener('DOMContentLoaded', function() {
 			});
 		});
 	}
-	
 	
 	// Load community members
 	function loadCommunityMembers(communityId) {
@@ -568,11 +642,15 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		});
 	}
+	
+	// Community deletion confirmation
+	window.confirmCommunityDeletion = function(event) {
+		const communityName = '<?php echo esc_js( $community->name ); ?>';
+		return confirm('<?php _e( 'Are you absolutely sure you want to delete', 'partyminder' ); ?> "' + communityName + '"?\n\n<?php _e( 'This action cannot be undone. All community data, members, events, and conversations will be permanently deleted.', 'partyminder' ); ?>');
+	};
 });
 </script>
 
-	</div>
-</div>
 <?php
 $main_content = ob_get_clean();
 
@@ -580,70 +658,45 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
-<!-- Quick Actions (No Heading) -->
-<div class="pm-card pm-mb-4">
-	<div class="pm-card-body">
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<a href="<?php echo esc_url( PartyMinder::get_community_url( $community->slug ) ); ?>" class="pm-btn">
-				<?php _e( 'View Community', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( '← Back to Community', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( '← All Communities', 'partyminder' ); ?>
-			</a>
-		</div>
+<!-- Quick Actions -->
+<div class="pm-section pm-mb">
+	<div class="pm-section-header">
+		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Quick Actions', 'partyminder' ); ?></h3>
 	</div>
-</div>
-
-<!-- Management Navigation -->
-<div class="pm-card pm-mb-4">
-	<div class="pm-card-header">
-		<h3 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Management', 'partyminder' ); ?></h3>
-	</div>
-	<div class="pm-card-body">
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<a href="?community_id=<?php echo $community_id; ?>&tab=overview" class="pm-btn <?php echo $current_tab === 'overview' ? 'pm-btn-primary' : 'pm-btn-secondary'; ?>">
-				<?php _e( 'Overview', 'partyminder' ); ?>
-			</a>
-			<a href="?community_id=<?php echo $community_id; ?>&tab=settings" class="pm-btn <?php echo $current_tab === 'settings' ? 'pm-btn-primary' : 'pm-btn-secondary'; ?>">
-				<?php _e( 'Settings', 'partyminder' ); ?>
-			</a>
-			<a href="?community_id=<?php echo $community_id; ?>&tab=members" class="pm-btn <?php echo $current_tab === 'members' ? 'pm-btn-primary' : 'pm-btn-secondary'; ?>">
-				<?php _e( 'Members', 'partyminder' ); ?>
-			</a>
-			<a href="?community_id=<?php echo $community_id; ?>&tab=invitations" class="pm-btn <?php echo $current_tab === 'invitations' ? 'pm-btn-primary' : 'pm-btn-secondary'; ?>">
-				<?php _e( 'Invitations', 'partyminder' ); ?>
-			</a>
-		</div>
+	<div class="pm-flex pm-flex-column pm-gap">
+		<a href="<?php echo esc_url( PartyMinder::get_community_url( $community->slug ) ); ?>" class="pm-btn">
+			<?php _e( 'View Community', 'partyminder' ); ?>
+		</a>
+		<a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( 'All Communities', 'partyminder' ); ?>
+		</a>
 	</div>
 </div>
 
 <!-- Community Info -->
-<div class="pm-card">
-	<div class="pm-card-header">
-		<h3 class="pm-heading pm-heading-md pm-text-primary"><?php echo esc_html( $community->name ); ?></h3>
+<div class="pm-section pm-mb">
+	<div class="pm-section-header">
+		<h3 class="pm-heading pm-heading-sm"><?php echo esc_html( $community->name ); ?></h3>
 	</div>
-	<div class="pm-card-body">
-		<?php if ( $community->description ) : ?>
-			<p class="pm-text-muted pm-mb-4"><?php echo esc_html( $community->description ); ?></p>
-		<?php endif; ?>
-		
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<div>
-				<strong class="pm-text-primary"><?php _e( 'Privacy:', 'partyminder' ); ?></strong><br>
-				<span class="pm-text-muted"><?php echo esc_html( ucfirst( $community->privacy ) ); ?></span>
-			</div>
-			<div>
-				<strong class="pm-text-primary"><?php _e( 'Created:', 'partyminder' ); ?></strong><br>
-				<span class="pm-text-muted"><?php echo date( 'F j, Y', strtotime( $community->created_at ) ); ?></span>
-			</div>
+	<?php if ( $community->description ) : ?>
+		<p class="pm-text-muted pm-mb"><?php echo esc_html( $community->description ); ?></p>
+	<?php endif; ?>
+	
+	<div class="pm-stat-list">
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Privacy', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo esc_html( ucfirst( $community->privacy ) ); ?></span>
+		</div>
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Created', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo date( 'M j, Y', strtotime( $community->created_at ) ); ?></span>
 		</div>
 	</div>
 </div>
+
 <?php
 $sidebar_content = ob_get_clean();
 
-// Include base template
+// Include two-column template
 require PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php';
+?>

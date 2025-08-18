@@ -38,6 +38,13 @@ $page_description = __( 'Join communities of fellow hosts and guests to plan ama
 // Main content
 ob_start();
 ?>
+
+<!-- Success Message for Community Deletion -->
+<?php if ( isset( $_GET['deleted'] ) && $_GET['deleted'] == '1' ) : ?>
+	<div class="pm-alert pm-alert-success pm-mb-4">
+		<?php _e( 'Community has been successfully deleted.', 'partyminder' ); ?>
+	</div>
+<?php endif; ?>
 <!-- Secondary Menu Bar -->
 <div class="pm-section pm-mb-4">
 	<div class="pm-flex pm-gap-4">

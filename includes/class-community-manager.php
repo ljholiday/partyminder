@@ -978,4 +978,87 @@ The %6$s Team',
 		
 		return $privacy;
 	}
+
+	/**
+	 * Delete a community and all associated data
+	 */
+	public function delete_community( $community_id ) {
+		global $wpdb;
+
+		$community_id = intval( $community_id );
+		if ( ! $community_id ) {
+			return new WP_Error( 'invalid_community', __( 'Invalid community ID', 'partyminder' ) );
+		}
+
+		// Check if community exists
+		$community = $this->get_community( $community_id );
+		if ( ! $community ) {
+			return new WP_Error( 'community_not_found', __( 'Community not found', 'partyminder' ) );
+		}
+
+		// Check if current user is admin of this community
+		$current_user = wp_get_current_user();
+		if ( ! $current_user->ID ) {
+			return new WP_Error( 'user_required', __( 'You must be logged in', 'partyminder' ) );
+		}
+
+		$user_role = $this->get_member_role( $community_id, $current_user->ID );
+		if ( $user_role !== 'admin' ) {
+			return new WP_Error( 'permission_denied', __( 'You must be a community admin to delete this community', 'partyminder' ) );
+		}
+
+		// Start transaction
+		$wpdb->query( 'START TRANSACTION' );
+
+		try {
+			// Delete community members
+			$members_table = $wpdb->prefix . 'partyminder_community_members';
+			$wpdb->delete( $members_table, array( 'community_id' => $community_id ), array( '%d' ) );
+
+			// Delete community invitations
+			$invitations_table = $wpdb->prefix . 'partyminder_community_invitations';
+			$wpdb->delete( $invitations_table, array( 'community_id' => $community_id ), array( '%d' ) );
+
+			// Update events to remove community association
+			$events_table = $wpdb->prefix . 'partyminder_events';
+			$wpdb->update(
+				$events_table,
+				array( 'community_id' => null ),
+				array( 'community_id' => $community_id ),
+				array( '%s' ),
+				array( '%d' )
+			);
+
+			// Update conversations to remove community association
+			$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+			$wpdb->update(
+				$conversations_table,
+				array( 'community_id' => null ),
+				array( 'community_id' => $community_id ),
+				array( '%s' ),
+				array( '%d' )
+			);
+
+			// Finally, delete the community itself
+			$communities_table = $wpdb->prefix . 'partyminder_communities';
+			$deleted = $wpdb->delete( $communities_table, array( 'id' => $community_id ), array( '%d' ) );
+
+			if ( $deleted === false ) {
+				throw new Exception( __( 'Failed to delete community record', 'partyminder' ) );
+			}
+
+			// Commit transaction
+			$wpdb->query( 'COMMIT' );
+
+			// Clear any cached data
+			wp_cache_delete( 'community_' . $community_id, 'partyminder' );
+
+			return true;
+
+		} catch ( Exception $e ) {
+			// Rollback transaction on error
+			$wpdb->query( 'ROLLBACK' );
+			return new WP_Error( 'deletion_failed', $e->getMessage() );
+		}
+	}
 }
