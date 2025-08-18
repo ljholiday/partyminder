@@ -283,6 +283,12 @@ class PartyMinder_Event_Manager {
 			return new WP_Error( 'event_not_found', __( 'Event not found', 'partyminder' ) );
 		}
 
+		// Check permissions - only event host (author) can update events
+		$current_user = wp_get_current_user();
+		if ( $current_event->author_id != $current_user->ID && ! current_user_can( 'edit_others_posts' ) ) {
+			return new WP_Error( 'permission_denied', __( 'Only the event host can update this event', 'partyminder' ) );
+		}
+
 		// Generate unique slug if title changed
 		$slug = $current_event->slug;
 		if ( $current_event->title !== $event_data['title'] ) {
@@ -764,7 +770,7 @@ The %9$s Team',
 	 * Validate privacy setting for events
 	 */
 	private function validate_privacy_setting( $privacy ) {
-		$allowed_privacy_settings = array( 'public', 'community', 'private', 'host', 'invited' );
+		$allowed_privacy_settings = array( 'public', 'private' );
 		
 		$privacy = sanitize_text_field( $privacy );
 		

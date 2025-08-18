@@ -16,8 +16,8 @@ require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
 $event_manager = new PartyMinder_Event_Manager();
 $guest_manager = new PartyMinder_Guest_Manager();
 
-// Get shortcode attributes
-$show_past = filter_var( $atts['show_past'] ?? false, FILTER_VALIDATE_BOOLEAN );
+// Get shortcode attributes and URL parameters
+$show_past = filter_var( $atts['show_past'] ?? $_GET['show_past'] ?? false, FILTER_VALIDATE_BOOLEAN );
 
 // Get current user info
 $current_user = wp_get_current_user();
@@ -110,9 +110,15 @@ ob_start();
 			<a href="<?php echo PartyMinder::get_profile_url(); ?>" class="pm-btn pm-btn-secondary">
 				<?php _e( 'My Profile', 'partyminder' ); ?>
 			</a>
-			<a href="<?php echo get_permalink( get_the_ID() ) . ( $show_past ? '' : '?show_past=1' ); ?>" class="pm-btn pm-btn-secondary">
-				<?php echo $show_past ? __( 'Hide Past Events', 'partyminder' ) : __( 'Show Past Events', 'partyminder' ); ?>
-			</a>
+			<?php if ( $show_past ) : ?>
+				<a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-btn pm-btn-secondary">
+					<?php _e( 'Hide Past Events', 'partyminder' ); ?>
+				</a>
+			<?php else : ?>
+				<a href="<?php echo add_query_arg( 'show_past', '1', PartyMinder::get_my_events_url() ); ?>" class="pm-btn pm-btn-secondary">
+					<?php _e( 'Show Past Events', 'partyminder' ); ?>
+				</a>
+			<?php endif; ?>
 		<?php else : ?>
 			<a href="<?php echo esc_url( add_query_arg( 'redirect_to', get_permalink( get_the_ID() ), PartyMinder::get_login_url() ) ); ?>" class="pm-btn">
 				<?php _e( 'Login', 'partyminder' ); ?>
@@ -158,64 +164,78 @@ ob_start();
 		</div>
 	</div>
 	
-	<div class="pm-grid pm-grid-auto pm-gap">
+	<div class="pm-grid pm-grid-1 pm-gap">
 		<?php foreach ( $created_events as $event ) : ?>
 			<?php
-			$event_date = new DateTime( $event->event_date );
-			$is_past    = $event_date < new DateTime();
+			$event_date  = new DateTime( $event->event_date );
+			$is_today    = $event_date->format( 'Y-m-d' ) === date( 'Y-m-d' );
+			$is_tomorrow = $event_date->format( 'Y-m-d' ) === date( 'Y-m-d', strtotime( '+1 day' ) );
+			$is_past     = $event_date < new DateTime();
 			?>
-			<div class="pm-section">
-				<div class="pm-section-header">
-					<div class="pm-flex pm-flex-between pm-flex-wrap pm-gap">
-						<h4 class="pm-heading pm-heading-sm">
-							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-text-primary"><?php echo esc_html( $event->title ); ?></a>
-						</h4>
-						<span class="pm-badge pm-badge-success"><?php _e( 'Host', 'partyminder' ); ?></span>
+			<div class="pm-section pm-p-4">
+				<div class="pm-flex pm-flex-between pm-mb-4">
+					<div class="pm-flex-1">
+						<h3 class="pm-heading pm-heading-sm pm-mb-2">
+							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-text-primary">
+								<?php echo esc_html( $event->title ); ?>
+							</a>
+						</h3>
+						<div class="pm-flex pm-gap pm-flex-wrap pm-mb-2">
+							<span class="pm-badge pm-badge-primary"><?php _e( 'Hosting', 'partyminder' ); ?></span>
+							<?php if ( $event->privacy === 'private' ) : ?>
+								<span class="pm-badge pm-badge-secondary"><?php _e( 'Private', 'partyminder' ); ?></span>
+							<?php endif; ?>
+						</div>
+						<div class="pm-text-muted">
+							<?php if ( $is_today ) : ?>
+								<?php _e( 'Today', 'partyminder' ); ?>
+							<?php elseif ( $is_tomorrow ) : ?>
+								<?php _e( 'Tomorrow', 'partyminder' ); ?>
+							<?php elseif ( $is_past ) : ?>
+								<?php echo $event_date->format( 'M j, Y' ); ?> (<?php _e( 'Past', 'partyminder' ); ?>)
+							<?php else : ?>
+								<?php echo $event_date->format( 'M j, Y' ); ?>
+							<?php endif; ?>
+							<?php if ( $event->event_time ) : ?>
+								at <?php echo date( 'g:i A', strtotime( $event->event_date ) ); ?>
+							<?php endif; ?>
+							<?php if ( $event->venue_info ) : ?>
+								• <?php echo esc_html( $event->venue_info ); ?>
+							<?php endif; ?>
+						</div>
 					</div>
-				</div>
-				
-				<div class="pm-mb">
-					<div class="pm-flex pm-gap pm-mb">
-						<span></span>
-						<span class="pm-text-muted"><?php echo $event_date->format( 'M j, Y' ); ?></span>
-					</div>
-					<div class="pm-flex pm-gap pm-mb">
-						<span></span>
-						<span class="pm-text-muted"><?php echo $event_date->format( 'g:i A' ); ?></span>
-					</div>
-					<?php if ( $event->venue_info ) : ?>
-					<div class="pm-flex pm-gap pm-mb">
-						<span></span>
-						<span class="pm-text-muted"><?php echo esc_html( $event->venue_info ); ?></span>
-					</div>
-					<?php endif; ?>
-				</div>
-
-				<div class="pm-grid pm-grid-3 pm-gap pm-mb">
-					<div class="pm-text-center">
+					<div class="pm-stat pm-text-center">
 						<div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->confirmed; ?></div>
 						<div class="pm-stat-label"><?php _e( 'Confirmed', 'partyminder' ); ?></div>
 					</div>
-					<div class="pm-text-center">
-						<div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->maybe; ?></div>
-						<div class="pm-stat-label"><?php _e( 'Maybe', 'partyminder' ); ?></div>
-					</div>
-					<div class="pm-text-center">
-						<div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->pending; ?></div>
-						<div class="pm-stat-label"><?php _e( 'Pending', 'partyminder' ); ?></div>
-					</div>
 				</div>
 				
-				<div class="pm-flex pm-gap pm-flex-wrap">
-					<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn-secondary pm-btn-sm">
-						<?php _e( 'View Event', 'partyminder' ); ?>
-					</a>
-					<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn-secondary pm-btn-sm">
-						<?php _e( 'Manage', 'partyminder' ); ?>
-					</a>
-					<a href="<?php echo PartyMinder::get_edit_event_url( $event->id ); ?>" class="pm-btn pm-btn-secondary pm-btn-sm">
-						<?php _e( 'Edit', 'partyminder' ); ?>
-					</a>
+				<div class="pm-mb-4">
+					<?php if ( $event->excerpt || $event->description ) : ?>
+						<p class="pm-text-muted"><?php echo esc_html( wp_trim_words( $event->excerpt ?: $event->description, 15 ) ); ?></p>
+					<?php endif; ?>
+				</div>
+				
+				<div class="pm-flex pm-flex-between pm-flex-wrap pm-gap">
+					<div class="pm-flex pm-gap pm-flex-wrap">
+						<div class="pm-stat pm-text-center">
+							<div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->maybe; ?></div>
+							<div class="pm-stat-label"><?php _e( 'Maybe', 'partyminder' ); ?></div>
+						</div>
+						<div class="pm-stat pm-text-center">
+							<div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->pending; ?></div>
+							<div class="pm-stat-label"><?php _e( 'Pending', 'partyminder' ); ?></div>
+						</div>
+					</div>
+					
+					<div class="pm-flex pm-gap">
+						<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn-secondary">
+							<?php _e( 'View', 'partyminder' ); ?>
+						</a>
+						<a href="<?php echo PartyMinder::get_edit_event_url( $event->id ); ?>" class="pm-btn pm-btn-secondary">
+							<?php _e( 'Edit', 'partyminder' ); ?>
+						</a>
+					</div>
 				</div>
 			</div>
 		<?php endforeach; ?>
@@ -233,10 +253,12 @@ ob_start();
 		</div>
 	</div>
 	
-	<div class="pm-grid pm-grid-auto pm-gap">
+	<div class="pm-grid pm-grid-1 pm-gap">
 		<?php foreach ( $rsvp_events as $event ) : ?>
 			<?php
 			$event_date  = new DateTime( $event->event_date );
+			$is_today    = $event_date->format( 'Y-m-d' ) === date( 'Y-m-d' );
+			$is_tomorrow = $event_date->format( 'Y-m-d' ) === date( 'Y-m-d', strtotime( '+1 day' ) );
 			$is_past     = $event_date < new DateTime();
 			$badge_text  = array(
 				'confirmed' => __( 'Going', 'partyminder' ),
@@ -246,48 +268,75 @@ ob_start();
 			);
 			$badge_class = 'pm-badge-' . ( $event->rsvp_status === 'confirmed' ? 'success' : ( $event->rsvp_status === 'declined' ? 'danger' : 'warning' ) );
 			?>
-			<div class="pm-section">
-				<div class="pm-section-header">
-					<div class="pm-flex pm-flex-between pm-flex-wrap pm-gap">
-						<h4 class="pm-heading pm-heading-sm">
-							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-text-primary"><?php echo esc_html( $event->title ); ?></a>
-						</h4>
-						<span class="pm-badge <?php echo esc_attr( $badge_class ); ?>">
-							<?php echo esc_html( $badge_text[ $event->rsvp_status ] ?? __( 'RSVP\'d', 'partyminder' ) ); ?>
-						</span>
+			<div class="pm-section pm-p-4">
+				<div class="pm-flex pm-flex-between pm-mb-4">
+					<div class="pm-flex-1">
+						<h3 class="pm-heading pm-heading-sm pm-mb-2">
+							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-text-primary">
+								<?php echo esc_html( $event->title ); ?>
+							</a>
+						</h3>
+						<div class="pm-flex pm-gap pm-flex-wrap pm-mb-2">
+							<span class="pm-badge <?php echo esc_attr( $badge_class ); ?>">
+								<?php echo esc_html( $badge_text[ $event->rsvp_status ] ?? __( 'RSVP\'d', 'partyminder' ) ); ?>
+							</span>
+							<?php if ( $event->privacy === 'private' ) : ?>
+								<span class="pm-badge pm-badge-secondary"><?php _e( 'Private', 'partyminder' ); ?></span>
+							<?php endif; ?>
+						</div>
+						<div class="pm-text-muted">
+							<?php if ( $is_today ) : ?>
+								<?php _e( 'Today', 'partyminder' ); ?>
+							<?php elseif ( $is_tomorrow ) : ?>
+								<?php _e( 'Tomorrow', 'partyminder' ); ?>
+							<?php elseif ( $is_past ) : ?>
+								<?php echo $event_date->format( 'M j, Y' ); ?> (<?php _e( 'Past', 'partyminder' ); ?>)
+							<?php else : ?>
+								<?php echo $event_date->format( 'M j, Y' ); ?>
+							<?php endif; ?>
+							<?php if ( $event->event_time ) : ?>
+								at <?php echo date( 'g:i A', strtotime( $event->event_date ) ); ?>
+							<?php endif; ?>
+							<?php if ( $event->venue_info ) : ?>
+								• <?php echo esc_html( $event->venue_info ); ?>
+							<?php endif; ?>
+							• <?php _e( 'Hosted by', 'partyminder' ); ?> <?php echo esc_html( $event->host_email ); ?>
+						</div>
+					</div>
+					<div class="pm-stat pm-text-center">
+						<div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->confirmed; ?></div>
+						<div class="pm-stat-label"><?php _e( 'Confirmed', 'partyminder' ); ?></div>
 					</div>
 				</div>
 				
-				<div class="pm-mb">
-					<div class="pm-flex pm-gap pm-mb">
-						<span></span>
-						<span class="pm-text-muted"><?php echo $event_date->format( 'M j, Y' ); ?></span>
-					</div>
-					<div class="pm-flex pm-gap pm-mb">
-						<span></span>
-						<span class="pm-text-muted"><?php echo $event_date->format( 'g:i A' ); ?></span>
-					</div>
-					<?php if ( $event->venue_info ) : ?>
-					<div class="pm-flex pm-gap pm-mb">
-						<span></span>
-						<span class="pm-text-muted"><?php echo esc_html( $event->venue_info ); ?></span>
-					</div>
+				<div class="pm-mb-4">
+					<?php if ( $event->excerpt || $event->description ) : ?>
+						<p class="pm-text-muted"><?php echo esc_html( wp_trim_words( $event->excerpt ?: $event->description, 15 ) ); ?></p>
 					<?php endif; ?>
-					<div class="pm-flex pm-gap pm-mb">
-						<span>✉️</span>
-						<span class="pm-text-muted"><?php echo esc_html( $event->host_email ); ?></span>
-					</div>
 				</div>
 				
-				<div class="pm-flex pm-gap pm-flex-wrap">
-					<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn-secondary pm-btn-sm">
-						<?php _e( 'View Event', 'partyminder' ); ?>
-					</a>
-					<?php if ( ! $is_past ) : ?>
-					<a href="<?php echo home_url( '/events/' . $event->slug ); ?>#rsvp" class="pm-btn pm-btn-secondary pm-btn-sm">
-						<?php _e( 'Update RSVP', 'partyminder' ); ?>
-					</a>
-					<?php endif; ?>
+				<div class="pm-flex pm-flex-between pm-flex-wrap pm-gap">
+					<div class="pm-flex pm-gap pm-flex-wrap">
+						<div class="pm-stat pm-text-center">
+							<div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->maybe; ?></div>
+							<div class="pm-stat-label"><?php _e( 'Maybe', 'partyminder' ); ?></div>
+						</div>
+						<div class="pm-stat pm-text-center">
+							<div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->pending; ?></div>
+							<div class="pm-stat-label"><?php _e( 'Pending', 'partyminder' ); ?></div>
+						</div>
+					</div>
+					
+					<div class="pm-flex pm-gap">
+						<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn-secondary">
+							<?php _e( 'View', 'partyminder' ); ?>
+						</a>
+						<?php if ( ! $is_past ) : ?>
+							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>#rsvp" class="pm-btn pm-btn-secondary">
+								<?php _e( 'Update RSVP', 'partyminder' ); ?>
+							</a>
+						<?php endif; ?>
+					</div>
 				</div>
 			</div>
 		<?php endforeach; ?>
@@ -329,9 +378,15 @@ ob_start();
 				<a href="<?php echo PartyMinder::get_profile_url(); ?>" class="pm-btn pm-btn-secondary">
 					<?php _e( 'My Profile', 'partyminder' ); ?>
 				</a>
-				<a href="<?php echo get_permalink( get_the_ID() ) . ( $show_past ? '' : '?show_past=1' ); ?>" class="pm-btn pm-btn-secondary">
-					<?php echo $show_past ? __( 'Hide Past Events', 'partyminder' ) : __( 'Show Past Events', 'partyminder' ); ?>
-				</a>
+				<?php if ( $show_past ) : ?>
+					<a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-btn pm-btn-secondary">
+						<?php _e( 'Hide Past Events', 'partyminder' ); ?>
+					</a>
+				<?php else : ?>
+					<a href="<?php echo add_query_arg( 'show_past', '1', PartyMinder::get_my_events_url() ); ?>" class="pm-btn pm-btn-secondary">
+						<?php _e( 'Show Past Events', 'partyminder' ); ?>
+					</a>
+				<?php endif; ?>
 			<?php else : ?>
 				<a href="<?php echo esc_url( add_query_arg( 'redirect_to', get_permalink( get_the_ID() ), PartyMinder::get_login_url() ) ); ?>" class="pm-btn">
 					<?php _e( 'Login', 'partyminder' ); ?>

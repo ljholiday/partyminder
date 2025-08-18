@@ -458,7 +458,7 @@ class PartyMinder_Conversation_Manager {
 		if ( ! $current_user_id || ! is_user_logged_in() ) {
 			// Non-logged in users can only see conversations from public events/communities
 			return "(
-				(c.event_id IS NULL AND c.community_id IS NULL) OR
+				(c.event_id IS NULL AND c.community_id IS NULL AND c.privacy = 'public') OR
 				(c.event_id IS NOT NULL AND e.privacy = 'public') OR
 				(c.community_id IS NOT NULL AND cm.privacy = 'public')
 			)";
@@ -470,20 +470,11 @@ class PartyMinder_Conversation_Manager {
 		return "(
 			(c.event_id IS NULL AND c.community_id IS NULL AND (
 				c.privacy = 'public' OR
-				c.author_id = $current_user_id OR
-				(c.privacy = 'friends' AND c.author_id = $current_user_id) OR
-				(c.privacy = 'members' AND $current_user_id > 0)
+				c.author_id = $current_user_id
 			)) OR
 			(c.event_id IS NOT NULL AND (
 				e.privacy = 'public' OR
 				e.author_id = $current_user_id OR
-				(e.privacy = 'friends' AND e.author_id = $current_user_id) OR
-				(e.privacy = 'community' AND EXISTS(
-					SELECT 1 FROM $members_table cm1, $members_table cm2 
-					WHERE cm1.user_id = e.author_id AND cm2.user_id = $current_user_id 
-					AND cm1.community_id = cm2.community_id 
-					AND cm1.status = 'active' AND cm2.status = 'active'
-				)) OR
 				(e.privacy = 'private' AND EXISTS(
 					SELECT 1 FROM $guests_table g 
 					WHERE g.event_id = e.id AND g.email = '$user_email'
@@ -497,12 +488,6 @@ class PartyMinder_Conversation_Manager {
 			(c.community_id IS NOT NULL AND (
 				cm.privacy = 'public' OR
 				cm.creator_id = $current_user_id OR
-				(cm.privacy = 'friends' AND EXISTS(
-					SELECT 1 FROM $members_table cm1, $members_table cm2 
-					WHERE cm1.user_id = cm.creator_id AND cm2.user_id = $current_user_id 
-					AND cm1.community_id = cm2.community_id 
-					AND cm1.status = 'active' AND cm2.status = 'active'
-				)) OR
 				EXISTS(
 					SELECT 1 FROM $members_table m 
 					WHERE m.community_id = cm.id AND m.user_id = $current_user_id 

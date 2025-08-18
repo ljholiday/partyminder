@@ -841,5 +841,17 @@ class PartyMinder_Activator {
 			// Drop the favorite_event_types column
 			$wpdb->query( "ALTER TABLE $profiles_table DROP COLUMN favorite_event_types" );
 		}
+
+		// Simplify event privacy levels - convert complex privacy to simple public/private
+		$events_table = $wpdb->prefix . 'partyminder_events';
+		$wpdb->query( "
+			UPDATE $events_table 
+			SET privacy = CASE
+				WHEN privacy IN ('community', 'host', 'invited') THEN 'private'
+				WHEN privacy = 'public' THEN 'public'
+				ELSE 'public'
+			END
+			WHERE privacy NOT IN ('public', 'private')
+		" );
 	}
 }
