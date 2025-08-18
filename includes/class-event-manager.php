@@ -183,46 +183,21 @@ class PartyMinder_Event_Manager {
 		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
 		$current_user_id   = get_current_user_id();
 
-		// Build privacy clause - Enhanced privacy with friends, community, and private options
-		$privacy_clause = "e.privacy = 'public'";
+		// Simple privacy logic: show events user can see
 		if ( $current_user_id && is_user_logged_in() ) {
-			$current_user = wp_get_current_user();
-			$user_email   = $current_user->user_email;
-			$members_table = $wpdb->prefix . 'partyminder_community_members';
-
-			$privacy_clause = "(e.privacy = 'public' OR 
-                              (e.author_id = $current_user_id) OR
-                              (e.privacy = 'friends' AND e.author_id = $current_user_id) OR
-                              (e.privacy = 'community' AND EXISTS(
-                                  SELECT 1 FROM $members_table cm1, $members_table cm2 
-                                  WHERE cm1.user_id = e.author_id AND cm2.user_id = $current_user_id 
-                                  AND cm1.community_id = cm2.community_id 
-                                  AND cm1.status = 'active' AND cm2.status = 'active'
-                              )) OR
-                              (e.privacy = 'private' AND EXISTS(
-                                  SELECT 1 FROM $guests_table g 
-                                  WHERE g.event_id = e.id AND g.email = %s
-                              )) OR
-                              (e.privacy = 'private' AND EXISTS(
-                                  SELECT 1 FROM $invitations_table i 
-                                  WHERE i.event_id = e.id AND i.invited_email = %s 
-                                  AND i.status = 'pending' AND i.expires_at > NOW()
-                              )))";
+			$privacy_clause = "(e.privacy = 'public' OR e.author_id = $current_user_id)";
+		} else {
+			// Not logged in: only show explicitly public events, exclude all private types
+			$privacy_clause = "e.privacy = 'public' AND e.privacy NOT IN ('private', 'host', 'invited', 'community')";
 		}
 
 		$query = "SELECT DISTINCT e.* FROM $events_table e
-                 WHERE e.event_date >= CURDATE()
-                 AND e.event_status = 'active'
+                 WHERE e.event_status = 'active'
                  AND ($privacy_clause)
-                 ORDER BY e.event_date ASC 
+                 ORDER BY e.event_date DESC 
                  LIMIT %d";
 
-		if ( $current_user_id && is_user_logged_in() ) {
-			$current_user = wp_get_current_user();
-			$results      = $wpdb->get_results( $wpdb->prepare( $query, $current_user->user_email, $current_user->user_email, $limit ) );
-		} else {
-			$results = $wpdb->get_results( $wpdb->prepare( $query, $limit ) );
-		}
+		$results = $wpdb->get_results( $wpdb->prepare( $query, $limit ) );
 
 		// Add guest stats to each event
 		foreach ( $results as $event ) {
@@ -759,7 +734,7 @@ The %9$s Team',
 	 * Validate privacy setting for events
 	 */
 	private function validate_privacy_setting( $privacy ) {
-		$allowed_privacy_settings = array( 'public', 'friends', 'community', 'private' );
+		$allowed_privacy_settings = array( 'public', 'community', 'private', 'host', 'invited' );
 		
 		$privacy = sanitize_text_field( $privacy );
 		

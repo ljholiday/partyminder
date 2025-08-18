@@ -38,16 +38,29 @@ $page_description = __( 'Join communities of fellow hosts and guests to plan ama
 // Main content
 ob_start();
 ?>
-<div class="pm-section pm-mb">
-	<a href="<?php echo esc_url( site_url( '/create-community' ) ); ?>" class="pm-btn">
-		<span></span>
-		<?php _e( 'Create Community', 'partyminder' ); ?>
-	</a>
+<!-- Secondary Menu Bar -->
+<div class="pm-section pm-mb-4">
+	<div class="pm-flex pm-gap-4">
+		<?php if ( PartyMinder_Feature_Flags::can_user_create_community() ) : ?>
+			<a href="<?php echo esc_url( site_url( '/create-community' ) ); ?>" class="pm-btn">
+				<?php _e( 'Create Community', 'partyminder' ); ?>
+			</a>
+		<?php endif; ?>
+		<a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( 'Create Event', 'partyminder' ); ?>
+		</a>
+		<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( 'Join Conversations', 'partyminder' ); ?>
+		</a>
+		<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( 'Dashboard', 'partyminder' ); ?>
+		</a>
+	</div>
 </div>
 
 <div class="pm-section">
 	<div class="pm-section-header">
-		<h2 class="pm-heading pm-heading-md pm-text-primary"><?php _e( '🌍 Discover Communities', 'partyminder' ); ?></h2>
+		<h2 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Discover Communities', 'partyminder' ); ?></h2>
 		<p class="pm-text-muted"><?php printf( __( '%d communities available', 'partyminder' ), count( $public_communities ) ); ?></p>
 	</div>
 				<?php if ( ! empty( $public_communities ) ) : ?>
@@ -66,7 +79,6 @@ ob_start();
 						</div>
 								<div class="pm-mb-4">
 									<div class="pm-flex pm-gap">
-										<span>👥</span>
 										<span class="pm-text-muted"><?php echo (int) $community->member_count; ?> <?php _e( 'members', 'partyminder' ); ?></span>
 									</div>
 								</div>
@@ -168,28 +180,24 @@ ob_start();
 	<div>
 		<div class="pm-mb-4">
 			<div class="pm-flex pm-gap pm-mb-4">
-				<span>🏢</span>
 				<strong><?php _e( 'Work', 'partyminder' ); ?></strong>
 			</div>
 			<p class="pm-text-muted"><?php _e( 'Office events, team building', 'partyminder' ); ?></p>
 		</div>
 		<div class="pm-mb-4">
 			<div class="pm-flex pm-gap pm-mb-4">
-				<span>⛪</span>
 				<strong><?php _e( 'Faith', 'partyminder' ); ?></strong>
 			</div>
 			<p class="pm-text-muted"><?php _e( 'Church, religious gatherings', 'partyminder' ); ?></p>
 		</div>
 		<div class="pm-mb-4">
 			<div class="pm-flex pm-gap pm-mb-4">
-				<span>👨‍👩‍👧‍👦</span>
 				<strong><?php _e( 'Family', 'partyminder' ); ?></strong>
 			</div>
 			<p class="pm-text-muted"><?php _e( 'Family reunions, celebrations', 'partyminder' ); ?></p>
 		</div>
 		<div class="pm-mb-4">
 			<div class="pm-flex pm-gap pm-mb-4">
-				<span>🎯</span>
 				<strong><?php _e( 'Hobby', 'partyminder' ); ?></strong>
 			</div>
 			<p class="pm-text-muted"><?php _e( 'Interest-based groups', 'partyminder' ); ?></p>

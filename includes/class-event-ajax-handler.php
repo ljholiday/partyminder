@@ -61,6 +61,7 @@ class PartyMinder_Event_Ajax_Handler {
 			'guest_limit' => intval( $_POST['guest_limit'] ),
 			'host_email'  => sanitize_email( $_POST['host_email'] ),
 			'host_notes'  => wp_kses_post( wp_unslash( $_POST['host_notes'] ) ),
+			'privacy'     => sanitize_text_field( $_POST['privacy'] ?? 'public' ),
 		);
 
 		$event_manager = $this->get_event_manager();
@@ -139,6 +140,7 @@ class PartyMinder_Event_Ajax_Handler {
 			'guest_limit' => intval( $_POST['guest_limit'] ),
 			'host_email'  => sanitize_email( $_POST['host_email'] ),
 			'host_notes'  => wp_kses_post( wp_unslash( $_POST['host_notes'] ) ),
+			'privacy'     => sanitize_text_field( $_POST['privacy'] ?? 'public' ),
 		);
 
 		$result = $event_manager->update_event( $event_data );

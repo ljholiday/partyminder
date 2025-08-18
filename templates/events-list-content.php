@@ -21,56 +21,8 @@ require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
 $event_manager = new PartyMinder_Event_Manager();
 $guest_manager = new PartyMinder_Guest_Manager();
 
-// Get events using privacy-aware method
-if ( $show_past ) {
-	// For past events, we need to build our own query with privacy filtering
-	// This is a more complex case that would need custom implementation
-	// For now, use the get_upcoming_events method and filter past events
-	$all_events = $event_manager->get_upcoming_events( $limit * 2 ); // Get more to account for filtering
-	$events     = array();
-
-	// Note: This is a temporary solution. A proper get_all_events() method with privacy filtering should be implemented
-	global $wpdb;
-	$events_table      = $wpdb->prefix . 'partyminder_events';
-	$guests_table      = $wpdb->prefix . 'partyminder_guests';
-	$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
-	$current_user_id   = get_current_user_id();
-
-	// Build privacy clause - show public events to everyone, private events to creator and invited guests
-	$privacy_clause = "e.privacy = 'public'";
-	if ( $current_user_id && is_user_logged_in() ) {
-		$current_user = wp_get_current_user();
-		$user_email   = $current_user->user_email;
-
-		$privacy_clause = "(e.privacy = 'public' OR 
-                          (e.privacy = 'private' AND e.author_id = $current_user_id) OR 
-                          (e.privacy = 'private' AND EXISTS(
-                              SELECT 1 FROM $guests_table g 
-                              WHERE g.event_id = e.id AND g.email = %s
-                          )) OR
-                          (e.privacy = 'private' AND EXISTS(
-                              SELECT 1 FROM $invitations_table i 
-                              WHERE i.event_id = e.id AND i.invited_email = %s 
-                              AND i.status = 'pending' AND i.expires_at > NOW()
-                          )))";
-	}
-
-	$query = "SELECT DISTINCT e.* FROM $events_table e
-             WHERE e.event_status = 'active'
-             AND ($privacy_clause)
-             ORDER BY e.event_date ASC 
-             LIMIT %d";
-
-	if ( $current_user_id && is_user_logged_in() ) {
-		$current_user = wp_get_current_user();
-		$events       = $wpdb->get_results( $wpdb->prepare( $query, $current_user->user_email, $current_user->user_email, $limit ) );
-	} else {
-		$events = $wpdb->get_results( $wpdb->prepare( $query, $limit ) );
-	}
-} else {
-	// Use the privacy-aware get_upcoming_events method
-	$events = $event_manager->get_upcoming_events( $limit );
-}
+// Get events using simple method
+$events = $event_manager->get_upcoming_events( $limit );
 
 // Set up template variables
 $page_title       = $show_past ? __( 'All Events', 'partyminder' ) : __( 'Events', 'partyminder' );
@@ -82,28 +34,25 @@ $page_description = $show_past
 ob_start();
 ?>
 
-<!--
-<div class="pm-section pm-mb">
-	<div class="pm-flex pm-flex-between pm-mb-4">
-		<div>
-			<div class="pm-stat">
-				<div class="pm-stat-number pm-text-primary"><?php echo count( $events ); ?></div>
-				<div class="pm-stat-label"><?php _e( 'Events', 'partyminder' ); ?></div>
-			</div>
-		</div>
+<!-- Secondary Menu Bar -->
+<div class="pm-section pm-mb-4">
+	<div class="pm-flex pm-gap-4">
+		<a href="<?php echo esc_url( PartyMinder::get_create_event_url() ); ?>" class="pm-btn">
+			<?php _e( 'Create Event', 'partyminder' ); ?>
+		</a>
 		<?php if ( is_user_logged_in() ) : ?>
-		<div class="pm-flex pm-gap">
 			<a href="<?php echo esc_url( PartyMinder::get_my_events_url() ); ?>" class="pm-btn pm-btn-secondary">
 				<?php _e( 'My Events', 'partyminder' ); ?>
 			</a>
-			<a href="<?php echo esc_url( PartyMinder::get_create_event_url() ); ?>" class="pm-btn">
-				<?php _e( 'Create Event', 'partyminder' ); ?>
-			</a>
-		</div>
 		<?php endif; ?>
+		<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( 'Join Conversations', 'partyminder' ); ?>
+		</a>
+		<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( 'Dashboard', 'partyminder' ); ?>
+		</a>
 	</div>
 </div>
--->
 
 <div class="pm-section">
 	<?php if ( ! empty( $events ) ) : ?>
