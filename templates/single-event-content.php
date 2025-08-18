@@ -48,25 +48,60 @@ $page_description = '';
 // Main content
 ob_start();
 ?>
+
+<!-- Secondary Menu Bar -->
+<div class="pm-section pm-mb-4">
+	<div class="pm-flex pm-gap-4">
+		<?php if ( ! $is_past ) : ?>
+			<?php $is_full = $event->guest_limit > 0 && $event->guest_stats->confirmed >= $event->guest_limit; ?>
+			<?php if ( $is_event_host ) : ?>
+				<a href="<?php echo PartyMinder::get_edit_event_url( $event->id ); ?>" class="pm-btn">
+					<?php _e( 'Edit Event', 'partyminder' ); ?>
+				</a>
+			<?php else : ?>
+				<a href="#rsvp" class="pm-btn">
+					<?php if ( $is_full ) : ?>
+						<?php _e( 'Join Waitlist', 'partyminder' ); ?>
+					<?php else : ?>
+						<?php _e( 'RSVP Now', 'partyminder' ); ?>
+					<?php endif; ?>
+				</a>
+			<?php endif; ?>
+			<?php if ( is_user_logged_in() ) : ?>
+				<a href="<?php echo add_query_arg( 'event_id', $event->id, PartyMinder::get_create_conversation_url() ); ?>" class="pm-btn pm-btn-secondary">
+					<?php _e( 'Create Conversation', 'partyminder' ); ?>
+				</a>
+			<?php endif; ?>
+		<?php endif; ?>
+		<button type="button" class="pm-btn pm-btn-secondary" onclick="shareEvent()">
+			<?php _e( 'Share Event', 'partyminder' ); ?>
+		</button>
+		<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( 'All Events', 'partyminder' ); ?>
+		</a>
+	</div>
+</div>
+
 <div class="pm-section pm-mb">
 	<div class="pm-card">
 		<div class="pm-card-header">
-			<div class="pm-flex pm-flex-between">
-				<div>
-					<?php if ( $is_past ) : ?>
-						<div class="pm-badge pm-badge-secondary pm-mb-2">Past Event</div>
-					<?php elseif ( $is_today ) : ?>
-						<div class="pm-badge pm-badge-success pm-mb-2">Today</div>
-					<?php elseif ( $is_tomorrow ) : ?>
-						<div class="pm-badge pm-badge-warning pm-mb-2">Tomorrow</div>
-					<?php endif; ?>
-				</div>
-				<div>
-					<?php if ( $event->privacy === 'private' ) : ?>
-						<div class="pm-badge pm-badge-danger pm-mb-2">Private Event</div>
-					<?php else : ?>
-						<div class="pm-badge pm-badge-primary pm-mb-2">Public Event</div>
-					<?php endif; ?>
+			<div class="pm-flex pm-flex-between pm-flex-wrap pm-gap">
+				<div class="pm-flex-1">
+					<h1 class="pm-heading pm-heading-lg pm-mb-2"><?php echo esc_html( $event->title ); ?></h1>
+					<div class="pm-flex pm-gap pm-flex-wrap">
+						<?php if ( $is_past ) : ?>
+							<div class="pm-badge pm-badge-secondary">Past Event</div>
+						<?php elseif ( $is_today ) : ?>
+							<div class="pm-badge pm-badge-success">Today</div>
+						<?php elseif ( $is_tomorrow ) : ?>
+							<div class="pm-badge pm-badge-warning">Tomorrow</div>
+						<?php endif; ?>
+						<?php if ( $event->privacy === 'private' ) : ?>
+							<div class="pm-badge pm-badge-danger">Private Event</div>
+						<?php else : ?>
+							<div class="pm-badge pm-badge-primary">Public Event</div>
+						<?php endif; ?>
+					</div>
 				</div>
 			</div>
 		</div>

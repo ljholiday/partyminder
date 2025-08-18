@@ -132,7 +132,6 @@ class PartyMinder_Event_Ajax_Handler {
 		}
 
 		$event_data = array(
-			'id'          => $event_id,
 			'title'       => sanitize_text_field( wp_unslash( $_POST['event_title'] ) ),
 			'description' => wp_kses_post( wp_unslash( $_POST['event_description'] ) ),
 			'event_date'  => sanitize_text_field( $_POST['event_date'] ),
@@ -143,7 +142,7 @@ class PartyMinder_Event_Ajax_Handler {
 			'privacy'     => sanitize_text_field( $_POST['privacy'] ?? 'public' ),
 		);
 
-		$result = $event_manager->update_event( $event_data );
+		$result = $event_manager->update_event( $event_id, $event_data );
 
 		if ( $result !== false ) {
 			$updated_event = $event_manager->get_event( $event_id );

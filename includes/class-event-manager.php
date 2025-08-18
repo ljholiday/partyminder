@@ -187,8 +187,8 @@ class PartyMinder_Event_Manager {
 		if ( $current_user_id && is_user_logged_in() ) {
 			$privacy_clause = "(e.privacy = 'public' OR e.author_id = $current_user_id)";
 		} else {
-			// Not logged in: only show explicitly public events, exclude all private types
-			$privacy_clause = "e.privacy = 'public' AND e.privacy NOT IN ('private', 'host', 'invited', 'community')";
+			// Not logged in: only show public events
+			$privacy_clause = "e.privacy = 'public'";
 		}
 
 		$query = "SELECT DISTINCT e.* FROM $events_table e
@@ -302,7 +302,7 @@ class PartyMinder_Event_Manager {
 			'venue_info'       => sanitize_text_field( $event_data['venue'] ?? '' ),
 			'host_email'       => sanitize_email( $event_data['host_email'] ?? '' ),
 			'host_notes'       => wp_kses_post( wp_unslash( $event_data['host_notes'] ?? '' ) ),
-			'privacy'          => sanitize_text_field( $event_data['privacy'] ?? 'public' ),
+			'privacy'          => $this->validate_privacy_setting( $event_data['privacy'] ?? 'public' ),
 			'meta_title'       => sanitize_text_field( wp_unslash( $event_data['title'] ) ),
 			'meta_description' => wp_trim_words( wp_kses_post( wp_unslash( $event_data['description'] ?? '' ) ), 20 ),
 		);
