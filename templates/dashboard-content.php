@@ -536,23 +536,6 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
-<!-- Quick Actions (No Heading) -->
-<div class="pm-card pm-mb-4">
-	<div class="pm-card-body">
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<a href="<?php echo esc_url( PartyMinder::get_create_event_url() ); ?>" class="pm-btn">
-				<?php _e( 'Create Event', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'Browse Events', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'Join Conversations', 'partyminder' ); ?>
-			</a>
-		</div>
-	</div>
-</div>
-
 <?php if ( ! $user_logged_in ) : ?>
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
