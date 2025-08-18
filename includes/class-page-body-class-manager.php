@@ -96,6 +96,12 @@ class PartyMinder_Page_Body_Class_Manager {
 		return $classes;
 	}
 
+	public function add_my_communities_body_class( $classes ) {
+		$classes[] = 'partyminder-communities';
+		$classes[] = 'partyminder-my-communities';
+		return $classes;
+	}
+
 	public function add_single_community_body_class( $classes ) {
 		$classes[] = 'partyminder-communities';
 		$classes[] = 'partyminder-single-community';

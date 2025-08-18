@@ -295,6 +295,12 @@ class PartyMinder_Activator {
 				'slug'        => 'communities',
 				'description' => __( 'Join communities of fellow hosts and guests to plan events together.', 'partyminder' ),
 			),
+			'my-communities'      => array(
+				'title'       => __( 'My Communities', 'partyminder' ),
+				'content'     => '<p>Loading my communities...</p>',
+				'slug'        => 'my-communities',
+				'description' => __( 'View and manage your community memberships and roles.', 'partyminder' ),
+			),
 			'profile'             => array(
 				'title'       => __( 'My Profile', 'partyminder' ),
 				'content'     => '[partyminder_profile]',

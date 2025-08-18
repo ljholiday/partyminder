@@ -215,6 +215,23 @@ class PartyMinder_Page_Content_Injector {
 		return ob_get_clean();
 	}
 
+	public function inject_my_communities_content( $content ) {
+		if ( ! $this->should_inject_content( 'my-communities' ) ) {
+			return $content;
+		}
+
+		if ( ! PartyMinder_Feature_Flags::is_communities_enabled() ) {
+			return $this->inject_communities_disabled_content( $content );
+		}
+
+		ob_start();
+		echo '<div class="partyminder-content partyminder-my-communities-page">';
+		$atts = array();
+		include PARTYMINDER_PLUGIN_DIR . 'templates/my-communities-content.php';
+		echo '</div>';
+		return ob_get_clean();
+	}
+
 	public function inject_single_community_content( $content ) {
 		if ( ! $this->should_inject_content( 'communities' ) ) {
 			return $content;
