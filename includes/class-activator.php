@@ -122,7 +122,6 @@ class PartyMinder_Activator {
 		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
 		$conversations_sql   = "CREATE TABLE $conversations_table (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
-            topic_id mediumint(9) NOT NULL,
             event_id mediumint(9) DEFAULT NULL,
             community_id mediumint(9) DEFAULT NULL,
             title varchar(255) NOT NULL,
@@ -140,7 +139,6 @@ class PartyMinder_Activator {
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
-            KEY topic_id (topic_id),
             KEY event_id (event_id),
             KEY community_id (community_id),
             KEY author_id (author_id),
@@ -815,6 +813,20 @@ class PartyMinder_Activator {
 			// Add community_id column
 			$wpdb->query( "ALTER TABLE $conversations_table ADD COLUMN community_id mediumint(9) DEFAULT NULL AFTER event_id" );
 			$wpdb->query( "ALTER TABLE $conversations_table ADD INDEX community_id (community_id)" );
+		}
+
+		// Remove topic_id column if it exists (topic system removal)
+		$topic_column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $conversations_table LIKE %s",
+				'topic_id'
+			)
+		);
+
+		if ( ! empty( $topic_column_exists ) ) {
+			// Drop the topic_id index first, then the column
+			$wpdb->query( "ALTER TABLE $conversations_table DROP INDEX topic_id" );
+			$wpdb->query( "ALTER TABLE $conversations_table DROP COLUMN topic_id" );
 		}
 	}
 }

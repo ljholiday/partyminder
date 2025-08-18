@@ -242,7 +242,7 @@ ob_start();
 					<div class="pm-mb-4">
 						<div class="pm-flex pm-flex-between pm-mb-2">
 							<h4 class="pm-heading pm-heading-sm">
-								<a href="<?php echo home_url( '/conversations/' . ( $conversation->topic_slug ?? 'general' ) . '/' . $conversation->slug ); ?>" class="pm-text-primary">
+								<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary">
 									<?php echo esc_html( $conversation->title ); ?>
 								</a>
 							</h4>

@@ -61,28 +61,18 @@ class PartyMinder_Conversation_Ajax_Handler {
 			}
 		}
 
-		$topic_id     = intval( $_POST['topic_id'] ?? 0 );
 		$event_id     = intval( $_POST['event_id'] ?? 0 );
 		$community_id = intval( $_POST['community_id'] ?? 0 );
 		$title        = sanitize_text_field( $_POST['title'] ?? '' );
 		$content      = wp_kses_post( $_POST['content'] ?? '' );
 
-		if ( $event_id && ! $topic_id ) {
-			$conversation_manager = $this->get_conversation_manager();
-			$party_planning_topic = $conversation_manager->get_topic_by_slug( 'party-planning' );
-			if ( $party_planning_topic ) {
-				$topic_id = $party_planning_topic->id;
-			}
-		}
-
-		if ( empty( $topic_id ) || empty( $title ) || empty( $content ) ) {
+		if ( empty( $title ) || empty( $content ) ) {
 			wp_send_json_error( __( 'Please fill in all required fields.', 'partyminder' ) );
 		}
 
 		$conversation_manager = $this->get_conversation_manager();
 
 		$conversation_data = array(
-			'topic_id'     => $topic_id,
 			'event_id'     => $event_id ?: null,
 			'community_id' => $community_id ?: null,
 			'title'        => $title,

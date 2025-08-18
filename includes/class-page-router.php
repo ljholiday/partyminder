@@ -24,8 +24,7 @@ class PartyMinder_Page_Router {
 		add_rewrite_rule( '^events/([^/]+)/?$', 'index.php?pagename=events&event_slug=$matches[1]', 'top' );
 
 		// Conversation routing
-		add_rewrite_rule( '^conversations/([^/]+)/?$', 'index.php?pagename=conversations&conversation_topic=$matches[1]', 'top' );
-		add_rewrite_rule( '^conversations/([^/]+)/([^/]+)/?$', 'index.php?pagename=conversations&conversation_topic=$matches[1]&conversation_slug=$matches[2]', 'top' );
+		add_rewrite_rule( '^conversations/([^/]+)/?$', 'index.php?pagename=conversations&conversation_slug=$matches[1]', 'top' );
 
 		// Community routing
 		add_rewrite_rule( '^communities/?$', 'index.php?pagename=communities', 'top' );
@@ -48,7 +47,6 @@ class PartyMinder_Page_Router {
 		$vars[] = 'event_slug';
 		$vars[] = 'event_action';
 		$vars[] = 'event_id';
-		$vars[] = 'conversation_topic';
 		$vars[] = 'conversation_slug';
 		$vars[] = 'community_slug';
 		$vars[] = 'community_view';
@@ -186,15 +184,11 @@ class PartyMinder_Page_Router {
 	}
 
 	private function handle_conversation_routing() {
-		$topic_slug        = get_query_var( 'conversation_topic' );
 		$conversation_slug = get_query_var( 'conversation_slug' );
 
 		if ( $conversation_slug ) {
 			add_filter( 'the_content', array( $this->content_injector, 'inject_single_conversation_content' ) );
 			add_filter( 'body_class', array( $this->body_class_manager, 'add_single_conversation_body_class' ) );
-		} elseif ( $topic_slug ) {
-			add_filter( 'the_content', array( $this->content_injector, 'inject_topic_conversations_content' ) );
-			add_filter( 'body_class', array( $this->body_class_manager, 'add_topic_conversations_body_class' ) );
 		} else {
 			add_filter( 'the_content', array( $this->content_injector, 'inject_conversations_content' ) );
 			add_filter( 'body_class', array( $this->body_class_manager, 'add_conversations_body_class' ) );

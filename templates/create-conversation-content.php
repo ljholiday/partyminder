@@ -1,7 +1,7 @@
 <?php
 /**
  * Create Conversation Content Template
- * Uses unified form template system
+ * Uses unified form template system - simplified without topics
  */
 
 // Prevent direct access
@@ -14,21 +14,6 @@ require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-manager.php';
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
 $conversation_manager = new PartyMinder_Conversation_Manager();
 $community_manager    = new PartyMinder_Community_Manager();
-
-// Get topics for dropdown
-$topics = $conversation_manager->get_topics();
-
-// Get pre-selected topic from URL parameter
-$selected_topic_id = intval( $_GET['topic_id'] ?? 0 );
-$selected_topic    = null;
-if ( $selected_topic_id ) {
-	foreach ( $topics as $topic ) {
-		if ( $topic->id == $selected_topic_id ) {
-			$selected_topic = $topic;
-			break;
-		}
-	}
-}
 
 // Get event_id from URL parameter for event-specific conversations
 $selected_event_id = intval( $_GET['event_id'] ?? 0 );
@@ -118,20 +103,6 @@ if ( $selected_event ) {
 	);
 	$page_title       = __( 'Start Community Conversation', 'partyminder' );
 	$page_description = sprintf( __( 'Start a conversation in the %s community', 'partyminder' ), $selected_community->name );
-} elseif ( $selected_topic ) {
-	// If we have a selected topic, add it to breadcrumbs
-	$breadcrumbs      = array(
-		array(
-			'title' => __( 'Conversations', 'partyminder' ),
-			'url'   => PartyMinder::get_conversations_url(),
-		),
-		array(
-			'title' => $selected_topic->icon . ' ' . $selected_topic->name,
-			'url'   => home_url( '/conversations/' . $selected_topic->slug ),
-		),
-		array( 'title' => __( 'Start New Conversation', 'partyminder' ) ),
-	);
-	$page_description = sprintf( __( 'Start a new conversation in %s', 'partyminder' ), $selected_topic->name );
 }
 
 // Main content
@@ -215,20 +186,6 @@ ob_start();
 		<?php endif; ?>
 		
 		<div class="pm-form-group">
-			<label for="topic_id" class="pm-form-label"><?php _e( 'Topic *', 'partyminder' ); ?></label>
-			<select id="topic_id" name="topic_id" class="pm-form-input" required>
-				<option value=""><?php _e( 'Choose a topic...', 'partyminder' ); ?></option>
-				<?php foreach ( $topics as $topic ) : ?>
-					<option value="<?php echo esc_attr( $topic->id ); ?>" 
-							<?php selected( $selected_topic_id, $topic->id ); ?>>
-						<?php echo esc_html( $topic->icon . ' ' . $topic->name ); ?>
-					</option>
-				<?php endforeach; ?>
-			</select>
-			<p class="pm-form-help pm-text-muted"><?php _e( 'Select the topic that best fits your conversation', 'partyminder' ); ?></p>
-		</div>
-		
-		<div class="pm-form-group">
 			<label for="conversation_title" class="pm-form-label"><?php _e( 'Conversation Title *', 'partyminder' ); ?></label>
 			<input type="text" id="conversation_title" name="title" class="pm-form-input" 
 					value="<?php echo esc_attr( $_POST['title'] ?? '' ); ?>" 
@@ -277,11 +234,9 @@ ob_start();
 	
 	<div class="pm-form-actions">
 		<button type="submit" name="partyminder_create_conversation" class="pm-btn">
-			<span></span>
 			<?php _e( 'Start Conversation', 'partyminder' ); ?>
 		</button>
-		<a href="<?php echo esc_url( $selected_topic ? home_url( '/conversations/' . $selected_topic->slug ) : PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn-secondary">
-			<span>👈</span>
+		<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn-secondary">
 			<?php _e( 'Back to Conversations', 'partyminder' ); ?>
 		</a>
 	</div>
@@ -304,7 +259,7 @@ jQuery(document).ready(function($) {
 		const originalText = $submitBtn.html();
 		
 		// Disable submit button and show loading
-		$submitBtn.prop('disabled', true).html('<span>⏳</span> <?php _e( 'Starting Conversation...', 'partyminder' ); ?>');
+		$submitBtn.prop('disabled', true).html('<?php _e( 'Starting Conversation...', 'partyminder' ); ?>');
 		
 		// Prepare form data
 		const formData = new FormData(this);

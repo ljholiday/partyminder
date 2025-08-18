@@ -7,50 +7,7 @@ class PartyMinder_Conversation_Manager {
 	}
 
 	/**
-	 * Get all conversation topics
-	 */
-	public function get_topics( $active_only = true ) {
-		global $wpdb;
-
-		$topics_table = $wpdb->prefix . 'partyminder_conversation_topics';
-		$where_clause = $active_only ? 'WHERE is_active = 1' : '';
-
-		return $wpdb->get_results(
-			$wpdb->prepare(
-				"
-            SELECT * FROM $topics_table 
-            $where_clause 
-            ORDER BY sort_order ASC
-        "
-			)
-		);
-	}
-
-	/**
-	 * Get conversations by topic
-	 */
-	public function get_conversations_by_topic( $topic_id, $limit = 10, $offset = 0 ) {
-		global $wpdb;
-
-		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
-
-		return $wpdb->get_results(
-			$wpdb->prepare(
-				"
-            SELECT * FROM $conversations_table 
-            WHERE topic_id = %d 
-            ORDER BY is_pinned DESC, last_reply_date DESC
-            LIMIT %d OFFSET %d
-        ",
-				$topic_id,
-				$limit,
-				$offset
-			)
-		);
-	}
-
-	/**
-	 * Get recent conversations across all topics
+	 * Get recent conversations across all types
 	 */
 	public function get_recent_conversations( $limit = 10, $exclude_event_conversations = false, $exclude_community_conversations = false ) {
 		global $wpdb;
@@ -72,9 +29,8 @@ class PartyMinder_Conversation_Manager {
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"
-            SELECT c.*, t.name as topic_name, t.icon as topic_icon, t.slug as topic_slug
+            SELECT c.*
             FROM $conversations_table c
-            LEFT JOIN {$wpdb->prefix}partyminder_conversation_topics t ON c.topic_id = t.id
             LEFT JOIN $events_table e ON c.event_id = e.id
             LEFT JOIN $communities_table cm ON c.community_id = cm.id
             WHERE ($privacy_filter) $event_clause $community_clause
@@ -101,10 +57,9 @@ class PartyMinder_Conversation_Manager {
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"
-            SELECT DISTINCT c.*, e.title as event_title, e.slug as event_slug, e.event_date, t.slug as topic_slug
+            SELECT DISTINCT c.*, e.title as event_title, e.slug as event_slug, e.event_date
             FROM $conversations_table c
             LEFT JOIN $events_table e ON c.event_id = e.id
-            LEFT JOIN {$wpdb->prefix}partyminder_conversation_topics t ON c.topic_id = t.id
             $where_clause
             ORDER BY c.last_reply_date DESC
             LIMIT %d
@@ -129,15 +84,41 @@ class PartyMinder_Conversation_Manager {
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"
-            SELECT DISTINCT c.*, cm.name as community_name, cm.slug as community_slug, t.slug as topic_slug
+            SELECT DISTINCT c.*, cm.name as community_name, cm.slug as community_slug
             FROM $conversations_table c
             LEFT JOIN $communities_table cm ON c.community_id = cm.id
-            LEFT JOIN {$wpdb->prefix}partyminder_conversation_topics t ON c.topic_id = t.id
             $where_clause
             ORDER BY c.last_reply_date DESC
             LIMIT %d
         ",
 				...$prepare_values
+			)
+		);
+	}
+
+	/**
+	 * Get general conversations (not tied to events or communities)
+	 */
+	public function get_general_conversations( $limit = 10 ) {
+		global $wpdb;
+
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+		$current_user_id = get_current_user_id();
+		
+		// Build privacy filter for conversations
+		$privacy_filter = $this->build_conversation_privacy_filter( $current_user_id );
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"
+            SELECT c.*
+            FROM $conversations_table c
+            WHERE c.event_id IS NULL AND c.community_id IS NULL
+            AND ($privacy_filter)
+            ORDER BY c.last_reply_date DESC
+            LIMIT %d
+        ",
+				$limit
 			)
 		);
 	}
@@ -156,7 +137,6 @@ class PartyMinder_Conversation_Manager {
 		$result = $wpdb->insert(
 			$conversations_table,
 			array(
-				'topic_id'          => $data['topic_id'],
 				'event_id'          => $data['event_id'] ?? null,
 				'community_id'      => $data['community_id'] ?? null,
 				'title'             => sanitize_text_field( $data['title'] ),
@@ -171,7 +151,7 @@ class PartyMinder_Conversation_Manager {
 				'last_reply_date'   => current_time( 'mysql' ),
 				'last_reply_author' => sanitize_text_field( $data['author_name'] ),
 			),
-			array( '%d', '%d', '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%d', '%s', '%s', '%s' )
+			array( '%d', '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s' )
 		);
 
 		if ( $result === false ) {
@@ -266,9 +246,8 @@ class PartyMinder_Conversation_Manager {
 		$conversation = $wpdb->get_row(
 			$wpdb->prepare(
 				"
-            SELECT c.*, t.name as topic_name, t.icon as topic_icon
+            SELECT c.*
             FROM $conversations_table c
-            LEFT JOIN {$wpdb->prefix}partyminder_conversation_topics t ON c.topic_id = t.id
             WHERE c.$field = %s
         ",
 				$identifier
@@ -431,14 +410,7 @@ class PartyMinder_Conversation_Manager {
 	 * Auto-create event conversation when event is created
 	 */
 	public function create_event_conversation( $event_id, $event_data ) {
-		// Find the party planning topic
-		$party_planning_topic = $this->get_topic_by_slug( 'party-planning' );
-		if ( ! $party_planning_topic ) {
-			return false;
-		}
-
 		$conversation_data = array(
-			'topic_id'     => $party_planning_topic->id,
 			'event_id'     => $event_id,
 			'title'        => sprintf( __( 'Planning: %s', 'partyminder' ), $event_data['title'] ),
 			'content'      => sprintf(
@@ -457,14 +429,7 @@ class PartyMinder_Conversation_Manager {
 	 * Auto-create community conversation when community is created
 	 */
 	public function create_community_conversation( $community_id, $community_data ) {
-		// Find the welcome & introductions topic
-		$welcome_topic = $this->get_topic_by_slug( 'welcome-introductions' );
-		if ( ! $welcome_topic ) {
-			return false;
-		}
-
 		$conversation_data = array(
-			'topic_id'     => $welcome_topic->id,
 			'community_id' => $community_id,
 			'title'        => sprintf( __( 'Welcome to %s!', 'partyminder' ), $community_data['name'] ),
 			'content'      => sprintf(
@@ -478,24 +443,6 @@ class PartyMinder_Conversation_Manager {
 		);
 
 		return $this->create_conversation( $conversation_data );
-	}
-
-	/**
-	 * Get topic by slug
-	 */
-	public function get_topic_by_slug( $slug ) {
-		global $wpdb;
-
-		$topics_table = $wpdb->prefix . 'partyminder_conversation_topics';
-
-		return $wpdb->get_row(
-			$wpdb->prepare(
-				"
-            SELECT * FROM $topics_table WHERE slug = %s AND is_active = 1
-        ",
-				$slug
-			)
-		);
 	}
 
 	/**

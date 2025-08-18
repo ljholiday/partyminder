@@ -126,28 +126,6 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
-<!-- Quick Actions (No Heading) -->
-<div class="pm-card pm-mb-4">
-	<div class="pm-card-body">
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<?php if ( PartyMinder_Feature_Flags::can_user_create_community() ) : ?>
-				<a href="<?php echo esc_url( site_url( '/create-community' ) ); ?>" class="pm-btn">
-					<?php _e( 'Create Community', 'partyminder' ); ?>
-				</a>
-			<?php endif; ?>
-			<a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'Create Event', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'Join Conversations', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( '← Dashboard', 'partyminder' ); ?>
-			</a>
-		</div>
-	</div>
-</div>
-
 <?php if ( is_user_logged_in() && ! empty( $user_communities ) ) : ?>
 <!-- My Communities -->
 <div class="pm-section pm-mb">
