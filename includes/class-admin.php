@@ -437,15 +437,9 @@ class PartyMinder_Admin {
 				<form id="ai-plan-form">
 					<table class="form-table">
 						<tr>
-							<th><label for="event_type"><?php _e( 'Event Type', 'partyminder' ); ?></label></th>
+							<th><label for="event_title"><?php _e( 'Event Title', 'partyminder' ); ?></label></th>
 							<td>
-								<select id="event_type" name="event_type" required>
-									<option value=""><?php _e( 'Select event type...', 'partyminder' ); ?></option>
-									<option value="dinner"><?php _e( 'Dinner Party', 'partyminder' ); ?></option>
-									<option value="birthday"><?php _e( 'Birthday Party', 'partyminder' ); ?></option>
-									<option value="cocktail"><?php _e( 'Cocktail Party', 'partyminder' ); ?></option>
-									<option value="bbq"><?php _e( 'BBQ Party', 'partyminder' ); ?></option>
-								</select>
+								<input type="text" id="event_title" name="event_title" placeholder="<?php _e( 'e.g., Birthday Party, Dinner Gathering, Game Night', 'partyminder' ); ?>" class="regular-text" required>
 							</td>
 						</tr>
 						<tr>
@@ -498,7 +492,7 @@ class PartyMinder_Admin {
 					data: {
 						action: 'partyminder_generate_ai_plan',
 						nonce: partyminder_admin.nonce,
-						event_type: $('#event_type').val(),
+						event_title: $('#event_title').val(),
 						guest_count: $('#guest_count').val(),
 						dietary: $('#dietary').val(),
 						budget: $('#budget').val()

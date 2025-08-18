@@ -504,7 +504,6 @@ class PartyMinder_Activator {
             events_attended int(11) DEFAULT 0,
             host_rating decimal(3,2) DEFAULT 0.00,
             host_reviews_count int(11) DEFAULT 0,
-            favorite_event_types longtext DEFAULT '',
             available_times longtext DEFAULT '',
             dietary_restrictions text DEFAULT '',
             accessibility_needs text DEFAULT '',
@@ -827,6 +826,20 @@ class PartyMinder_Activator {
 			// Drop the topic_id index first, then the column
 			$wpdb->query( "ALTER TABLE $conversations_table DROP INDEX topic_id" );
 			$wpdb->query( "ALTER TABLE $conversations_table DROP COLUMN topic_id" );
+		}
+
+		// Remove favorite_event_types column if it exists (event types system removal)
+		$profiles_table = $wpdb->prefix . 'partyminder_user_profiles';
+		$event_types_column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $profiles_table LIKE %s",
+				'favorite_event_types'
+			)
+		);
+
+		if ( ! empty( $event_types_column_exists ) ) {
+			// Drop the favorite_event_types column
+			$wpdb->query( "ALTER TABLE $profiles_table DROP COLUMN favorite_event_types" );
 		}
 	}
 }

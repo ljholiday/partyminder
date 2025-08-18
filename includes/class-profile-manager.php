@@ -66,7 +66,6 @@ class PartyMinder_Profile_Manager {
 			'events_attended'          => 0,
 			'host_rating'              => 0.00,
 			'host_reviews_count'       => 0,
-			'favorite_event_types'     => json_encode( array() ),
 			'available_times'          => json_encode( array() ),
 			'dietary_restrictions'     => '',
 			'accessibility_needs'      => '',
@@ -152,12 +151,6 @@ class PartyMinder_Profile_Manager {
 			$update_data['accessibility_needs'] = sanitize_textarea_field( $data['accessibility_needs'] );
 		}
 
-		// Favorite event types
-		if ( isset( $data['favorite_event_types'] ) && is_array( $data['favorite_event_types'] ) ) {
-			$valid_types                         = array( 'dinner_party', 'cocktail_party', 'bbq', 'game_night', 'book_club', 'wine_tasting', 'outdoor', 'cultural' );
-			$selected_types                      = array_intersect( $data['favorite_event_types'], $valid_types );
-			$update_data['favorite_event_types'] = json_encode( $selected_types );
-		}
 
 		// Notification preferences
 		if ( isset( $data['notifications'] ) && is_array( $data['notifications'] ) ) {

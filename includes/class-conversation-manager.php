@@ -531,4 +531,27 @@ class PartyMinder_Conversation_Manager {
 		
 		return $privacy;
 	}
+
+	/**
+	 * Get conversations created by a specific user
+	 */
+	public function get_user_conversations( $user_id, $limit = 10 ) {
+		global $wpdb;
+
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"
+            SELECT c.*
+            FROM $conversations_table c
+            WHERE c.author_id = %d
+            ORDER BY c.created_at DESC
+            LIMIT %d
+        ",
+				$user_id,
+				$limit
+			)
+		);
+	}
 }

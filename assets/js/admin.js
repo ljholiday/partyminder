@@ -182,7 +182,7 @@
                 data: {
                     action: 'partyminder_generate_ai_plan',
                     nonce: partyminder_admin.nonce,
-                    event_type: $form.find('#event_type').val(),
+                    event_title: $form.find('#event_title').val(),
                     guest_count: $form.find('#guest_count').val(),
                     dietary: $form.find('#dietary').val(),
                     budget: $form.find('#budget').val()
@@ -277,19 +277,19 @@
         applyAITemplate: function(template) {
             const templates = {
                 'dinner_party': {
-                    event_type: 'dinner',
+                    event_title: 'Dinner Party',
                     guest_count: 8,
                     dietary: 'vegetarian options',
                     budget: 'moderate'
                 },
                 'birthday_party': {
-                    event_type: 'birthday',
+                    event_title: 'Birthday Party',
                     guest_count: 12,
                     dietary: '',
                     budget: 'moderate'
                 },
                 'cocktail_party': {
-                    event_type: 'cocktail',
+                    event_title: 'Cocktail Party',
                     guest_count: 15,
                     dietary: '',
                     budget: 'premium'
@@ -298,7 +298,7 @@
 
             const templateData = templates[template];
             if (templateData) {
-                $('#event_type').val(templateData.event_type);
+                $('#event_title').val(templateData.event_title);
                 $('#guest_count').val(templateData.guest_count);
                 $('#dietary').val(templateData.dietary);
                 $('#budget').val(templateData.budget);

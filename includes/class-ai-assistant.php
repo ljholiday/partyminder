@@ -14,10 +14,10 @@ class PartyMinder_AI_Assistant {
 		$this->cost_limit = get_option( 'partyminder_ai_cost_limit_monthly', 50 );
 	}
 
-	public function generate_plan( $event_type, $guest_count, $dietary, $budget ) {
+	public function generate_plan( $event_title, $guest_count, $dietary, $budget ) {
 		// Use demo mode if no API key
 		if ( empty( $this->api_key ) || get_option( 'partyminder_demo_mode', true ) ) {
-			return $this->get_demo_plan( $event_type, $guest_count, $dietary, $budget );
+			return $this->get_demo_plan( $event_title, $guest_count, $dietary, $budget );
 		}
 
 		// Check cost limits
@@ -27,7 +27,7 @@ class PartyMinder_AI_Assistant {
 			);
 		}
 
-		$prompt = $this->build_prompt( $event_type, $guest_count, $dietary, $budget );
+		$prompt = $this->build_prompt( $event_title, $guest_count, $dietary, $budget );
 
 		try {
 			if ( $this->provider === 'openai' ) {
@@ -47,8 +47,8 @@ class PartyMinder_AI_Assistant {
 		}
 	}
 
-	private function build_prompt( $event_type, $guest_count, $dietary, $budget ) {
-		$prompt  = "Create a party plan for a {$event_type} for {$guest_count} people.\n\n";
+	private function build_prompt( $event_title, $guest_count, $dietary, $budget ) {
+		$prompt  = "Create a party plan for '{$event_title}' for {$guest_count} people.\n\n";
 		$prompt .= "Budget: {$budget}\n";
 		if ( $dietary ) {
 			$prompt .= "Dietary restrictions: {$dietary}\n";
@@ -117,76 +117,37 @@ class PartyMinder_AI_Assistant {
 		throw new Exception( __( 'No response from AI service', 'partyminder' ) );
 	}
 
-	private function get_demo_plan( $event_type, $guest_count, $dietary, $budget ) {
-		$demo_plans = array(
-			'dinner'   => array(
-				'menu'           => array(
-					'appetizers'  => 'Bruschetta with tomato and basil, cheese and crackers',
-					'main_course' => 'Herb-crusted chicken with roasted vegetables and rice pilaf',
-					'dessert'     => 'Chocolate cake with fresh berries',
-					'beverages'   => 'Wine, sparkling water, coffee',
-				),
-				'shopping_list'  => array(
-					'Chicken breasts (' . $guest_count . ' pieces)',
-					'Fresh vegetables (carrots, broccoli, bell peppers)',
-					'Rice (2 cups)',
-					'Bread for bruschetta',
-					'Tomatoes and basil',
-					'Assorted cheeses',
-					'Chocolate cake mix',
-					'Fresh berries',
-					'Wine (2 bottles)',
-					'Sparkling water',
-				),
-				'timeline'       => array(
-					'day_before'     => 'Shop for ingredients, prep vegetables, make dessert',
-					'morning_of'     => 'Prepare appetizers, marinate chicken',
-					'2_hours_before' => 'Start cooking rice, preheat oven',
-					'1_hour_before'  => 'Cook chicken and vegetables, set table',
-				),
-				'estimated_cost' => $guest_count * 25,
-				'atmosphere'     => array(
-					'music'       => 'Soft jazz or acoustic playlist',
-					'lighting'    => 'Dimmed lights with candles',
-					'decorations' => 'Fresh flowers, cloth napkins',
-				),
-				'prep_time'      => '3-4 hours total',
+	private function get_demo_plan( $event_title, $guest_count, $dietary, $budget ) {
+		// Create a generic plan based on the event title
+		$plan = array(
+			'menu'           => array(
+				'appetizers'  => 'Assorted appetizers and finger foods',
+				'main_course' => 'Main course appropriate for the occasion',
+				'dessert'     => 'Dessert selection',
+				'beverages'   => 'Variety of beverages for guests',
 			),
-			'birthday' => array(
-				'menu'           => array(
-					'appetizers'  => 'Mini sandwiches and fruit kabobs',
-					'main_course' => 'Pizza variety platter',
-					'dessert'     => 'Birthday cake and ice cream',
-					'beverages'   => 'Soft drinks, juice, coffee',
-				),
-				'shopping_list'  => array(
-					'Pizza ingredients or order pizzas',
-					'Sandwich fixings',
-					'Fresh fruit for kabobs',
-					'Birthday cake or cake mix',
-					'Ice cream (2 flavors)',
-					'Soft drinks variety pack',
-					'Fruit juice',
-					'Birthday decorations',
-					'Candles',
-				),
-				'timeline'       => array(
-					'day_before'     => 'Order pizzas, shop for ingredients, make cake',
-					'morning_of'     => 'Prepare fruit kabobs, make sandwiches',
-					'2_hours_before' => 'Set up decorations',
-					'1_hour_before'  => 'Pick up pizzas, final setup',
-				),
-				'estimated_cost' => $guest_count * 20,
-				'atmosphere'     => array(
-					'music'       => 'Upbeat party music',
-					'lighting'    => 'Bright and cheerful',
-					'decorations' => 'Balloons, banners, party hats',
-				),
-				'prep_time'      => '2-3 hours total',
+			'shopping_list'  => array(
+				'Main ingredients for ' . $guest_count . ' people',
+				'Appetizer ingredients',
+				'Dessert ingredients',
+				'Beverages and drinks',
+				'Decorations and supplies',
+				'Paper goods and utensils',
 			),
+			'timeline'       => array(
+				'day_before'     => 'Shop for ingredients and prepare what you can in advance',
+				'morning_of'     => 'Prepare appetizers and set up decorations',
+				'2_hours_before' => 'Start main course preparation',
+				'1_hour_before'  => 'Final preparations and table setting',
+			),
+			'estimated_cost' => $guest_count * 22,
+			'atmosphere'     => array(
+				'music'       => 'Appropriate playlist for the occasion',
+				'lighting'    => 'Comfortable lighting for socializing',
+				'decorations' => 'Decorations matching the event theme',
+			),
+			'prep_time'      => '3-4 hours total',
 		);
-
-		$plan = $demo_plans[ $event_type ] ?? $demo_plans['dinner'];
 
 		// Adjust cost based on budget
 		if ( $budget === 'budget' ) {

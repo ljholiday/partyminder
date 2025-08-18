@@ -27,6 +27,13 @@ if ( $conversation_slug ) {
 $recent_conversations = $conversation_manager->get_recent_conversations( 20 );
 $user_logged_in = is_user_logged_in();
 
+// Get user's conversations for sidebar
+$user_conversations = array();
+if ( $user_logged_in ) {
+	$current_user = wp_get_current_user();
+	$user_conversations = $conversation_manager->get_user_conversations( $current_user->ID, 6 );
+}
+
 // Set up template variables
 $page_title       = __( 'Conversations', 'partyminder' );
 $page_description = __( 'Connect, share tips, and plan amazing gatherings with fellow hosts and guests', 'partyminder' );
@@ -154,55 +161,27 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
-<!-- Quick Actions -->
-<div class="pm-card pm-mb-4">
-	<div class="pm-card-body">
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<?php if ( $user_logged_in ) : ?>
-				<a href="<?php echo PartyMinder::get_create_conversation_url(); ?>" class="pm-btn">
-					<?php _e( 'Start Conversation', 'partyminder' ); ?>
-				</a>
-				<a href="<?php echo esc_url( PartyMinder::get_my_events_url() ); ?>" class="pm-btn pm-btn-secondary">
-					<?php _e( 'My Events', 'partyminder' ); ?>
-				</a>
-			<?php else : ?>
-				<a href="<?php echo add_query_arg( 'redirect_to', urlencode( $_SERVER['REQUEST_URI'] ), PartyMinder::get_login_url() ); ?>" class="pm-btn">
-					<?php _e( 'Login to Participate', 'partyminder' ); ?>
-				</a>
-			<?php endif; ?>
-			<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'Browse Events', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( '← Dashboard', 'partyminder' ); ?>
-			</a>
-		</div>
-	</div>
-</div>
-
-<!-- Conversation Stats -->
-<?php 
-$stats = $conversation_manager->get_stats();
-?>
-<div class="pm-section pm-mb-4">
+<?php if ( $user_logged_in && ! empty( $user_conversations ) ) : ?>
+<!-- My Conversations -->
+<div class="pm-section pm-mb">
 	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Community Stats', 'partyminder' ); ?></h3>
+		<h3 class="pm-heading pm-heading-sm"><?php _e( 'My Conversations', 'partyminder' ); ?></h3>
+		<p class="pm-text-muted mt-4"><?php _e( 'Conversations you\'ve started', 'partyminder' ); ?></p>
 	</div>
-	<div class="pm-stat-list">
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Total Conversations', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo $stats->total_conversations; ?></span>
+	<?php foreach ( $user_conversations as $conversation ) : ?>
+		<div class="pm-mb-4">
+			<h4 class="pm-heading pm-heading-sm">
+				<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary">
+					<?php echo esc_html( $conversation->title ); ?>
+				</a>
+			</h4>
+			<div class="pm-text-muted">
+				<?php echo $conversation->reply_count; ?> <?php _e( 'replies', 'partyminder' ); ?>
+			</div>
 		</div>
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Total Replies', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo $stats->total_replies; ?></span>
-		</div>
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Active This Week', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo $stats->active_conversations; ?></span>
-		</div>
-	</div>
+	<?php endforeach; ?>
 </div>
+<?php endif; ?>
 
 <?php
 $sidebar_content = ob_get_clean();

@@ -731,6 +731,36 @@ The %9$s Team',
 	}
 
 	/**
+	 * Get events created by a specific user for sidebar display
+	 */
+	public function get_user_events( $user_id, $limit = 6 ) {
+		global $wpdb;
+
+		$events_table = $wpdb->prefix . 'partyminder_events';
+
+		$events = $wpdb->get_results(
+			$wpdb->prepare(
+				"
+				SELECT e.id, e.title, e.slug, e.event_date, e.event_time, e.venue_info
+				FROM $events_table e
+				WHERE e.author_id = %d AND e.event_status = 'active'
+				ORDER BY e.event_date ASC
+				LIMIT %d
+			",
+				$user_id,
+				$limit
+			)
+		);
+
+		// Add guest stats to each event
+		foreach ( $events as $event ) {
+			$event->guest_stats = $this->get_guest_stats( $event->id );
+		}
+
+		return $events;
+	}
+
+	/**
 	 * Validate privacy setting for events
 	 */
 	private function validate_privacy_setting( $privacy ) {

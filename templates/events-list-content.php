@@ -24,6 +24,14 @@ $guest_manager = new PartyMinder_Guest_Manager();
 // Get events using simple method
 $events = $event_manager->get_upcoming_events( $limit );
 
+// Get user's events for sidebar
+$user_events = array();
+$user_logged_in = is_user_logged_in();
+if ( $user_logged_in ) {
+	$current_user = wp_get_current_user();
+	$user_events = $event_manager->get_user_events( $current_user->ID, 6 );
+}
+
 // Set up template variables
 $page_title       = $show_past ? __( 'All Events', 'partyminder' ) : __( 'Events', 'partyminder' );
 $page_description = $show_past
@@ -194,60 +202,49 @@ $main_content = ob_get_clean();
 // Sidebar content
 ob_start();
 ?>
-<!-- Quick Actions (No Heading) -->
-<div class="pm-card pm-mb-4">
-	<div class="pm-card-body">
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<a href="<?php echo esc_url( PartyMinder::get_create_event_url() ); ?>" class="pm-btn">
-				<?php _e( 'Create Event', 'partyminder' ); ?>
-			</a>
-			<?php if ( is_user_logged_in() ) : ?>
-				<a href="<?php echo esc_url( PartyMinder::get_my_events_url() ); ?>" class="pm-btn pm-btn-secondary">
-					<?php _e( 'My Events', 'partyminder' ); ?>
-				</a>
-			<?php endif; ?>
-			<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'Join Conversations', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( '← Dashboard', 'partyminder' ); ?>
-			</a>
-		</div>
-	</div>
-</div>
 
-<!-- Event Categories -->
+<?php if ( $user_logged_in && ! empty( $user_events ) ) : ?>
+<!-- My Events -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Event Types', 'partyminder' ); ?></h3>
+		<h3 class="pm-heading pm-heading-sm"><?php _e( 'My Events', 'partyminder' ); ?></h3>
+		<p class="pm-text-muted mt-4"><?php _e( 'Events you\'ve created', 'partyminder' ); ?></p>
 	</div>
-	<div class="pm-text-muted">
+	<?php foreach ( $user_events as $event ) : ?>
+		<?php
+		$event_date  = new DateTime( $event->event_date );
+		$is_today    = $event_date->format( 'Y-m-d' ) === date( 'Y-m-d' );
+		$is_tomorrow = $event_date->format( 'Y-m-d' ) === date( 'Y-m-d', strtotime( '+1 day' ) );
+		$is_past     = $event_date < new DateTime();
+		?>
 		<div class="pm-mb-4">
-			<div class="pm-flex pm-gap pm-mb-4">
-				<span></span>
-				<strong><?php _e( 'Dinner Parties', 'partyminder' ); ?></strong>
+			<h4 class="pm-heading pm-heading-sm">
+				<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-text-primary">
+					<?php echo esc_html( $event->title ); ?>
+				</a>
+			</h4>
+			<div class="pm-text-muted">
+				<?php if ( $is_today ) : ?>
+					<?php _e( 'Today', 'partyminder' ); ?>
+				<?php elseif ( $is_tomorrow ) : ?>
+					<?php _e( 'Tomorrow', 'partyminder' ); ?>
+				<?php elseif ( $is_past ) : ?>
+					<?php echo $event_date->format( 'M j' ); ?> (<?php _e( 'Past', 'partyminder' ); ?>)
+				<?php else : ?>
+					<?php echo $event_date->format( 'M j' ); ?>
+				<?php endif; ?>
+				<?php if ( $event->event_time ) : ?>
+					at <?php echo date( 'g:i A', strtotime( $event->event_date ) ); ?>
+				<?php endif; ?>
+			</div>
+			<div class="pm-text-muted">
+				<?php echo $event->guest_stats->confirmed; ?> <?php _e( 'confirmed', 'partyminder' ); ?>
 			</div>
 		</div>
-		<div class="pm-mb-4">
-			<div class="pm-flex pm-gap pm-mb-4">
-				<span></span>
-				<strong><?php _e( 'Game Nights', 'partyminder' ); ?></strong>
-			</div>
-		</div>
-		<div class="pm-mb-4">
-			<div class="pm-flex pm-gap pm-mb-4">
-				<span></span>
-				<strong><?php _e( 'Creative Workshops', 'partyminder' ); ?></strong>
-			</div>
-		</div>
-		<div class="pm-mb-4">
-			<div class="pm-flex pm-gap pm-mb-4">
-				<span></span>
-				<strong><?php _e( 'Social Gatherings', 'partyminder' ); ?></strong>
-			</div>
-		</div>
-	</div>
+	<?php endforeach; ?>
 </div>
+<?php endif; ?>
+
 <?php
 $sidebar_content = ob_get_clean();
 

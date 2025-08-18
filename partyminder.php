@@ -308,12 +308,12 @@ class PartyMinder {
 			wp_send_json_error( __( 'Permission denied', 'partyminder' ) );
 		}
 
-		$event_type  = sanitize_text_field( $_POST['event_type'] );
+		$event_title = sanitize_text_field( $_POST['event_title'] );
 		$guest_count = intval( $_POST['guest_count'] );
 		$dietary     = sanitize_text_field( $_POST['dietary'] );
 		$budget      = sanitize_text_field( $_POST['budget'] );
 
-		$plan = $this->ai_assistant->generate_plan( $event_type, $guest_count, $dietary, $budget );
+		$plan = $this->ai_assistant->generate_plan( $event_title, $guest_count, $dietary, $budget );
 
 		wp_send_json_success( $plan );
 	}
