@@ -279,47 +279,6 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
-<!-- Quick Actions (No Heading) -->
-<div class="pm-card pm-mb-4">
-	<div class="pm-card-body">
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<?php if ( ! $is_past ) : ?>
-				<?php $is_full = $event->guest_limit > 0 && $event->guest_stats->confirmed >= $event->guest_limit; ?>
-				<?php if ( $is_event_host ) : ?>
-					<a href="<?php echo PartyMinder::get_edit_event_url( $event->id ); ?>" class="pm-btn">
-						<?php _e( 'Edit Event', 'partyminder' ); ?>
-					</a>
-				<?php else : ?>
-					<a href="#rsvp" class="pm-btn">
-						<?php if ( $is_full ) : ?>
-							<?php _e( 'Join Waitlist', 'partyminder' ); ?>
-						<?php else : ?>
-							<?php _e( 'RSVP Now', 'partyminder' ); ?>
-						<?php endif; ?>
-					</a>
-				<?php endif; ?>
-				
-				<button type="button" class="pm-btn pm-btn-secondary" onclick="shareEvent()">
-					<?php _e( 'Share Event', 'partyminder' ); ?>
-				</button>
-				
-				<?php if ( is_user_logged_in() ) : ?>
-				<a href="<?php echo add_query_arg( 'event_id', $event->id, PartyMinder::get_create_conversation_url() ); ?>" class="pm-btn pm-btn-secondary">
-					<?php _e( 'Create Conversation', 'partyminder' ); ?>
-				</a>
-				<?php endif; ?>
-			<?php else : ?>
-				<button type="button" class="pm-btn pm-btn-secondary" onclick="shareEvent()">
-					<?php _e( 'Share Event', 'partyminder' ); ?>
-				</button>
-			<?php endif; ?>
-			
-			<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( '← All Events', 'partyminder' ); ?>
-			</a>
-		</div>
-	</div>
-</div>
 
 <div class="pm-section pm-mb">
 	<div class="pm-card">

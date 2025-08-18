@@ -367,37 +367,6 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
-<!-- Quick Actions (No Heading) -->
-<div class="pm-card pm-mb-4">
-	<div class="pm-card-body">
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<?php if ( is_user_logged_in() ) : ?>
-				<a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn">
-					<?php _e( 'Create Event', 'partyminder' ); ?>
-				</a>
-				<a href="<?php echo PartyMinder::get_profile_url(); ?>" class="pm-btn pm-btn-secondary">
-					<?php _e( 'My Profile', 'partyminder' ); ?>
-				</a>
-				<?php if ( $show_past ) : ?>
-					<a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-btn pm-btn-secondary">
-						<?php _e( 'Hide Past Events', 'partyminder' ); ?>
-					</a>
-				<?php else : ?>
-					<a href="<?php echo add_query_arg( 'show_past', '1', PartyMinder::get_my_events_url() ); ?>" class="pm-btn pm-btn-secondary">
-						<?php _e( 'Show Past Events', 'partyminder' ); ?>
-					</a>
-				<?php endif; ?>
-			<?php else : ?>
-				<a href="<?php echo esc_url( add_query_arg( 'redirect_to', get_permalink( get_the_ID() ), PartyMinder::get_login_url() ) ); ?>" class="pm-btn">
-					<?php _e( 'Login', 'partyminder' ); ?>
-				</a>
-			<?php endif; ?>
-			<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( '← Dashboard', 'partyminder' ); ?>
-			</a>
-		</div>
-	</div>
-</div>
 
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">

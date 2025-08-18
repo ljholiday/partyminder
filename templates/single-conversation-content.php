@@ -279,28 +279,110 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
-<!-- Quick Actions (No Heading) -->
-<div class="pm-card pm-mb-4">
-	<div class="pm-card-body">
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<?php if ( $user_email ) : ?>
-				<button class="pm-btn follow-btn" data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
-					<?php if ( $is_following ) : ?>
-						<?php _e( 'Unfollow', 'partyminder' ); ?>
-					<?php else : ?>
-						<?php _e( 'Follow', 'partyminder' ); ?>
-					<?php endif; ?>
-				</button>
-			<?php endif; ?>
-			<?php if ( $event_data ) : ?>
-				<a href="<?php echo home_url( '/events/' . $event_data->slug ); ?>" class="pm-btn pm-btn-secondary">
-					<?php _e( 'View Event', 'partyminder' ); ?>
-				</a>
-			<?php endif; ?>
-			<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( '← All Conversations', 'partyminder' ); ?>
+<!-- Context Section -->
+<?php if ( $event_data ) : ?>
+<div class="pm-section pm-mb">
+	<div class="pm-section-header">
+		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Event Context', 'partyminder' ); ?></h3>
+	</div>
+	<div class="pm-card pm-p-4">
+		<h4 class="pm-heading pm-heading-sm pm-mb-2">
+			<a href="<?php echo home_url( '/events/' . $event_data->slug ); ?>" class="pm-text-primary">
+				<?php echo esc_html( $event_data->title ); ?>
 			</a>
+		</h4>
+		<div class="pm-text-muted pm-mb-2">
+			<?php
+			$event_date = new DateTime( $event_data->event_date );
+			$is_today = $event_date->format( 'Y-m-d' ) === date( 'Y-m-d' );
+			$is_tomorrow = $event_date->format( 'Y-m-d' ) === date( 'Y-m-d', strtotime( '+1 day' ) );
+			$is_past = $event_date < new DateTime();
+			?>
+			<?php if ( $is_today ) : ?>
+				<?php _e( 'Today', 'partyminder' ); ?>
+			<?php elseif ( $is_tomorrow ) : ?>
+				<?php _e( 'Tomorrow', 'partyminder' ); ?>
+			<?php elseif ( $is_past ) : ?>
+				<?php echo $event_date->format( 'M j, Y' ); ?> (<?php _e( 'Past', 'partyminder' ); ?>)
+			<?php else : ?>
+				<?php echo $event_date->format( 'M j, Y' ); ?>
+			<?php endif; ?>
+			<?php if ( $event_data->event_time ) : ?>
+				at <?php echo date( 'g:i A', strtotime( $event_data->event_date ) ); ?>
+			<?php endif; ?>
 		</div>
+		<?php if ( $event_data->venue_info ) : ?>
+			<div class="pm-text-muted pm-mb-2"><?php echo esc_html( $event_data->venue_info ); ?></div>
+		<?php endif; ?>
+		<div class="pm-flex pm-gap">
+			<div class="pm-stat pm-text-center">
+				<div class="pm-stat-number pm-text-primary"><?php echo $event_data->guest_stats->confirmed; ?></div>
+				<div class="pm-stat-label"><?php _e( 'Going', 'partyminder' ); ?></div>
+			</div>
+		</div>
+	</div>
+</div>
+<?php elseif ( $conversation->community_id ) : ?>
+<!-- Community context would go here if implemented -->
+<?php endif; ?>
+
+<!-- Conversation Info -->
+<div class="pm-section pm-mb">
+	<div class="pm-section-header">
+		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Conversation Info', 'partyminder' ); ?></h3>
+	</div>
+	<div class="pm-stat-list">
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Started by', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo esc_html( $conversation->author_name ); ?></span>
+		</div>
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Created', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo human_time_diff( strtotime( $conversation->created_at ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'partyminder' ); ?></span>
+		</div>
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Replies', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo $conversation->reply_count; ?></span>
+		</div>
+		<?php if ( $conversation->reply_count > 0 ) : ?>
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Last Reply', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo human_time_diff( strtotime( $conversation->last_reply_date ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'partyminder' ); ?></span>
+		</div>
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Last Reply By', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo esc_html( $conversation->last_reply_author ); ?></span>
+		</div>
+		<?php endif; ?>
+	</div>
+</div>
+
+<!-- Essential Actions -->
+<div class="pm-section pm-mb">
+	<div class="pm-section-header">
+		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Actions', 'partyminder' ); ?></h3>
+	</div>
+	<div class="pm-flex pm-flex-column pm-gap">
+		<?php if ( $user_email ) : ?>
+			<button class="pm-btn follow-btn" data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
+				<?php if ( $is_following ) : ?>
+					<?php _e( 'Unfollow', 'partyminder' ); ?>
+				<?php else : ?>
+					<?php _e( 'Follow', 'partyminder' ); ?>
+				<?php endif; ?>
+			</button>
+		<?php endif; ?>
+		<?php if ( $event_data ) : ?>
+			<a href="<?php echo home_url( '/events/' . $event_data->slug ); ?>" class="pm-btn pm-btn-secondary">
+				<?php _e( 'View Event', 'partyminder' ); ?>
+			</a>
+		<?php endif; ?>
+		<a href="#reply-form" class="pm-btn pm-btn-secondary">
+			<?php _e( 'Add Reply', 'partyminder' ); ?>
+		</a>
+		<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( 'Back to Conversations', 'partyminder' ); ?>
+		</a>
 	</div>
 </div>
 
