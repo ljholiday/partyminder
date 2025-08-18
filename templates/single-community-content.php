@@ -61,6 +61,40 @@ $breadcrumbs      = array(
 // Main content
 ob_start();
 ?>
+
+<!-- Secondary Menu Bar -->
+<div class="pm-section pm-mb-4">
+	<div class="pm-flex pm-gap-4">
+		<?php if ( ! $is_logged_in ) : ?>
+			<a href="<?php echo wp_login_url( get_permalink() ); ?>" class="pm-btn">
+				<?php _e( 'Login to Join', 'partyminder' ); ?>
+			</a>
+		<?php elseif ( $is_member ) : ?>
+			<?php if ( $user_role === 'admin' ) : ?>
+				<a href="<?php echo esc_url( site_url( '/manage-community?community_id=' . $community->id . '&tab=overview' ) ); ?>" class="pm-btn">
+					<?php _e( 'Manage Community', 'partyminder' ); ?>
+				</a>
+			<?php endif; ?>
+			<a href="#" class="pm-btn pm-btn-secondary create-event-btn">
+				<?php _e( 'Create Event', 'partyminder' ); ?>
+			</a>
+			<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn pm-btn-secondary">
+				<?php _e( 'View Events', 'partyminder' ); ?>
+			</a>
+			<a href="<?php echo home_url( '/communities/' . $community->slug . '/members' ); ?>" class="pm-btn pm-btn-secondary">
+				<?php _e( 'View Members', 'partyminder' ); ?>
+			</a>
+		<?php else : ?>
+			<button class="pm-btn join-community-btn" data-community-id="<?php echo esc_attr( $community->id ); ?>">
+				<?php _e( 'Join Community', 'partyminder' ); ?>
+			</button>
+		<?php endif; ?>
+		<a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( 'All Communities', 'partyminder' ); ?>
+		</a>
+	</div>
+</div>
+
 <div class="pm-section pm-mb">
 	<div class="pm-card">
 		<div class="pm-card-header">
@@ -213,89 +247,71 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
-<!-- Quick Actions (No Heading) -->
-<div class="pm-card pm-mb-4">
-	<div class="pm-card-body">
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<?php if ( ! $is_logged_in ) : ?>
-				<a href="<?php echo wp_login_url( get_permalink() ); ?>" class="pm-btn">
-					<?php _e( 'Login to Join', 'partyminder' ); ?>
-				</a>
-			<?php elseif ( $is_member ) : ?>
-				<?php if ( $user_role === 'admin' ) : ?>
-					<a href="<?php echo esc_url( site_url( '/manage-community?community_id=' . $community->id . '&tab=overview' ) ); ?>" class="pm-btn">
-						<?php _e( 'Manage Community', 'partyminder' ); ?>
-					</a>
-				<?php endif; ?>
-				<a href="#" class="pm-btn pm-btn-secondary create-event-btn">
-					<?php _e( 'Create Event', 'partyminder' ); ?>
-				</a>
-				<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn pm-btn-secondary">
-					<?php _e( 'View Events', 'partyminder' ); ?>
-				</a>
-				<a href="<?php echo home_url( '/communities/' . $community->slug . '/members' ); ?>" class="pm-btn pm-btn-secondary">
-					<?php _e( 'View Members', 'partyminder' ); ?>
-				</a>
-			<?php else : ?>
-				<button class="pm-btn join-community-btn" data-community-id="<?php echo esc_attr( $community->id ); ?>">
-					<?php _e( 'Join Community', 'partyminder' ); ?>
-				</button>
-			<?php endif; ?>
-			<a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( '← All Communities', 'partyminder' ); ?>
-			</a>
+<!-- Community Stats -->
+<div class="pm-section pm-mb">
+	<div class="pm-section-header">
+		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Community Stats', 'partyminder' ); ?></h3>
+	</div>
+	<div class="pm-stat-list">
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Members', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo (int) $community->member_count; ?></span>
 		</div>
-	</div>
-</div>
-
-<!-- Community Navigation -->
-<div class="pm-card pm-mb-4">
-	<div class="pm-card-header">
-		<h3 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Community Pages', 'partyminder' ); ?></h3>
-	</div>
-	<div class="pm-card-body">
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn-primary">
-				<?php _e( 'Overview', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'Events', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo home_url( '/communities/' . $community->slug . '/members' ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'Members', 'partyminder' ); ?>
-			</a>
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Events', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo (int) $community->event_count; ?></span>
 		</div>
-	</div>
-</div>
-
-<!-- Community Info -->
-<div class="pm-card">
-	<div class="pm-card-header">
-		<h3 class="pm-heading pm-heading-md pm-text-primary"><?php echo esc_html( $community->name ); ?></h3>
-	</div>
-	<div class="pm-card-body">
-		<?php if ( $community->description ) : ?>
-			<p class="pm-text-muted pm-mb-4"><?php echo esc_html( $community->description ); ?></p>
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Conversations', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo count( $community_conversations ); ?></span>
+		</div>
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Privacy', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo esc_html( ucfirst( $community->privacy ) ); ?></span>
+		</div>
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Created', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo date( 'M Y', strtotime( $community->created_at ) ); ?></span>
+		</div>
+		<?php if ( $community->location ) : ?>
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Location', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo esc_html( $community->location ); ?></span>
+		</div>
 		<?php endif; ?>
-		
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<div>
-				<strong class="pm-text-primary"><?php _e( 'Privacy:', 'partyminder' ); ?></strong><br>
-				<span class="pm-text-muted"><?php echo esc_html( ucfirst( $community->privacy ) ); ?></span>
-			</div>
-			<div>
-				<strong class="pm-text-primary"><?php _e( 'Created:', 'partyminder' ); ?></strong><br>
-				<span class="pm-text-muted"><?php echo date( 'F j, Y', strtotime( $community->created_at ) ); ?></span>
-			</div>
-			<?php if ( $community->location ) : ?>
-			<div>
-				<strong class="pm-text-primary"><?php _e( 'Location:', 'partyminder' ); ?></strong><br>
-				<span class="pm-text-muted"><?php echo esc_html( $community->location ); ?></span>
-			</div>
-			<?php endif; ?>
-		</div>
 	</div>
 </div>
+
+<!-- Community Guidelines -->
+<div class="pm-section pm-mb">
+	<div class="pm-section-header">
+		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Community Guidelines', 'partyminder' ); ?></h3>
+	</div>
+	<div class="pm-text-muted">
+		<p class="pm-mb-2"><?php _e( 'Be respectful and welcoming to all members.', 'partyminder' ); ?></p>
+		<p class="pm-mb-2"><?php _e( 'Share relevant events and engage in meaningful discussions.', 'partyminder' ); ?></p>
+		<p class="pm-mb-2"><?php _e( 'Follow community-specific rules and guidelines.', 'partyminder' ); ?></p>
+		<p><?php _e( 'Report any inappropriate behavior to community administrators.', 'partyminder' ); ?></p>
+	</div>
+</div>
+
+<!-- Recent Activity -->
+<?php if ( ! empty( $community_conversations ) ) : ?>
+<div class="pm-section pm-mb">
+	<div class="pm-section-header">
+		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Recent Activity', 'partyminder' ); ?></h3>
+	</div>
+	<div class="pm-text-muted">
+		<?php
+		$recent_conversation = $community_conversations[0];
+		$time_ago = human_time_diff( strtotime( $recent_conversation->last_reply_date ), current_time( 'timestamp' ) );
+		?>
+		<p class="pm-mb-2"><?php printf( __( 'Last conversation: %s ago', 'partyminder' ), $time_ago ); ?></p>
+		<p class="pm-mb-2"><?php printf( __( 'Most recent: "%s"', 'partyminder' ), esc_html( $recent_conversation->title ) ); ?></p>
+		<p><?php printf( __( 'By %s', 'partyminder' ), esc_html( $recent_conversation->author_name ) ); ?></p>
+	</div>
+</div>
+<?php endif; ?>
 
 <?php
 $sidebar_content = ob_get_clean();

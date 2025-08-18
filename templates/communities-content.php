@@ -46,11 +46,16 @@ ob_start();
 				<?php _e( 'Create Community', 'partyminder' ); ?>
 			</a>
 		<?php endif; ?>
+		<?php if ( is_user_logged_in() && ! empty( $user_communities ) ) : ?>
+			<a href="<?php echo home_url( '/my-communities' ); ?>" class="pm-btn pm-btn-secondary">
+				<?php _e( 'My Communities', 'partyminder' ); ?>
+			</a>
+		<?php endif; ?>
 		<a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn pm-btn-secondary">
 			<?php _e( 'Create Event', 'partyminder' ); ?>
 		</a>
 		<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'Join Conversations', 'partyminder' ); ?>
+			<?php _e( 'Conversations', 'partyminder' ); ?>
 		</a>
 		<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
 			<?php _e( 'Dashboard', 'partyminder' ); ?>
@@ -126,63 +131,53 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
-<?php if ( is_user_logged_in() && ! empty( $user_communities ) ) : ?>
-<!-- My Communities -->
+<!-- Community Stats -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"><?php _e( 'My Communities', 'partyminder' ); ?></h3>
-		<p class="pm-text-muted mt-4"><?php _e( 'Communities you\'ve joined', 'partyminder' ); ?></p>
+		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Community Overview', 'partyminder' ); ?></h3>
 	</div>
-	<?php foreach ( $user_communities as $user_community ) : ?>
-		<div class="pm-flex pm-flex-between pm-mb-4">
-			<div>
-				<h4 class="pm-heading pm-heading-sm">
-					<a href="<?php echo home_url( '/communities/' . $user_community->slug ); ?>" class="pm-text-primary">
-						<?php echo esc_html( $user_community->name ); ?>
-					</a>
-				</h4>
-				<div class="pm-badge pm-badge-secondary"><?php echo esc_html( ucfirst( $user_community->role ) ); ?></div>
-			</div>
+	<div class="pm-stat-list">
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Public Communities', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo count( $public_communities ); ?></span>
 		</div>
-	<?php endforeach; ?>
+		<?php if ( is_user_logged_in() ) : ?>
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Your Memberships', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo count( $user_communities ); ?></span>
+		</div>
+		<?php endif; ?>
+		<?php
+		$total_members = 0;
+		$total_events = 0;
+		foreach ( $public_communities as $community ) {
+			$total_members += (int) $community->member_count;
+			$total_events += (int) $community->event_count;
+		}
+		?>
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Total Members', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo $total_members; ?></span>
+		</div>
+		<div class="pm-stat-item">
+			<span class="pm-stat-label"><?php _e( 'Community Events', 'partyminder' ); ?></span>
+			<span class="pm-stat-value"><?php echo $total_events; ?></span>
+		</div>
+	</div>
 </div>
-<?php endif; ?>
 
-<!-- Community Types -->
-<!--
+<!-- Community Benefits -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"> <?php _e( 'Community Types', 'partyminder' ); ?></h3>
-		<p class="pm-text-muted mt-4"><?php _e( 'Different ways to organize', 'partyminder' ); ?></p>
+		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Why Join Communities?', 'partyminder' ); ?></h3>
 	</div>
-	<div>
-		<div class="pm-mb-4">
-			<div class="pm-flex pm-gap pm-mb-4">
-				<strong><?php _e( 'Work', 'partyminder' ); ?></strong>
-			</div>
-			<p class="pm-text-muted"><?php _e( 'Office events, team building', 'partyminder' ); ?></p>
-		</div>
-		<div class="pm-mb-4">
-			<div class="pm-flex pm-gap pm-mb-4">
-				<strong><?php _e( 'Faith', 'partyminder' ); ?></strong>
-			</div>
-			<p class="pm-text-muted"><?php _e( 'Church, religious gatherings', 'partyminder' ); ?></p>
-		</div>
-		<div class="pm-mb-4">
-			<div class="pm-flex pm-gap pm-mb-4">
-				<strong><?php _e( 'Family', 'partyminder' ); ?></strong>
-			</div>
-			<p class="pm-text-muted"><?php _e( 'Family reunions, celebrations', 'partyminder' ); ?></p>
-		</div>
-		<div class="pm-mb-4">
-			<div class="pm-flex pm-gap pm-mb-4">
-				<strong><?php _e( 'Hobby', 'partyminder' ); ?></strong>
-			</div>
-			<p class="pm-text-muted"><?php _e( 'Interest-based groups', 'partyminder' ); ?></p>
-		</div>
+	<div class="pm-text-muted">
+		<p class="pm-mb-2"><?php _e( 'Connect with like-minded people who share your interests and values.', 'partyminder' ); ?></p>
+		<p class="pm-mb-2"><?php _e( 'Discover and attend events organized by community members.', 'partyminder' ); ?></p>
+		<p class="pm-mb-2"><?php _e( 'Share your own events with an engaged, relevant audience.', 'partyminder' ); ?></p>
+		<p><?php _e( 'Build lasting relationships through shared experiences.', 'partyminder' ); ?></p>
 	</div>
 </div>
--->
 <?php
 $sidebar_content = ob_get_clean();
 
