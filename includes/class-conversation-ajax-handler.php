@@ -189,6 +189,10 @@ class PartyMinder_Conversation_Ajax_Handler {
 		}
 
 		$reply_id = intval( $_POST['reply_id'] ?? 0 );
+		$conversation_id = intval( $_POST['conversation_id'] ?? 0 );
+		
+		error_log( "PartyMinder: Ajax delete - reply ID: $reply_id, conversation ID: $conversation_id" );
+		
 		if ( ! $reply_id ) {
 			error_log( "PartyMinder: Ajax delete - invalid reply ID" );
 			wp_send_json_error( __( 'Invalid reply ID.', 'partyminder' ) );
