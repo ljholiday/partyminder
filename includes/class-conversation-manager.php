@@ -619,6 +619,8 @@ class PartyMinder_Conversation_Manager {
 	 * Delete a reply from a conversation
 	 */
 	public function delete_reply( $reply_id ) {
+		error_log( "PartyMinder: delete_reply called with ID: $reply_id" );
+		
 		global $wpdb;
 
 		$replies_table = $wpdb->prefix . 'partyminder_conversation_replies';
@@ -633,12 +635,14 @@ class PartyMinder_Conversation_Manager {
 		);
 
 		if ( ! $reply ) {
+			error_log( "PartyMinder: Reply ID $reply_id not found in database" );
 			return false; // Reply not found
 		}
 
 		// Check permissions
 		$current_user = wp_get_current_user();
 		if ( ! is_user_logged_in() ) {
+			error_log( "PartyMinder: User not logged in" );
 			return false; // Must be logged in
 		}
 
@@ -651,13 +655,15 @@ class PartyMinder_Conversation_Manager {
 		
 		$can_delete = $is_author || $is_admin;
 		
+		error_log( "PartyMinder: Permission check - Current User: $current_user_id, Reply Author: $reply_author_id, Is Author: " . ($is_author ? 'YES' : 'NO') . ", Is Admin: " . ($is_admin ? 'YES' : 'NO') . ", Can Delete: " . ($can_delete ? 'YES' : 'NO') );
+		
 		if ( ! $can_delete ) {
-			// Log only when permission fails for troubleshooting
-			error_log( "PartyMinder Delete Failed - User ID: $current_user_id, Reply Author: $reply_author_id, Is Admin: " . ($is_admin ? 'YES' : 'NO') );
+			error_log( "PartyMinder: Delete permission DENIED" );
 			return false; // Not authorized
 		}
 
 		// Delete the reply
+		error_log( "PartyMinder: Attempting database delete for reply ID: $reply_id" );
 		$result = $wpdb->delete(
 			$replies_table,
 			array( 'id' => $reply_id ),
@@ -665,8 +671,16 @@ class PartyMinder_Conversation_Manager {
 		);
 
 		if ( $result === false ) {
+			error_log( "PartyMinder: Database delete FAILED - wpdb error: " . $wpdb->last_error );
 			return false; // Delete failed
 		}
+		
+		if ( $result === 0 ) {
+			error_log( "PartyMinder: Database delete returned 0 rows affected" );
+			return false; // No rows deleted
+		}
+		
+		error_log( "PartyMinder: Database delete SUCCESS - $result rows affected" );
 
 		// Update conversation reply count and last reply info
 		$conversation_id = $reply->conversation_id;
