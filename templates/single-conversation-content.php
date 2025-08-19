@@ -424,9 +424,9 @@ jQuery(document).ready(function($) {
 		}
 		
 		formData.append('action', 'partyminder_conversation_photo_upload');
-		formData.append('conversation_id', <?php echo $conversation->id; ?>);
+		formData.append('conversation_id', <?php echo intval( $conversation->id ); ?>);
 		formData.append('conversation_photo', fileInput.files[0]);
-		formData.append('nonce', '<?php echo wp_create_nonce( 'partyminder_conversation_photo_upload' ); ?>');
+		formData.append('nonce', partyminder_ajax.nonce);
 		
 		const $form = $(this);
 		const $progress = $('#conversation-photo-progress');
@@ -438,7 +438,7 @@ jQuery(document).ready(function($) {
 		$message.empty();
 		
 		$.ajax({
-			url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
+			url: partyminder_ajax.ajax_url,
 			type: 'POST',
 			data: formData,
 			processData: false,
@@ -500,6 +500,9 @@ jQuery(document).ready(function($) {
 						$btn.html('Unfollow');
 					}
 				}
+			},
+			error: function() {
+				alert('Network error. Please try again.');
 			}
 		});
 	});

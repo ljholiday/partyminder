@@ -548,6 +548,9 @@ class PartyMinder_Conversation_Manager {
 			return '';
 		}
 
+		// Sanitize content first
+		$content = wp_kses_post( $content );
+		
 		// Use WordPress's built-in embed functionality
 		global $wp_embed;
 		
@@ -555,7 +558,7 @@ class PartyMinder_Conversation_Manager {
 		$content = wpautop( $content );
 		
 		// Then process embeds - this will find URLs and convert them to embeds
-		if ( isset( $wp_embed ) ) {
+		if ( isset( $wp_embed ) && is_object( $wp_embed ) ) {
 			$content = $wp_embed->autoembed( $content );
 			$content = $wp_embed->run_shortcode( $content );
 		}
