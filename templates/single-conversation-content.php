@@ -517,9 +517,10 @@ jQuery(document).ready(function($) {
 	});
 	
 	// Handle form submission
-	$('.pm-form').on('submit', function(e) {
+	$('.pm-form').off('submit').on('submit', function(e) {
 		e.preventDefault();
 		e.stopPropagation();
+		e.stopImmediatePropagation();
 		
 		const $form = $(this);
 		const $submitBtn = $form.find('button[type="submit"]');
@@ -527,9 +528,12 @@ jQuery(document).ready(function($) {
 		const $buttonSpinner = $submitBtn.find('.button-spinner');
 		
 		// Prevent multiple submissions
-		if ($submitBtn.prop('disabled')) {
+		if ($submitBtn.prop('disabled') || $form.data('submitting')) {
 			return false;
 		}
+		
+		// Mark as submitting
+		$form.data('submitting', true);
 		
 		$buttonText.hide();
 		$buttonSpinner.show();
@@ -553,6 +557,7 @@ jQuery(document).ready(function($) {
 				$buttonText.show();
 				$buttonSpinner.hide();
 				$submitBtn.prop('disabled', false);
+				$form.data('submitting', false);
 			}
 		});
 	});

@@ -65,7 +65,7 @@ class PartyMinder_Conversation_Ajax_Handler {
 		$event_id     = intval( $_POST['event_id'] ?? 0 );
 		$community_id = intval( $_POST['community_id'] ?? 0 );
 		$title        = sanitize_text_field( $_POST['title'] ?? '' );
-		$content      = wp_kses_post( $_POST['content'] ?? '' );
+		$content      = $_POST['content'] ?? '';
 
 		if ( empty( $title ) || empty( $content ) ) {
 			wp_send_json_error( __( 'Please fill in all required fields.', 'partyminder' ) );
@@ -135,7 +135,7 @@ class PartyMinder_Conversation_Ajax_Handler {
 
 		$conversation_id = intval( $_POST['conversation_id'] ?? 0 );
 		$parent_reply_id = intval( $_POST['parent_reply_id'] ?? 0 ) ?: null;
-		$content         = wp_kses_post( $_POST['content'] ?? '' );
+		$content         = $_POST['content'] ?? '';
 
 		if ( empty( $conversation_id ) || empty( $content ) ) {
 			wp_send_json_error( __( 'Please provide a message to reply.', 'partyminder' ) );

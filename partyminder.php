@@ -30,6 +30,7 @@ define( 'PARTYMINDER_PLUGIN_FILE', __FILE__ );
 // Load activation/deactivation classes
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-activator.php';
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-deactivator.php';
+require_once PARTYMINDER_PLUGIN_DIR . 'includes/pm_embed.php';
 
 // Activation and deactivation hooks
 register_activation_hook( __FILE__, array( 'PartyMinder_Activator', 'activate' ) );
@@ -185,6 +186,9 @@ class PartyMinder {
 
 		// Add responsive embed support for oEmbed
 		add_theme_support( 'responsive-embeds' );
+		
+		// Add custom oEmbed provider for all URLs using a different approach
+		add_filter( 'embed_maybe_make_link', array( $this, 'maybe_custom_embed' ), 10, 2 );
 
 		// Initialize managers
 		$this->event_manager        = new PartyMinder_Event_Manager();
@@ -1144,5 +1148,27 @@ class PartyMinder {
 		}
 
 		return $custom_login_url;
+	}
+
+	/**
+	 * Maybe create custom embed when WordPress would otherwise make a link
+	 * This runs when WordPress gives up on oEmbed and is about to make a plain link
+	 */
+	public function maybe_custom_embed( $output, $url ) {
+		// Debug: Only process ljholiday.com URLs for now
+		if ( strpos( $url, 'ljholiday.com' ) === false ) {
+			return $output;
+		}
+		
+		// Get metadata for the URL
+		$metadata = PartyMinder_URL_Preview::get_url_metadata( $url );
+		
+		if ( $metadata ) {
+			// Very simple test - just return the title with some basic formatting
+			return '<div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;"><strong>' . esc_html( $metadata['title'] ) . '</strong><br><em>' . esc_html( $url ) . '</em></div>';
+		}
+		
+		// Return the original output (likely a link) if we can't get metadata
+		return $output;
 	}
 }

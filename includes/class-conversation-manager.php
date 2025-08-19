@@ -141,7 +141,7 @@ class PartyMinder_Conversation_Manager {
 				'community_id'      => $data['community_id'] ?? null,
 				'title'             => sanitize_text_field( $data['title'] ),
 				'slug'              => $slug,
-				'content'           => wp_kses_post( $data['content'] ),
+				'content'           => $data['content'],
 				'author_id'         => $data['author_id'],
 				'author_name'       => sanitize_text_field( $data['author_name'] ),
 				'author_email'      => sanitize_email( $data['author_email'] ),
@@ -194,7 +194,7 @@ class PartyMinder_Conversation_Manager {
 			array(
 				'conversation_id' => $conversation_id,
 				'parent_reply_id' => $data['parent_reply_id'] ?? null,
-				'content'         => wp_kses_post( $data['content'] ),
+				'content'         => $data['content'],
 				'author_id'       => $data['author_id'],
 				'author_name'     => sanitize_text_field( $data['author_name'] ),
 				'author_email'    => sanitize_email( $data['author_email'] ),
@@ -541,30 +541,79 @@ class PartyMinder_Conversation_Manager {
 	}
 
 	/**
-	 * Process content for URL embeds using WordPress native oEmbed
+	 * Process content for URL embeds using new pm_embed system
 	 */
 	public function process_content_embeds( $content ) {
 		if ( empty( $content ) ) {
 			return '';
 		}
 
-		// Sanitize content first
-		$content = wp_kses_post( $content );
-		
-		// Use WordPress's built-in embed functionality
-		global $wp_embed;
+		// Store original content for URL detection
+		$original_content = $content;
 		
 		// First apply wpautop to handle paragraphs
 		$content = wpautop( $content );
 		
-		// Then process embeds - this will find URLs and convert them to embeds
-		if ( isset( $wp_embed ) && is_object( $wp_embed ) ) {
-			$content = $wp_embed->autoembed( $content );
-			$content = $wp_embed->run_shortcode( $content );
+		// Check for URLs and add embed cards
+		$url = pm_first_url_in_text( $original_content );
+		if ( $url ) {
+			$embed = pm_build_embed_from_url( $url );
+			if ( $embed ) {
+				// Add the embed card after the content
+				$content .= pm_render_embed_card( $embed );
+			}
 		}
 		
-		return $content;
+		// If no custom embed was added, try WordPress's built-in embed functionality
+		if ( ! $embed && $url ) {
+			global $wp_embed;
+			if ( isset( $wp_embed ) && is_object( $wp_embed ) ) {
+				$content = $wp_embed->autoembed( $content );
+				$content = $wp_embed->run_shortcode( $content );
+			}
+		}
+		
+		// Sanitize content but allow embeds
+		$allowed_html = wp_kses_allowed_html( 'post' );
+		
+		// Add iframe support for WordPress embeds
+		$allowed_html['iframe'] = array(
+			'src' => true,
+			'width' => true,
+			'height' => true,
+			'frameborder' => true,
+			'allowfullscreen' => true,
+			'allow' => true,
+			'referrerpolicy' => true,
+			'title' => true,
+			'class' => true,
+			'sandbox' => true,
+			'security' => true,
+			'style' => true,
+			'marginwidth' => true,
+			'marginheight' => true,
+			'scrolling' => true,
+			'data-secret' => true,
+		);
+		
+		// Add blockquote support for embeds
+		$allowed_html['blockquote']['class'] = true;
+		$allowed_html['blockquote']['data-secret'] = true;
+		
+		// Add custom embed HTML support
+		$allowed_html['div']['class'] = true;
+		$allowed_html['div']['data-pm-source'] = true;
+		$allowed_html['img']['loading'] = true;
+		$allowed_html['img']['decoding'] = true;
+		$allowed_html['img']['src'] = true;
+		$allowed_html['img']['alt'] = true;
+		$allowed_html['a']['target'] = true;
+		$allowed_html['a']['rel'] = true;
+		
+		return wp_kses( $content, $allowed_html );
 	}
+
+
 
 	/**
 	 * Delete a reply from a conversation
