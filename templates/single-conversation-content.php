@@ -251,7 +251,7 @@ if ( ! empty( $conversation_photos ) ) :
 		<h3 class="pm-heading pm-heading-md"><?php _e( 'Add Your Reply', 'partyminder' ); ?></h3>
 	</div>
 	
-	<form class="pm-form" method="post">
+	<form class="pm-form">
 		<input type="hidden" name="nonce" value="<?php echo wp_create_nonce( 'partyminder_nonce' ); ?>">
 		<input type="hidden" name="action" value="partyminder_add_reply">
 		<input type="hidden" name="conversation_id" value="<?php echo esc_attr( $conversation->id ); ?>">
@@ -516,11 +516,17 @@ jQuery(document).ready(function($) {
 	// Handle form submission
 	$('.pm-form').on('submit', function(e) {
 		e.preventDefault();
+		e.stopPropagation();
 		
 		const $form = $(this);
 		const $submitBtn = $form.find('button[type="submit"]');
 		const $buttonText = $submitBtn.find('.button-text');
 		const $buttonSpinner = $submitBtn.find('.button-spinner');
+		
+		// Prevent multiple submissions
+		if ($submitBtn.prop('disabled')) {
+			return false;
+		}
 		
 		$buttonText.hide();
 		$buttonSpinner.show();
