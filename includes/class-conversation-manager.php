@@ -170,6 +170,7 @@ class PartyMinder_Conversation_Manager {
 	 * Add a reply to a conversation
 	 */
 	public function add_reply( $conversation_id, $data ) {
+		error_log( "PartyMinder: add_reply called for conversation $conversation_id" );
 		global $wpdb;
 
 		$replies_table       = $wpdb->prefix . 'partyminder_conversation_replies';
@@ -205,6 +206,7 @@ class PartyMinder_Conversation_Manager {
 		);
 
 		if ( $result === false ) {
+			error_log( "PartyMinder: Reply insert FAILED - wpdb error: " . $wpdb->last_error );
 			return false;
 		}
 
@@ -227,6 +229,8 @@ class PartyMinder_Conversation_Manager {
 		);
 
 		$reply_id = $wpdb->insert_id;
+
+		error_log( "PartyMinder: Reply insert SUCCESS - new reply ID: $reply_id" );
 
 		// Auto-follow the conversation for reply author
 		$this->follow_conversation( $conversation_id, $data['author_id'], $data['author_email'] );
