@@ -114,7 +114,6 @@ class PartyMinder_Conversation_Ajax_Handler {
 	}
 
 	public function ajax_add_reply() {
-		error_log( "PartyMinder: ajax_add_reply called" );
 		check_ajax_referer( 'partyminder_nonce', 'nonce' );
 
 		$current_user = wp_get_current_user();
@@ -138,8 +137,6 @@ class PartyMinder_Conversation_Ajax_Handler {
 		$parent_reply_id = intval( $_POST['parent_reply_id'] ?? 0 ) ?: null;
 		$content         = $_POST['content'] ?? '';
 
-		error_log( "PartyMinder: Processing reply for conversation ID: $conversation_id" );
-
 		if ( empty( $conversation_id ) || empty( $content ) ) {
 			wp_send_json_error( __( 'Please provide a message to reply.', 'partyminder' ) );
 		}
@@ -155,8 +152,6 @@ class PartyMinder_Conversation_Ajax_Handler {
 		);
 
 		$reply_id = $conversation_manager->add_reply( $conversation_id, $reply_data );
-
-		error_log( "PartyMinder: add_reply returned: " . ($reply_id ? $reply_id : 'FALSE') );
 
 		if ( $reply_id ) {
 			wp_send_json_success(
