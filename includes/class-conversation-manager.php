@@ -643,8 +643,17 @@ class PartyMinder_Conversation_Manager {
 		}
 
 		// User can delete if they are the author or an admin
-		$can_delete = ( $current_user->ID == $reply->author_id ) || current_user_can( 'manage_options' );
+		// Convert to integers to ensure proper comparison
+		$current_user_id = intval( $current_user->ID );
+		$reply_author_id = intval( $reply->author_id );
+		$is_author = ( $current_user_id === $reply_author_id );
+		$is_admin = current_user_can( 'manage_options' );
+		
+		$can_delete = $is_author || $is_admin;
+		
 		if ( ! $can_delete ) {
+			// Log only when permission fails for troubleshooting
+			error_log( "PartyMinder Delete Failed - User ID: $current_user_id, Reply Author: $reply_author_id, Is Admin: " . ($is_admin ? 'YES' : 'NO') );
 			return false; // Not authorized
 		}
 
