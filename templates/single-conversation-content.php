@@ -192,6 +192,22 @@ if ( ! empty( $conversation_photos ) ) :
 						data-parent-reply-id="<?php echo esc_attr( $reply->id ); ?>">
 						<?php _e( 'Reply', 'partyminder' ); ?>
 					</a>
+					<?php
+					// Show delete button if user can delete this reply
+					$can_delete = false;
+					if ( is_user_logged_in() ) {
+						$current_user = wp_get_current_user();
+						// User can delete if they are the author or an admin
+						$can_delete = ( $current_user->ID == $reply->author_id ) || current_user_can( 'manage_options' );
+					}
+					if ( $can_delete ) :
+					?>
+						<button type="button" class="pm-btn pm-btn-secondary pm-btn-sm delete-reply-btn" 
+								data-reply-id="<?php echo esc_attr( $reply->id ); ?>"
+								data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
+							<?php _e( 'Delete', 'partyminder' ); ?>
+						</button>
+					<?php endif; ?>
 				</div>
 			</div>
 		<?php endforeach; ?>
@@ -528,6 +544,49 @@ jQuery(document).ready(function($) {
 				$buttonText.show();
 				$buttonSpinner.hide();
 				$submitBtn.prop('disabled', false);
+			}
+		});
+	});
+	
+	// Handle delete reply button clicks
+	$('.delete-reply-btn').on('click', function(e) {
+		e.preventDefault();
+		
+		const $btn = $(this);
+		const replyId = $btn.data('reply-id');
+		const conversationId = $btn.data('conversation-id');
+		
+		if (!confirm('Are you sure you want to delete this reply? This action cannot be undone.')) {
+			return;
+		}
+		
+		$btn.prop('disabled', true).text('Deleting...');
+		
+		$.ajax({
+			url: partyminder_ajax.ajax_url,
+			type: 'POST',
+			data: {
+				action: 'partyminder_delete_reply',
+				reply_id: replyId,
+				conversation_id: conversationId,
+				nonce: partyminder_ajax.nonce
+			},
+			success: function(response) {
+				if (response.success) {
+					// Remove the reply from the DOM
+					$btn.closest('.pm-reply-item').fadeOut(300, function() {
+						$(this).remove();
+						// Update reply count in header
+						location.reload(); // Simple approach - reload to update counts
+					});
+				} else {
+					alert(response.data || 'Failed to delete reply.');
+					$btn.prop('disabled', false).text('Delete');
+				}
+			},
+			error: function() {
+				alert('Network error. Please try again.');
+				$btn.prop('disabled', false).text('Delete');
 			}
 		});
 	});

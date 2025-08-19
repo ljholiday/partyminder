@@ -15,6 +15,7 @@ class PartyMinder_Conversation_Ajax_Handler {
 		add_action( 'wp_ajax_nopriv_partyminder_create_conversation', array( $this, 'ajax_create_conversation' ) );
 		add_action( 'wp_ajax_partyminder_add_reply', array( $this, 'ajax_add_reply' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_add_reply', array( $this, 'ajax_add_reply' ) );
+		add_action( 'wp_ajax_partyminder_delete_reply', array( $this, 'ajax_delete_reply' ) );
 	}
 
 	private function get_conversation_manager() {
@@ -161,6 +162,39 @@ class PartyMinder_Conversation_Ajax_Handler {
 			);
 		} else {
 			wp_send_json_error( __( 'Failed to add reply. Please try again.', 'partyminder' ) );
+		}
+	}
+
+	/**
+	 * Handle delete reply AJAX request
+	 */
+	public function ajax_delete_reply() {
+		// Verify nonce
+		if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'partyminder_nonce' ) ) {
+			wp_send_json_error( __( 'Security verification failed.', 'partyminder' ) );
+		}
+
+		// Check if user is logged in
+		if ( ! is_user_logged_in() ) {
+			wp_send_json_error( __( 'You must be logged in to delete replies.', 'partyminder' ) );
+		}
+
+		$reply_id = intval( $_POST['reply_id'] ?? 0 );
+		if ( ! $reply_id ) {
+			wp_send_json_error( __( 'Invalid reply ID.', 'partyminder' ) );
+		}
+
+		$conversation_manager = $this->get_conversation_manager();
+		$result = $conversation_manager->delete_reply( $reply_id );
+
+		if ( $result ) {
+			wp_send_json_success(
+				array(
+					'message' => __( 'Reply deleted successfully.', 'partyminder' ),
+				)
+			);
+		} else {
+			wp_send_json_error( __( 'Failed to delete reply. You may not have permission to delete this reply.', 'partyminder' ) );
 		}
 	}
 }

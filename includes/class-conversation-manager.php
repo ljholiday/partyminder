@@ -562,4 +562,109 @@ class PartyMinder_Conversation_Manager {
 		
 		return $content;
 	}
+
+	/**
+	 * Delete a reply from a conversation
+	 */
+	public function delete_reply( $reply_id ) {
+		global $wpdb;
+
+		$replies_table = $wpdb->prefix . 'partyminder_conversation_replies';
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+
+		// Get reply data first for permission checking and conversation updates
+		$reply = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT * FROM $replies_table WHERE id = %d",
+				$reply_id
+			)
+		);
+
+		if ( ! $reply ) {
+			return false; // Reply not found
+		}
+
+		// Check permissions
+		$current_user = wp_get_current_user();
+		if ( ! is_user_logged_in() ) {
+			return false; // Must be logged in
+		}
+
+		// User can delete if they are the author or an admin
+		$can_delete = ( $current_user->ID == $reply->author_id ) || current_user_can( 'manage_options' );
+		if ( ! $can_delete ) {
+			return false; // Not authorized
+		}
+
+		// Delete the reply
+		$result = $wpdb->delete(
+			$replies_table,
+			array( 'id' => $reply_id ),
+			array( '%d' )
+		);
+
+		if ( $result === false ) {
+			return false; // Delete failed
+		}
+
+		// Update conversation reply count and last reply info
+		$conversation_id = $reply->conversation_id;
+		
+		// Get updated reply count
+		$new_reply_count = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM $replies_table WHERE conversation_id = %d",
+				$conversation_id
+			)
+		);
+
+		// Get last reply info
+		$last_reply = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT created_at, author_name FROM $replies_table 
+				 WHERE conversation_id = %d 
+				 ORDER BY created_at DESC 
+				 LIMIT 1",
+				$conversation_id
+			)
+		);
+
+		// Update conversation
+		if ( $last_reply ) {
+			// There are still replies
+			$wpdb->update(
+				$conversations_table,
+				array(
+					'reply_count' => $new_reply_count,
+					'last_reply_date' => $last_reply->created_at,
+					'last_reply_author' => $last_reply->author_name,
+				),
+				array( 'id' => $conversation_id ),
+				array( '%d', '%s', '%s' ),
+				array( '%d' )
+			);
+		} else {
+			// No more replies, use conversation creation date
+			$conversation = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT created_at, author_name FROM $conversations_table WHERE id = %d",
+					$conversation_id
+				)
+			);
+			
+			$wpdb->update(
+				$conversations_table,
+				array(
+					'reply_count' => 0,
+					'last_reply_date' => $conversation->created_at,
+					'last_reply_author' => $conversation->author_name,
+				),
+				array( 'id' => $conversation_id ),
+				array( '%d', '%s', '%s' ),
+				array( '%d' )
+			);
+		}
+
+		return true;
+	}
 }
