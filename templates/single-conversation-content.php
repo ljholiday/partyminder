@@ -94,7 +94,7 @@ ob_start();
 		<div class="pm-flex pm-gap pm-text-muted">
 			<span> <?php echo $conversation->reply_count; ?> <?php echo $conversation->reply_count === 1 ? __( 'reply', 'partyminder' ) : __( 'replies', 'partyminder' ); ?></span>
 			<?php if ( $conversation->reply_count > 0 ) : ?>
-				<span>🕐 <?php printf( __( 'Last activity %s ago', 'partyminder' ), human_time_diff( strtotime( $conversation->last_reply_date ), current_time( 'timestamp' ) ) ); ?></span>
+				<span><?php printf( __( 'Last activity %s ago', 'partyminder' ), human_time_diff( strtotime( $conversation->last_reply_date ), current_time( 'timestamp' ) ) ); ?></span>
 			<?php endif; ?>
 		</div>
 		
@@ -108,9 +108,9 @@ ob_start();
 				<button class="pm-btn pm-btn-secondary pm-btn-sm follow-btn" 
 						data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
 					<?php if ( $is_following ) : ?>
-						🔕 <?php _e( 'Unfollow', 'partyminder' ); ?>
+						<?php _e( 'Unfollow', 'partyminder' ); ?>
 					<?php else : ?>
-						🔔 <?php _e( 'Follow', 'partyminder' ); ?>
+						<?php _e( 'Follow', 'partyminder' ); ?>
 					<?php endif; ?>
 				</button>
 			<?php endif; ?>
@@ -133,7 +133,7 @@ ob_start();
 		</div>
 	</div>
 	<div class="pm-content">
-		<?php echo wpautop( $conversation->content ); ?>
+		<?php echo $conversation_manager->process_content_embeds( $conversation->content ); ?>
 	</div>
 </div>
 
@@ -184,13 +184,13 @@ if ( ! empty( $conversation_photos ) ) :
 					</div>
 				</div>
 				<div class="pm-content pm-mb">
-					<?php echo wpautop( $reply->content ); ?>
+					<?php echo $conversation_manager->process_content_embeds( $reply->content ); ?>
 				</div>
 				<div class="pm-reply-actions">
 					<a href="#reply-form" class="pm-btn pm-btn-secondary pm-btn-sm reply-btn"
 						data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>"
 						data-parent-reply-id="<?php echo esc_attr( $reply->id ); ?>">
-						↩️ <?php _e( 'Reply', 'partyminder' ); ?>
+						<?php _e( 'Reply', 'partyminder' ); ?>
 					</a>
 				</div>
 			</div>
@@ -479,9 +479,9 @@ jQuery(document).ready(function($) {
 			success: function(response) {
 				if (response.success) {
 					if (isFollowing) {
-						$btn.html('🔔 <?php _e( 'Follow', 'partyminder' ); ?>');
+						$btn.html('Follow');
 					} else {
-						$btn.html('🔕 <?php _e( 'Unfollow', 'partyminder' ); ?>');
+						$btn.html('Unfollow');
 					}
 				}
 			}
@@ -518,11 +518,11 @@ jQuery(document).ready(function($) {
 				if (response.success) {
 					location.reload();
 				} else {
-					alert(response.data || '<?php _e( 'Error posting reply. Please try again.', 'partyminder' ); ?>');
+					alert(response.data || 'Error posting reply. Please try again.');
 				}
 			},
 			error: function() {
-				alert('<?php _e( 'Network error. Please try again.', 'partyminder' ); ?>');
+				alert('Network error. Please try again.');
 			},
 			complete: function() {
 				$buttonText.show();

@@ -183,6 +183,9 @@ class PartyMinder {
 		// Load text domain
 		load_plugin_textdomain( 'partyminder', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
+		// Add responsive embed support for oEmbed
+		add_theme_support( 'responsive-embeds' );
+
 		// Initialize managers
 		$this->event_manager        = new PartyMinder_Event_Manager();
 		$this->guest_manager        = new PartyMinder_Guest_Manager();

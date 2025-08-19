@@ -539,4 +539,27 @@ class PartyMinder_Conversation_Manager {
 			)
 		);
 	}
+
+	/**
+	 * Process content for URL embeds using WordPress native oEmbed
+	 */
+	public function process_content_embeds( $content ) {
+		if ( empty( $content ) ) {
+			return '';
+		}
+
+		// Use WordPress's built-in embed functionality
+		global $wp_embed;
+		
+		// First apply wpautop to handle paragraphs
+		$content = wpautop( $content );
+		
+		// Then process embeds - this will find URLs and convert them to embeds
+		if ( isset( $wp_embed ) ) {
+			$content = $wp_embed->autoembed( $content );
+			$content = $wp_embed->run_shortcode( $content );
+		}
+		
+		return $content;
+	}
 }
