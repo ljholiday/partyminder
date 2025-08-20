@@ -223,7 +223,7 @@ ob_start();
 							<?php endif; ?>
 							<h4 class="pm-heading pm-heading-sm">
 								<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary">
-									<?php echo esc_html( $conversation->title ); ?>
+									<?php echo esc_html( $conversation_manager->get_display_title( $conversation ) ); ?>
 								</a>
 							</h4>
 						</div>
@@ -319,7 +319,7 @@ ob_start();
 										<h5 class="pm-heading pm-heading-sm">
 											<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" 
 												class="pm-text-primary">
-												<?php echo esc_html( $conversation->title ); ?>
+												<?php echo esc_html( $conversation_manager->get_display_title( $conversation ) ); ?>
 											</a>
 										</h5>
 									</div>
@@ -414,7 +414,7 @@ ob_start();
 										<h5 class="pm-heading pm-heading-sm">
 											<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" 
 												class="pm-text-primary">
-												<?php echo esc_html( $conversation->title ); ?>
+												<?php echo esc_html( $conversation_manager->get_display_title( $conversation ) ); ?>
 											</a>
 										</h5>
 									</div>

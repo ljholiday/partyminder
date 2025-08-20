@@ -29,7 +29,7 @@ class PartyMinder_Conversation_Manager {
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"
-            SELECT c.*
+            SELECT c.*, e.title as event_title, e.slug as event_slug, cm.name as community_name, cm.slug as community_slug
             FROM $conversations_table c
             LEFT JOIN $events_table e ON c.event_id = e.id
             LEFT JOIN $communities_table cm ON c.community_id = cm.id
@@ -111,7 +111,7 @@ class PartyMinder_Conversation_Manager {
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"
-            SELECT c.*
+            SELECT c.*, NULL as event_title, NULL as event_slug, NULL as community_name, NULL as community_slug
             FROM $conversations_table c
             WHERE c.event_id IS NULL AND c.community_id IS NULL
             AND ($privacy_filter)
@@ -528,8 +528,10 @@ class PartyMinder_Conversation_Manager {
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"
-            SELECT c.*
+            SELECT c.*, e.title as event_title, e.slug as event_slug, cm.name as community_name, cm.slug as community_slug
             FROM $conversations_table c
+            LEFT JOIN {$wpdb->prefix}partyminder_events e ON c.event_id = e.id
+            LEFT JOIN {$wpdb->prefix}partyminder_communities cm ON c.community_id = cm.id
             WHERE c.author_id = %d
             ORDER BY c.created_at DESC
             LIMIT %d
@@ -538,6 +540,29 @@ class PartyMinder_Conversation_Manager {
 				$limit
 			)
 		);
+	}
+
+	/**
+	 * Generate a contextual display title for conversations
+	 * @param object $conversation The conversation object
+	 * @param bool $show_context Whether to show event/community context (default: true)
+	 */
+	public function get_display_title( $conversation, $show_context = true ) {
+		$title = $conversation->title;
+		
+		if ( ! $show_context ) {
+			return $title;
+		}
+		
+		if ( ! empty( $conversation->event_title ) ) {
+			return $conversation->event_title . ': ' . $title;
+		}
+		
+		if ( ! empty( $conversation->community_name ) ) {
+			return $conversation->community_name . ': ' . $title;
+		}
+		
+		return $title;
 	}
 
 	/**

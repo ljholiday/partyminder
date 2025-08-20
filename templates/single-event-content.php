@@ -243,7 +243,7 @@ ob_start();
 						<div class="pm-flex pm-flex-between pm-mb-2">
 							<h4 class="pm-heading pm-heading-sm">
 								<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary">
-									<?php echo esc_html( $conversation->title ); ?>
+									<?php echo esc_html( $conversation_manager->get_display_title( $conversation, false ) ); ?>
 								</a>
 							</h4>
 							<div class="pm-stat pm-text-center">

@@ -197,7 +197,7 @@ ob_start();
 									<?php endif; ?>
 									<h4 class="pm-heading pm-heading-sm">
 										<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary">
-											<?php echo esc_html( $conversation->title ); ?>
+											<?php echo esc_html( $conversation_manager->get_display_title( $conversation, false ) ); ?>
 										</a>
 									</h4>
 								</div>
@@ -307,7 +307,7 @@ ob_start();
 		$time_ago = human_time_diff( strtotime( $recent_conversation->last_reply_date ), current_time( 'timestamp' ) );
 		?>
 		<p class="pm-mb-2"><?php printf( __( 'Last conversation: %s ago', 'partyminder' ), $time_ago ); ?></p>
-		<p class="pm-mb-2"><?php printf( __( 'Most recent: "%s"', 'partyminder' ), esc_html( $recent_conversation->title ) ); ?></p>
+		<p class="pm-mb-2"><?php printf( __( 'Most recent: "%s"', 'partyminder' ), esc_html( $conversation_manager->get_display_title( $recent_conversation, false ) ) ); ?></p>
 		<p><?php printf( __( 'By %s', 'partyminder' ), esc_html( $recent_conversation->author_name ) ); ?></p>
 	</div>
 </div>

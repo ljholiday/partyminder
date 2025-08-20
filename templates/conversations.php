@@ -92,7 +92,7 @@ ob_start();
 						<div class="pm-flex-1">
 							<h3 class="pm-heading pm-heading-sm pm-mb-2">
 								<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary">
-									<?php echo esc_html( $conversation->title ); ?>
+									<?php echo esc_html( $conversation_manager->get_display_title( $conversation ) ); ?>
 								</a>
 							</h3>
 							<div class="pm-flex pm-gap pm-flex-wrap">
@@ -172,7 +172,7 @@ ob_start();
 		<div class="pm-mb-4">
 			<h4 class="pm-heading pm-heading-sm">
 				<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary">
-					<?php echo esc_html( $conversation->title ); ?>
+					<?php echo esc_html( $conversation_manager->get_display_title( $conversation ) ); ?>
 				</a>
 			</h4>
 			<div class="pm-text-muted">
