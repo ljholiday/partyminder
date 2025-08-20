@@ -63,96 +63,17 @@ ob_start();
 	</div>
 </div>
 
-<?php if ( ! empty( $recent_conversations ) ) : ?>
-	<div class="pm-section">
-		<div class="pm-section-header">
-			<h2 class="pm-heading pm-heading-lg pm-mb-4"><?php _e( 'Recent Conversations', 'partyminder' ); ?></h2>
-		</div>
-		
-		<div class="pm-grid pm-grid-1 pm-gap">
-			<?php foreach ( $recent_conversations as $conversation ) : ?>
-				<?php
-				// Determine conversation context
-				$context_info = '';
-				$context_link = '';
-				
-				if ( $conversation->event_id ) {
-					$context_info = sprintf( __( 'Event Discussion', 'partyminder' ) );
-					$context_link = home_url( '/events/' . $conversation->event_slug );
-				} elseif ( $conversation->community_id ) {
-					$context_info = sprintf( __( 'Community Discussion', 'partyminder' ) );
-					$context_link = home_url( '/communities/' . $conversation->community_slug );
-				} else {
-					$context_info = __( 'General Discussion', 'partyminder' );
-				}
-				?>
-				
-				<div class="pm-section pm-p-4">
-					<div class="pm-flex pm-flex-between pm-mb-4">
-						<div class="pm-flex-1">
-							<h3 class="pm-heading pm-heading-sm pm-mb-2">
-								<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary">
-									<?php echo esc_html( $conversation_manager->get_display_title( $conversation ) ); ?>
-								</a>
-							</h3>
-							<div class="pm-flex pm-gap pm-flex-wrap">
-								<span class="pm-badge pm-badge-secondary"><?php echo esc_html( $context_info ); ?></span>
-								<?php if ( $conversation->is_pinned ) : ?>
-									<span class="pm-badge pm-badge-warning"><?php _e( 'Pinned', 'partyminder' ); ?></span>
-								<?php endif; ?>
-							</div>
-						</div>
-						<div class="pm-stat pm-text-center">
-							<div class="pm-stat-number pm-text-primary"><?php echo $conversation->reply_count; ?></div>
-							<div class="pm-stat-label"><?php _e( 'Replies', 'partyminder' ); ?></div>
-						</div>
-					</div>
-					
-					<div class="pm-mb-4">
-						<p class="pm-text-muted">
-							<?php 
-							$content_preview = wp_trim_words( strip_tags( $conversation->content ), 20, '...' );
-							echo esc_html( $content_preview );
-							?>
-						</p>
-					</div>
-					
-					<div class="pm-flex pm-flex-between pm-flex-wrap pm-gap">
-						<div class="pm-text-muted">
-							<?php _e( 'Started by', 'partyminder' ); ?> 
-							<strong><?php echo esc_html( $conversation->author_name ); ?></strong>
-							• <?php echo human_time_diff( strtotime( $conversation->created_at ), current_time( 'timestamp' ) ); ?> <?php _e( 'ago', 'partyminder' ); ?>
-						</div>
-						
-						<?php if ( $conversation->last_reply_author && $conversation->reply_count > 0 ) : ?>
-							<div class="pm-text-muted">
-								<?php _e( 'Last reply by', 'partyminder' ); ?> 
-								<strong><?php echo esc_html( $conversation->last_reply_author ); ?></strong>
-								• <?php echo human_time_diff( strtotime( $conversation->last_reply_date ), current_time( 'timestamp' ) ); ?> <?php _e( 'ago', 'partyminder' ); ?>
-							</div>
-						<?php endif; ?>
-					</div>
-				</div>
-			<?php endforeach; ?>
-		</div>
+<div class="pm-section">
+	<div class="pm-section-header">
+		<h2 class="pm-heading pm-heading-lg pm-mb-4"><?php _e( 'Conversations', 'partyminder' ); ?></h2>
 	</div>
 	
-<?php else : ?>
-	<div class="pm-section pm-text-center">
-		<div class="pm-text-6xl pm-mb-4">💬</div>
-		<h3 class="pm-heading pm-heading-md pm-mb-4"><?php _e( 'No Conversations Yet', 'partyminder' ); ?></h3>
-		<p class="pm-text-muted pm-mb-4"><?php _e( 'Be the first to start a conversation! Share tips, ask questions, or just say hello.', 'partyminder' ); ?></p>
-		<?php if ( $user_logged_in ) : ?>
-			<a href="<?php echo PartyMinder::get_create_conversation_url(); ?>" class="pm-btn">
-				<?php _e( 'Start the First Conversation', 'partyminder' ); ?>
-			</a>
-		<?php else : ?>
-			<a href="<?php echo add_query_arg( 'redirect_to', urlencode( $_SERVER['REQUEST_URI'] ), PartyMinder::get_login_url() ); ?>" class="pm-btn">
-				<?php _e( 'Login to Start Conversations', 'partyminder' ); ?>
-			</a>
-		<?php endif; ?>
-	</div>
-<?php endif; ?>
+	<?php 
+	// Include the conversations navigation
+	$conversations = $recent_conversations; // Pass conversations to the partial
+	include PARTYMINDER_PLUGIN_DIR . 'templates/partials/conversations-nav.php';
+	?>
+</div>
 
 <?php
 $main_content = ob_get_clean();

@@ -1011,10 +1011,17 @@ class PartyMinder {
 		if ( $page_type ) {
 
 			// Add page-specific JavaScript
-			if ( $page_type === 'conversations' ) {
+			if ( $page_type === 'conversations' || $page_type === 'dashboard' ) {
 				wp_enqueue_script(
 					'partyminder-conversations',
 					PARTYMINDER_PLUGIN_URL . 'assets/js/conversations.js',
+					array( 'jquery', 'partyminder-public' ),
+					PARTYMINDER_VERSION,
+					true
+				);
+				wp_enqueue_script(
+					'partyminder-conversations-circles',
+					PARTYMINDER_PLUGIN_URL . 'assets/js/conversations-circles.js',
 					array( 'jquery', 'partyminder-public' ),
 					PARTYMINDER_VERSION,
 					true

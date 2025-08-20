@@ -16,6 +16,8 @@ class PartyMinder_Conversation_Ajax_Handler {
 		add_action( 'wp_ajax_partyminder_add_reply', array( $this, 'ajax_add_reply' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_add_reply', array( $this, 'ajax_add_reply' ) );
 		add_action( 'wp_ajax_partyminder_delete_reply', array( $this, 'ajax_delete_reply' ) );
+		add_action( 'wp_ajax_partyminder_get_conversations', array( $this, 'ajax_get_conversations' ) );
+		add_action( 'wp_ajax_nopriv_partyminder_get_conversations', array( $this, 'ajax_get_conversations' ) );
 	}
 
 	private function get_conversation_manager() {
@@ -196,5 +198,92 @@ class PartyMinder_Conversation_Ajax_Handler {
 		} else {
 			wp_send_json_error( __( 'Failed to delete reply. You may not have permission to delete this reply.', 'partyminder' ) );
 		}
+	}
+
+	/**
+	 * Handle get conversations by circle AJAX request
+	 */
+	public function ajax_get_conversations() {
+		// Verify nonce
+		if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'partyminder_nonce' ) ) {
+			wp_send_json_error( __( 'Security verification failed.', 'partyminder' ) );
+		}
+
+		$circle = sanitize_text_field( $_POST['circle'] ?? 'close' );
+		$topic_slug = sanitize_title( $_POST['topic_slug'] ?? '' );
+		$page = max( 1, intval( $_POST['page'] ?? 1 ) );
+		$per_page = 20;
+
+		// Validate circle
+		$allowed_circles = array( 'close', 'trusted', 'extended' );
+		if ( ! in_array( $circle, $allowed_circles ) ) {
+			$circle = 'close';
+		}
+
+		$conversation_manager = $this->get_conversation_manager();
+
+		// For now, implement basic circle filtering
+		// TODO: Implement proper circle-based identity scope resolution
+		$conversations = $this->get_conversations_by_circle( $circle, $topic_slug, $page, $per_page );
+
+		// Calculate pagination info
+		$total_conversations = $this->get_conversations_count_by_circle( $circle, $topic_slug );
+		$total_pages = ceil( $total_conversations / $per_page );
+		$has_more = $page < $total_pages;
+
+		// Render the list using the partial
+		ob_start();
+		include PARTYMINDER_PLUGIN_DIR . 'templates/partials/conversations-list.php';
+		$html = ob_get_clean();
+
+		wp_send_json_success( array(
+			'html' => $html,
+			'meta' => array(
+				'count' => $total_conversations,
+				'page' => $page,
+				'has_more' => $has_more,
+				'circle' => $circle
+			)
+		) );
+	}
+
+	/**
+	 * Get conversations filtered by circle
+	 * TODO: Implement proper circle-based identity scope resolution
+	 */
+	private function get_conversations_by_circle( $circle, $topic_slug = '', $page = 1, $per_page = 20 ) {
+		$conversation_manager = $this->get_conversation_manager();
+
+		// For now, return all recent conversations
+		// TODO: Filter based on actual circle relationships
+		switch ( $circle ) {
+			case 'close':
+				// Close circle - conversations from direct connections
+				$conversations = $conversation_manager->get_recent_conversations( $per_page );
+				break;
+			case 'trusted':
+				// Trusted circle - close + vetted 2nd circle
+				$conversations = $conversation_manager->get_recent_conversations( $per_page );
+				break;
+			case 'extended':
+				// Extended circle - broader network
+				$conversations = $conversation_manager->get_recent_conversations( $per_page );
+				break;
+			default:
+				$conversations = $conversation_manager->get_recent_conversations( $per_page );
+		}
+
+		return $conversations;
+	}
+
+	/**
+	 * Get count of conversations by circle
+	 */
+	private function get_conversations_count_by_circle( $circle, $topic_slug = '' ) {
+		// For now, return a simple count
+		// TODO: Implement proper circle-based counting
+		global $wpdb;
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $conversations_table" );
 	}
 }

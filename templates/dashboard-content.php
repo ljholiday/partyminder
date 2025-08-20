@@ -212,46 +212,13 @@ ob_start();
 		<h2 class="pm-heading pm-heading-md pm-mb"> <?php _e( 'Conversations', 'partyminder' ); ?></h2>
 		<p class="pm-text-muted"><?php _e( 'Latest discussions about hosting and party planning', 'partyminder' ); ?></p>
 	</div>
-	<?php if ( ! empty( $recent_conversations ) ) : ?>
-		<div class="pm-flex pm-gap pm-flex-column">
-			<?php foreach ( $recent_conversations as $conversation ) : ?>
-				<div class="pm-flex pm-flex-between pm-p-4">
-					<div class="pm-flex-1">
-						<div class="pm-flex pm-gap">
-							<?php if ( $conversation->is_pinned ) : ?>
-								<span class="pm-badge pm-badge-secondary">Pinned</span>
-							<?php endif; ?>
-							<h4 class="pm-heading pm-heading-sm">
-								<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary">
-									<?php echo esc_html( $conversation_manager->get_display_title( $conversation ) ); ?>
-								</a>
-							</h4>
-						</div>
-						<div class="pm-text-muted">
-							<?php
-							printf(
-								__( 'by %1$s in %2$s • %3$s ago', 'partyminder' ),
-								esc_html( $conversation->author_name ),
-								esc_html( $conversation->topic_name ),
-								human_time_diff( strtotime( $conversation->last_reply_date ), current_time( 'timestamp' ) )
-							);
-							?>
-						</div>
-					</div>
-					<div class="pm-text-center">
-						<div class="pm-stat-number pm-text-primary"><?php echo $conversation->reply_count; ?></div>
-						<div class="pm-stat-label"><?php _e( 'replies', 'partyminder' ); ?></div>
-					</div>
-				</div>
-			<?php endforeach; ?>
-		</div>
-	<?php else : ?>
-		<div class="pm-text-center pm-p-4">
-			<div class="pm-mb-4"></div>
-			<h3 class="pm-heading pm-heading-sm pm-mb"><?php _e( 'No Conversations Yet', 'partyminder' ); ?></h3>
-			<p class="pm-text-muted"><?php _e( 'Be the first to start a discussion!', 'partyminder' ); ?></p>
-		</div>
-	<?php endif; ?>
+	
+	<?php 
+	// Include conversations navigation for dashboard
+	$conversations = $recent_conversations; // Pass conversations to the partial
+	include PARTYMINDER_PLUGIN_DIR . 'templates/partials/conversations-nav.php';
+	?>
+	
 	<div class="pm-text-center pm-mt-4">
 		<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn-secondary">
 			<?php _e( 'View All Conversations', 'partyminder' ); ?>
