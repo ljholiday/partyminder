@@ -44,7 +44,7 @@ ob_start();
 
 <!-- Secondary Menu Bar -->
 <div class="pm-section pm-mb-4">
-	<div class="pm-flex pm-gap-4">
+	<div class="pm-flex pm-gap-4 pm-flex-wrap">
 		<?php if ( $user_logged_in ) : ?>
 			<a href="<?php echo PartyMinder::get_create_conversation_url(); ?>" class="pm-btn">
 				<?php _e( 'Start Conversation', 'partyminder' ); ?>
@@ -60,6 +60,17 @@ ob_start();
 		<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
 			<?php _e( 'Dashboard', 'partyminder' ); ?>
 		</a>
+		
+		<!-- Circle Filter Buttons -->
+		<button class="pm-btn pm-btn-secondary is-active" data-circle="close" role="tab" aria-selected="true" aria-controls="pm-convo-list">
+			<?php _e( 'Close Circle', 'partyminder' ); ?>
+		</button>
+		<button class="pm-btn pm-btn-secondary" data-circle="trusted" role="tab" aria-selected="false" aria-controls="pm-convo-list">
+			<?php _e( 'Trusted Circle', 'partyminder' ); ?>
+		</button>
+		<button class="pm-btn pm-btn-secondary" data-circle="extended" role="tab" aria-selected="false" aria-controls="pm-convo-list">
+			<?php _e( 'Extended Circle', 'partyminder' ); ?>
+		</button>
 	</div>
 </div>
 
@@ -68,11 +79,13 @@ ob_start();
 		<h2 class="pm-heading pm-heading-lg pm-mb-4"><?php _e( 'Conversations', 'partyminder' ); ?></h2>
 	</div>
 	
-	<?php 
-	// Include the conversations navigation
-	$conversations = $recent_conversations; // Pass conversations to the partial
-	include PARTYMINDER_PLUGIN_DIR . 'templates/partials/conversations-nav.php';
-	?>
+	<div id="pm-convo-list" class="pm-conversations-list" aria-live="polite">
+		<?php
+		// Load conversations directly to avoid duplicate navigation
+		$conversations = $recent_conversations;
+		include PARTYMINDER_PLUGIN_DIR . 'templates/partials/conversations-list.php';
+		?>
+	</div>
 </div>
 
 <?php

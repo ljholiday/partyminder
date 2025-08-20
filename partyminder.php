@@ -96,6 +96,9 @@ class PartyMinder {
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-ajax-handler.php';
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-ajax-handler.php';
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-ajax-handler.php';
+		
+		// Circle scope resolver
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-circle-scope.php';
 
 		// Page management classes
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-page-content-injector.php';

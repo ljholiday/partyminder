@@ -22,9 +22,9 @@ This feature adds conversation filtering by PartyMinder's circles of trust: Clos
 - **Response**: JSON with HTML content and pagination metadata
 
 ### Circle Definitions
-- **Close Circle**: Direct connections (1st circle)
-- **Trusted Circle**: Close + vetted 2nd circle  
-- **Extended Circle**: Close + Trusted + broader network
+- **Close Circle**: User's own communities and their direct members
+- **Trusted Circle**: Close + members of those communities' other communities  
+- **Extended Circle**: Trusted + members of those communities' other communities
 
 ### Accessibility Features
 - ARIA roles and attributes for tab navigation
@@ -45,11 +45,17 @@ The navigation appears automatically on:
 
 Users can click circle buttons to filter conversations, with AJAX loading and smart title display maintaining context.
 
-## TODO Items
-- Implement actual circle-based identity scope resolution
-- Add server-side caching with short TTL
+## Implementation Complete
+
+### Circle Logic Implemented
+- `class-circle-scope.php` - Complete circle resolution based on community membership
+- Real-time scope calculation for Close, Trusted, and Extended circles
+- Proper conversation filtering by user and community scope
+
+### TODO Items
+- Add server-side caching with short TTL (performance optimization)
 - Implement "Load More" pagination UI
-- Add analytics tracking integration
+- Add analytics tracking integration  
 - Enhance empty state messaging per circle
 
 ## Testing

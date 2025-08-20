@@ -213,16 +213,40 @@ ob_start();
 		<p class="pm-text-muted"><?php _e( 'Latest discussions about hosting and party planning', 'partyminder' ); ?></p>
 	</div>
 	
-	<?php 
-	// Include conversations navigation for dashboard
-	$conversations = $recent_conversations; // Pass conversations to the partial
-	include PARTYMINDER_PLUGIN_DIR . 'templates/partials/conversations-nav.php';
-	?>
+	<!-- Secondary Menu Bar -->
+	<div class="pm-section pm-mb-4">
+		<div class="pm-flex pm-gap-4 pm-flex-wrap">
+			<?php if ( $user_logged_in ) : ?>
+				<a href="<?php echo PartyMinder::get_create_conversation_url(); ?>" class="pm-btn">
+					<?php _e( 'Start Conversation', 'partyminder' ); ?>
+				</a>
+			<?php endif; ?>
+			<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
+				<?php _e( 'Browse Events', 'partyminder' ); ?>
+			</a>
+			<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
+				<?php _e( 'Dashboard', 'partyminder' ); ?>
+			</a>
+			
+			<!-- Circle Filter Buttons -->
+			<button class="pm-btn pm-btn-secondary is-active" data-circle="close" role="tab" aria-selected="true" aria-controls="pm-convo-list">
+				<?php _e( 'Close Circle', 'partyminder' ); ?>
+			</button>
+			<button class="pm-btn pm-btn-secondary" data-circle="trusted" role="tab" aria-selected="false" aria-controls="pm-convo-list">
+				<?php _e( 'Trusted Circle', 'partyminder' ); ?>
+			</button>
+			<button class="pm-btn pm-btn-secondary" data-circle="extended" role="tab" aria-selected="false" aria-controls="pm-convo-list">
+				<?php _e( 'Extended Circle', 'partyminder' ); ?>
+			</button>
+		</div>
+	</div>
 	
-	<div class="pm-text-center pm-mt-4">
-		<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'View All Conversations', 'partyminder' ); ?>
-		</a>
+	<div id="pm-convo-list" class="pm-conversations-list" aria-live="polite">
+		<?php
+		// Load conversations directly instead of via AJAX to avoid duplicate navigation
+		$conversations = $recent_conversations;
+		include PARTYMINDER_PLUGIN_DIR . 'templates/partials/conversations-list.php';
+		?>
 	</div>
 </div>
 			

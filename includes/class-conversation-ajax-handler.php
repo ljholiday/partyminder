@@ -222,12 +222,16 @@ class PartyMinder_Conversation_Ajax_Handler {
 
 		$conversation_manager = $this->get_conversation_manager();
 
-		// For now, implement basic circle filtering
-		// TODO: Implement proper circle-based identity scope resolution
-		$conversations = $this->get_conversations_by_circle( $circle, $topic_slug, $page, $per_page );
-
-		// Calculate pagination info
-		$total_conversations = $this->get_conversations_count_by_circle( $circle, $topic_slug );
+		// Load circle scope resolver
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-circle-scope.php';
+		
+		// Resolve scope for the current user and circle
+		$current_user_id = get_current_user_id();
+		$scope = PartyMinder_Circle_Scope::resolve_conversation_scope( $current_user_id, $circle );
+		
+		// Get conversations and count using scope
+		$conversations = $conversation_manager->get_conversations_by_scope( $scope, $topic_slug, $page, $per_page );
+		$total_conversations = $conversation_manager->get_conversations_count_by_scope( $scope, $topic_slug );
 		$total_pages = ceil( $total_conversations / $per_page );
 		$has_more = $page < $total_pages;
 
@@ -247,43 +251,4 @@ class PartyMinder_Conversation_Ajax_Handler {
 		) );
 	}
 
-	/**
-	 * Get conversations filtered by circle
-	 * TODO: Implement proper circle-based identity scope resolution
-	 */
-	private function get_conversations_by_circle( $circle, $topic_slug = '', $page = 1, $per_page = 20 ) {
-		$conversation_manager = $this->get_conversation_manager();
-
-		// For now, return all recent conversations
-		// TODO: Filter based on actual circle relationships
-		switch ( $circle ) {
-			case 'close':
-				// Close circle - conversations from direct connections
-				$conversations = $conversation_manager->get_recent_conversations( $per_page );
-				break;
-			case 'trusted':
-				// Trusted circle - close + vetted 2nd circle
-				$conversations = $conversation_manager->get_recent_conversations( $per_page );
-				break;
-			case 'extended':
-				// Extended circle - broader network
-				$conversations = $conversation_manager->get_recent_conversations( $per_page );
-				break;
-			default:
-				$conversations = $conversation_manager->get_recent_conversations( $per_page );
-		}
-
-		return $conversations;
-	}
-
-	/**
-	 * Get count of conversations by circle
-	 */
-	private function get_conversations_count_by_circle( $circle, $topic_slug = '' ) {
-		// For now, return a simple count
-		// TODO: Implement proper circle-based counting
-		global $wpdb;
-		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $conversations_table" );
-	}
 }

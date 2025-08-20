@@ -566,6 +566,101 @@ class PartyMinder_Conversation_Manager {
 	}
 
 	/**
+	 * Get conversations filtered by circle scope
+	 */
+	public function get_conversations_by_scope( $scope, $topic_slug = '', $page = 1, $per_page = 20 ) {
+		global $wpdb;
+
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+		$events_table = $wpdb->prefix . 'partyminder_events';
+		$communities_table = $wpdb->prefix . 'partyminder_communities';
+		
+		$offset = ( $page - 1 ) * $per_page;
+		
+		// Build WHERE clause for scope filtering
+		$where_conditions = array();
+		
+		// Include conversations by users in scope
+		if ( ! empty( $scope['users'] ) ) {
+			$user_ids_in = implode( ',', array_map( 'intval', $scope['users'] ) );
+			$where_conditions[] = "c.author_id IN ($user_ids_in)";
+		}
+		
+		// Include conversations in communities in scope
+		if ( ! empty( $scope['communities'] ) ) {
+			$community_ids_in = implode( ',', array_map( 'intval', $scope['communities'] ) );
+			$where_conditions[] = "c.community_id IN ($community_ids_in)";
+		}
+		
+		// If no scope conditions, return empty (shouldn't happen)
+		if ( empty( $where_conditions ) ) {
+			return array();
+		}
+		
+		$where_clause = '(' . implode( ' OR ', $where_conditions ) . ')';
+		
+		// Add topic filter if specified
+		if ( $topic_slug ) {
+			// For now, we don't have topic filtering implemented
+			// This would be added when topic system is built
+		}
+		
+		$query = $wpdb->prepare(
+			"SELECT c.*, e.title as event_title, e.slug as event_slug, cm.name as community_name, cm.slug as community_slug
+			 FROM $conversations_table c
+			 LEFT JOIN $events_table e ON c.event_id = e.id
+			 LEFT JOIN $communities_table cm ON c.community_id = cm.id
+			 WHERE $where_clause
+			 ORDER BY c.last_reply_date DESC
+			 LIMIT %d OFFSET %d",
+			$per_page,
+			$offset
+		);
+
+		return $wpdb->get_results( $query );
+	}
+
+	/**
+	 * Get count of conversations in scope
+	 */
+	public function get_conversations_count_by_scope( $scope, $topic_slug = '' ) {
+		global $wpdb;
+
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+		
+		// Build WHERE clause for scope filtering
+		$where_conditions = array();
+		
+		// Include conversations by users in scope
+		if ( ! empty( $scope['users'] ) ) {
+			$user_ids_in = implode( ',', array_map( 'intval', $scope['users'] ) );
+			$where_conditions[] = "author_id IN ($user_ids_in)";
+		}
+		
+		// Include conversations in communities in scope
+		if ( ! empty( $scope['communities'] ) ) {
+			$community_ids_in = implode( ',', array_map( 'intval', $scope['communities'] ) );
+			$where_conditions[] = "community_id IN ($community_ids_in)";
+		}
+		
+		// If no scope conditions, return 0
+		if ( empty( $where_conditions ) ) {
+			return 0;
+		}
+		
+		$where_clause = '(' . implode( ' OR ', $where_conditions ) . ')';
+		
+		// Add topic filter if specified
+		if ( $topic_slug ) {
+			// For now, we don't have topic filtering implemented
+		}
+		
+		return intval( $wpdb->get_var(
+			"SELECT COUNT(*) FROM $conversations_table WHERE $where_clause"
+		) );
+	}
+
+	/**
 	 * Process content for URL embeds using new pm_embed system
 	 */
 	public function process_content_embeds( $content ) {
