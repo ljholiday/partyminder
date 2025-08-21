@@ -44,28 +44,45 @@ ob_start();
 
 <!-- Secondary Menu Bar -->
 <div class="pm-section pm-mb-4">
-	<div class="pm-flex pm-gap-4">
+	<div class="pm-flex pm-flex-between pm-gap-4">
+		<div class="pm-flex pm-gap-4">
+			<?php if ( $user_logged_in ) : ?>
+				<a href="<?php echo PartyMinder::get_create_conversation_url(); ?>" class="pm-btn">
+					<?php _e( 'Start Conversation', 'partyminder' ); ?>
+				</a>
+			<?php else : ?>
+				<a href="<?php echo add_query_arg( 'redirect_to', urlencode( $_SERVER['REQUEST_URI'] ), PartyMinder::get_login_url() ); ?>" class="pm-btn">
+					<?php _e( 'Login to Participate', 'partyminder' ); ?>
+				</a>
+			<?php endif; ?>
+			<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
+				<?php _e( 'Browse Events', 'partyminder' ); ?>
+			</a>
+			<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
+				<?php _e( 'Dashboard', 'partyminder' ); ?>
+			</a>
+		</div>
+
+		<!-- Circle Filter Buttons -->
 		<?php if ( $user_logged_in ) : ?>
-			<a href="<?php echo PartyMinder::get_create_conversation_url(); ?>" class="pm-btn">
-				<?php _e( 'Start Conversation', 'partyminder' ); ?>
-			</a>
-		<?php else : ?>
-			<a href="<?php echo add_query_arg( 'redirect_to', urlencode( $_SERVER['REQUEST_URI'] ), PartyMinder::get_login_url() ); ?>" class="pm-btn">
-				<?php _e( 'Login to Participate', 'partyminder' ); ?>
-			</a>
+		<div class="pm-flex pm-gap-4">
+			<button class="pm-btn pm-btn-secondary is-active" data-circle="close" role="tab" aria-selected="true" aria-controls="pm-convo-list">
+				<?php _e( 'Close Circle', 'partyminder' ); ?>
+			</button>
+			<button class="pm-btn pm-btn-secondary" data-circle="trusted" role="tab" aria-selected="false" aria-controls="pm-convo-list">
+				<?php _e( 'Trusted Circle', 'partyminder' ); ?>
+			</button>
+			<button class="pm-btn pm-btn-secondary" data-circle="extended" role="tab" aria-selected="false" aria-controls="pm-convo-list">
+				<?php _e( 'Extended Circle', 'partyminder' ); ?>
+			</button>
+		</div>
 		<?php endif; ?>
-		<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'Browse Events', 'partyminder' ); ?>
-		</a>
-		<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'Dashboard', 'partyminder' ); ?>
-		</a>
 	</div>
 </div>
 
 <div class="pm-section">
 	<?php if ( ! empty( $recent_conversations ) ) : ?>
-		<div class="pm-grid pm-grid-2 pm-gap">
+		<div id="pm-convo-list" class="pm-grid pm-grid-2 pm-gap">
 			<?php foreach ( $recent_conversations as $conversation ) : ?>
 				<div class="pm-section">
 					<div class="pm-flex pm-flex-between pm-mb-4">
