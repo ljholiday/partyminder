@@ -259,7 +259,9 @@ if ( $is_editing ) {
 						message.innerHTML = response.data.message;
 						message.className = 'pm-upload-message success';
 						// Reload page to show new image
-						setTimeout(() => window.location.reload(), 1500);
+						setTimeout(function() { 
+							window.location.reload(); 
+						}, 1500);
 					} else {
 						message.innerHTML = response.data;
 						message.className = 'pm-upload-message error';
@@ -313,47 +315,65 @@ if ( $is_editing ) {
 	</div>
 	
 	<?php
-	// Profile Header Section
+	// Profile Header Section - Modern competitive style
 	$cover_photo = $profile_data['cover_image'] ?? '';
-	$cover_style = $cover_photo
-		? "background-image: url('" . esc_url( $cover_photo ) . "'); background-size: cover; background-position: center;"
-		: 'background: linear-gradient(135deg, var(--pm-primary) 0%, #764ba2 100%);';
+	$cover_photo_url = $cover_photo ? esc_url( $cover_photo ) : '';
+	$avatar_url = get_avatar_url( $user_id, array( 'size' => 120 ) );
+	
+	// Debug: Check what we're getting
+	// error_log('Cover photo data: ' . print_r($cover_photo, true));
+	// error_log('Cover photo URL: ' . $cover_photo_url);
 	?>
 	
-	<!-- Profile Header -->
-	<div class="pm-profile-header pm-mb">
-		<div class="pm-profile-cover" style="<?php echo $cover_style; ?>"></div>
+	<!-- Modern Profile Header -->
+	<section class="pm-profile-header-modern pm-mb">
+		<!-- Banner -->
+		<div class="pm-profile-cover pm-profile-banner">
+			<?php if ( $cover_photo_url ) : ?>
+				<img id="pm-banner-img" 
+					 src="<?php echo $cover_photo_url; ?>" 
+					 alt="<?php esc_attr_e( 'Profile banner', 'partyminder' ); ?>"
+					 style="width: 100%; height: 100%; object-fit: cover;">
+			<?php else : ?>
+				<div class="pm-flex pm-flex-center pm-text-center" style="height: 100%; background: linear-gradient(135deg, var(--pm-primary) 0%, #764ba2 100%);"></div>
+			<?php endif; ?>
+		</div>
 		
-		<div class="pm-profile-info">
-			<div class="pm-flex pm-gap pm-mb">
-				<div class="pm-profile-avatar">
-					<?php echo get_avatar( $user_id, 120 ); ?>
-				</div>
-				
-				<div class="pm-flex-1">
-					<h1 class="pm-heading pm-heading-xl pm-mb"><?php echo esc_html( $user_data->display_name ); ?></h1>
-					
-					<div class="pm-flex pm-gap pm-flex-wrap pm-mb pm-text-muted">
-						<?php if ( ! empty( $profile_data['location'] ) ) : ?>
-						<span> <?php echo esc_html( $profile_data['location'] ); ?></span>
-						<?php endif; ?>
-						<span> <?php printf( __( 'Member since %s', 'partyminder' ), date( 'M Y', strtotime( $user_data->user_registered ) ) ); ?></span>
-						<span>⭐ <?php _e( 'Active Host', 'partyminder' ); ?></span>
-					</div>
-					
-				</div>
+		<!-- Avatar + Right content row -->
+		<div class="pm-flex pm-flex-between pm-avatar-row">
+			<div id="pm-avatar" 
+				 class="pm-profile-avatar pm-avatar-modern" 
+				 role="img"
+				 aria-label="<?php echo esc_attr( $user_data->display_name ); ?>">
+				<img src="<?php echo esc_url( $avatar_url ); ?>" alt="<?php echo esc_attr( $user_data->display_name ); ?>" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+			</div>
+			
+			<?php if ( ! $is_own_profile ) : ?>
+			<div class="pm-flex pm-gap">
+				<button class="pm-btn" onclick="alert('Follow functionality coming soon!')">
+					<?php _e( 'Follow', 'partyminder' ); ?>
+				</button>
+			</div>
+			<?php endif; ?>
+		</div>
+		
+		<!-- Identity/text row -->
+		<div class="pm-profile-identity">
+			<h1 class="pm-heading pm-heading-xl pm-mb"><?php echo esc_html( $user_data->display_name ); ?></h1>
+			<div class="pm-text-muted pm-mb">@<?php echo esc_html( $user_data->user_login ); ?></div>
+			
+			<?php if ( ! empty( $profile_data['bio'] ) ) : ?>
+			<div class="pm-mb"><?php echo esc_html( $profile_data['bio'] ); ?></div>
+			<?php endif; ?>
+			
+			<div class="pm-flex pm-flex-wrap pm-gap pm-text-muted">
+				<?php if ( ! empty( $profile_data['location'] ) ) : ?>
+				<span><?php echo esc_html( $profile_data['location'] ); ?></span>
+				<?php endif; ?>
+				<span><?php printf( __( 'Joined %s', 'partyminder' ), date( 'M Y', strtotime( $user_data->user_registered ) ) ); ?></span>
 			</div>
 		</div>
-	</div>
-	
-	<?php if ( ! empty( $profile_data['bio'] ) ) : ?>
-	<div class="pm-section pm-mb">
-		<div class="pm-section-header">
-			<h3 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'About', 'partyminder' ); ?></h3>
-		</div>
-		<p><?php echo esc_html( $profile_data['bio'] ); ?></p>
-	</div>
-	<?php endif; ?>
+	</section>
 
 	<div class="pm-section">
 		<div class="pm-section-header">
