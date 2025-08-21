@@ -125,88 +125,91 @@ if ( $is_editing ) {
 			</div>
 		</div>
 		
-		<div class="pm-mb-4">
-			<h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e( 'Profile Images', 'partyminder' ); ?></h3>
-			
-			<div class="pm-form-row">
-				<!-- Profile Photo Upload -->
+		<!-- Profile Photo Upload Card -->
+		<div class="pm-card pm-mb-4">
+			<div class="pm-card-header">
+				<h3 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Profile Photo', 'partyminder' ); ?></h3>
+			</div>
+			<div class="pm-card-body">
+				<div class="pm-text-center pm-mb">
+					<div class="pm-profile-avatar" style="width: 120px; height: 120px; margin: 0 auto;">
+						<?php if ( ( $profile_data['avatar_source'] ?? 'gravatar' ) === 'custom' && ! empty( $profile_data['profile_image'] ) ) : ?>
+						<img src="<?php echo esc_url( $profile_data['profile_image'] ); ?>" 
+							style="width: 100%; height: 100%; object-fit: cover;" 
+							alt="<?php _e( 'Profile photo', 'partyminder' ); ?>">
+						<?php else : ?>
+						<?php echo get_avatar( $user_id, 120, '', '', array( 'style' => 'width: 100%; height: 100%; object-fit: cover;' ) ); ?>
+						<?php endif; ?>
+					</div>
+				</div>
+				<p class="pm-form-help pm-text-muted pm-mb"><?php _e( 'Your profile photo appears throughout the site', 'partyminder' ); ?></p>
+				
 				<div class="pm-form-group">
-					<label class="pm-form-label"><?php _e( 'Profile Photo', 'partyminder' ); ?></label>
-					<div class="pm-text-center pm-mb">
-						<div class="pm-profile-avatar" style="width: 120px; height: 120px; margin: 0 auto;">
-							<?php if ( ( $profile_data['avatar_source'] ?? 'gravatar' ) === 'custom' && ! empty( $profile_data['profile_image'] ) ) : ?>
-							<img src="<?php echo esc_url( $profile_data['profile_image'] ); ?>" 
-								style="width: 100%; height: 100%; object-fit: cover;" 
-								alt="<?php _e( 'Profile photo', 'partyminder' ); ?>">
-							<?php else : ?>
-							<?php echo get_avatar( $user_id, 120, '', '', array( 'style' => 'width: 100%; height: 100%; object-fit: cover;' ) ); ?>
-							<?php endif; ?>
-						</div>
-					</div>
-					<p class="pm-form-help pm-text-muted pm-mb"><?php _e( 'Your profile photo appears throughout the site', 'partyminder' ); ?></p>
-					
-					<div class="pm-form-group">
-						<label class="pm-form-label"><?php _e( 'Avatar Source', 'partyminder' ); ?></label>
-						<div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-							<label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-								<input type="radio" name="avatar_source" value="gravatar" <?php checked( $profile_data['avatar_source'] ?? 'gravatar', 'gravatar' ); ?>>
-								<span class="pm-btn pm-btn-secondary"><?php _e( 'Gravatar', 'partyminder' ); ?></span>
-							</label>
-							<label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-								<input type="radio" name="avatar_source" value="custom" <?php checked( $profile_data['avatar_source'] ?? 'gravatar', 'custom' ); ?>>
-								<span class="pm-btn pm-btn-secondary"><?php _e( 'Custom Avatar', 'partyminder' ); ?></span>
-							</label>
-						</div>
-					</div>
-					
-					<div class="pm-avatar-upload">
-						<input type="file" id="avatar_upload" accept="image/*" style="display: none;">
-						<button type="button" class="pm-btn pm-btn-secondary" onclick="document.getElementById('avatar_upload').click()">
-							Upload Profile Photo
-						</button>
-						<div class="pm-upload-progress" style="display: none; margin-top: 10px;">
-							<div class="pm-progress-bar">
-								<div class="pm-progress-fill"></div>
-							</div>
-							<div class="pm-progress-text">0%</div>
-						</div>
-						<div class="pm-upload-message" style="margin-top: 10px;"></div>
+					<label class="pm-form-label"><?php _e( 'Avatar Source', 'partyminder' ); ?></label>
+					<div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+						<label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+							<input type="radio" name="avatar_source" value="gravatar" <?php checked( $profile_data['avatar_source'] ?? 'gravatar', 'gravatar' ); ?>>
+							<span class="pm-btn pm-btn-secondary"><?php _e( 'Gravatar', 'partyminder' ); ?></span>
+						</label>
+						<label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+							<input type="radio" name="avatar_source" value="custom" <?php checked( $profile_data['avatar_source'] ?? 'gravatar', 'custom' ); ?>>
+							<span class="pm-btn pm-btn-secondary"><?php _e( 'Custom Avatar', 'partyminder' ); ?></span>
+						</label>
 					</div>
 				</div>
 				
-				<!-- Cover Photo Upload -->
-				<div class="pm-form-group">
-					<label class="pm-form-label"><?php _e( 'Cover Photo', 'partyminder' ); ?></label>
-					<div class="pm-text-center pm-mb">
-						<div style="width: 200px; height: 80px; margin: 0 auto; border-radius: 0.5rem; overflow: hidden; border: 2px solid #e2e8f0;">
-							<?php if ( ! empty( $profile_data['cover_image'] ) ) : ?>
-							<img src="<?php echo esc_url( $profile_data['cover_image'] ); ?>" 
-								style="width: 100%; height: 100%; object-fit: cover;" 
-								alt="<?php _e( 'Cover photo preview', 'partyminder' ); ?>">
-							<?php else : ?>
-							<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #3b82f6 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem;">
-								<?php _e( 'No cover photo', 'partyminder' ); ?>
-							</div>
-							<?php endif; ?>
+				<div class="pm-avatar-upload">
+					<input type="file" id="avatar_upload" accept="image/*" style="display: none;">
+					<button type="button" class="pm-btn pm-btn-secondary" onclick="document.getElementById('avatar_upload').click()">
+						Upload Profile Photo
+					</button>
+					<div class="pm-upload-progress" style="display: none; margin-top: 10px;">
+						<div class="pm-progress-bar">
+							<div class="pm-progress-fill"></div>
 						</div>
+						<div class="pm-progress-text">0%</div>
 					</div>
-					<p class="pm-form-help pm-text-muted pm-mb"><?php _e( 'Your cover photo appears at the top of your profile', 'partyminder' ); ?></p>
-					
-					<div class="pm-cover-upload">
-						<input type="file" id="cover_upload" accept="image/*" style="display: none;">
-						<button type="button" class="pm-btn pm-btn-secondary" onclick="document.getElementById('cover_upload').click()">
-							Upload Cover Photo
-						</button>
-						<div class="pm-upload-progress" style="display: none; margin-top: 10px;">
-							<div class="pm-progress-bar">
-								<div class="pm-progress-fill"></div>
-							</div>
-							<div class="pm-progress-text">0%</div>
-						</div>
-						<div class="pm-upload-message" style="margin-top: 10px;"></div>
-					</div>
+					<div class="pm-upload-message" style="margin-top: 10px;"></div>
 				</div>
 			</div>
+		</div>
+		
+		<!-- Cover Photo Upload Card -->
+		<div class="pm-card pm-mb-4">
+			<div class="pm-card-header">
+				<h3 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Cover Photo', 'partyminder' ); ?></h3>
+			</div>
+			<div class="pm-card-body">
+				<div class="pm-text-center pm-mb">
+					<div style="width: 200px; height: 80px; margin: 0 auto; border-radius: 0.5rem; overflow: hidden; border: 2px solid #e2e8f0;">
+						<?php if ( ! empty( $profile_data['cover_image'] ) ) : ?>
+						<img src="<?php echo esc_url( $profile_data['cover_image'] ); ?>" 
+							style="width: 100%; height: 100%; object-fit: cover;" 
+							alt="<?php _e( 'Cover photo preview', 'partyminder' ); ?>">
+						<?php else : ?>
+						<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #3b82f6 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem;">
+							<?php _e( 'No cover photo', 'partyminder' ); ?>
+						</div>
+						<?php endif; ?>
+					</div>
+				</div>
+				<p class="pm-form-help pm-text-muted pm-mb"><?php _e( 'Your cover photo appears at the top of your profile', 'partyminder' ); ?></p>
+				
+				<div class="pm-cover-upload">
+					<input type="file" id="cover_upload" accept="image/*" style="display: none;">
+					<button type="button" class="pm-btn pm-btn-secondary" onclick="document.getElementById('cover_upload').click()">
+						Upload Cover Photo
+					</button>
+					<div class="pm-upload-progress" style="display: none; margin-top: 10px;">
+						<div class="pm-progress-bar">
+							<div class="pm-progress-fill"></div>
+						</div>
+						<div class="pm-progress-text">0%</div>
+					</div>
+					<div class="pm-upload-message" style="margin-top: 10px;"></div>
+				</div>
+			</div>
+		</div>
 		</div>
 		
 		<div class="pm-form-actions">
