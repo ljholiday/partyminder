@@ -53,7 +53,7 @@ class PartyMinder_Page_Body_Class_Manager {
 	}
 
 	public function add_conversations_body_class( $classes ) {
-		$classes[] = 'partyminder-conversations';
+		$classes[] = 'partyminder-conversations-listing';
 		return $classes;
 	}
 

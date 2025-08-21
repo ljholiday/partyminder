@@ -37,51 +37,53 @@ if ( ! isset( $conversation_manager ) ) {
 }
 ?>
 
-<div class="pm-grid pm-gap">
+<div class="pm-grid pm-grid-2 pm-gap">
 	<?php foreach ( $conversations as $conversation ) : ?>
-		<?php
-		// Determine conversation context
-		$context_info = '';
-		
-		if ( $conversation->event_id ) {
-			$context_info = __( 'Event Discussion', 'partyminder' );
-		} elseif ( $conversation->community_id ) {
-			$context_info = __( 'Community Discussion', 'partyminder' );
-		} else {
-			$context_info = __( 'General Discussion', 'partyminder' );
-		}
-		?>
-		
 		<div class="pm-section">
-			<div class="pm-section-header pm-flex pm-flex-between pm-mb-4">
+			<div class="pm-flex pm-flex-between pm-mb-4">
 				<h3 class="pm-heading pm-heading-sm">
-					<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary">
-						<?php echo esc_html( $conversation_manager->get_display_title( $conversation ) ); ?>
-					</a>
+					<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary"><?php echo esc_html( $conversation_manager->get_display_title( $conversation ) ); ?></a>
 				</h3>
-				<div class="pm-badge pm-badge-secondary">
-					<?php echo esc_html( $context_info ); ?>
-				</div>
 			</div>
 			
 			<div class="pm-mb-4">
-				<div class="pm-flex pm-gap">
-					<span class="pm-text-muted"><?php echo $conversation->reply_count; ?> replies</span>
+				<div class="pm-flex pm-gap pm-mb-4">
+					<span class="pm-text-muted">
+						<?php
+						if ( $conversation->event_id ) {
+							_e( 'Event Discussion', 'partyminder' );
+						} elseif ( $conversation->community_id ) {
+							_e( 'Community Discussion', 'partyminder' );
+						} else {
+							_e( 'General Discussion', 'partyminder' );
+						}
+						?>
+					</span>
+				</div>
+				
+				<div class="pm-flex pm-gap pm-mb-4">
+					<span class="pm-text-muted">
+						<?php printf( __( 'Started by %s', 'partyminder' ), esc_html( $conversation->author_name ) ); ?>
+					</span>
 				</div>
 			</div>
 			
+			<?php if ( $conversation->content ) : ?>
 			<div class="pm-mb-4">
-				<p class="pm-text-muted"><?php echo wp_trim_words( strip_tags( $conversation->content ), 15 ); ?></p>
+				<p class="pm-text-muted"><?php echo esc_html( wp_trim_words( $conversation->excerpt ?: $conversation->content, 15 ) ); ?></p>
 			</div>
+			<?php endif; ?>
 			
-			<div class="pm-flex pm-flex-between pm-mt-4">
+			<div class="pm-flex pm-flex-between">
 				<div class="pm-stat">
 					<div class="pm-stat-number pm-text-primary"><?php echo $conversation->reply_count; ?></div>
-					<div class="pm-text-muted">Replies</div>
+					<div class="pm-stat-label">
+						<?php _e( 'Replies', 'partyminder' ); ?>
+					</div>
 				</div>
 				
 				<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-btn pm-btn-secondary">
-					Join Discussion
+					<?php _e( 'View Details', 'partyminder' ); ?>
 				</a>
 			</div>
 		</div>

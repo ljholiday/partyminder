@@ -304,6 +304,8 @@ body.admin-bar .pm-page-two-column {
     margin: 0 0 0.5rem 0;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    hyphens: auto;
+    line-height: 1.2;
 }
 
 .pm-heading-xl { font-size: 2.5rem; }
@@ -598,7 +600,7 @@ body.admin-bar .pm-page-two-column {
 .pm-gap-4 { gap: 1rem; }
 
 .pm-grid { display: grid; }
-.pm-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.pm-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .pm-grid-3 { grid-template-columns: repeat(3, 1fr); }
 .pm-grid-auto {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));

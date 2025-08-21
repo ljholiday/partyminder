@@ -157,7 +157,7 @@ class PartyMinder_Page_Content_Injector {
 
 		ob_start();
 		echo '<div class="partyminder-content partyminder-conversations-page">';
-		include PARTYMINDER_PLUGIN_DIR . 'templates/conversations-content.php';
+		include PARTYMINDER_PLUGIN_DIR . 'templates/conversations.php';
 		echo '</div>';
 		return ob_get_clean();
 	}

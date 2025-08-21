@@ -44,7 +44,7 @@ ob_start();
 
 <!-- Secondary Menu Bar -->
 <div class="pm-section pm-mb-4">
-	<div class="pm-flex pm-gap-4 pm-flex-wrap">
+	<div class="pm-flex pm-gap-4">
 		<?php if ( $user_logged_in ) : ?>
 			<a href="<?php echo PartyMinder::get_create_conversation_url(); ?>" class="pm-btn">
 				<?php _e( 'Start Conversation', 'partyminder' ); ?>
@@ -60,26 +60,70 @@ ob_start();
 		<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
 			<?php _e( 'Dashboard', 'partyminder' ); ?>
 		</a>
-		
-		<!-- Circle Filter Buttons -->
-		<button class="pm-btn pm-btn-secondary is-active" data-circle="close" role="tab" aria-selected="true" aria-controls="pm-convo-list">
-			<?php _e( 'Close Circle', 'partyminder' ); ?>
-		</button>
-		<button class="pm-btn pm-btn-secondary" data-circle="trusted" role="tab" aria-selected="false" aria-controls="pm-convo-list">
-			<?php _e( 'Trusted Circle', 'partyminder' ); ?>
-		</button>
-		<button class="pm-btn pm-btn-secondary" data-circle="extended" role="tab" aria-selected="false" aria-controls="pm-convo-list">
-			<?php _e( 'Extended Circle', 'partyminder' ); ?>
-		</button>
 	</div>
 </div>
 
 <div class="pm-section">
-	<?php
-	// Load conversations directly to avoid duplicate navigation
-	$conversations = $recent_conversations;
-	include PARTYMINDER_PLUGIN_DIR . 'templates/partials/conversations-list.php';
-	?>
+	<?php if ( ! empty( $recent_conversations ) ) : ?>
+		<div class="pm-grid pm-grid-2 pm-gap">
+			<?php foreach ( $recent_conversations as $conversation ) : ?>
+				<div class="pm-section">
+					<div class="pm-flex pm-flex-between pm-mb-4">
+						<h3 class="pm-heading pm-heading-sm">
+							<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary"><?php echo esc_html( $conversation_manager->get_display_title( $conversation ) ); ?></a>
+						</h3>
+					</div>
+					
+					<div class="pm-mb-4">
+						<div class="pm-flex pm-gap pm-mb-4">
+							<span class="pm-text-muted">
+								<?php
+								if ( $conversation->event_id ) {
+									_e( 'Event Discussion', 'partyminder' );
+								} elseif ( $conversation->community_id ) {
+									_e( 'Community Discussion', 'partyminder' );
+								} else {
+									_e( 'General Discussion', 'partyminder' );
+								}
+								?>
+							</span>
+						</div>
+						
+						<div class="pm-flex pm-gap pm-mb-4">
+							<span class="pm-text-muted">
+								<?php printf( __( 'Started by %s', 'partyminder' ), esc_html( $conversation->author_name ) ); ?>
+							</span>
+						</div>
+					</div>
+					
+					<?php if ( $conversation->content ) : ?>
+					<div class="pm-mb-4">
+						<p class="pm-text-muted"><?php echo esc_html( wp_trim_words( $conversation->excerpt ?: $conversation->content, 15 ) ); ?></p>
+					</div>
+					<?php endif; ?>
+					
+					<div class="pm-flex pm-flex-between">
+						<div class="pm-stat">
+							<div class="pm-stat-number pm-text-primary"><?php echo $conversation->reply_count; ?></div>
+							<div class="pm-stat-label">
+								<?php _e( 'Replies', 'partyminder' ); ?>
+							</div>
+						</div>
+						
+						<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-btn pm-btn-secondary">
+							<?php _e( 'View Details', 'partyminder' ); ?>
+						</a>
+					</div>
+				</div>
+			<?php endforeach; ?>
+		</div>
+		
+	<?php else : ?>
+		<div class="pm-text-center pm-p-4">
+			<h3 class="pm-heading pm-heading-sm pm-mb-4"><?php _e( 'No Conversations Found', 'partyminder' ); ?></h3>
+			<p class="pm-text-muted"><?php _e( 'There are no conversations to display.', 'partyminder' ); ?></p>
+		</div>
+	<?php endif; ?>
 </div>
 
 <?php
