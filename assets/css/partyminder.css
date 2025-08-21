@@ -675,7 +675,7 @@ body.admin-bar .pm-page-two-column {
     
     .pm-grid-2, 
     .pm-grid-3 {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
     
     .pm-profile-cover {
