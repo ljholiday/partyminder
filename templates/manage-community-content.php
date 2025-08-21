@@ -441,26 +441,31 @@ document.addEventListener('DOMContentLoaded', function() {
 			return;
 		}
 		
-		let html = '<div class="pm-member-list">';
+		let html = '<div class="pm-grid pm-grid-2 pm-gap">';
 		members.forEach(member => {
 			const initials = member.display_name ? member.display_name.substring(0, 2).toUpperCase() : 'U';
 			const joinedDate = new Date(member.joined_at).toLocaleDateString();
 			
 			html += `
-				<div class="pm-member-item" data-member-id="${member.id}">
-					<div class="pm-member-info">
-						<div class="pm-member-avatar">${initials}</div>
-						<div class="pm-member-details">
-							<h4>${member.display_name || member.email}</h4>
-							<small><?php _e( 'Member since', 'partyminder' ); ?> ${joinedDate}</small>
+				<div class="pm-section" data-member-id="${member.id}">
+					<div class="pm-flex pm-flex-between pm-mb-4">
+						<h4 class="pm-heading pm-heading-sm">${member.display_name || member.email}</h4>
+						<span class="pm-badge pm-badge-${member.role === 'admin' ? 'primary' : 'secondary'}">${member.role}</span>
+					</div>
+					
+					<div class="pm-mb-4">
+						<div class="pm-flex pm-gap pm-mb-4">
+							<span class="pm-text-muted"><?php _e( 'Member since', 'partyminder' ); ?> ${joinedDate}</span>
 						</div>
 					</div>
-					<div class="pm-member-actions">
-						<span class="pm-member-role ${member.role}">${member.role}</span>
-						${member.role === 'member' ? 
-							'<button class="pm-btn pm-btn-secondary promote-btn" data-member-id="' + member.id + '"><?php _e( 'Promote', 'partyminder' ); ?></button>' : 
-							(member.role === 'admin' ? '<button class="pm-btn pm-btn-secondary demote-btn" data-member-id="' + member.id + '"><?php _e( 'Demote', 'partyminder' ); ?></button>' : '')
-						}
+					
+					<div class="pm-flex pm-flex-between" style="align-items: center; min-height: 40px;">
+						<div class="pm-flex pm-gap-4">
+							${member.role === 'member' ? 
+								'<button class="pm-btn pm-btn-secondary promote-btn" data-member-id="' + member.id + '"><?php _e( 'Promote', 'partyminder' ); ?></button>' : 
+								(member.role === 'admin' ? '<button class="pm-btn pm-btn-secondary demote-btn" data-member-id="' + member.id + '"><?php _e( 'Demote', 'partyminder' ); ?></button>' : '')
+							}
+						</div>
 						<button class="pm-btn pm-btn-danger remove-btn" data-member-id="${member.id}" data-member-name="${member.display_name || member.email}">
 							<?php _e( 'Remove', 'partyminder' ); ?>
 						</button>
