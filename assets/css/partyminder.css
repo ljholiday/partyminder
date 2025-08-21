@@ -164,6 +164,7 @@ body.admin-bar .pm-page-two-column {
     .pm-main-content {
         padding: 0.5rem;
         margin: 0;
+        overflow-y: visible;
     }
     
     .pm-sidebar {
