@@ -73,7 +73,7 @@ ob_start();
 				$is_past     = $event_date < new DateTime();
 				?>
 				
-				<div class="pm-section pm-p-4">
+				<div class="pm-section">
 					<div class="pm-flex pm-flex-between pm-mb-4">
 						<h3 class="pm-heading pm-heading-sm">
 							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-text-primary"><?php echo esc_html( $event->title ); ?></a>

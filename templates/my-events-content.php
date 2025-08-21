@@ -172,7 +172,7 @@ ob_start();
 			$is_tomorrow = $event_date->format( 'Y-m-d' ) === date( 'Y-m-d', strtotime( '+1 day' ) );
 			$is_past     = $event_date < new DateTime();
 			?>
-			<div class="pm-section pm-p-4">
+			<div class="pm-section">
 				<div class="pm-flex pm-flex-between pm-mb-4">
 					<div class="pm-flex-1">
 						<h3 class="pm-heading pm-heading-sm pm-mb-2">
@@ -268,7 +268,7 @@ ob_start();
 			);
 			$badge_class = 'pm-badge-' . ( $event->rsvp_status === 'confirmed' ? 'success' : ( $event->rsvp_status === 'declined' ? 'danger' : 'warning' ) );
 			?>
-			<div class="pm-section pm-p-4">
+			<div class="pm-section">
 				<div class="pm-flex pm-flex-between pm-mb-4">
 					<div class="pm-flex-1">
 						<h3 class="pm-heading pm-heading-sm pm-mb-2">

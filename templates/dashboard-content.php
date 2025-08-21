@@ -172,7 +172,7 @@ ob_start();
 				$is_past    = strtotime( $event->event_date ) < time();
 				$is_hosting = $event->relationship_type === 'created';
 				?>
-				<div class="pm-flex pm-flex-between pm-p-4">
+				<div class="pm-section pm-flex pm-flex-between">
 					<div class="pm-flex-1">
 						<h4 class="pm-heading pm-heading-sm">
 							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-text-primary">
@@ -303,7 +303,7 @@ ob_start();
 					<!-- Conversations List (Initially collapsed) -->
 					<div class="pm-event-conversations-list pm-mt-4" id="event-<?php echo $event_id; ?>" style="display: none;">
 						<?php foreach ( $event_data['conversations'] as $conversation ) : ?>
-							<div class="pm-flex pm-flex-between pm-p-4 pm-mb-4">
+							<div class="pm-section pm-flex pm-flex-between pm-mb-4">
 								<div class="pm-flex-1">
 									<div class="pm-flex pm-gap">
 										<span></span>
@@ -396,7 +396,7 @@ ob_start();
 					<!-- Conversations List (Initially collapsed) -->
 					<div class="pm-community-conversations-list pm-mt-4" id="community-<?php echo $community_id; ?>" style="display: none;">
 						<?php foreach ( $community_data['conversations'] as $conversation ) : ?>
-							<div class="pm-flex pm-flex-between pm-p-4 pm-mb-4">
+							<div class="pm-section pm-flex pm-flex-between pm-mb-4">
 								<div class="pm-flex-1">
 									<div class="pm-flex pm-gap">
 										<?php if ( $conversation->is_pinned ) : ?>

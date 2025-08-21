@@ -37,68 +37,52 @@ if ( ! isset( $conversation_manager ) ) {
 }
 ?>
 
-<div class="pm-grid pm-grid-1 pm-gap">
+<div class="pm-grid pm-gap">
 	<?php foreach ( $conversations as $conversation ) : ?>
 		<?php
 		// Determine conversation context
 		$context_info = '';
-		$context_link = '';
 		
 		if ( $conversation->event_id ) {
-			$context_info = sprintf( __( 'Event Discussion', 'partyminder' ) );
-			$context_link = home_url( '/events/' . $conversation->event_slug );
+			$context_info = __( 'Event Discussion', 'partyminder' );
 		} elseif ( $conversation->community_id ) {
-			$context_info = sprintf( __( 'Community Discussion', 'partyminder' ) );
-			$context_link = home_url( '/communities/' . $conversation->community_slug );
+			$context_info = __( 'Community Discussion', 'partyminder' );
 		} else {
 			$context_info = __( 'General Discussion', 'partyminder' );
 		}
 		?>
 		
-		<div class="pm-section pm-p-4">
-			<div class="pm-flex pm-flex-between pm-mb-4">
-				<div class="pm-flex-1">
-					<h3 class="pm-heading pm-heading-sm pm-mb-2">
-						<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary">
-							<?php echo esc_html( $conversation_manager->get_display_title( $conversation ) ); ?>
-						</a>
-					</h3>
-					<div class="pm-flex pm-gap pm-flex-wrap">
-						<span class="pm-badge pm-badge-secondary"><?php echo esc_html( $context_info ); ?></span>
-						<?php if ( $conversation->is_pinned ) : ?>
-							<span class="pm-badge pm-badge-warning"><?php _e( 'Pinned', 'partyminder' ); ?></span>
-						<?php endif; ?>
-					</div>
-				</div>
-				<div class="pm-stat pm-text-center">
-					<div class="pm-stat-number pm-text-primary"><?php echo $conversation->reply_count; ?></div>
-					<div class="pm-stat-label"><?php _e( 'Replies', 'partyminder' ); ?></div>
+		<div class="pm-section">
+			<div class="pm-section-header pm-flex pm-flex-between pm-mb-4">
+				<h3 class="pm-heading pm-heading-sm">
+					<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary">
+						<?php echo esc_html( $conversation_manager->get_display_title( $conversation ) ); ?>
+					</a>
+				</h3>
+				<div class="pm-badge pm-badge-secondary">
+					<?php echo esc_html( $context_info ); ?>
 				</div>
 			</div>
 			
 			<div class="pm-mb-4">
-				<p class="pm-text-muted">
-					<?php 
-					$content_preview = wp_trim_words( strip_tags( $conversation->content ), 20, '...' );
-					echo esc_html( $content_preview );
-					?>
-				</p>
+				<div class="pm-flex pm-gap">
+					<span class="pm-text-muted"><?php echo $conversation->reply_count; ?> replies</span>
+				</div>
 			</div>
 			
-			<div class="pm-flex pm-flex-between pm-flex-wrap pm-gap">
-				<div class="pm-text-muted">
-					<?php _e( 'Started by', 'partyminder' ); ?> 
-					<strong><?php echo esc_html( $conversation->author_name ); ?></strong>
-					• <?php echo human_time_diff( strtotime( $conversation->created_at ), current_time( 'timestamp' ) ); ?> <?php _e( 'ago', 'partyminder' ); ?>
+			<div class="pm-mb-4">
+				<p class="pm-text-muted"><?php echo wp_trim_words( strip_tags( $conversation->content ), 15 ); ?></p>
+			</div>
+			
+			<div class="pm-flex pm-flex-between pm-mt-4">
+				<div class="pm-stat">
+					<div class="pm-stat-number pm-text-primary"><?php echo $conversation->reply_count; ?></div>
+					<div class="pm-text-muted">Replies</div>
 				</div>
 				
-				<?php if ( $conversation->last_reply_author && $conversation->reply_count > 0 ) : ?>
-					<div class="pm-text-muted">
-						<?php _e( 'Last reply by', 'partyminder' ); ?> 
-						<strong><?php echo esc_html( $conversation->last_reply_author ); ?></strong>
-						• <?php echo human_time_diff( strtotime( $conversation->last_reply_date ), current_time( 'timestamp' ) ); ?> <?php _e( 'ago', 'partyminder' ); ?>
-					</div>
-				<?php endif; ?>
+				<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-btn pm-btn-secondary">
+					Join Discussion
+				</a>
 			</div>
 		</div>
 	<?php endforeach; ?>

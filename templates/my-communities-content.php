@@ -102,7 +102,7 @@ ob_start();
 	
 	<div class="pm-grid pm-grid-1 pm-gap">
 		<?php foreach ( $user_communities as $community ) : ?>
-			<div class="pm-section pm-p-4">
+			<div class="pm-section">
 				<div class="pm-flex pm-flex-between pm-mb-4">
 					<div class="pm-flex-1">
 						<h3 class="pm-heading pm-heading-sm pm-mb-2">

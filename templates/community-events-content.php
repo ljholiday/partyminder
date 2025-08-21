@@ -180,7 +180,7 @@ ob_start();
 				$status_text  = $is_past ? __( 'Past', 'partyminder' ) : ( $is_today ? __( 'Today', 'partyminder' ) : __( 'Upcoming', 'partyminder' ) );
 				?>
 				
-				<div class="pm-event-card pm-section pm-p-4" data-filter-tags="all <?php echo $status_class; ?>">
+				<div class="pm-event-card pm-section" data-filter-tags="all <?php echo $status_class; ?>">
 					<div class="pm-flex pm-flex-between pm-mb-4">
 						<div class="pm-flex-1">
 							<h3 class="pm-heading pm-heading-sm pm-mb-2">

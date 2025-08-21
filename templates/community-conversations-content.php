@@ -154,7 +154,7 @@ ob_start();
 				<?php if ( ! empty( $community_conversations ) ) : ?>
 					<div class="pm-conversations-list">
 						<?php foreach ( $community_conversations as $conversation ) : ?>
-							<div class="pm-conversation-item pm-flex pm-flex-between pm-p-4 pm-mb-4">
+							<div class="pm-section pm-flex pm-flex-between">
 								<div class="pm-flex-1">
 									<div class="pm-flex pm-gap pm-mb-2">
 										<?php if ( $conversation->is_pinned ) : ?>

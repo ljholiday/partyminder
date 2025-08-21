@@ -75,17 +75,11 @@ ob_start();
 </div>
 
 <div class="pm-section">
-	<div class="pm-section-header">
-		<h2 class="pm-heading pm-heading-lg pm-mb-4"><?php _e( 'Conversations', 'partyminder' ); ?></h2>
-	</div>
-	
-	<div id="pm-convo-list" class="pm-conversations-list" aria-live="polite">
-		<?php
-		// Load conversations directly to avoid duplicate navigation
-		$conversations = $recent_conversations;
-		include PARTYMINDER_PLUGIN_DIR . 'templates/partials/conversations-list.php';
-		?>
-	</div>
+	<?php
+	// Load conversations directly to avoid duplicate navigation
+	$conversations = $recent_conversations;
+	include PARTYMINDER_PLUGIN_DIR . 'templates/partials/conversations-list.php';
+	?>
 </div>
 
 <?php
