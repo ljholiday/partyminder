@@ -101,7 +101,7 @@ if ( $is_editing ) {
 						id="display_name" 
 						name="display_name" 
 						class="pm-form-input" 
-						value="<?php echo esc_attr( $user_data->display_name ); ?>" 
+						value="<?php echo esc_attr( $profile_data['display_name'] ?? $user_data->display_name ); ?>" 
 						required>
 			</div>
 			
@@ -404,7 +404,7 @@ if ( $is_editing ) {
 		
 		<!-- Identity/text row -->
 		<div class="pm-profile-identity">
-			<h1 class="pm-heading pm-heading-xl pm-mb"><?php echo esc_html( $user_data->display_name ); ?></h1>
+			<h1 class="pm-heading pm-heading-xl pm-mb"><?php echo esc_html( PartyMinder_Profile_Manager::get_display_name( $user_id ) ); ?></h1>
 			<div class="pm-text-muted pm-mb">@<?php echo esc_html( $user_data->user_login ); ?></div>
 			
 			<?php if ( ! empty( $profile_data['bio'] ) ) : ?>
@@ -490,8 +490,8 @@ if ( $is_editing ) {
 	$sidebar_content = ob_get_clean();
 
 	// Set template variables for two-column layout
-	$page_title = $user_data->display_name;
-	$page_description = sprintf( __( '%s\'s profile and activity', 'partyminder' ), $user_data->display_name );
+	$page_title = PartyMinder_Profile_Manager::get_display_name( $user_id );
+	$page_description = sprintf( __( '%s\'s profile and activity', 'partyminder' ), PartyMinder_Profile_Manager::get_display_name( $user_id ) );
 	$breadcrumbs = array(
 		array(
 			'title' => __( 'Dashboard', 'partyminder' ),
