@@ -66,6 +66,18 @@ class PartyMinder_Page_Content_Injector {
 		return ob_get_clean();
 	}
 
+	public function inject_create_community_event_content( $content ) {
+		if ( ! $this->should_inject_content( 'create-community-event' ) ) {
+			return $content;
+		}
+
+		ob_start();
+		echo '<div class="partyminder-content partyminder-create-community-event-page">';
+		include PARTYMINDER_PLUGIN_DIR . 'templates/create-community-event-content.php';
+		echo '</div>';
+		return ob_get_clean();
+	}
+
 	public function inject_my_events_content( $content ) {
 		if ( ! $this->should_inject_content( 'my-events' ) ) {
 			return $content;

@@ -8,6 +8,9 @@ class PartyMinder_Activator {
 		// Create custom tables
 		self::create_tables();
 
+		// Run database migrations
+		self::run_database_migrations();
+
 		// Set default options
 		self::set_default_options();
 
@@ -215,6 +218,28 @@ class PartyMinder_Activator {
 		self::upgrade_database_schema();
 	}
 
+	private static function run_database_migrations() {
+		global $wpdb;
+		
+		// Check if community_id column exists in events table
+		$events_table = $wpdb->prefix . 'partyminder_events';
+		$column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $events_table LIKE %s",
+				'community_id'
+			)
+		);
+
+		if ( empty( $column_exists ) ) {
+			// Add community_id column to events table
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN community_id mediumint(9) DEFAULT NULL AFTER author_id" );
+			$wpdb->query( "ALTER TABLE $events_table ADD INDEX community_id (community_id)" );
+		}
+
+		// Run other existing migrations
+		self::upgrade_database_schema();
+	}
+
 	private static function set_default_options() {
 		// Plugin settings
 		add_option( 'partyminder_version', PARTYMINDER_VERSION );
@@ -264,6 +289,12 @@ class PartyMinder_Activator {
 				'content'     => '[partyminder_event_form]',
 				'slug'        => 'create-event',
 				'description' => __( 'Plan and host your perfect event with our easy-to-use event creation tools.', 'partyminder' ),
+			),
+			'create-community-event' => array(
+				'title'       => __( 'Create Community Event', 'partyminder' ),
+				'content'     => '<p>Loading community event creation...</p>',
+				'slug'        => 'create-community-event',
+				'description' => __( 'Create an event for your community members to plan activities together.', 'partyminder' ),
 			),
 			'my-events'           => array(
 				'title'       => __( 'My Events', 'partyminder' ),

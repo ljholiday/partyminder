@@ -35,10 +35,11 @@ class PartyMinder_Event_Manager {
 				'privacy'          => $this->validate_privacy_setting( $event_data['privacy'] ?? 'public' ),
 				'event_status'     => 'active',
 				'author_id'        => get_current_user_id() ?: 1,
+				'community_id'     => intval( $event_data['community_id'] ?? 0 ),
 				'meta_title'       => sanitize_text_field( wp_unslash( $event_data['title'] ) ),
 				'meta_description' => wp_trim_words( wp_kses_post( wp_unslash( $event_data['description'] ?? '' ) ), 20 ),
 			),
-			array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s' )
+			array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s' )
 		);
 
 		if ( $result === false ) {
@@ -757,6 +758,45 @@ The %9$s Team',
 				$limit
 			)
 		);
+
+		// Add guest stats to each event
+		foreach ( $events as $event ) {
+			$event->guest_stats = $this->get_guest_stats( $event->id );
+		}
+
+		return $events;
+	}
+
+	/**
+	 * Get events for a specific community
+	 */
+	public function get_community_events( $community_id, $limit = 20 ) {
+		global $wpdb;
+		$events_table = $wpdb->prefix . 'partyminder_events';
+		$current_user_id = get_current_user_id();
+
+		// Simple privacy logic: show events user can see
+		if ( $current_user_id && is_user_logged_in() ) {
+			$privacy_clause = "(e.privacy = 'public' OR e.author_id = $current_user_id)";
+		} else {
+			// Not logged in: only show public events
+			$privacy_clause = "e.privacy = 'public'";
+		}
+
+		$query = "SELECT DISTINCT e.* FROM $events_table e
+				 WHERE e.event_status = 'active'
+				 AND e.community_id = %d
+				 AND ($privacy_clause)
+				 ORDER BY e.event_date DESC 
+				 LIMIT %d";
+
+		$events = $wpdb->get_results(
+			$wpdb->prepare( $query, $community_id, $limit )
+		);
+
+		if ( ! $events ) {
+			return array();
+		}
 
 		// Add guest stats to each event
 		foreach ( $events as $event ) {

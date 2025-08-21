@@ -53,10 +53,7 @@ if ( $community->privacy === 'private' && ! $is_member ) {
 $events      = array();
 $event_count = 0;
 if ( $can_view_events ) {
-	// For now, get all public events - will be enhanced to show community-specific events
-	$events = $event_manager->get_upcoming_events( 20 );
-
-	// Filter to community events when that relationship is implemented
+	$events = $event_manager->get_community_events( $community->id, 20 );
 	$event_count = count( $events );
 }
 
@@ -185,7 +182,7 @@ ob_start();
 						<div class="pm-flex-1">
 							<h3 class="pm-heading pm-heading-sm pm-mb-2">
 								<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-text-primary">
-									<?php echo esc_html( $event->title ); ?>
+									<?php echo esc_html( $community->name . ': ' . $event->title ); ?>
 								</a>
 							</h3>
 							<div class="pm-flex pm-gap pm-flex-wrap pm-mb-2">
@@ -410,10 +407,10 @@ jQuery(document).ready(function($) {
 		});
 	});
 	
-	// Create event button placeholder
+	// Create event button - redirect to community event creation
 	$('.pm-create-event-btn').on('click', function(e) {
 		e.preventDefault();
-		alert('<?php _e( 'Community event creation coming soon!', 'partyminder' ); ?>');
+		window.location.href = '<?php echo PartyMinder::get_create_community_event_url(); ?>?community_id=<?php echo $community->id; ?>';
 	});
 });
 </script>

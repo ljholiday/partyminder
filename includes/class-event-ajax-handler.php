@@ -11,6 +11,8 @@ class PartyMinder_Event_Ajax_Handler {
 	private function init_hooks() {
 		add_action( 'wp_ajax_partyminder_create_event', array( $this, 'ajax_create_event' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_create_event', array( $this, 'ajax_create_event' ) );
+		add_action( 'wp_ajax_partyminder_create_community_event', array( $this, 'ajax_create_community_event' ) );
+		add_action( 'wp_ajax_nopriv_partyminder_create_community_event', array( $this, 'ajax_create_community_event' ) );
 		add_action( 'wp_ajax_partyminder_update_event', array( $this, 'ajax_update_event' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_update_event', array( $this, 'ajax_update_event' ) );
 		add_action( 'wp_ajax_partyminder_get_event_conversations', array( $this, 'ajax_get_event_conversations' ) );
@@ -773,5 +775,72 @@ class PartyMinder_Event_Ajax_Handler {
 </html>
 		<?php
 		return ob_get_clean();
+	}
+
+	public function ajax_create_community_event() {
+		check_ajax_referer( 'create_partyminder_community_event', 'partyminder_community_event_nonce' );
+
+		$form_errors = array();
+		if ( empty( $_POST['event_title'] ) ) {
+			$form_errors[] = __( 'Event title is required.', 'partyminder' );
+		}
+		if ( empty( $_POST['event_date'] ) ) {
+			$form_errors[] = __( 'Event date is required.', 'partyminder' );
+		}
+		if ( empty( $_POST['host_email'] ) ) {
+			$form_errors[] = __( 'Host email is required.', 'partyminder' );
+		}
+		if ( empty( $_POST['community_id'] ) ) {
+			$form_errors[] = __( 'Community ID is required.', 'partyminder' );
+		}
+
+		if ( ! empty( $form_errors ) ) {
+			wp_send_json_error( implode( ' ', $form_errors ) );
+		}
+
+		// Verify user is a member of the community
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
+		$community_manager = new PartyMinder_Community_Manager();
+		$community_id = intval( $_POST['community_id'] );
+		
+		if ( ! $community_manager->is_member( $community_id, get_current_user_id() ) ) {
+			wp_send_json_error( __( 'You must be a member of the community to create events.', 'partyminder' ) );
+		}
+
+		$event_data = array(
+			'title'        => sanitize_text_field( wp_unslash( $_POST['event_title'] ) ),
+			'description'  => wp_kses_post( wp_unslash( $_POST['event_description'] ) ),
+			'event_date'   => sanitize_text_field( $_POST['event_date'] ),
+			'venue'        => sanitize_text_field( $_POST['venue_info'] ),
+			'guest_limit'  => intval( $_POST['guest_limit'] ),
+			'host_email'   => sanitize_email( $_POST['host_email'] ),
+			'host_notes'   => wp_kses_post( wp_unslash( $_POST['host_notes'] ) ),
+			'privacy'      => sanitize_text_field( $_POST['privacy'] ?? 'public' ),
+			'community_id' => $community_id,
+		);
+
+		$event_manager = $this->get_event_manager();
+		$event_id      = $event_manager->create_event( $event_data );
+
+		if ( ! is_wp_error( $event_id ) ) {
+			$created_event = $event_manager->get_event( $event_id );
+
+			$creation_data = array(
+				'event_id'    => $event_id,
+				'event_url'   => home_url( '/events/' . $created_event->slug ),
+				'event_title' => $created_event->title,
+			);
+			set_transient( 'partyminder_community_event_created_' . get_current_user_id(), $creation_data, 300 );
+
+			wp_send_json_success(
+				array(
+					'event_id'  => $event_id,
+					'message'   => __( 'Community event created successfully!', 'partyminder' ),
+					'event_url' => home_url( '/events/' . $created_event->slug ),
+				)
+			);
+		} else {
+			wp_send_json_error( $event_id->get_error_message() );
+		}
 	}
 }

@@ -12,9 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Load required classes
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-manager.php';
+require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
 
 $community_manager    = new PartyMinder_Community_Manager();
 $conversation_manager = new PartyMinder_Conversation_Manager();
+$event_manager        = new PartyMinder_Event_Manager();
 
 // Get community slug from URL
 $community_slug = get_query_var( 'community_slug' );
@@ -45,6 +47,9 @@ if ( $is_logged_in ) {
 
 // Get community conversations
 $community_conversations = $conversation_manager->get_community_conversations( $community->id, 5 );
+
+// Get community events
+$community_events = $event_manager->get_community_events( $community->id, 5 );
 
 // Set up template variables
 $page_title       = esc_html( $community->name );
@@ -166,6 +171,102 @@ ob_start();
 					</div>
 				</div>
 			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Community Events Section -->
+<div class="pm-section pm-mb">
+	<div class="pm-card">
+		<div class="pm-card-header">
+			<div class="pm-flex pm-flex-between">
+				<h3 class="pm-heading pm-heading-md">Community Events</h3>
+				<?php if ( $is_member ) : ?>
+					<div>
+						<a href="<?php echo PartyMinder::get_create_community_event_url(); ?>?community_id=<?php echo $community->id; ?>" class="pm-btn pm-btn-secondary">
+							Create Event
+						</a>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+		<div class="pm-card-body">
+			<?php if ( ! empty( $community_events ) ) : ?>
+				<div class="pm-flex pm-gap pm-flex-column">
+					<?php foreach ( $community_events as $event ) : ?>
+						<?php
+						$event_date = new DateTime( $event->event_date );
+						$today      = new DateTime();
+						$is_past    = $event_date < $today;
+						$is_today   = $event_date->format( 'Y-m-d' ) === $today->format( 'Y-m-d' );
+						
+						$status_class = $is_past ? 'past' : ( $is_today ? 'today' : 'upcoming' );
+						$status_text  = $is_past ? __( 'Past', 'partyminder' ) : ( $is_today ? __( 'Today', 'partyminder' ) : __( 'Upcoming', 'partyminder' ) );
+						?>
+						<div class="pm-flex pm-flex-between pm-p-4">
+							<div class="pm-flex-1">
+								<div class="pm-flex pm-gap pm-mb-2">
+									<span class="pm-badge pm-badge-<?php echo $status_class; ?>">
+										<?php echo $status_text; ?>
+									</span>
+									<?php if ( $event->privacy === 'private' ) : ?>
+										<span class="pm-badge pm-badge-secondary"><?php _e( 'Private', 'partyminder' ); ?></span>
+									<?php endif; ?>
+								</div>
+								<h4 class="pm-heading pm-heading-sm pm-mb-2">
+									<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-text-primary">
+										<?php echo esc_html( $event->title ); ?>
+									</a>
+								</h4>
+								<div class="pm-text-muted">
+									<?php
+									if ( $is_today ) {
+										_e( 'Today', 'partyminder' );
+									} elseif ( $is_past ) {
+										echo $event_date->format( 'M j, Y' );
+									} else {
+										echo $event_date->format( 'M j, Y' );
+									}
+									
+									if ( $event->event_time ) {
+										echo ' at ' . date( 'g:i A', strtotime( $event->event_date ) );
+									}
+									
+									if ( $event->venue_info ) {
+										echo ' • ' . esc_html( $event->venue_info );
+									}
+									?>
+								</div>
+							</div>
+							<div class="pm-text-center">
+								<div class="pm-stat-number pm-text-primary"><?php echo $event->guest_stats->confirmed; ?></div>
+								<div class="pm-stat-label"><?php _e( 'Going', 'partyminder' ); ?></div>
+							</div>
+						</div>
+					<?php endforeach; ?>
+				</div>
+				
+				<div class="pm-card-footer pm-text-center">
+					<a href="<?php echo esc_url( home_url( '/communities/' . $community->slug . '/events' ) ); ?>" class="pm-btn pm-btn-secondary">
+						<?php _e( 'View All Events', 'partyminder' ); ?>
+					</a>
+				</div>
+			<?php else : ?>
+				<div class="pm-text-center pm-p-4">
+					<p class="pm-text-muted pm-mb-4">
+						<?php if ( $is_member ) : ?>
+							<?php _e( 'No community events yet. Be the first to create an event for your community!', 'partyminder' ); ?>
+						<?php else : ?>
+							<?php _e( 'This community hasn\'t created any events yet.', 'partyminder' ); ?>
+						<?php endif; ?>
+					</p>
+					<?php if ( $is_member ) : ?>
+						<a href="<?php echo PartyMinder::get_create_community_event_url(); ?>?community_id=<?php echo $community->id; ?>" class="pm-btn">
+							<?php _e( 'Create First Event', 'partyminder' ); ?>
+						</a>
+					<?php endif; ?>
+				</div>
+			<?php endif; ?>
 		</div>
 	</div>
 </div>

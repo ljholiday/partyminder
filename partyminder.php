@@ -661,6 +661,10 @@ class PartyMinder {
 		return self::get_page_url( 'create-event' );
 	}
 
+	public static function get_create_community_event_url() {
+		return self::get_page_url( 'create-community-event' );
+	}
+
 	public static function get_my_events_url() {
 		return self::get_page_url( 'my-events' );
 	}
@@ -867,7 +871,7 @@ class PartyMinder {
 
 		// Add structured data for events pages
 		if ( is_page() ) {
-			$page_keys = array( 'events', 'create-event', 'my-events' );
+			$page_keys = array( 'events', 'create-event', 'create-community-event', 'my-events' );
 
 			foreach ( $page_keys as $key ) {
 				$page_id = get_option( 'partyminder_page_' . $key );
@@ -920,7 +924,7 @@ class PartyMinder {
 		}
 
 		// Modify titles for our dedicated pages
-		$page_keys = array( 'events', 'create-event', 'my-events', 'edit-event', 'create-conversation', 'create-community' );
+		$page_keys = array( 'events', 'create-event', 'create-community-event', 'my-events', 'edit-event', 'create-conversation', 'create-community' );
 
 		foreach ( $page_keys as $key ) {
 			$page_id = get_option( 'partyminder_page_' . $key );
@@ -931,6 +935,9 @@ class PartyMinder {
 						break;
 					case 'create-event':
 						$title_parts['title'] = __( 'Create Your Event - Host an Amazing Party', 'partyminder' );
+						break;
+					case 'create-community-event':
+						$title_parts['title'] = __( 'Create Community Event - Plan Together', 'partyminder' );
 						break;
 					case 'my-events':
 						if ( is_user_logged_in() ) {
