@@ -252,7 +252,7 @@ class PartyMinder_Community_Ajax_Handler {
 			return;
 		}
 
-		$members   = $community_manager->get_members( $community_id );
+		$members   = $community_manager->get_community_members( $community_id );
 		$user_role = $community_manager->get_member_role( $community_id, $current_user->ID );
 
 		wp_send_json_success(
@@ -391,7 +391,7 @@ class PartyMinder_Community_Ajax_Handler {
 
 		$existing = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT id FROM $invitations_table WHERE community_id = %d AND email = %s AND status = 'pending'",
+				"SELECT id FROM $invitations_table WHERE community_id = %d AND invited_email = %s AND status = 'pending'",
 				$community_id,
 				$email
 			)
@@ -407,18 +407,20 @@ class PartyMinder_Community_Ajax_Handler {
 			return;
 		}
 
-		$invitation_id = wp_generate_uuid4();
-		$result        = $wpdb->insert(
+		$invitation_token = wp_generate_uuid4();
+		$expires_at       = date( 'Y-m-d H:i:s', strtotime( '+7 days' ) );
+		$result           = $wpdb->insert(
 			$invitations_table,
 			array(
-				'invitation_id' => $invitation_id,
-				'community_id'  => $community_id,
-				'email'         => $email,
-				'invited_by'    => $current_user->ID,
-				'status'        => 'pending',
-				'created_at'    => current_time( 'mysql' ),
+				'community_id'           => $community_id,
+				'invited_by_member_id'   => $current_user->ID,
+				'invited_email'          => $email,
+				'invitation_token'       => $invitation_token,
+				'status'                 => 'pending',
+				'expires_at'             => $expires_at,
+				'created_at'             => current_time( 'mysql' ),
 			),
-			array( '%s', '%d', '%s', '%d', '%s', '%s' )
+			array( '%d', '%d', '%s', '%s', '%s', '%s', '%s' )
 		);
 
 		if ( $result === false ) {
@@ -428,7 +430,7 @@ class PartyMinder_Community_Ajax_Handler {
 
 		$invitation_url = add_query_arg(
 			array(
-				'invitation' => $invitation_id,
+				'invitation' => $invitation_token,
 				'community'  => $community_id,
 			),
 			home_url( '/communities/' . $community->slug )
@@ -485,7 +487,7 @@ class PartyMinder_Community_Ajax_Handler {
 			$wpdb->prepare(
 				"SELECT ci.*, u.display_name as invited_by_name 
              FROM $invitations_table ci 
-             LEFT JOIN {$wpdb->users} u ON ci.invited_by = u.ID 
+             LEFT JOIN {$wpdb->users} u ON ci.invited_by_member_id = u.ID 
              WHERE ci.community_id = %d 
              ORDER BY ci.created_at DESC",
 				$community_id

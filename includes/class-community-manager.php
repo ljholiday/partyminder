@@ -428,6 +428,25 @@ class PartyMinder_Community_Manager {
 	}
 
 	/**
+	 * Check if email is already a member of community
+	 */
+	public function is_member_by_email( $community_id, $email ) {
+		global $wpdb;
+
+		$members_table = $wpdb->prefix . 'partyminder_community_members';
+
+		$member = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT * FROM $members_table WHERE community_id = %d AND email = %s AND status = 'active'",
+				$community_id,
+				$email
+			)
+		);
+
+		return $member !== null;
+	}
+
+	/**
 	 * Get member role in community
 	 */
 	public function get_member_role( $community_id, $user_id ) {
