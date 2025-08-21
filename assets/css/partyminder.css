@@ -188,6 +188,12 @@ body.admin-bar .pm-page-two-column {
         margin-bottom: 0.5rem;
     }
     
+    /* Constrain card width on mobile */
+    .pm-card {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    
     /* Override WordPress theme content wrapper */
     .entry-content.wp-block-post-content.has-global-padding {
         padding-left: 0 !important;
