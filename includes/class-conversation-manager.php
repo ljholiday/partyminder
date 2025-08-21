@@ -498,14 +498,19 @@ class PartyMinder_Conversation_Manager {
 	}
 
 	/**
-	 * Validate conversation privacy setting
+	 * Validate conversation privacy setting and implement inheritance
 	 */
 	private function validate_conversation_privacy( $privacy, $data ) {
-		// If conversation is tied to an event or community, it inherits their privacy
-		if ( ! empty( $data['event_id'] ) || ! empty( $data['community_id'] ) ) {
-			return 'inherit'; // Special value indicating inherited privacy
+		// If conversation is tied to an event or community, inherit their privacy
+		if ( ! empty( $data['event_id'] ) ) {
+			return $this->get_event_privacy( $data['event_id'] );
 		}
 		
+		if ( ! empty( $data['community_id'] ) ) {
+			return $this->get_community_privacy( $data['community_id'] );
+		}
+		
+		// For standalone conversations, validate the provided privacy
 		$allowed_privacy_settings = array( 'public', 'friends', 'members' );
 		
 		$privacy = sanitize_text_field( $privacy );
@@ -515,6 +520,64 @@ class PartyMinder_Conversation_Manager {
 		}
 		
 		return $privacy;
+	}
+
+	/**
+	 * Get effective privacy for an event
+	 */
+	private function get_event_privacy( $event_id ) {
+		global $wpdb;
+		
+		$events_table = $wpdb->prefix . 'partyminder_events';
+		$event = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT privacy, community_id FROM $events_table WHERE id = %d",
+				$event_id
+			)
+		);
+		
+		if ( ! $event ) {
+			return 'public';
+		}
+		
+		// If event is part of a community, it inherits community privacy
+		if ( $event->community_id ) {
+			return $this->get_community_privacy( $event->community_id );
+		}
+		
+		return $event->privacy;
+	}
+
+	/**
+	 * Get effective privacy for a community
+	 */
+	private function get_community_privacy( $community_id ) {
+		global $wpdb;
+		
+		$communities_table = $wpdb->prefix . 'partyminder_communities';
+		$privacy = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT privacy FROM $communities_table WHERE id = %d",
+				$community_id
+			)
+		);
+		
+		return $privacy ?: 'public';
+	}
+
+	/**
+	 * Get the effective privacy for a conversation (resolving inheritance)
+	 */
+	public function get_conversation_privacy( $conversation ) {
+		if ( $conversation->event_id ) {
+			return $this->get_event_privacy( $conversation->event_id );
+		}
+		
+		if ( $conversation->community_id ) {
+			return $this->get_community_privacy( $conversation->community_id );
+		}
+		
+		return $conversation->privacy;
 	}
 
 	/**

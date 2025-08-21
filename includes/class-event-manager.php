@@ -17,6 +17,12 @@ class PartyMinder_Event_Manager {
 		// Generate unique slug
 		$slug = $this->generate_unique_slug( $event_data['title'] );
 
+		// Determine privacy based on inheritance model
+		$privacy = $this->determine_event_privacy( $event_data );
+		if ( is_wp_error( $privacy ) ) {
+			return $privacy;
+		}
+
 		// Insert event data directly to custom table - no WordPress posts
 		$events_table = $wpdb->prefix . 'partyminder_events';
 		$result       = $wpdb->insert(
@@ -32,7 +38,7 @@ class PartyMinder_Event_Manager {
 				'venue_info'       => sanitize_text_field( $event_data['venue'] ?? '' ),
 				'host_email'       => sanitize_email( $event_data['host_email'] ?? '' ),
 				'host_notes'       => wp_kses_post( wp_unslash( $event_data['host_notes'] ?? '' ) ),
-				'privacy'          => $this->validate_privacy_setting( $event_data['privacy'] ?? 'public' ),
+				'privacy'          => $privacy,
 				'event_status'     => 'active',
 				'author_id'        => get_current_user_id() ?: 1,
 				'community_id'     => intval( $event_data['community_id'] ?? 0 ),
@@ -179,20 +185,39 @@ class PartyMinder_Event_Manager {
 	public function get_upcoming_events( $limit = 10 ) {
 		global $wpdb;
 
-		$events_table      = $wpdb->prefix . 'partyminder_events';
-		$guests_table      = $wpdb->prefix . 'partyminder_guests';
+		$events_table = $wpdb->prefix . 'partyminder_events';
+		$communities_table = $wpdb->prefix . 'partyminder_communities';
+		$members_table = $wpdb->prefix . 'partyminder_community_members';
+		$guests_table = $wpdb->prefix . 'partyminder_guests';
 		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
-		$current_user_id   = get_current_user_id();
+		$current_user_id = get_current_user_id();
 
-		// Simple privacy logic: show events user can see
+		// Enhanced privacy logic that respects inheritance
 		if ( $current_user_id && is_user_logged_in() ) {
-			$privacy_clause = "(e.privacy = 'public' OR e.author_id = $current_user_id)";
+			// For logged-in users: show public events, their own events, 
+			// events from public communities, and events from communities they belong to
+			$privacy_clause = "(
+				(e.community_id IS NULL AND (e.privacy = 'public' OR e.author_id = $current_user_id)) OR
+				(e.community_id IS NOT NULL AND (
+					c.privacy = 'public' OR 
+					c.creator_id = $current_user_id OR
+					EXISTS(
+						SELECT 1 FROM $members_table m 
+						WHERE m.community_id = c.id AND m.user_id = $current_user_id 
+						AND m.status = 'active'
+					)
+				))
+			)";
 		} else {
-			// Not logged in: only show public events
-			$privacy_clause = "e.privacy = 'public'";
+			// Not logged in: only show public events and events from public communities
+			$privacy_clause = "(
+				(e.community_id IS NULL AND e.privacy = 'public') OR
+				(e.community_id IS NOT NULL AND c.privacy = 'public')
+			)";
 		}
 
 		$query = "SELECT DISTINCT e.* FROM $events_table e
+				 LEFT JOIN $communities_table c ON e.community_id = c.id
                  WHERE e.event_status = 'active'
                  AND ($privacy_clause)
                  ORDER BY e.event_date DESC 
@@ -768,25 +793,46 @@ The %9$s Team',
 	}
 
 	/**
-	 * Get events for a specific community
+	 * Get events for a specific community (respecting privacy inheritance)
 	 */
 	public function get_community_events( $community_id, $limit = 20 ) {
 		global $wpdb;
 		$events_table = $wpdb->prefix . 'partyminder_events';
+		$communities_table = $wpdb->prefix . 'partyminder_communities';
+		$members_table = $wpdb->prefix . 'partyminder_community_members';
 		$current_user_id = get_current_user_id();
 
-		// Simple privacy logic: show events user can see
-		if ( $current_user_id && is_user_logged_in() ) {
-			$privacy_clause = "(e.privacy = 'public' OR e.author_id = $current_user_id)";
-		} else {
-			// Not logged in: only show public events
-			$privacy_clause = "e.privacy = 'public'";
+		// Get community to check privacy
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
+		$community_manager = new PartyMinder_Community_Manager();
+		$community = $community_manager->get_community( $community_id );
+		
+		if ( ! $community ) {
+			return array();
 		}
 
+		// Community events inherit community privacy, so check community access
+		$can_access_community = false;
+		
+		if ( $community->privacy === 'public' ) {
+			$can_access_community = true;
+		} elseif ( $current_user_id && is_user_logged_in() ) {
+			// Check if user is community member or creator
+			if ( $community->creator_id == $current_user_id || 
+				 $community_manager->is_member( $community_id, $current_user_id ) ) {
+				$can_access_community = true;
+			}
+		}
+		
+		if ( ! $can_access_community ) {
+			return array(); // User cannot access this community's events
+		}
+
+		// Since we've verified community access, show all community events
+		// (they inherit the community's privacy setting)
 		$query = "SELECT DISTINCT e.* FROM $events_table e
 				 WHERE e.event_status = 'active'
 				 AND e.community_id = %d
-				 AND ($privacy_clause)
 				 ORDER BY e.event_date DESC 
 				 LIMIT %d";
 
@@ -804,6 +850,74 @@ The %9$s Team',
 		}
 
 		return $events;
+	}
+
+	/**
+	 * Determine event privacy based on inheritance model
+	 */
+	private function determine_event_privacy( $event_data ) {
+		$community_id = intval( $event_data['community_id'] ?? 0 );
+		
+		// For community events, inherit privacy from community
+		if ( $community_id ) {
+			require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
+			$community_manager = new PartyMinder_Community_Manager();
+			$community = $community_manager->get_community( $community_id );
+			
+			if ( ! $community ) {
+				return new WP_Error( 'community_not_found', __( 'Community not found', 'partyminder' ) );
+			}
+			
+			// Community events inherit community privacy
+			return $community->privacy;
+		}
+		
+		// For non-community events, use provided privacy or default to public
+		return $this->validate_privacy_setting( $event_data['privacy'] ?? 'public' );
+	}
+
+	/**
+	 * Validate event privacy settings and inheritance
+	 */
+	public function validate_event_privacy_inheritance( $event_data ) {
+		$community_id = intval( $event_data['community_id'] ?? 0 );
+		$provided_privacy = $event_data['privacy'] ?? null;
+		
+		if ( $community_id && $provided_privacy ) {
+			require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
+			$community_manager = new PartyMinder_Community_Manager();
+			$community = $community_manager->get_community( $community_id );
+			
+			if ( $community && $community->privacy !== $provided_privacy ) {
+				return new WP_Error( 
+					'privacy_mismatch', 
+					sprintf( 
+						__( 'Event privacy must match community privacy (%s)', 'partyminder' ),
+						$community->privacy
+					)
+				);
+			}
+		}
+		
+		return true;
+	}
+
+	/**
+	 * Get the effective privacy for an event (resolving inheritance)
+	 */
+	public function get_event_privacy( $event ) {
+		// If event is part of a community, inherit community privacy
+		if ( $event->community_id ) {
+			require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
+			$community_manager = new PartyMinder_Community_Manager();
+			$community = $community_manager->get_community( $event->community_id );
+			
+			if ( $community ) {
+				return $community->privacy;
+			}
+		}
+		
+		return $event->privacy;
 	}
 
 	/**

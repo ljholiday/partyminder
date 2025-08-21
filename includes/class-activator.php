@@ -238,6 +238,9 @@ class PartyMinder_Activator {
 
 		// Run other existing migrations
 		self::upgrade_database_schema();
+		
+		// Run privacy inheritance migration
+		self::migrate_privacy_inheritance();
 	}
 
 	private static function set_default_options() {
@@ -903,6 +906,72 @@ class PartyMinder_Activator {
 
 		if ( empty( $avatar_source_column_exists ) ) {
 			$wpdb->query( "ALTER TABLE $profiles_table ADD COLUMN avatar_source varchar(20) DEFAULT 'gravatar' AFTER cover_image" );
+		}
+	}
+
+	/**
+	 * Migrate existing data to follow privacy inheritance rules
+	 */
+	private static function migrate_privacy_inheritance() {
+		global $wpdb;
+		
+		// Check if migration has already been run
+		$migration_version = get_option( 'partyminder_privacy_inheritance_migration', '0' );
+		if ( version_compare( $migration_version, '1.0', '>=' ) ) {
+			return; // Migration already completed
+		}
+		
+		$events_table = $wpdb->prefix . 'partyminder_events';
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+		$communities_table = $wpdb->prefix . 'partyminder_communities';
+		
+		// Start transaction for data integrity
+		$wpdb->query( 'START TRANSACTION' );
+		
+		try {
+			// 1. Update community events to inherit community privacy
+			$community_events_updated = $wpdb->query("
+				UPDATE $events_table e
+				JOIN $communities_table c ON e.community_id = c.id 
+				SET e.privacy = c.privacy 
+				WHERE e.community_id IS NOT NULL
+			");
+			
+			// 2. Update community conversations to inherit community privacy
+			$community_conversations_updated = $wpdb->query("
+				UPDATE $conversations_table conv
+				JOIN $communities_table c ON conv.community_id = c.id 
+				SET conv.privacy = c.privacy 
+				WHERE conv.community_id IS NOT NULL
+			");
+			
+			// 3. Update event conversations to inherit event privacy
+			// For community events, this will use the community privacy that was just set
+			$event_conversations_updated = $wpdb->query("
+				UPDATE $conversations_table conv
+				JOIN $events_table e ON conv.event_id = e.id 
+				SET conv.privacy = e.privacy 
+				WHERE conv.event_id IS NOT NULL
+			");
+			
+			// Commit transaction
+			$wpdb->query( 'COMMIT' );
+			
+			// Mark migration as completed
+			update_option( 'partyminder_privacy_inheritance_migration', '1.0' );
+			
+			// Log migration results
+			error_log( sprintf(
+				'PartyMinder Privacy Inheritance Migration completed: %d community events, %d community conversations, %d event conversations updated',
+				$community_events_updated,
+				$community_conversations_updated,
+				$event_conversations_updated
+			) );
+			
+		} catch ( Exception $e ) {
+			// Rollback transaction on error
+			$wpdb->query( 'ROLLBACK' );
+			error_log( 'PartyMinder Privacy Inheritance Migration failed: ' . $e->getMessage() );
 		}
 	}
 }

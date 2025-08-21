@@ -181,15 +181,27 @@ ob_start();
 							placeholder="<?php esc_attr_e( 'Leave blank for unlimited', 'partyminder' ); ?>" />
 				</div>
 				<div class="pm-form-group">
-					<label for="privacy" class="pm-form-label"><?php _e( 'Event Privacy', 'partyminder' ); ?></label>
-					<select id="privacy" name="privacy" class="pm-form-select">
-						<option value="public" <?php selected( $_POST['privacy'] ?? 'public', 'public' ); ?>>
-							<?php _e( 'Public - Visible to everyone', 'partyminder' ); ?>
-						</option>
-						<option value="private" <?php selected( $_POST['privacy'] ?? 'public', 'private' ); ?>>
-							<?php _e( 'Private - Community members only', 'partyminder' ); ?>
-						</option>
-					</select>
+					<label class="pm-form-label"><?php _e( 'Event Privacy', 'partyminder' ); ?></label>
+					<div class="pm-form-info">
+						<div class="pm-alert pm-alert-info">
+							<p class="pm-mb-2">
+								<strong><?php _e( 'Privacy Inheritance:', 'partyminder' ); ?></strong>
+								<?php 
+								printf( 
+									__( 'This event will inherit the %s privacy setting from the community.', 'partyminder' ), 
+									'<span class="pm-badge pm-badge-' . esc_attr( $community->privacy === 'public' ? 'success' : 'warning' ) . '">' . esc_html( ucfirst( $community->privacy ) ) . '</span>'
+								); 
+								?>
+							</p>
+							<p class="pm-text-muted pm-text-sm">
+								<?php if ( $community->privacy === 'public' ) : ?>
+									<?php _e( 'This event will be visible to everyone and discoverable in public listings.', 'partyminder' ); ?>
+								<?php else : ?>
+									<?php _e( 'This event will only be visible to community members.', 'partyminder' ); ?>
+								<?php endif; ?>
+							</p>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

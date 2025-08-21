@@ -815,8 +815,8 @@ class PartyMinder_Event_Ajax_Handler {
 			'guest_limit'  => intval( $_POST['guest_limit'] ),
 			'host_email'   => sanitize_email( $_POST['host_email'] ),
 			'host_notes'   => wp_kses_post( wp_unslash( $_POST['host_notes'] ) ),
-			'privacy'      => sanitize_text_field( $_POST['privacy'] ?? 'public' ),
 			'community_id' => $community_id,
+			// Privacy will be inherited from community - no need to pass it
 		);
 
 		$event_manager = $this->get_event_manager();
