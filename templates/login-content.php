@@ -204,7 +204,7 @@ ob_start();
 		</div>
 		
 		<div class="pm-text-center">
-			<button type="submit" class="btn btn-large">
+			<button type="submit" class="pm-btn pm-btn-lg">
 				<span></span>
 				<?php _e( 'Create Account & Setup Profile', 'partyminder' ); ?>
 			</button>
@@ -248,7 +248,7 @@ ob_start();
 		</div>
 		
 		<div class="pm-text-center">
-			<button type="submit" class="btn btn-large">
+			<button type="submit" class="pm-btn pm-btn-lg">
 				<span>🚪</span>
 				<?php _e( 'Sign In', 'partyminder' ); ?>
 			</button>
