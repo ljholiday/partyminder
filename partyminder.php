@@ -154,11 +154,18 @@ class PartyMinder {
 		add_action( 'wp_ajax_partyminder_rsvp', array( $this, 'ajax_rsvp' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_rsvp', array( $this, 'ajax_rsvp' ) );
 		add_action( 'wp_ajax_partyminder_generate_ai_plan', array( $this, 'ajax_generate_ai_plan' ) );
+		add_action( 'wp_ajax_partyminder_load_more_events', array( $this, 'ajax_load_more_events' ) );
+		add_action( 'wp_ajax_nopriv_partyminder_load_more_events', array( $this, 'ajax_load_more_events' ) );
+		add_action( 'wp_ajax_partyminder_newsletter_signup', array( $this, 'ajax_newsletter_signup' ) );
+		add_action( 'wp_ajax_nopriv_partyminder_newsletter_signup', array( $this, 'ajax_newsletter_signup' ) );
 
 		// Image upload AJAX handlers
 		add_action( 'wp_ajax_partyminder_avatar_upload', array( 'PartyMinder_Image_Upload', 'handle_avatar_upload' ) );
 		add_action( 'wp_ajax_partyminder_cover_upload', array( 'PartyMinder_Image_Upload', 'handle_cover_upload' ) );
 		add_action( 'wp_ajax_partyminder_conversation_photo_upload', array( 'PartyMinder_Image_Upload', 'handle_conversation_photo_upload' ) );
+		add_action( 'wp_ajax_partyminder_event_photo_upload', array( 'PartyMinder_Image_Upload', 'handle_event_photo_upload' ) );
+		add_action( 'wp_ajax_partyminder_event_cover_upload', array( 'PartyMinder_Image_Upload', 'handle_event_cover_upload' ) );
+		add_action( 'wp_ajax_partyminder_community_cover_upload', array( 'PartyMinder_Image_Upload', 'handle_community_cover_upload' ) );
 		// All AJAX handlers are now handled by dedicated handler classes
 
 		// Smart login override - frontend only, preserves wp-admin access
@@ -242,6 +249,12 @@ class PartyMinder {
 				'community_nonce'   => wp_create_nonce( 'partyminder_community_action' ),
 				'event_nonce'       => wp_create_nonce( 'partyminder_event_action' ),
 				'at_protocol_nonce' => wp_create_nonce( 'partyminder_at_protocol' ),
+				'avatar_upload_nonce' => wp_create_nonce( 'partyminder_avatar_upload' ),
+				'cover_upload_nonce' => wp_create_nonce( 'partyminder_cover_upload' ),
+				'event_photo_upload_nonce' => wp_create_nonce( 'partyminder_event_photo_upload' ),
+				'event_cover_upload_nonce' => wp_create_nonce( 'partyminder_event_cover_upload' ),
+				'community_cover_upload_nonce' => wp_create_nonce( 'partyminder_community_cover_upload' ),
+				'conversation_photo_upload_nonce' => wp_create_nonce( 'partyminder_conversation_photo_upload' ),
 				'current_user'      => array(
 					'id'    => $current_user->ID,
 					'name'  => $current_user->display_name,
@@ -326,6 +339,58 @@ class PartyMinder {
 		$plan = $this->ai_assistant->generate_plan( $event_title, $guest_count, $dietary, $budget );
 
 		wp_send_json_success( $plan );
+	}
+
+	public function ajax_load_more_events() {
+		check_ajax_referer( 'partyminder_nonce', 'nonce' );
+
+		$page = intval( $_POST['page'] ?? 1 );
+		$limit = intval( $_POST['limit'] ?? 10 );
+
+		if ( ! $this->event_manager ) {
+			$this->event_manager = new PartyMinder_Event_Manager();
+		}
+
+		$events = $this->event_manager->get_events( array(
+			'page' => $page,
+			'limit' => $limit,
+			'status' => 'upcoming'
+		) );
+
+		ob_start();
+		if ( ! empty( $events ) ) {
+			foreach ( $events as $event ) {
+				include PARTYMINDER_PLUGIN_DIR . 'templates/event-card.php';
+			}
+		}
+		$html = ob_get_clean();
+
+		wp_send_json_success( array(
+			'html' => $html,
+			'has_more' => count( $events ) >= $limit
+		) );
+	}
+
+	public function ajax_newsletter_signup() {
+		check_ajax_referer( 'partyminder_nonce', 'nonce' );
+
+		$email = sanitize_email( $_POST['email'] ?? '' );
+
+		if ( ! is_email( $email ) ) {
+			wp_send_json_error( __( 'Please enter a valid email address.', 'partyminder' ) );
+		}
+
+		// Simple implementation - just store in WordPress options for now
+		$subscribers = get_option( 'partyminder_newsletter_subscribers', array() );
+		
+		if ( in_array( $email, $subscribers ) ) {
+			wp_send_json_error( __( 'This email is already subscribed.', 'partyminder' ) );
+		}
+
+		$subscribers[] = $email;
+		update_option( 'partyminder_newsletter_subscribers', $subscribers );
+
+		wp_send_json_success( __( 'Thank you for subscribing!', 'partyminder' ) );
 	}
 
 	// All other AJAX methods moved to dedicated handler classes

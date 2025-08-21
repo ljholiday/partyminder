@@ -102,6 +102,10 @@ class PartyMinder_Image_Manager {
 		if ( $entity_type === 'post' && $event_id ) {
 			$partyminder_dir = $upload_dir['basedir'] . '/partyminder/events/' . $event_id . '/posts/';
 			$partyminder_url = $upload_dir['baseurl'] . '/partyminder/events/' . $event_id . '/posts/';
+		} elseif ( $entity_type === 'conversation' && $event_id ) {
+			// Handle conversation photos in conversation-specific directories
+			$partyminder_dir = $upload_dir['basedir'] . '/partyminder/conversations/' . $event_id . '/';
+			$partyminder_url = $upload_dir['baseurl'] . '/partyminder/conversations/' . $event_id . '/';
 		} else {
 			$partyminder_dir = $upload_dir['basedir'] . '/partyminder/' . $entity_type . 's/';
 			$partyminder_url = $upload_dir['baseurl'] . '/partyminder/' . $entity_type . 's/';

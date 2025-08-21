@@ -501,6 +501,7 @@ class PartyMinder_Activator {
             location varchar(255) DEFAULT '',
             profile_image varchar(255) DEFAULT '',
             cover_image varchar(255) DEFAULT '',
+            avatar_source varchar(20) DEFAULT 'gravatar',
             website_url varchar(255) DEFAULT '',
             social_links longtext DEFAULT '',
             hosting_preferences longtext DEFAULT '',
@@ -859,5 +860,18 @@ class PartyMinder_Activator {
 			END
 			WHERE privacy NOT IN ('public', 'private')
 		" );
+
+		// Add avatar_source column if it doesn't exist
+		$profiles_table = $wpdb->prefix . 'partyminder_user_profiles';
+		$avatar_source_column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $profiles_table LIKE %s",
+				'avatar_source'
+			)
+		);
+
+		if ( empty( $avatar_source_column_exists ) ) {
+			$wpdb->query( "ALTER TABLE $profiles_table ADD COLUMN avatar_source varchar(20) DEFAULT 'gravatar' AFTER cover_image" );
+		}
 	}
 }

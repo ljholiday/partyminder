@@ -46,6 +46,7 @@ class PartyMinder_Profile_Manager {
 			'location'                 => '',
 			'profile_image'            => '',
 			'cover_image'              => '',
+			'avatar_source'            => 'gravatar',
 			'website_url'              => '',
 			'social_links'             => json_encode( array() ),
 			'hosting_preferences'      => json_encode( array() ),
@@ -131,6 +132,14 @@ class PartyMinder_Profile_Manager {
 			}
 		}
 
+		// Avatar source
+		if ( isset( $data['avatar_source'] ) ) {
+			$avatar_source = sanitize_text_field( $data['avatar_source'] );
+			if ( in_array( $avatar_source, array( 'custom', 'gravatar' ) ) ) {
+				$update_data['avatar_source'] = $avatar_source;
+			}
+		}
+
 		// Website URL
 		if ( isset( $data['website_url'] ) ) {
 			$website = esc_url_raw( $data['website_url'] );
@@ -204,6 +213,15 @@ class PartyMinder_Profile_Manager {
 			} else {
 				$errors[] = $upload_result['error'];
 			}
+		}
+
+		// Handle direct image URL data (from AJAX uploads)
+		if ( isset( $data['profile_image'] ) ) {
+			$update_data['profile_image'] = esc_url_raw( $data['profile_image'] );
+		}
+
+		if ( isset( $data['cover_image'] ) ) {
+			$update_data['cover_image'] = esc_url_raw( $data['cover_image'] );
 		}
 
 		// Return early if there are validation errors

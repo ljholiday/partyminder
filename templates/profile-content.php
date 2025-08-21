@@ -134,10 +134,30 @@ if ( $is_editing ) {
 					<label class="pm-form-label"><?php _e( 'Profile Photo', 'partyminder' ); ?></label>
 					<div class="pm-text-center pm-mb">
 						<div class="pm-profile-avatar" style="width: 120px; height: 120px; margin: 0 auto;">
+							<?php if ( ( $profile_data['avatar_source'] ?? 'gravatar' ) === 'custom' && ! empty( $profile_data['profile_image'] ) ) : ?>
+							<img src="<?php echo esc_url( $profile_data['profile_image'] ); ?>" 
+								style="width: 100%; height: 100%; object-fit: cover;" 
+								alt="<?php _e( 'Profile photo', 'partyminder' ); ?>">
+							<?php else : ?>
 							<?php echo get_avatar( $user_id, 120, '', '', array( 'style' => 'width: 100%; height: 100%; object-fit: cover;' ) ); ?>
+							<?php endif; ?>
 						</div>
 					</div>
 					<p class="pm-form-help pm-text-muted pm-mb"><?php _e( 'Your profile photo appears throughout the site', 'partyminder' ); ?></p>
+					
+					<div class="pm-form-group">
+						<label class="pm-form-label"><?php _e( 'Avatar Source', 'partyminder' ); ?></label>
+						<div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+							<label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+								<input type="radio" name="avatar_source" value="gravatar" <?php checked( $profile_data['avatar_source'] ?? 'gravatar', 'gravatar' ); ?>>
+								<span class="pm-btn pm-btn-secondary"><?php _e( 'Gravatar', 'partyminder' ); ?></span>
+							</label>
+							<label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+								<input type="radio" name="avatar_source" value="custom" <?php checked( $profile_data['avatar_source'] ?? 'gravatar', 'custom' ); ?>>
+								<span class="pm-btn pm-btn-secondary"><?php _e( 'Custom Avatar', 'partyminder' ); ?></span>
+							</label>
+						</div>
+					</div>
 					
 					<div class="pm-avatar-upload">
 						<input type="file" id="avatar_upload" accept="image/*" style="display: none;">
@@ -234,9 +254,9 @@ if ( $is_editing ) {
 			formData.append(type, file);
 			formData.append('action', 'partyminder_' + type + '_upload');
 			if (type === 'avatar') {
-				formData.append('nonce', '<?php echo wp_create_nonce( 'partyminder_avatar_upload' ); ?>');
+				formData.append('nonce', partyminder_ajax.avatar_upload_nonce);
 			} else {
-				formData.append('nonce', '<?php echo wp_create_nonce( 'partyminder_cover_upload' ); ?>');
+				formData.append('nonce', partyminder_ajax.cover_upload_nonce);
 			}
 
 			// Upload
@@ -272,9 +292,27 @@ if ( $is_editing ) {
 				}
 			});
 
-			xhr.open('POST', '<?php echo admin_url( 'admin-ajax.php' ); ?>');
+			xhr.open('POST', partyminder_ajax.ajax_url);
 			xhr.send(formData);
 		}
+
+		// Handle avatar source radio button changes
+		document.querySelectorAll('input[name="avatar_source"]').forEach(function(radio) {
+			radio.addEventListener('change', function() {
+				const avatarImages = document.querySelectorAll('.pm-profile-avatar img');
+				const isCustom = this.value === 'custom';
+				const hasCustomImage = <?php echo ! empty( $profile_data['profile_image'] ) ? 'true' : 'false'; ?>;
+				
+				avatarImages.forEach(function(img) {
+					if (isCustom && hasCustomImage) {
+						img.src = '<?php echo esc_js( $profile_data['profile_image'] ?? '' ); ?>';
+					} else {
+						img.src = '<?php echo esc_js( get_avatar_url( $user_id, array( 'size' => 120 ) ) ); ?>';
+					}
+				});
+			});
+		});
+
 	});
 	</script>
 
@@ -345,7 +383,11 @@ if ( $is_editing ) {
 				 class="pm-profile-avatar pm-avatar-modern" 
 				 role="img"
 				 aria-label="<?php echo esc_attr( $user_data->display_name ); ?>">
+				<?php if ( ( $profile_data['avatar_source'] ?? 'gravatar' ) === 'custom' && ! empty( $profile_data['profile_image'] ) ) : ?>
+				<img src="<?php echo esc_url( $profile_data['profile_image'] ); ?>" alt="<?php echo esc_attr( $user_data->display_name ); ?>" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+				<?php else : ?>
 				<img src="<?php echo esc_url( $avatar_url ); ?>" alt="<?php echo esc_attr( $user_data->display_name ); ?>" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+				<?php endif; ?>
 			</div>
 			
 			<?php if ( ! $is_own_profile ) : ?>

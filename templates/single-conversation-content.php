@@ -153,7 +153,7 @@ if ( ! empty( $conversation_photos ) ) :
 	<div class="pm-flex pm-flex-column pm-gap">
 		<?php foreach ( $conversation_photos as $photo ) : ?>
 			<div class="pm-photo-item">
-				<img src="<?php echo esc_url( $photo['medium_url'] ); ?>" 
+				<img src="<?php echo esc_url( $photo['url'] ); ?>" 
 					 alt="Conversation photo" 
 					 style="max-width: 100%; height: auto; border-radius: 0.375rem;">
 				<div class="pm-text-muted" style="font-size: 12px; margin-top: 0.25rem;">
@@ -426,7 +426,7 @@ jQuery(document).ready(function($) {
 		formData.append('action', 'partyminder_conversation_photo_upload');
 		formData.append('conversation_id', <?php echo intval( $conversation->id ); ?>);
 		formData.append('conversation_photo', fileInput.files[0]);
-		formData.append('nonce', partyminder_ajax.nonce);
+		formData.append('nonce', partyminder_ajax.conversation_photo_upload_nonce);
 		
 		const $form = $(this);
 		const $progress = $('#conversation-photo-progress');

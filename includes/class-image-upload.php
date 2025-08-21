@@ -21,15 +21,36 @@ class PartyMinder_Image_Upload {
 			wp_send_json_error( 'No file uploaded' );
 		}
 
-		$result = self::process_upload( $_FILES['avatar'], 'avatar' );
+		$user_id = get_current_user_id();
 		
-		if ( $result['success'] ) {
-			wp_send_json_success( array(
-				'url' => $result['url'],
-				'message' => 'Avatar uploaded successfully'
+		// Use the unified Image Manager system
+		$upload_result = PartyMinder_Image_Manager::handle_image_upload( $_FILES['avatar'], 'profile', $user_id, 'user' );
+		
+		if ( $upload_result['success'] ) {
+			// Get current profile and delete old image
+			$current_profile = PartyMinder_Profile_Manager::get_user_profile( $user_id );
+			if ( ! empty( $current_profile['profile_image'] ) ) {
+				PartyMinder_Image_Manager::delete_image( $current_profile['profile_image'] );
+			}
+			
+			// Save to profile using Profile Manager and set avatar source to custom
+			$profile_update = PartyMinder_Profile_Manager::update_profile( $user_id, array( 
+				'profile_image' => $upload_result['url'],
+				'avatar_source' => 'custom'
 			) );
+			
+			if ( $profile_update['success'] ) {
+				wp_send_json_success( array(
+					'url' => $upload_result['url'],
+					'message' => 'Avatar uploaded successfully'
+				) );
+			} else {
+				// Clean up uploaded file if profile save failed
+				PartyMinder_Image_Manager::delete_image( $upload_result['url'] );
+				wp_send_json_error( 'Failed to save avatar to profile' );
+			}
 		} else {
-			wp_send_json_error( $result['error'] );
+			wp_send_json_error( $upload_result['error'] );
 		}
 	}
 
@@ -47,15 +68,33 @@ class PartyMinder_Image_Upload {
 			wp_send_json_error( 'No file uploaded' );
 		}
 
-		$result = self::process_upload( $_FILES['cover'], 'cover' );
+		$user_id = get_current_user_id();
 		
-		if ( $result['success'] ) {
-			wp_send_json_success( array(
-				'url' => $result['url'],
-				'message' => 'Cover image uploaded successfully'
-			) );
+		// Use the unified Image Manager system
+		$upload_result = PartyMinder_Image_Manager::handle_image_upload( $_FILES['cover'], 'cover', $user_id, 'user' );
+		
+		if ( $upload_result['success'] ) {
+			// Get current profile and delete old image
+			$current_profile = PartyMinder_Profile_Manager::get_user_profile( $user_id );
+			if ( ! empty( $current_profile['cover_image'] ) ) {
+				PartyMinder_Image_Manager::delete_image( $current_profile['cover_image'] );
+			}
+			
+			// Save to profile using Profile Manager
+			$profile_update = PartyMinder_Profile_Manager::update_profile( $user_id, array( 'cover_image' => $upload_result['url'] ) );
+			
+			if ( $profile_update['success'] ) {
+				wp_send_json_success( array(
+					'url' => $upload_result['url'],
+					'message' => 'Cover image uploaded successfully'
+				) );
+			} else {
+				// Clean up uploaded file if profile save failed
+				PartyMinder_Image_Manager::delete_image( $upload_result['url'] );
+				wp_send_json_error( 'Failed to save cover image to profile' );
+			}
 		} else {
-			wp_send_json_error( $result['error'] );
+			wp_send_json_error( $upload_result['error'] );
 		}
 	}
 
@@ -78,15 +117,34 @@ class PartyMinder_Image_Upload {
 			wp_send_json_error( 'Event ID required' );
 		}
 
-		$result = self::process_upload( $_FILES['event_photo'], 'events/' . $event_id );
+		$user_id = get_current_user_id();
 		
-		if ( $result['success'] ) {
-			wp_send_json_success( array(
-				'url' => $result['url'],
-				'message' => 'Event photo uploaded successfully'
-			) );
+		// Use the unified Image Manager system
+		$upload_result = PartyMinder_Image_Manager::handle_image_upload( $_FILES['event_photo'], 'post', $user_id, 'post', $event_id );
+		
+		if ( $upload_result['success'] ) {
+			// Save image metadata to database
+			$image_id = PartyMinder_Image_Manager::save_post_image_metadata( 
+				$event_id, 
+				$user_id, 
+				$upload_result,
+				sanitize_textarea_field( $_POST['caption'] ?? '' ),
+				sanitize_text_field( $_POST['alt_text'] ?? '' )
+			);
+			
+			if ( $image_id ) {
+				wp_send_json_success( array(
+					'url' => $upload_result['url'],
+					'image_id' => $image_id,
+					'message' => 'Event photo uploaded successfully'
+				) );
+			} else {
+				// Clean up uploaded file if database save failed
+				PartyMinder_Image_Manager::delete_image( $upload_result['url'] );
+				wp_send_json_error( 'Failed to save image metadata' );
+			}
 		} else {
-			wp_send_json_error( $result['error'] );
+			wp_send_json_error( $upload_result['error'] );
 		}
 	}
 
@@ -109,146 +167,104 @@ class PartyMinder_Image_Upload {
 			wp_send_json_error( 'Conversation ID required' );
 		}
 
-		$result = self::process_upload( $_FILES['conversation_photo'], 'conversations/' . $conversation_id );
+		$user_id = get_current_user_id();
 		
-		if ( $result['success'] ) {
+		// Use the unified Image Manager system for conversation uploads
+		$upload_result = PartyMinder_Image_Manager::handle_image_upload( $_FILES['conversation_photo'], 'post', $user_id, 'conversation', $conversation_id );
+		
+		if ( $upload_result['success'] ) {
 			wp_send_json_success( array(
-				'url' => $result['url'],
+				'url' => $upload_result['url'],
 				'message' => 'Photo uploaded successfully'
 			) );
 		} else {
-			wp_send_json_error( $result['error'] );
+			wp_send_json_error( $upload_result['error'] );
 		}
 	}
 
 	/**
-	 * Process image upload
+	 * Handle AJAX community cover upload
 	 */
-	private static function process_upload( $file, $type ) {
-		// Validate file
-		if ( $file['error'] !== UPLOAD_ERR_OK ) {
-			return array( 'success' => false, 'error' => 'Upload error' );
+	public static function handle_community_cover_upload() {
+		check_ajax_referer( 'partyminder_community_cover_upload', 'nonce' );
+
+		if ( ! is_user_logged_in() ) {
+			wp_send_json_error( 'Not logged in' );
 		}
 
-		if ( $file['size'] > 5 * 1024 * 1024 ) {
-			return array( 'success' => false, 'error' => 'File too large (5MB max)' );
+		if ( ! isset( $_FILES['community_cover'] ) ) {
+			wp_send_json_error( 'No file uploaded' );
 		}
 
-		$allowed_types = array( 'image/jpeg', 'image/png', 'image/gif', 'image/webp' );
-		if ( ! in_array( $file['type'], $allowed_types ) ) {
-			return array( 'success' => false, 'error' => 'Invalid file type' );
+		$community_id = intval( $_POST['community_id'] ?? 0 );
+		if ( ! $community_id ) {
+			wp_send_json_error( 'Community ID required' );
 		}
 
-		// Create upload directory
-		$upload_dir = wp_upload_dir();
-		
-		// Handle different path structures for events and conversations vs simple types
-		if ( strpos( $type, '/' ) !== false ) {
-			// For paths like 'events/123' or 'conversations/456'
-			$pm_dir = $upload_dir['basedir'] . '/partyminder/' . $type . '/';
-			$pm_url = $upload_dir['baseurl'] . '/partyminder/' . $type . '/';
-		} else {
-			// For simple types like 'avatar' or 'cover'
-			$pm_dir = $upload_dir['basedir'] . '/partyminder/' . $type . 's/';
-			$pm_url = $upload_dir['baseurl'] . '/partyminder/' . $type . 's/';
-		}
-
-		if ( ! wp_mkdir_p( $pm_dir ) ) {
-			return array( 'success' => false, 'error' => 'Cannot create directory' );
-		}
-
-		// Generate filename
 		$user_id = get_current_user_id();
-		$extension = pathinfo( $file['name'], PATHINFO_EXTENSION );
 		
-		// Clean the type for filename (remove slashes)
-		$clean_type = str_replace( '/', '-', $type );
-		$filename = $clean_type . '-' . $user_id . '-' . time() . '.' . strtolower( $extension );
+		// Use the unified Image Manager system
+		$upload_result = PartyMinder_Image_Manager::handle_image_upload( $_FILES['community_cover'], 'cover', $community_id, 'community' );
 		
-		// Move file
-		if ( move_uploaded_file( $file['tmp_name'], $pm_dir . $filename ) ) {
-			// Use WordPress image editor to create scaled versions
-			$image_editor = wp_get_image_editor( $pm_dir . $filename );
-			if ( ! is_wp_error( $image_editor ) ) {
-				// Get original dimensions
-				$original_size = $image_editor->get_size();
-				
-				// Create a medium size (max 800px width, maintaining aspect ratio)
-				$medium_filename = str_replace( '.' . strtolower( $extension ), '-medium.' . strtolower( $extension ), $filename );
-				$image_editor->resize( 800, null, false );
-				$image_editor->save( $pm_dir . $medium_filename );
-				
-				// Reset and create thumbnail (300x300, cropped)
-				$image_editor = wp_get_image_editor( $pm_dir . $filename );
-				if ( ! is_wp_error( $image_editor ) ) {
-					$thumb_filename = str_replace( '.' . strtolower( $extension ), '-thumb.' . strtolower( $extension ), $filename );
-					$image_editor->resize( 300, 300, true );
-					$image_editor->save( $pm_dir . $thumb_filename );
-				}
-			}
-			
-			return array(
-				'success' => true,
-				'url' => $pm_url . $filename,
-				'path' => $pm_dir . $filename,
-				'medium_url' => $pm_url . ( isset( $medium_filename ) ? $medium_filename : $filename ),
-				'thumb_url' => $pm_url . ( isset( $thumb_filename ) ? $thumb_filename : $filename )
-			);
+		if ( $upload_result['success'] ) {
+			wp_send_json_success( array(
+				'url' => $upload_result['url'],
+				'message' => 'Community cover uploaded successfully'
+			) );
+		} else {
+			wp_send_json_error( $upload_result['error'] );
+		}
+	}
+
+	/**
+	 * Handle AJAX event cover upload
+	 */
+	public static function handle_event_cover_upload() {
+		check_ajax_referer( 'partyminder_event_cover_upload', 'nonce' );
+
+		if ( ! is_user_logged_in() ) {
+			wp_send_json_error( 'Not logged in' );
 		}
 
-		return array( 'success' => false, 'error' => 'Upload failed' );
+		if ( ! isset( $_FILES['event_cover'] ) ) {
+			wp_send_json_error( 'No file uploaded' );
+		}
+
+		$event_id = intval( $_POST['event_id'] ?? 0 );
+		if ( ! $event_id ) {
+			wp_send_json_error( 'Event ID required' );
+		}
+
+		$user_id = get_current_user_id();
+		
+		// Use the unified Image Manager system
+		$upload_result = PartyMinder_Image_Manager::handle_image_upload( $_FILES['event_cover'], 'cover', $event_id, 'event' );
+		
+		if ( $upload_result['success'] ) {
+			wp_send_json_success( array(
+				'url' => $upload_result['url'],
+				'message' => 'Event cover uploaded successfully'
+			) );
+		} else {
+			wp_send_json_error( $upload_result['error'] );
+		}
 	}
 
 	/**
 	 * Get uploaded photos for an event
+	 * Uses Image Manager's database-based system for event post images
 	 */
 	public static function get_event_photos( $event_id ) {
-		$upload_dir = wp_upload_dir();
-		$photos_dir = $upload_dir['basedir'] . '/partyminder/events/' . $event_id . '/';
-		$photos_url = $upload_dir['baseurl'] . '/partyminder/events/' . $event_id . '/';
-		
-		if ( ! is_dir( $photos_dir ) ) {
-			return array();
-		}
-		
-		$photos = array();
-		$files = glob( $photos_dir . '*' );
-		
-		foreach ( $files as $file ) {
-			if ( is_file( $file ) ) {
-				$filename = basename( $file );
-				// Skip the generated medium and thumb versions in the main list
-				if ( strpos( $filename, '-medium.' ) !== false || strpos( $filename, '-thumb.' ) !== false ) {
-					continue;
-				}
-				
-				$extension = pathinfo( $filename, PATHINFO_EXTENSION );
-				$base_filename = str_replace( '.' . $extension, '', $filename );
-				$medium_filename = $base_filename . '-medium.' . $extension;
-				$thumb_filename = $base_filename . '-thumb.' . $extension;
-				
-				$photos[] = array(
-					'url' => $photos_url . $filename,
-					'medium_url' => file_exists( $photos_dir . $medium_filename ) ? $photos_url . $medium_filename : $photos_url . $filename,
-					'thumb_url' => file_exists( $photos_dir . $thumb_filename ) ? $photos_url . $thumb_filename : $photos_url . $filename,
-					'filename' => $filename,
-					'uploaded' => filemtime( $file )
-				);
-			}
-		}
-		
-		// Sort by upload time (newest first)
-		usort( $photos, function( $a, $b ) {
-			return $b['uploaded'] - $a['uploaded'];
-		} );
-		
-		return $photos;
+		return PartyMinder_Image_Manager::get_event_post_images( $event_id );
 	}
 
 	/**
 	 * Get uploaded photos for a conversation
+	 * Placeholder for future conversation image database integration
 	 */
 	public static function get_conversation_photos( $conversation_id ) {
+		// For now, use filesystem-based approach for conversations
+		// TODO: Implement conversation image database table similar to post images
 		$upload_dir = wp_upload_dir();
 		$photos_dir = $upload_dir['basedir'] . '/partyminder/conversations/' . $conversation_id . '/';
 		$photos_url = $upload_dir['baseurl'] . '/partyminder/conversations/' . $conversation_id . '/';
@@ -263,20 +279,8 @@ class PartyMinder_Image_Upload {
 		foreach ( $files as $file ) {
 			if ( is_file( $file ) ) {
 				$filename = basename( $file );
-				// Skip the generated medium and thumb versions in the main list
-				if ( strpos( $filename, '-medium.' ) !== false || strpos( $filename, '-thumb.' ) !== false ) {
-					continue;
-				}
-				
-				$extension = pathinfo( $filename, PATHINFO_EXTENSION );
-				$base_filename = str_replace( '.' . $extension, '', $filename );
-				$medium_filename = $base_filename . '-medium.' . $extension;
-				$thumb_filename = $base_filename . '-thumb.' . $extension;
-				
 				$photos[] = array(
 					'url' => $photos_url . $filename,
-					'medium_url' => file_exists( $photos_dir . $medium_filename ) ? $photos_url . $medium_filename : $photos_url . $filename,
-					'thumb_url' => file_exists( $photos_dir . $thumb_filename ) ? $photos_url . $thumb_filename : $photos_url . $filename,
 					'filename' => $filename,
 					'uploaded' => filemtime( $file )
 				);
