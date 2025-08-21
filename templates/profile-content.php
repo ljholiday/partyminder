@@ -285,6 +285,34 @@ if ( $is_editing ) {
 } else {
 	// Profile view mode - use two-column template
 
+	// Main content
+	ob_start();
+	?>
+	
+	<!-- Secondary Menu Bar -->
+	<div class="pm-section pm-mb-4">
+		<div class="pm-flex pm-gap-4 pm-flex-wrap">
+			<?php if ( $is_own_profile ) : ?>
+				<a href="<?php echo esc_url( PartyMinder::get_create_event_url() ); ?>" class="pm-btn">
+					<?php _e( 'Create Event', 'partyminder' ); ?>
+				</a>
+				<a href="<?php echo add_query_arg( 'edit', '1', PartyMinder::get_profile_url() ); ?>" class="pm-btn pm-btn-secondary">
+					<?php _e( 'Edit Profile', 'partyminder' ); ?>
+				</a>
+			<?php endif; ?>
+			<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn-secondary">
+				<?php _e( 'Conversations', 'partyminder' ); ?>
+			</a>
+			<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
+				<?php _e( 'Browse Events', 'partyminder' ); ?>
+			</a>
+			<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
+				<?php _e( 'Dashboard', 'partyminder' ); ?>
+			</a>
+		</div>
+	</div>
+	
+	<?php
 	// Profile Header Section
 	$cover_photo = $profile_data['cover_image'] ?? '';
 	$cover_style = $cover_photo
@@ -313,25 +341,10 @@ if ( $is_editing ) {
 						<span>⭐ <?php _e( 'Active Host', 'partyminder' ); ?></span>
 					</div>
 					
-					<?php if ( $is_own_profile ) : ?>
-					<div class="pm-flex pm-gap pm-flex-wrap">
-						<a href="<?php echo add_query_arg( 'edit', '1', PartyMinder::get_profile_url() ); ?>" class="pm-btn">
-							<?php _e( 'Edit Profile', 'partyminder' ); ?>
-						</a>
-						<a href="<?php echo esc_url( PartyMinder::get_my_events_url() ); ?>" class="pm-btn pm-btn-secondary">
-							<?php _e( 'My Events', 'partyminder' ); ?>
-						</a>
-					</div>
-					<?php endif; ?>
 				</div>
 			</div>
 		</div>
 	</div>
-	
-	<?php
-	// Main content
-	ob_start();
-	?>
 	
 	<?php if ( ! empty( $profile_data['bio'] ) ) : ?>
 	<div class="pm-section pm-mb">
@@ -391,38 +404,6 @@ if ( $is_editing ) {
 	ob_start();
 	?>
 	
-	<!-- Quick Actions (No Heading) -->
-	<div class="pm-card pm-mb-4">
-		<div class="pm-card-body">
-			<div class="pm-flex pm-flex-column pm-gap-4">
-				<a href="<?php echo esc_url( PartyMinder::get_create_event_url() ); ?>" class="pm-btn">
-					<?php _e( 'Create Event', 'partyminder' ); ?>
-				</a>
-				<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn-secondary">
-					<?php _e( 'Browse Conversations', 'partyminder' ); ?>
-				</a>
-				<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
-					<?php _e( '← Dashboard', 'partyminder' ); ?>
-				</a>
-			</div>
-		</div>
-	</div>
-
-	<?php if ( $is_own_profile ) : ?>
-	<div class="pm-section pm-mb">
-		<div class="pm-section-header">
-			<h3 class="pm-heading pm-heading-sm"><?php _e( 'Profile Management', 'partyminder' ); ?></h3>
-		</div>
-		<div class="pm-flex pm-gap pm-flex-column">
-			<a href="<?php echo add_query_arg( 'edit', '1', PartyMinder::get_profile_url() ); ?>" class="pm-btn">
-				<?php _e( 'Edit Profile', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo esc_url( PartyMinder::get_my_events_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'My Events', 'partyminder' ); ?>
-			</a>
-		</div>
-	</div>
-	<?php endif; ?>
 
 	<div class="pm-section pm-mb">
 		<div class="pm-section-header">
@@ -442,6 +423,17 @@ if ( $is_editing ) {
 	
 	<?php
 	$sidebar_content = ob_get_clean();
+
+	// Set template variables for two-column layout
+	$page_title = $user_data->display_name;
+	$page_description = sprintf( __( '%s\'s profile and activity', 'partyminder' ), $user_data->display_name );
+	$breadcrumbs = array(
+		array(
+			'title' => __( 'Dashboard', 'partyminder' ),
+			'url'   => PartyMinder::get_dashboard_url(),
+		),
+		array( 'title' => __( 'Profile', 'partyminder' ) ),
+	);
 
 	// Include two-column template
 	include PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php';

@@ -23,7 +23,34 @@
   $page_title = 'Page Title';
   $page_description = 'Optional description'; // Can be empty string
 
-  3. Main Content Capture:
+  3. Secondary Navigation (Optional):
+  <!-- Secondary Menu Bar -->
+  <div class="pm-section pm-mb-4">
+      <div class="pm-flex pm-gap-4 pm-flex-wrap">
+          <a href="<?php echo PartyMinder::get_create_conversation_url(); ?>" class="pm-btn">
+              <?php _e( 'Start Conversation', 'partyminder' ); ?>
+          </a>
+          <a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
+              <?php _e( 'Browse Events', 'partyminder' ); ?>
+          </a>
+          <a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
+              <?php _e( 'Dashboard', 'partyminder' ); ?>
+          </a>
+          
+          <!-- Circle Filter Buttons (for conversation pages) -->
+          <button class="pm-btn pm-btn-secondary is-active" data-circle="close" role="tab" aria-selected="true" aria-controls="pm-convo-list">
+              <?php _e( 'Close Circle', 'partyminder' ); ?>
+          </button>
+          <button class="pm-btn pm-btn-secondary" data-circle="trusted" role="tab" aria-selected="false" aria-controls="pm-convo-list">
+              <?php _e( 'Trusted Circle', 'partyminder' ); ?>
+          </button>
+          <button class="pm-btn pm-btn-secondary" data-circle="extended" role="tab" aria-selected="false" aria-controls="pm-convo-list">
+              <?php _e( 'Extended Circle', 'partyminder' ); ?>
+          </button>
+      </div>
+  </div>
+
+  4. Main Content Capture:
   // Main content
   ob_start();
   ?>
@@ -34,7 +61,7 @@
   <?php
   $main_content = ob_get_clean();
 
-  4. Sidebar Content Capture:
+  5. Sidebar Content Capture:
   // Sidebar content
   ob_start();
   ?>
@@ -45,7 +72,7 @@
   <?php
   $sidebar_content = ob_get_clean();
 
-  5. Template Inclusion:
+  6. Template Inclusion:
   // Include two-column template
   include(PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php');
 
@@ -73,6 +100,25 @@
 
   CRITICAL: The content template itself should NOT contain the partyminder-content wrapper - it's added by the main plugin.
 
+  Secondary Navigation Guidelines
+
+  Include secondary navigation on user-facing pages for consistent experience:
+  
+  Standard Navigation Buttons:
+  - Start Conversation (if user is logged in)
+  - Browse Events  
+  - Dashboard
+  
+  Additional Buttons for Specific Pages:
+  - Conversation pages: Add Circle Filter buttons (Close Circle, Trusted Circle, Extended Circle)
+  - Profile pages: Add Create Event, Edit Profile actions
+  - Community pages: Add community-specific actions
+  
+  Navigation Structure:
+  - Place after template variables setup, before main content capture
+  - Use pm-flex pm-gap-4 pm-flex-wrap for responsive layout
+  - Include ARIA attributes for filter buttons (role="tab", aria-selected, aria-controls)
+  
   Essential Requirements
 
   CSS Classes: All content must use pm- prefixed classes:
