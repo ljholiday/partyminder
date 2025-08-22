@@ -341,7 +341,7 @@ jQuery(document).ready(function($) {
 			data: {
 				action: 'partyminder_delete_event',
 				event_id: <?php echo $event_id; ?>,
-				nonce: '<?php echo wp_create_nonce( 'partyminder_event_action' ); ?>'
+				nonce: partyminder_ajax.event_nonce
 			},
 			success: function(response) {
 				if (response.success) {

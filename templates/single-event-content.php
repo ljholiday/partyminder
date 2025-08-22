@@ -361,7 +361,7 @@ jQuery(document).ready(function($) {
 				event_id: <?php echo $event->id; ?>,
 				email: email,
 				message: message,
-				nonce: '<?php echo wp_create_nonce( 'partyminder_event_action' ); ?>'
+				nonce: partyminder_ajax.event_nonce
 			},
 			success: function(response) {
 				if (response.success) {
@@ -411,7 +411,7 @@ jQuery(document).ready(function($) {
 				action: 'partyminder_cancel_event_invitation',
 				event_id: <?php echo $event->id; ?>,
 				invitation_id: invitationId,
-				nonce: '<?php echo wp_create_nonce( 'partyminder_event_action' ); ?>'
+				nonce: partyminder_ajax.event_nonce
 			},
 			success: function(response) {
 				if (response.success) {
@@ -436,7 +436,7 @@ jQuery(document).ready(function($) {
 			data: {
 				action: 'partyminder_get_event_invitations',
 				event_id: <?php echo $event->id; ?>,
-				nonce: '<?php echo wp_create_nonce( 'partyminder_event_action' ); ?>'
+				nonce: partyminder_ajax.event_nonce
 			},
 			success: function(response) {
 				if (response.success) {
