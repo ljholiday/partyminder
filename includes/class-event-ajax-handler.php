@@ -234,7 +234,7 @@ class PartyMinder_Event_Ajax_Handler {
 
 		$existing = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT id FROM $invitations_table WHERE event_id = %d AND invited_email = %s AND status = 'pending' AND expires_at > NOW()",
+				"SELECT id FROM $invitations_table WHERE event_id = %d AND invited_email = %s AND status IN ('pending', 'accepted')",
 				$event_id,
 				$email
 			)
@@ -265,11 +265,6 @@ class PartyMinder_Event_Ajax_Handler {
 		);
 
 		if ( $result === false ) {
-			// Check if this is a duplicate key error (MySQL error 1062)
-			if ( $wpdb->last_error && strpos( $wpdb->last_error, 'Duplicate entry' ) !== false ) {
-				wp_send_json_error( __( 'This email has already been invited.', 'partyminder' ) );
-				return;
-			}
 			wp_send_json_error( __( 'Failed to create invitation.', 'partyminder' ) );
 			return;
 		}
@@ -365,7 +360,7 @@ class PartyMinder_Event_Ajax_Handler {
 				"SELECT ei.*, u.display_name as invited_by_name 
              FROM $invitations_table ei 
              LEFT JOIN {$wpdb->users} u ON ei.invited_by_user_id = u.ID 
-             WHERE ei.event_id = %d AND ei.status = 'pending' AND ei.expires_at > NOW()
+             WHERE ei.event_id = %d 
              ORDER BY ei.created_at DESC",
 				$event_id
 			)

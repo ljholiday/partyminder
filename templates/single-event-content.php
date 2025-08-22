@@ -328,20 +328,18 @@ require PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php';
 
 <script>
 jQuery(document).ready(function($) {
+	let invitationSubmitting = false;
+	
 	// Load pending invitations on page load
 	if ($('#event-invitations-list').length > 0) {
 		loadEventInvitations();
 	}
 	
 	// Handle invitation form submission
-	$('#send-event-invitation-form').off('submit').on('submit', function(e) {
+	$('#send-event-invitation-form').on('submit', function(e) {
 		e.preventDefault();
 		
-		const $form = $(this);
-		const $submitBtn = $form.find('button[type="submit"]');
-		
-		// Prevent double submission
-		if ($submitBtn.prop('disabled')) {
+		if (invitationSubmitting) {
 			return false;
 		}
 		
@@ -353,9 +351,12 @@ jQuery(document).ready(function($) {
 			return;
 		}
 		
+		const $form = $(this);
+		const $submitBtn = $form.find('button[type="submit"]');
 		const originalText = $submitBtn.text();
 		
-		// Disable form and show loading
+		// Set flag and disable form
+		invitationSubmitting = true;
 		$submitBtn.prop('disabled', true).text('<?php _e( 'Sending...', 'partyminder' ); ?>');
 		$form.find('input, textarea').prop('disabled', true);
 		
@@ -391,7 +392,8 @@ jQuery(document).ready(function($) {
 				alert('<?php _e( 'Network error. Please try again.', 'partyminder' ); ?>');
 			},
 			complete: function() {
-				// Re-enable form
+				// Reset flag and re-enable form
+				invitationSubmitting = false;
 				$submitBtn.prop('disabled', false).text(originalText);
 				$form.find('input, textarea').prop('disabled', false);
 			}
