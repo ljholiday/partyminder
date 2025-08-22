@@ -902,4 +902,127 @@ class PartyMinder_Conversation_Manager {
 
 		return true;
 	}
+
+	/**
+	 * Get conversation by ID
+	 */
+	public function get_conversation_by_id( $conversation_id ) {
+		global $wpdb;
+
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+		
+		return $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT * FROM $conversations_table WHERE id = %d",
+				$conversation_id
+			)
+		);
+	}
+
+	/**
+	 * Update conversation
+	 */
+	public function update_conversation( $conversation_id, $update_data ) {
+		global $wpdb;
+
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+
+		// Validate required fields
+		if ( empty( $update_data['title'] ) || empty( $update_data['content'] ) ) {
+			return new WP_Error( 'missing_data', __( 'Title and content are required', 'partyminder' ) );
+		}
+
+		// Prepare update data
+		$data = array(
+			'title' => sanitize_text_field( $update_data['title'] ),
+			'content' => wp_kses_post( $update_data['content'] ),
+		);
+
+		$formats = array( '%s', '%s' );
+
+		// Only update privacy if provided (for standalone conversations)
+		if ( isset( $update_data['privacy'] ) ) {
+			$data['privacy'] = $this->validate_privacy_setting( $update_data['privacy'] );
+			$formats[] = '%s';
+		}
+
+		$result = $wpdb->update(
+			$conversations_table,
+			$data,
+			array( 'id' => $conversation_id ),
+			$formats,
+			array( '%d' )
+		);
+
+		if ( $result === false ) {
+			return new WP_Error( 'update_failed', __( 'Failed to update conversation', 'partyminder' ) );
+		}
+
+		return $conversation_id;
+	}
+
+	/**
+	 * Delete conversation and all related data
+	 */
+	public function delete_conversation( $conversation_id ) {
+		global $wpdb;
+
+		// Get conversation first
+		$conversation = $this->get_conversation_by_id( $conversation_id );
+		if ( ! $conversation ) {
+			return new WP_Error( 'conversation_not_found', __( 'Conversation not found', 'partyminder' ) );
+		}
+
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+		$replies_table = $wpdb->prefix . 'partyminder_conversation_replies';
+
+		// Start transaction
+		$wpdb->query( 'START TRANSACTION' );
+
+		try {
+			// Delete all replies first
+			$wpdb->delete( $replies_table, array( 'conversation_id' => $conversation_id ), array( '%d' ) );
+
+			// Delete conversation followers (if table exists)
+			$followers_table = $wpdb->prefix . 'partyminder_conversation_followers';
+			if ( $wpdb->get_var( "SHOW TABLES LIKE '$followers_table'" ) == $followers_table ) {
+				$wpdb->delete( $followers_table, array( 'conversation_id' => $conversation_id ), array( '%d' ) );
+			}
+
+			// Delete the conversation itself
+			$result = $wpdb->delete( $conversations_table, array( 'id' => $conversation_id ), array( '%d' ) );
+
+			if ( $result === false ) {
+				throw new Exception( __( 'Failed to delete conversation', 'partyminder' ) );
+			}
+
+			// Delete any cover image meta
+			delete_post_meta( $conversation_id, 'cover_image' );
+
+			// Commit transaction
+			$wpdb->query( 'COMMIT' );
+
+			return true;
+
+		} catch ( Exception $e ) {
+			// Rollback transaction on error
+			$wpdb->query( 'ROLLBACK' );
+			return new WP_Error( 'deletion_failed', $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Validate privacy setting for standalone conversations
+	 */
+	private function validate_privacy_setting( $privacy ) {
+		$allowed_privacy_settings = array( 'public', 'friends', 'members' );
+		
+		$privacy = sanitize_text_field( $privacy );
+		
+		if ( ! in_array( $privacy, $allowed_privacy_settings ) ) {
+			return 'public'; // Default to public if invalid
+		}
+		
+		return $privacy;
+	}
 }

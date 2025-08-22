@@ -191,9 +191,16 @@ class PartyMinder_Page_Content_Injector {
 			return $content;
 		}
 
+		$conversation_action = get_query_var( 'conversation_action' );
+		
 		ob_start();
-		echo '<div class="partyminder-content partyminder-single-conversation-page">';
-		include PARTYMINDER_PLUGIN_DIR . 'templates/single-conversation-content.php';
+		if ( $conversation_action === 'edit' ) {
+			echo '<div class="partyminder-content partyminder-edit-conversation-page">';
+			include PARTYMINDER_PLUGIN_DIR . 'templates/edit-conversation-content.php';
+		} else {
+			echo '<div class="partyminder-content partyminder-single-conversation-page">';
+			include PARTYMINDER_PLUGIN_DIR . 'templates/single-conversation-content.php';
+		}
 		echo '</div>';
 		return ob_get_clean();
 	}

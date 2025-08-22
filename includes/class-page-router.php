@@ -24,6 +24,7 @@ class PartyMinder_Page_Router {
 		add_rewrite_rule( '^events/([^/]+)/?$', 'index.php?pagename=events&event_slug=$matches[1]', 'top' );
 
 		// Conversation routing
+		add_rewrite_rule( '^conversations/edit/([^/]+)/?$', 'index.php?pagename=conversations&conversation_slug=$matches[1]&conversation_action=edit', 'top' );
 		add_rewrite_rule( '^conversations/([^/]+)/?$', 'index.php?pagename=conversations&conversation_slug=$matches[1]', 'top' );
 
 		// Community routing
@@ -48,6 +49,7 @@ class PartyMinder_Page_Router {
 		$vars[] = 'event_action';
 		$vars[] = 'event_id';
 		$vars[] = 'conversation_slug';
+		$vars[] = 'conversation_action';
 		$vars[] = 'community_slug';
 		$vars[] = 'community_view';
 		$vars[] = 'community_action';

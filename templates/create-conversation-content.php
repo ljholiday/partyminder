@@ -136,7 +136,7 @@ ob_start();
 	</div>
 <?php endif; ?>
 
-<form method="post" action="<?php echo admin_url( 'admin-ajax.php' ); ?>" class="pm-form" id="partyminder-conversation-form">
+<form method="post" action="<?php echo admin_url( 'admin-ajax.php' ); ?>" class="pm-form" id="partyminder-conversation-form" enctype="multipart/form-data">
 	<?php wp_nonce_field( 'partyminder_nonce', 'nonce' ); ?>
 	<input type="hidden" name="action" value="partyminder_create_conversation">
 	<?php if ( $selected_event_id ) : ?>
@@ -202,6 +202,13 @@ ob_start();
 			<p class="pm-form-help pm-text-muted"><?php _e( 'Provide context and details to encourage meaningful discussions', 'partyminder' ); ?></p>
 		</div>
 		
+		<!-- Cover Image Upload -->
+		<div class="pm-form-group">
+			<label for="cover_image" class="pm-form-label"><?php _e( 'Cover Image', 'partyminder' ); ?></label>
+			<input type="file" id="cover_image" name="cover_image" class="pm-form-input" accept="image/*">
+			<p class="pm-form-help pm-text-muted"><?php _e( 'Optional: Upload a cover image for this conversation (JPG, PNG, max 5MB)', 'partyminder' ); ?></p>
+		</div>
+		
 		<?php if ( ! $selected_event && ! $selected_community ) : ?>
 			<!-- Privacy Settings for Standalone Conversations -->
 			<div class="pm-form-group">
@@ -261,25 +268,19 @@ jQuery(document).ready(function($) {
 		// Disable submit button and show loading
 		$submitBtn.prop('disabled', true).html('<?php _e( 'Starting Conversation...', 'partyminder' ); ?>');
 		
-		// Prepare form data
+		// Prepare form data including file upload
 		const formData = new FormData(this);
-		formData.append('action', 'partyminder_create_conversation');
-		
-		// Convert FormData to regular object for jQuery
-		const data = {};
-		for (let [key, value] of formData.entries()) {
-			data[key] = value;
-		}
 		
 		$.ajax({
 			url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
 			type: 'POST',
-			data: data,
+			data: formData,
+			processData: false,
+			contentType: false,
 			success: function(response) {
 				if (response.success) {
-					// Redirect to success page or conversation
-					const redirectUrl = response.data.redirect_url || '<?php echo PartyMinder::get_create_conversation_url(); ?>?partyminder_created=1';
-					window.location.href = redirectUrl;
+					// Stay on page and show success message instead of redirecting
+					window.location.href = '<?php echo PartyMinder::get_create_conversation_url(); ?>?partyminder_created=1';
 				} else {
 					// Show error message
 					$form.before('<div class="pm-alert pm-alert-error pm-mb-4"><h4><?php _e( 'Please fix the following issues:', 'partyminder' ); ?></h4><ul><li>' + (response.data || 'Unknown error occurred') + '</li></ul></div>');

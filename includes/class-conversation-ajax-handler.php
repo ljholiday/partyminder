@@ -13,6 +13,8 @@ class PartyMinder_Conversation_Ajax_Handler {
 	private function init_hooks() {
 		add_action( 'wp_ajax_partyminder_create_conversation', array( $this, 'ajax_create_conversation' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_create_conversation', array( $this, 'ajax_create_conversation' ) );
+		add_action( 'wp_ajax_partyminder_update_conversation', array( $this, 'ajax_update_conversation' ) );
+		add_action( 'wp_ajax_partyminder_delete_conversation', array( $this, 'ajax_delete_conversation' ) );
 		add_action( 'wp_ajax_partyminder_add_reply', array( $this, 'ajax_add_reply' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_add_reply', array( $this, 'ajax_add_reply' ) );
 		add_action( 'wp_ajax_partyminder_delete_reply', array( $this, 'ajax_delete_reply' ) );
@@ -249,6 +251,142 @@ class PartyMinder_Conversation_Ajax_Handler {
 				'circle' => $circle
 			)
 		) );
+	}
+
+	public function ajax_update_conversation() {
+		check_ajax_referer( 'partyminder_nonce', 'nonce' );
+
+		if ( ! is_user_logged_in() ) {
+			wp_send_json_error( __( 'You must be logged in to edit conversations.', 'partyminder' ) );
+		}
+
+		$conversation_id = intval( $_POST['conversation_id'] ?? 0 );
+		$title = sanitize_text_field( $_POST['title'] ?? '' );
+		$content = wp_kses_post( $_POST['content'] ?? '' );
+		$privacy = sanitize_text_field( $_POST['privacy'] ?? 'public' );
+
+		if ( ! $conversation_id || ! $title || ! $content ) {
+			wp_send_json_error( __( 'All fields are required.', 'partyminder' ) );
+		}
+
+		$conversation_manager = $this->get_conversation_manager();
+		$conversation = $conversation_manager->get_conversation_by_id( $conversation_id );
+
+		if ( ! $conversation ) {
+			wp_send_json_error( __( 'Conversation not found.', 'partyminder' ) );
+		}
+
+		// Check permissions
+		$current_user = wp_get_current_user();
+		$can_edit = ( $current_user->ID == $conversation->author_id ) || current_user_can( 'manage_options' );
+
+		if ( ! $can_edit ) {
+			wp_send_json_error( __( 'You do not have permission to edit this conversation.', 'partyminder' ) );
+		}
+
+		// Handle cover image upload
+		if ( isset( $_FILES['cover_image'] ) && $_FILES['cover_image']['error'] === UPLOAD_ERR_OK ) {
+			$upload_result = $this->handle_cover_image_upload( $_FILES['cover_image'], $conversation_id );
+			if ( is_wp_error( $upload_result ) ) {
+				wp_send_json_error( $upload_result->get_error_message() );
+			}
+		}
+
+		// Handle cover image removal
+		if ( isset( $_POST['remove_cover_image'] ) && $_POST['remove_cover_image'] === '1' ) {
+			delete_post_meta( $conversation_id, 'cover_image' );
+		}
+
+		$update_data = array(
+			'title' => $title,
+			'content' => $content,
+		);
+
+		// Only update privacy for standalone conversations
+		if ( ! $conversation->event_id && ! $conversation->community_id ) {
+			$update_data['privacy'] = $privacy;
+		}
+
+		$result = $conversation_manager->update_conversation( $conversation_id, $update_data );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( $result->get_error_message() );
+		}
+
+		// Store success message
+		set_transient( 'partyminder_conversation_updated_' . get_current_user_id(), array(
+			'conversation_id' => $conversation_id,
+			'message' => __( 'Conversation updated successfully!', 'partyminder' )
+		), 300 );
+
+		wp_send_json_success( array(
+			'message' => __( 'Conversation updated successfully!', 'partyminder' ),
+			'conversation_id' => $conversation_id
+		) );
+	}
+
+	public function ajax_delete_conversation() {
+		check_ajax_referer( 'partyminder_nonce', 'nonce' );
+
+		if ( ! is_user_logged_in() ) {
+			wp_send_json_error( __( 'You must be logged in to delete conversations.', 'partyminder' ) );
+		}
+
+		$conversation_id = intval( $_POST['conversation_id'] ?? 0 );
+
+		if ( ! $conversation_id ) {
+			wp_send_json_error( __( 'Conversation ID is required.', 'partyminder' ) );
+		}
+
+		$conversation_manager = $this->get_conversation_manager();
+		$conversation = $conversation_manager->get_conversation_by_id( $conversation_id );
+
+		if ( ! $conversation ) {
+			wp_send_json_error( __( 'Conversation not found.', 'partyminder' ) );
+		}
+
+		// Check permissions
+		$current_user = wp_get_current_user();
+		$can_delete = ( $current_user->ID == $conversation->author_id ) || current_user_can( 'manage_options' );
+
+		if ( ! $can_delete ) {
+			wp_send_json_error( __( 'You do not have permission to delete this conversation.', 'partyminder' ) );
+		}
+
+		$result = $conversation_manager->delete_conversation( $conversation_id );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( $result->get_error_message() );
+		}
+
+		wp_send_json_success( array(
+			'message' => __( 'Conversation deleted successfully!', 'partyminder' )
+		) );
+	}
+
+	private function handle_cover_image_upload( $file, $conversation_id ) {
+		// Validate file
+		$allowed_types = array( 'image/jpeg', 'image/png', 'image/gif', 'image/webp' );
+		if ( ! in_array( $file['type'], $allowed_types ) ) {
+			return new WP_Error( 'invalid_file_type', __( 'Only JPG, PNG, GIF, and WebP images are allowed.', 'partyminder' ) );
+		}
+
+		if ( $file['size'] > 5 * 1024 * 1024 ) { // 5MB limit
+			return new WP_Error( 'file_too_large', __( 'File size must be less than 5MB.', 'partyminder' ) );
+		}
+
+		// Handle upload
+		$upload_overrides = array( 'test_form' => false );
+		$uploaded_file = wp_handle_upload( $file, $upload_overrides );
+
+		if ( isset( $uploaded_file['error'] ) ) {
+			return new WP_Error( 'upload_error', $uploaded_file['error'] );
+		}
+
+		// Save to post meta
+		update_post_meta( $conversation_id, 'cover_image', $uploaded_file['url'] );
+
+		return $uploaded_file['url'];
 	}
 
 }

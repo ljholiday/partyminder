@@ -77,6 +77,35 @@ $breadcrumbs      = array(
 ob_start();
 ?>
 
+<!-- Secondary Navigation for Admins -->
+<?php
+// Check if current user can manage this conversation
+$can_manage_conversation = false;
+if ( is_user_logged_in() ) {
+	$current_user = wp_get_current_user();
+	// User can manage if they are the author or an admin
+	$can_manage_conversation = ( $current_user->ID == $conversation->author_id ) || current_user_can( 'manage_options' );
+}
+?>
+
+<?php if ( $can_manage_conversation ) : ?>
+<!-- Admin Navigation Bar -->
+<div class="pm-section pm-mb-4">
+	<div class="pm-flex pm-gap-4">
+		<a href="<?php echo home_url( '/conversations/edit/' . $conversation->slug ); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( 'Edit Conversation', 'partyminder' ); ?>
+		</a>
+		<button type="button" class="pm-btn pm-btn-danger delete-conversation-btn" 
+				data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
+			<?php _e( 'Delete Conversation', 'partyminder' ); ?>
+		</button>
+		<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( 'Back to Conversations', 'partyminder' ); ?>
+		</a>
+	</div>
+</div>
+<?php endif; ?>
+
 <!-- Conversation Header -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
@@ -601,6 +630,43 @@ jQuery(document).ready(function($) {
 			error: function() {
 				alert('Network error. Please try again.');
 				$btn.prop('disabled', false).text('Delete');
+			}
+		});
+	});
+	
+	// Handle delete conversation button clicks
+	$('.delete-conversation-btn').on('click', function(e) {
+		e.preventDefault();
+		
+		const $btn = $(this);
+		const conversationId = $btn.data('conversation-id');
+		
+		if (!confirm('Are you sure you want to delete this entire conversation? This will delete all replies and cannot be undone.')) {
+			return;
+		}
+		
+		$btn.prop('disabled', true).text('Deleting...');
+		
+		$.ajax({
+			url: partyminder_ajax.ajax_url,
+			type: 'POST',
+			data: {
+				action: 'partyminder_delete_conversation',
+				conversation_id: conversationId,
+				nonce: partyminder_ajax.nonce
+			},
+			success: function(response) {
+				if (response.success) {
+					// Redirect to conversations list
+					window.location.href = '<?php echo PartyMinder::get_conversations_url(); ?>';
+				} else {
+					alert(response.data || 'Failed to delete conversation.');
+					$btn.prop('disabled', false).text('Delete Conversation');
+				}
+			},
+			error: function() {
+				alert('Network error. Please try again.');
+				$btn.prop('disabled', false).text('Delete Conversation');
 			}
 		});
 	});
