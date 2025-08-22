@@ -334,8 +334,16 @@ jQuery(document).ready(function($) {
 	}
 	
 	// Handle invitation form submission
-	$('#send-event-invitation-form').on('submit', function(e) {
+	$('#send-event-invitation-form').off('submit').on('submit', function(e) {
 		e.preventDefault();
+		
+		const $form = $(this);
+		const $submitBtn = $form.find('button[type="submit"]');
+		
+		// Prevent double submission
+		if ($submitBtn.prop('disabled')) {
+			return false;
+		}
 		
 		const email = $('#event-invitation-email').val().trim();
 		const message = $('#event-invitation-message').val().trim();
@@ -345,8 +353,6 @@ jQuery(document).ready(function($) {
 			return;
 		}
 		
-		const $form = $(this);
-		const $submitBtn = $form.find('button[type="submit"]');
 		const originalText = $submitBtn.text();
 		
 		// Disable form and show loading
