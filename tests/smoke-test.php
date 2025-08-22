@@ -63,7 +63,7 @@ class PartyMinder_Smoke_Test {
      * Run all smoke tests
      */
     public function run_tests() {
-        echo "🧪 PartyMinder Smoke Test\n";
+        echo "PartyMinder Smoke Test\n";
         echo "========================\n\n";
         
         // Test main pages
@@ -229,7 +229,7 @@ class PartyMinder_Smoke_Test {
             'message' => $message
         );
         
-        $status = $passed ? '✅ PASS' : '❌ FAIL';
+        $status = $passed ? 'PASS' : 'FAIL';
         $msg = $message ? " - $message" : '';
         echo "$status: $test_name$msg\n";
     }
@@ -352,16 +352,16 @@ class PartyMinder_Smoke_Test {
         } ) );
         $failed = $total - $passed;
         
-        echo "📊 Test Summary:\n";
+        echo "Test Summary:\n";
         echo "Total: $total\n";
         echo "Passed: $passed\n";
         echo "Failed: $failed\n";
         
         if ( $failed === 0 ) {
-            echo "\n🎉 All tests passed! PartyMinder is working correctly.\n";
+            echo "\nAll tests passed! PartyMinder is working correctly.\n";
             exit( 0 );
         } else {
-            echo "\n⚠️ Some tests failed. Check the issues above.\n";
+            echo "\nSome tests failed. Check the issues above.\n";
             exit( 1 );
         }
     }

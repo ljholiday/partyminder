@@ -177,14 +177,10 @@ ob_start();
 			<input type="file" id="cover_image" name="cover_image" class="pm-form-input" accept="image/*">
 			<p class="pm-form-help pm-text-muted"><?php _e( 'Optional: Upload a cover image for this conversation (JPG, PNG, max 5MB)', 'partyminder' ); ?></p>
 			
-			<?php 
-			// Check if conversation has existing cover image
-			$existing_cover = get_post_meta( $conversation->id, 'cover_image', true );
-			if ( $existing_cover ) : 
-			?>
+			<?php if ( ! empty( $conversation->featured_image ) ) : ?>
 				<div class="pm-current-cover pm-mt-2">
 					<p class="pm-text-muted pm-mb-2"><?php _e( 'Current cover image:', 'partyminder' ); ?></p>
-					<img src="<?php echo esc_url( $existing_cover ); ?>" alt="Current cover" style="max-width: 200px; height: auto; border-radius: 4px;">
+					<img src="<?php echo esc_url( $conversation->featured_image ); ?>" alt="Current cover" style="max-width: 200px; height: auto; border-radius: 4px;">
 					<label class="pm-mt-2">
 						<input type="checkbox" name="remove_cover_image" value="1"> <?php _e( 'Remove current cover image', 'partyminder' ); ?>
 					</label>

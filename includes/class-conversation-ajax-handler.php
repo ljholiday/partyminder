@@ -90,6 +90,14 @@ class PartyMinder_Conversation_Ajax_Handler {
 		$conversation_id = $conversation_manager->create_conversation( $conversation_data );
 
 		if ( $conversation_id ) {
+			// Handle cover image upload
+			if ( isset( $_FILES['cover_image'] ) && $_FILES['cover_image']['error'] === UPLOAD_ERR_OK ) {
+				$upload_result = $this->handle_cover_image_upload( $_FILES['cover_image'], $conversation_id );
+				if ( is_wp_error( $upload_result ) ) {
+					// Log error but don't fail the conversation creation
+					error_log( 'Cover image upload failed: ' . $upload_result->get_error_message() );
+				}
+			}
 			$success_data = array(
 				'conversation_id' => $conversation_id,
 				'message'         => __( 'Conversation started successfully!', 'partyminder' ),
@@ -294,7 +302,15 @@ class PartyMinder_Conversation_Ajax_Handler {
 
 		// Handle cover image removal
 		if ( isset( $_POST['remove_cover_image'] ) && $_POST['remove_cover_image'] === '1' ) {
-			delete_post_meta( $conversation_id, 'cover_image' );
+			global $wpdb;
+			$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+			$wpdb->update(
+				$conversations_table,
+				array( 'featured_image' => '' ),
+				array( 'id' => $conversation_id ),
+				array( '%s' ),
+				array( '%d' )
+			);
 		}
 
 		$update_data = array(
@@ -383,8 +399,16 @@ class PartyMinder_Conversation_Ajax_Handler {
 			return new WP_Error( 'upload_error', $uploaded_file['error'] );
 		}
 
-		// Save to post meta
-		update_post_meta( $conversation_id, 'cover_image', $uploaded_file['url'] );
+		// Update conversation with cover image
+		global $wpdb;
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+		$wpdb->update(
+			$conversations_table,
+			array( 'featured_image' => $uploaded_file['url'] ),
+			array( 'id' => $conversation_id ),
+			array( '%s' ),
+			array( '%d' )
+		);
 
 		return $uploaded_file['url'];
 	}

@@ -150,6 +150,15 @@ if ( is_user_logged_in() ) {
 	</div>
 </div>
 
+<?php if ( ! empty( $conversation->featured_image ) ) : ?>
+<!-- Featured Image -->
+<div class="pm-section pm-mb">
+	<div class="pm-card">
+		<img src="<?php echo esc_url( $conversation->featured_image ); ?>" alt="<?php echo esc_attr( $conversation->title ); ?>" style="width: 100%; height: auto;">
+	</div>
+</div>
+<?php endif; ?>
+
 <!-- Original Post -->
 <div class="pm-section pm-mb">
 	<div class="pm-flex pm-gap pm-mb">
