@@ -9,15 +9,17 @@ CLAUDE.md
 # Only a local file
 debug.log
 
-# Test infrastructure files
+# Old test infrastructure files (no longer used)
 vendor/
 composer.json
 composer.lock
 phpunit.xml
-tests/
 bin/install-wp-tests.sh
 .phpunit.result.cache
 coverage/
 tmp/
+
+# Keep our simple smoke test
+# tests/ is now tracked in git
 
 
