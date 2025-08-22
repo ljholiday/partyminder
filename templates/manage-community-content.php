@@ -16,7 +16,7 @@ $community_manager = new PartyMinder_Community_Manager();
 
 // Get community ID from URL parameter
 $community_id = isset( $_GET['community_id'] ) ? intval( $_GET['community_id'] ) : 0;
-$current_tab  = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'overview';
+$current_tab  = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'settings';
 
 if ( ! $community_id ) {
 	$page_title      = __( 'Community Not Found', 'partyminder' );
@@ -130,9 +130,6 @@ ob_start();
 <!-- Secondary Menu Bar -->
 <div class="pm-section pm-mb-4">
 	<div class="pm-flex pm-gap-4">
-		<a href="?community_id=<?php echo $community_id; ?>&tab=overview" class="pm-btn <?php echo $current_tab === 'overview' ? '' : 'pm-btn-secondary'; ?>">
-			<?php _e( 'Overview', 'partyminder' ); ?>
-		</a>
 		<a href="?community_id=<?php echo $community_id; ?>&tab=settings" class="pm-btn <?php echo $current_tab === 'settings' ? '' : 'pm-btn-secondary'; ?>">
 			<?php _e( 'Settings', 'partyminder' ); ?>
 		</a>
@@ -149,31 +146,7 @@ ob_start();
 </div>
 
 <!-- Tab Content -->
-<?php if ( $current_tab === 'overview' ) : ?>
-<div class="pm-section">
-	<div class="pm-section-header">
-		<h2 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Community Overview', 'partyminder' ); ?></h2>
-	</div>
-	
-	<div class="pm-grid pm-gap pm-mb-4">
-		<div class="pm-section pm-border pm-p-4">
-			<h3 class="pm-heading pm-heading-sm pm-mb-2"><?php _e( 'Quick Actions', 'partyminder' ); ?></h3>
-			<div class="pm-flex pm-gap pm-flex-wrap">
-				<a href="?community_id=<?php echo $community_id; ?>&tab=settings" class="pm-btn pm-btn-secondary">
-					<?php _e( 'Edit Settings', 'partyminder' ); ?>
-				</a>
-				<a href="?community_id=<?php echo $community_id; ?>&tab=members" class="pm-btn pm-btn-secondary">
-					<?php _e( 'Manage Members', 'partyminder' ); ?>
-				</a>
-				<a href="?community_id=<?php echo $community_id; ?>&tab=invitations" class="pm-btn pm-btn-secondary">
-					<?php _e( 'Send Invitations', 'partyminder' ); ?>
-				</a>
-			</div>
-		</div>
-	</div>
-</div>
-
-<?php elseif ( $current_tab === 'settings' ) : ?>
+<?php if ( $current_tab === 'settings' ) : ?>
 <div class="pm-section">
 	<div class="pm-section-header">
 		<h2 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Community Settings', 'partyminder' ); ?></h2>

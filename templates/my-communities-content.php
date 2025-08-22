@@ -149,7 +149,7 @@ ob_start();
 							<?php _e( 'View', 'partyminder' ); ?>
 						</a>
 						<?php if ( $community->role === 'admin' ) : ?>
-							<a href="<?php echo esc_url( site_url( '/manage-community?community_id=' . $community->id . '&tab=overview' ) ); ?>" class="pm-btn pm-btn-secondary">
+							<a href="<?php echo esc_url( site_url( '/manage-community?community_id=' . $community->id . '&tab=settings' ) ); ?>" class="pm-btn pm-btn-secondary">
 								<?php _e( 'Manage', 'partyminder' ); ?>
 							</a>
 						<?php endif; ?>

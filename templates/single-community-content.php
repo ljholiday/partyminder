@@ -76,7 +76,7 @@ ob_start();
 			</a>
 		<?php elseif ( $is_member ) : ?>
 			<?php if ( $user_role === 'admin' ) : ?>
-				<a href="<?php echo esc_url( site_url( '/manage-community?community_id=' . $community->id . '&tab=overview' ) ); ?>" class="pm-btn">
+				<a href="<?php echo esc_url( site_url( '/manage-community?community_id=' . $community->id . '&tab=settings' ) ); ?>" class="pm-btn">
 					<?php _e( 'Manage Community', 'partyminder' ); ?>
 				</a>
 			<?php endif; ?>
