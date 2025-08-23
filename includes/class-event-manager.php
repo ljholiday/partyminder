@@ -197,34 +197,39 @@ class PartyMinder_Event_Manager {
 		if ( $current_user_id && is_user_logged_in() ) {
 			// For logged-in users: show public events, their own events, 
 			// events from public communities, and events from communities they belong to
-			$privacy_clause = "(
-				(e.community_id IS NULL AND (e.privacy = 'public' OR e.author_id = $current_user_id)) OR
-				(e.community_id IS NOT NULL AND (
-					c.privacy = 'public' OR 
-					c.creator_id = $current_user_id OR
-					EXISTS(
-						SELECT 1 FROM $members_table m 
-						WHERE m.community_id = c.id AND m.user_id = $current_user_id 
-						AND m.status = 'active'
+			$query = "SELECT DISTINCT e.* FROM $events_table e
+					 LEFT JOIN $communities_table c ON e.community_id = c.id
+	                 WHERE e.event_status = 'active'
+	                 AND (
+						((e.community_id IS NULL OR e.community_id = 0) AND (e.privacy = 'public' OR e.author_id = %d)) OR
+						(e.community_id IS NOT NULL AND e.community_id != 0 AND (
+							c.privacy = 'public' OR 
+							c.creator_id = %d OR
+							EXISTS(
+								SELECT 1 FROM $members_table m 
+								WHERE m.community_id = c.id AND m.user_id = %d 
+								AND m.status = 'active'
+							)
+						))
 					)
-				))
-			)";
+	                 ORDER BY e.event_date ASC 
+	                 LIMIT %d";
+
+			$results = $wpdb->get_results( $wpdb->prepare( $query, $current_user_id, $current_user_id, $current_user_id, $limit ) );
 		} else {
 			// Not logged in: only show public events and events from public communities
-			$privacy_clause = "(
-				(e.community_id IS NULL AND e.privacy = 'public') OR
-				(e.community_id IS NOT NULL AND c.privacy = 'public')
-			)";
+			$query = "SELECT DISTINCT e.* FROM $events_table e
+					 LEFT JOIN $communities_table c ON e.community_id = c.id
+	                 WHERE e.event_status = 'active'
+	                 AND (
+						((e.community_id IS NULL OR e.community_id = 0) AND e.privacy = 'public') OR
+						(e.community_id IS NOT NULL AND e.community_id != 0 AND c.privacy = 'public')
+					)
+	                 ORDER BY e.event_date ASC 
+	                 LIMIT %d";
+
+			$results = $wpdb->get_results( $wpdb->prepare( $query, $limit ) );
 		}
-
-		$query = "SELECT DISTINCT e.* FROM $events_table e
-				 LEFT JOIN $communities_table c ON e.community_id = c.id
-                 WHERE e.event_status = 'active'
-                 AND ($privacy_clause)
-                 ORDER BY e.event_date DESC 
-                 LIMIT %d";
-
-		$results = $wpdb->get_results( $wpdb->prepare( $query, $limit ) );
 
 		// Add guest stats to each event
 		foreach ( $results as $event ) {
