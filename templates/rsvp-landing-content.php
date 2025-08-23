@@ -33,14 +33,27 @@ require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
 $guest_manager = new PartyMinder_Guest_Manager();
 $event_manager = new PartyMinder_Event_Manager();
 
+// Debug: Log the token for debugging
+if ( WP_DEBUG ) {
+	error_log( 'RSVP Debug - Token received: ' . $rsvp_token );
+}
+
 // Find guest by RSVP token
 $guest = $guest_manager->get_guest_by_token( $rsvp_token );
+
+// Debug: Log the guest lookup result
+if ( WP_DEBUG ) {
+	error_log( 'RSVP Debug - Guest found: ' . ( $guest ? 'YES (ID: ' . $guest->id . ')' : 'NO' ) );
+}
 
 if ( ! $guest ) {
 	?>
 	<div class="pm-error-wrapper">
 		<h3><?php _e( 'RSVP Not Found', 'partyminder' ); ?></h3>
 		<p><?php _e( 'This RSVP link is invalid or has expired.', 'partyminder' ); ?></p>
+		<?php if ( WP_DEBUG ) : ?>
+			<p style="color: #666; font-size: 12px;">Debug info: Token = '<?php echo esc_html( $rsvp_token ); ?>'</p>
+		<?php endif; ?>
 		<a href="<?php echo home_url(); ?>" class="pm-btn">
 			<?php _e( 'Back to Homepage', 'partyminder' ); ?>
 		</a>

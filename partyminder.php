@@ -395,6 +395,17 @@ class PartyMinder {
 		wp_send_json_success( __( 'Thank you for subscribing!', 'partyminder' ) );
 	}
 
+	public function ajax_force_database_migration() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'Permission denied' );
+		}
+
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-activator.php';
+		PartyMinder_Activator::activate();
+		
+		wp_send_json_success( 'Database migration completed' );
+	}
+
 	public function ajax_process_rsvp_landing() {
 		check_ajax_referer( 'partyminder_event_nonce', 'nonce' );
 

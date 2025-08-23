@@ -295,6 +295,12 @@ class PartyMinder_Guest_Manager {
 			);
 		}
 
+		// Debug: Log the token generation
+		if ( WP_DEBUG ) {
+			error_log( 'RSVP Debug - Generated token: ' . $rsvp_token . ' for email: ' . $email );
+			error_log( 'RSVP Debug - Generated URL: ' . add_query_arg( array( 'token' => $rsvp_token ), home_url( '/events/join' ) ) );
+		}
+
 		return array(
 			'token' => $rsvp_token,
 			'url' => add_query_arg( array( 'token' => $rsvp_token ), home_url( '/events/join' ) )
@@ -380,12 +386,26 @@ class PartyMinder_Guest_Manager {
 		global $wpdb;
 
 		$guests_table = $wpdb->prefix . 'partyminder_guests';
-		return $wpdb->get_row(
+		
+		// Debug: Log the database query
+		if ( WP_DEBUG ) {
+			error_log( 'RSVP Debug - Querying table: ' . $guests_table . ' for token: ' . $rsvp_token );
+		}
+		
+		$result = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT * FROM $guests_table WHERE rsvp_token = %s",
 				$rsvp_token
 			)
 		);
+		
+		// Debug: Log the query result
+		if ( WP_DEBUG ) {
+			error_log( 'RSVP Debug - Database query result: ' . ( $result ? 'Found guest with email: ' . $result->email : 'No guest found' ) );
+			error_log( 'RSVP Debug - Last database error: ' . $wpdb->last_error );
+		}
+		
+		return $result;
 	}
 
 	/**
