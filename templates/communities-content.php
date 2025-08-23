@@ -71,10 +71,7 @@ ob_start();
 </div>
 
 <div class="pm-section">
-	<div class="pm-section-header">
-		<h2 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Discover Communities', 'partyminder' ); ?></h2>
-		<p class="pm-text-muted"><?php printf( __( '%d communities available', 'partyminder' ), count( $public_communities ) ); ?></p>
-	</div>
+
 				<?php if ( ! empty( $public_communities ) ) : ?>
 					<div class="pm-grid pm-gap">
 					<?php foreach ( $public_communities as $community ) : ?>

@@ -907,6 +907,18 @@ class PartyMinder_Activator {
 		if ( empty( $avatar_source_column_exists ) ) {
 			$wpdb->query( "ALTER TABLE $profiles_table ADD COLUMN avatar_source varchar(20) DEFAULT 'gravatar' AFTER cover_image" );
 		}
+
+		// Add featured_image column to conversations table if it doesn't exist (stores image URL, not data)
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+		$featured_image_column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $conversations_table LIKE %s",
+				'featured_image'
+			)
+		);
+		if ( empty( $featured_image_column_exists ) ) {
+			$wpdb->query( "ALTER TABLE $conversations_table ADD COLUMN featured_image varchar(255) DEFAULT '' AFTER privacy" );
+		}
 	}
 
 	/**

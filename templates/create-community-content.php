@@ -81,7 +81,7 @@ ob_start();
 	</div>
 <?php endif; ?>
 
-<form method="post" action="<?php echo admin_url( 'admin-ajax.php' ); ?>" class="pm-form" id="partyminder-community-form">
+<form method="post" action="<?php echo admin_url( 'admin-ajax.php' ); ?>" class="pm-form" id="partyminder-community-form" enctype="multipart/form-data">
 	<?php wp_nonce_field( 'create_partyminder_community', 'partyminder_community_nonce' ); ?>
 	<input type="hidden" name="action" value="partyminder_create_community">
 	
@@ -103,6 +103,13 @@ ob_start();
 						rows="6"
 						placeholder="<?php esc_attr_e( 'Describe what your community is about, what activities you plan, and who should join...', 'partyminder' ); ?>"><?php echo esc_textarea( $_POST['description'] ?? '' ); ?></textarea>
 			<p class="pm-form-help pm-text-muted"><?php _e( 'Help potential members understand what your community offers and how they can participate', 'partyminder' ); ?></p>
+		</div>
+		
+		<!-- Cover Image Upload -->
+		<div class="pm-form-group">
+			<label for="cover_image" class="pm-form-label"><?php _e( 'Cover Image', 'partyminder' ); ?></label>
+			<input type="file" id="cover_image" name="cover_image" class="pm-form-input" accept="image/*">
+			<p class="pm-form-help pm-text-muted"><?php _e( 'Optional: Upload a cover image for this community (JPG, PNG, max 5MB)', 'partyminder' ); ?></p>
 		</div>
 		
 		<div class="pm-form-group">

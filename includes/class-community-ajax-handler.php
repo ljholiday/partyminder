@@ -148,6 +148,14 @@ class PartyMinder_Community_Ajax_Handler {
 		$community_id      = $community_manager->create_community( $community_data );
 
 		if ( ! is_wp_error( $community_id ) ) {
+			// Handle cover image upload
+			if ( isset( $_FILES['cover_image'] ) && $_FILES['cover_image']['error'] === UPLOAD_ERR_OK ) {
+				$upload_result = $this->handle_cover_image_upload( $_FILES['cover_image'], $community_id );
+				if ( is_wp_error( $upload_result ) ) {
+					// Log error but don't fail the community creation
+					error_log( 'Cover image upload failed: ' . $upload_result->get_error_message() );
+				}
+			}
 			$created_community = $community_manager->get_community( $community_id );
 
 			$creation_data = array(
@@ -553,6 +561,42 @@ class PartyMinder_Community_Ajax_Handler {
 			);
 		} else {
 			wp_send_json_error( __( 'Failed to cancel invitation.', 'partyminder' ) );
+		}
+	}
+
+	private function handle_cover_image_upload( $file, $community_id ) {
+		// Validate file
+		$allowed_types = array( 'image/jpeg', 'image/png', 'image/gif', 'image/webp' );
+		if ( ! in_array( $file['type'], $allowed_types ) ) {
+			return new WP_Error( 'invalid_file_type', __( 'Only JPG, PNG, GIF, and WebP images are allowed.', 'partyminder' ) );
+		}
+
+		if ( $file['size'] > 5 * 1024 * 1024 ) { // 5MB limit
+			return new WP_Error( 'file_too_large', __( 'File size must be less than 5MB.', 'partyminder' ) );
+		}
+
+		// Use WordPress built-in upload handling
+		if ( ! function_exists( 'wp_handle_upload' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		}
+
+		$uploaded_file = wp_handle_upload( $file, array( 'test_form' => false ) );
+
+		if ( $uploaded_file && ! isset( $uploaded_file['error'] ) ) {
+			// Update community with the image URL
+			global $wpdb;
+			$communities_table = $wpdb->prefix . 'partyminder_communities';
+			$wpdb->update(
+				$communities_table,
+				array( 'featured_image' => $uploaded_file['url'] ),
+				array( 'id' => $community_id ),
+				array( '%s' ),
+				array( '%d' )
+			);
+
+			return $uploaded_file;
+		} else {
+			return new WP_Error( 'upload_failed', __( 'File upload failed.', 'partyminder' ) );
 		}
 	}
 }

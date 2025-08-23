@@ -97,7 +97,7 @@ ob_start();
 		</div>
 	<?php endif; ?>
 	
-	<form method="post" class="pm-form" id="partyminder-event-form">
+	<form method="post" class="pm-form" id="partyminder-event-form" enctype="multipart/form-data">
 		<?php wp_nonce_field( 'create_partyminder_event', 'partyminder_event_nonce' ); ?>
 		
 		<div class="pm-mb-4">
@@ -146,6 +146,13 @@ ob_start();
 				<label for="event_description" class="pm-form-label"><?php _e( 'Tell guests about your event', 'partyminder' ); ?></label>
 				<textarea id="event_description" name="event_description" rows="4" class="pm-form-textarea"
 							placeholder="<?php esc_attr_e( 'Describe your event, what to expect, dress code...', 'partyminder' ); ?>"><?php echo esc_textarea( $_POST['event_description'] ?? '' ); ?></textarea>
+			</div>
+			
+			<!-- Cover Image Upload -->
+			<div class="pm-form-group">
+				<label for="cover_image" class="pm-form-label"><?php _e( 'Cover Image', 'partyminder' ); ?></label>
+				<input type="file" id="cover_image" name="cover_image" class="pm-form-input" accept="image/*">
+				<p class="pm-form-help pm-text-muted"><?php _e( 'Optional: Upload a cover image for this event (JPG, PNG, max 5MB)', 'partyminder' ); ?></p>
 			</div>
 		</div>
 

@@ -143,19 +143,16 @@ ob_start();
 <?php if ( $event_updated ) : ?>
 	<!-- Success Message -->
 	<div class="pm-alert pm-alert-success pm-mb-4">
-		<h3><?php _e( '✅ Event Updated Successfully!', 'partyminder' ); ?></h3>
+		<h3><?php _e( 'Event Updated Successfully!', 'partyminder' ); ?></h3>
 		<p><?php _e( 'Your event changes have been saved.', 'partyminder' ); ?></p>
 		<div class="pm-success-actions">
 			<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn">
-				<span>👀</span>
 				<?php _e( 'View Event', 'partyminder' ); ?>
 			</a>
 			<a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-btn pm-btn-secondary">
-				<span>📋</span>
 				<?php _e( 'My Events', 'partyminder' ); ?>
 			</a>
 			<button type="button" onclick="navigator.share({title: 'Check out this event!', url: '<?php echo esc_js( home_url( '/events/' . $event->slug ) ); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js( home_url( '/events/' . $event->slug ) ); ?>')" class="pm-btn pm-btn-secondary">
-				<span>📤</span>
 				<?php _e( 'Share Event', 'partyminder' ); ?>
 			</button>
 		</div>
@@ -173,7 +170,7 @@ ob_start();
 	</div>
 <?php endif; ?>
 
-<form method="post" class="pm-form" id="partyminder-event-edit-form">
+<form method="post" class="pm-form" id="partyminder-event-edit-form" enctype="multipart/form-data">
 	<?php wp_nonce_field( 'edit_partyminder_event', 'partyminder_edit_event_nonce' ); ?>
 	<input type="hidden" name="event_id" value="<?php echo esc_attr( $event_id ); ?>" />
 	
@@ -217,6 +214,23 @@ ob_start();
 			<label for="event_description" class="pm-form-label"><?php _e( 'Tell guests about your event', 'partyminder' ); ?></label>
 			<textarea id="event_description" name="event_description" rows="4" class="pm-form-textarea" 
 						placeholder="<?php esc_attr_e( 'Describe your event, what to expect...', 'partyminder' ); ?>"><?php echo esc_textarea( $_POST['event_description'] ?? $event->description ); ?></textarea>
+		</div>
+		
+		<!-- Cover Image Upload -->
+		<div class="pm-form-group">
+			<label for="cover_image" class="pm-form-label"><?php _e( 'Cover Image', 'partyminder' ); ?></label>
+			<input type="file" id="cover_image" name="cover_image" class="pm-form-input" accept="image/*">
+			<p class="pm-form-help pm-text-muted"><?php _e( 'Optional: Upload a cover image for this event (JPG, PNG, max 5MB)', 'partyminder' ); ?></p>
+			
+			<?php if ( ! empty( $event->featured_image ) ) : ?>
+				<div class="pm-current-cover pm-mt-2">
+					<p class="pm-text-muted pm-mb-2"><?php _e( 'Current cover image:', 'partyminder' ); ?></p>
+					<img src="<?php echo esc_url( $event->featured_image ); ?>" alt="Current cover" style="max-width: 200px; height: auto; border-radius: 4px;">
+					<label class="pm-mt-2">
+						<input type="checkbox" name="remove_cover_image" value="1"> <?php _e( 'Remove current cover image', 'partyminder' ); ?>
+					</label>
+				</div>
+			<?php endif; ?>
 		</div>
 	</div>
 
