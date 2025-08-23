@@ -44,6 +44,9 @@ $guest = $guest_manager->get_guest_by_token( $rsvp_token );
 // Debug: Log the guest lookup result
 if ( WP_DEBUG ) {
 	error_log( 'RSVP Debug - Guest found: ' . ( $guest ? 'YES (ID: ' . $guest->id . ')' : 'NO' ) );
+	if ( $guest ) {
+		error_log( 'RSVP Debug - Guest details: email=' . $guest->email . ', event_id=' . $guest->event_id . ', status=' . $guest->status );
+	}
 }
 
 if ( ! $guest ) {
@@ -54,17 +57,61 @@ if ( ! $guest ) {
 		<?php if ( WP_DEBUG ) : ?>
 			<p style="color: #666; font-size: 12px;">Debug info: Token = '<?php echo esc_html( $rsvp_token ); ?>'</p>
 			<?php
-			// Additional debug: Show recent guests and their tokens
+			// Debug: Show database info
 			global $wpdb;
 			$guests_table = $wpdb->prefix . 'partyminder_guests';
-			$recent_guests = $wpdb->get_results( "SELECT id, email, rsvp_token FROM $guests_table ORDER BY rsvp_date DESC LIMIT 5" );
-			if ( $recent_guests ) {
-				echo '<p style="color: #666; font-size: 11px;">Recent guests:</p>';
-				echo '<ul style="color: #666; font-size: 10px;">';
-				foreach ( $recent_guests as $g ) {
-					echo '<li>' . esc_html( $g->email ) . ' - Token: ' . esc_html( $g->rsvp_token ? substr( $g->rsvp_token, 0, 10 ) . '...' : 'EMPTY' ) . '</li>';
+			echo '<p style="color: #666; font-size: 11px;">Table: ' . esc_html( $guests_table ) . '</p>';
+			
+			// Check if table exists
+			$table_exists = $wpdb->get_var( "SHOW TABLES LIKE '$guests_table'" );
+			echo '<p style="color: #666; font-size: 11px;">Table exists: ' . ( $table_exists ? 'YES' : 'NO' ) . '</p>';
+			
+			if ( $table_exists ) {
+				// Show table structure
+				$columns = $wpdb->get_results( "SHOW COLUMNS FROM $guests_table" );
+				$has_rsvp_token = false;
+				foreach ( $columns as $col ) {
+					if ( $col->Field === 'rsvp_token' ) {
+						$has_rsvp_token = true;
+						break;
+					}
 				}
-				echo '</ul>';
+				echo '<p style="color: #666; font-size: 11px;">Has rsvp_token column: ' . ( $has_rsvp_token ? 'YES' : 'NO' ) . '</p>';
+				
+				// Count total guests
+				$total_guests = $wpdb->get_var( "SELECT COUNT(*) FROM $guests_table" );
+				echo '<p style="color: #666; font-size: 11px;">Total guests: ' . $total_guests . '</p>';
+				
+				// Count guests with tokens
+				$guests_with_tokens = $wpdb->get_var( "SELECT COUNT(*) FROM $guests_table WHERE rsvp_token != ''" );
+				echo '<p style="color: #666; font-size: 11px;">Guests with tokens: ' . $guests_with_tokens . '</p>';
+				
+				// Show recent guests
+				$recent_guests = $wpdb->get_results( "SELECT id, email, rsvp_token FROM $guests_table ORDER BY rsvp_date DESC LIMIT 3" );
+				if ( $recent_guests ) {
+					echo '<p style="color: #666; font-size: 11px;">Recent guests:</p>';
+					echo '<ul style="color: #666; font-size: 10px;">';
+					foreach ( $recent_guests as $g ) {
+						echo '<li>ID:' . $g->id . ' - ' . esc_html( $g->email ) . ' - Token: ' . esc_html( $g->rsvp_token ? substr( $g->rsvp_token, 0, 15 ) . '...' : 'EMPTY' ) . '</li>';
+					}
+					echo '</ul>';
+				} else {
+					echo '<p style="color: #666; font-size: 11px;">No guests found</p>';
+				}
+				
+				// Debug: Show available events
+				$events_table = $wpdb->prefix . 'partyminder_events';
+				$events = $wpdb->get_results( "SELECT id, title FROM $events_table ORDER BY created_at DESC LIMIT 3" );
+				if ( $events ) {
+					echo '<p style="color: #666; font-size: 11px;">Available events:</p>';
+					echo '<ul style="color: #666; font-size: 10px;">';
+					foreach ( $events as $e ) {
+						echo '<li>ID:' . $e->id . ' - ' . esc_html( $e->title ) . '</li>';
+					}
+					echo '</ul>';
+				} else {
+					echo '<p style="color: #666; font-size: 11px;">No events found</p>';
+				}
 			}
 			?>
 		<?php endif; ?>
@@ -369,10 +416,10 @@ jQuery(document).ready(function($) {
 		// Prepare form data
 		const formData = new FormData(this);
 		formData.append('action', 'partyminder_process_rsvp_landing');
-		formData.append('nonce', partyminder_ajax.event_nonce);
+		formData.append('nonce', '<?php echo wp_create_nonce( 'partyminder_event_nonce' ); ?>');
 		
 		$.ajax({
-			url: partyminder_ajax.ajax_url,
+			url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
 			type: 'POST',
 			data: formData,
 			processData: false,

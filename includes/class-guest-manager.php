@@ -248,11 +248,16 @@ class PartyMinder_Guest_Manager {
 	public function create_rsvp_invitation( $event_id, $email, $temporary_guest_id = '' ) {
 		global $wpdb;
 
+		// Debug: Log the input parameters
+		if ( WP_DEBUG ) {
+			error_log( 'RSVP Debug - create_rsvp_invitation called with event_id: ' . $event_id . ', email: ' . $email );
+		}
+
 		// Generate secure token
 		$rsvp_token = wp_generate_password( 32, false );
 		
 		if ( empty( $temporary_guest_id ) ) {
-			$temporary_guest_id = wp_generate_uuid4();
+			$temporary_guest_id = wp_generate_password( 32, false );
 		}
 
 		$guests_table = $wpdb->prefix . 'partyminder_guests';
@@ -280,7 +285,7 @@ class PartyMinder_Guest_Manager {
 			);
 		} else {
 			// Create new anonymous guest record
-			$wpdb->insert(
+			$insert_result = $wpdb->insert(
 				$guests_table,
 				array(
 					'rsvp_token' => $rsvp_token,
@@ -293,6 +298,17 @@ class PartyMinder_Guest_Manager {
 				),
 				array( '%s', '%s', '%d', '%s', '%s', '%s', '%s' )
 			);
+			
+			// Debug: Log the insert result
+			if ( WP_DEBUG ) {
+				error_log( 'RSVP Debug - Insert result: ' . ( $insert_result ? 'SUCCESS' : 'FAILED' ) );
+				if ( ! $insert_result ) {
+					error_log( 'RSVP Debug - Database error: ' . $wpdb->last_error );
+					error_log( 'RSVP Debug - Last query: ' . $wpdb->last_query );
+				} else {
+					error_log( 'RSVP Debug - New guest ID: ' . $wpdb->insert_id );
+				}
+			}
 		}
 
 		// Debug: Log the token generation
