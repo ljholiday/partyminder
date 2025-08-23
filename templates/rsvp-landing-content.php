@@ -53,6 +53,20 @@ if ( ! $guest ) {
 		<p><?php _e( 'This RSVP link is invalid or has expired.', 'partyminder' ); ?></p>
 		<?php if ( WP_DEBUG ) : ?>
 			<p style="color: #666; font-size: 12px;">Debug info: Token = '<?php echo esc_html( $rsvp_token ); ?>'</p>
+			<?php
+			// Additional debug: Show recent guests and their tokens
+			global $wpdb;
+			$guests_table = $wpdb->prefix . 'partyminder_guests';
+			$recent_guests = $wpdb->get_results( "SELECT id, email, rsvp_token FROM $guests_table ORDER BY rsvp_date DESC LIMIT 5" );
+			if ( $recent_guests ) {
+				echo '<p style="color: #666; font-size: 11px;">Recent guests:</p>';
+				echo '<ul style="color: #666; font-size: 10px;">';
+				foreach ( $recent_guests as $g ) {
+					echo '<li>' . esc_html( $g->email ) . ' - Token: ' . esc_html( $g->rsvp_token ? substr( $g->rsvp_token, 0, 10 ) . '...' : 'EMPTY' ) . '</li>';
+				}
+				echo '</ul>';
+			}
+			?>
 		<?php endif; ?>
 		<a href="<?php echo home_url(); ?>" class="pm-btn">
 			<?php _e( 'Back to Homepage', 'partyminder' ); ?>
