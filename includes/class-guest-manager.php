@@ -641,6 +641,12 @@ class PartyMinder_Guest_Manager {
 			do_action( 'partyminder_rsvp_invitation_sent', $event_id, $email, $rsvp_token );
 		}
 
-		return $sent;
+		// Always return the invitation data - email failure shouldn't break the invitation system
+		return array(
+			'success' => true,
+			'email_sent' => $sent,
+			'token' => $rsvp_token,
+			'url' => add_query_arg( array( 'token' => $rsvp_token ), home_url( '/events/join' ) )
+		);
 	}
 }

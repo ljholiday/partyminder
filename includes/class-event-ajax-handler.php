@@ -279,21 +279,27 @@ class PartyMinder_Event_Ajax_Handler {
 		}
 
 		// Send RSVP invitation using Guest Manager
-		$sent = $guest_manager->send_rsvp_invitation( 
+		$result = $guest_manager->send_rsvp_invitation( 
 			$event_id, 
 			$email, 
 			$current_user->display_name, 
 			$message 
 		);
 
-		if ( $sent ) {
+		if ( $result['success'] ) {
+			$message = __( 'RSVP invitation created successfully!', 'partyminder' );
+			if ( ! $result['email_sent'] ) {
+				$message .= ' ' . __( 'Note: Email delivery may have failed.', 'partyminder' );
+			}
+			
 			wp_send_json_success(
 				array(
-					'message' => __( 'RSVP invitation sent successfully!', 'partyminder' ),
+					'message' => $message,
+					'invitation_url' => $result['url']
 				)
 			);
 		} else {
-			wp_send_json_error( __( 'Failed to send invitation email.', 'partyminder' ) );
+			wp_send_json_error( __( 'Failed to create invitation.', 'partyminder' ) );
 		}
 	}
 
@@ -320,7 +326,7 @@ class PartyMinder_Event_Ajax_Handler {
 			return;
 		}
 
-		// Get guests from the new Guest Manager system
+		// Get all guests for this event (invitation system uses same table as RSVP system)
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
 		$guest_manager = new PartyMinder_Guest_Manager();
 		
@@ -329,7 +335,7 @@ class PartyMinder_Event_Ajax_Handler {
 		$guests = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM $guests_table 
-				 WHERE event_id = %d AND rsvp_token != '' 
+				 WHERE event_id = %d 
 				 ORDER BY rsvp_date DESC",
 				$event_id
 			)
@@ -337,10 +343,15 @@ class PartyMinder_Event_Ajax_Handler {
 
 		// Add invitation URLs to each guest
 		foreach ( $guests as &$guest ) {
-			$guest->invitation_url = add_query_arg( 
-				array( 'token' => $guest->rsvp_token ), 
-				home_url( '/events/join' ) 
-			);
+			if ( ! empty( $guest->rsvp_token ) ) {
+				$guest->invitation_url = add_query_arg( 
+					array( 'token' => $guest->rsvp_token ), 
+					home_url( '/events/join' ) 
+				);
+			} else {
+				// For guests without tokens, create a basic event link
+				$guest->invitation_url = home_url( '/events/' . $event->slug );
+			}
 		}
 
 		// Generate HTML for invitations list
