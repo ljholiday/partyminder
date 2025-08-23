@@ -76,6 +76,11 @@ ob_start();
 					<div class="pm-grid pm-gap">
 					<?php foreach ( $public_communities as $community ) : ?>
 					<div class="pm-section pm-border pm-p-4">
+						<?php if ( ! empty( $community->featured_image ) ) : ?>
+							<div class="pm-mb-4">
+								<img src="<?php echo esc_url( $community->featured_image ); ?>" alt="<?php echo esc_attr( $community->name ); ?>" style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px;">
+							</div>
+						<?php endif; ?>
 						<div class="pm-section-header pm-flex pm-flex-between pm-mb-4">
 							<h3 class="pm-heading pm-heading-sm">
 								<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-text-primary">

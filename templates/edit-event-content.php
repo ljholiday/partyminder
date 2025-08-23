@@ -222,6 +222,14 @@ ob_start();
 			<input type="file" id="cover_image" name="cover_image" class="pm-form-input" accept="image/*">
 			<p class="pm-form-help pm-text-muted"><?php _e( 'Optional: Upload a cover image for this event (JPG, PNG, max 5MB)', 'partyminder' ); ?></p>
 			
+			<!-- Upload Progress Bar -->
+			<div id="event-upload-progress" class="pm-progress-container pm-mt-2" style="display: none;">
+				<div class="pm-progress-bar">
+					<div class="pm-progress-fill" style="width: 0%;"></div>
+				</div>
+				<div id="event-upload-message" class="pm-text-muted pm-mt-1"></div>
+			</div>
+			
 			<?php if ( ! empty( $event->featured_image ) ) : ?>
 				<div class="pm-current-cover pm-mt-2">
 					<p class="pm-text-muted pm-mb-2"><?php _e( 'Current cover image:', 'partyminder' ); ?></p>
@@ -294,24 +302,43 @@ jQuery(document).ready(function($) {
 		const $form = $(this);
 		const $submitBtn = $form.find('button[type="submit"]');
 		const originalText = $submitBtn.html();
+		const $progress = $('#event-upload-progress');
+		const $progressFill = $('.pm-progress-fill');
+		const $message = $('#event-upload-message');
 		
 		// Disable submit button and show loading
-		$submitBtn.prop('disabled', true).html('<span>⏳</span> <?php _e( 'Updating Event...', 'partyminder' ); ?>');
+		$submitBtn.prop('disabled', true).html('<?php _e( 'Updating Event...', 'partyminder' ); ?>');
 		
-		// Prepare form data
+		// Check if we have file uploads
+		const hasFiles = $form.find('input[type="file"]').get().some(input => input.files.length > 0);
+		
+		if (hasFiles) {
+			$progress.show();
+			$message.empty();
+		}
+		
+		// Prepare form data properly for file uploads
 		const formData = new FormData(this);
 		formData.append('action', 'partyminder_update_event');
-		
-		// Convert FormData to regular object for jQuery
-		const data = {};
-		for (let [key, value] of formData.entries()) {
-			data[key] = value;
-		}
 		
 		$.ajax({
 			url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
 			type: 'POST',
-			data: data,
+			data: formData,
+			processData: false,
+			contentType: false,
+			xhr: function() {
+				const xhr = new window.XMLHttpRequest();
+				if (hasFiles) {
+					xhr.upload.addEventListener('progress', function(evt) {
+						if (evt.lengthComputable) {
+							const percentComplete = (evt.loaded / evt.total) * 100;
+							$progressFill.css('width', percentComplete + '%');
+						}
+					}, false);
+				}
+				return xhr;
+			},
 			success: function(response) {
 				if (response.success) {
 					// Redirect to success page

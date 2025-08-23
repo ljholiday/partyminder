@@ -67,6 +67,17 @@ $breadcrumbs      = array(
 ob_start();
 ?>
 
+<!-- Community Cover Image -->
+<?php if ( ! empty( $community->featured_image ) ) : ?>
+<div class="pm-section pm-mb-4">
+	<div class="pm-community-cover" style="position: relative; width: 100%; height: 300px; background-image: url('<?php echo esc_url( $community->featured_image ); ?>'); background-size: cover; background-position: center; border-radius: 8px;">
+		<div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 20px; border-radius: 0 0 8px 8px;">
+			<h1 class="pm-heading pm-heading-lg" style="color: white; margin: 0;"><?php echo esc_html( $community->name ); ?></h1>
+		</div>
+	</div>
+</div>
+<?php endif; ?>
+
 <!-- Secondary Menu Bar -->
 <div class="pm-section pm-mb-4">
 	<div class="pm-flex pm-gap-4">
@@ -102,9 +113,14 @@ ob_start();
 		<div class="pm-card-header">
 			<div class="pm-flex pm-flex-between">
 				<div class="pm-flex pm-gap">
-					<div class="pm-avatar pm-avatar-lg">
-						<?php echo strtoupper( substr( $community->name, 0, 2 ) ); ?>
-					</div>
+					<?php if ( ! empty( $community->featured_image ) ) : ?>
+						<div class="pm-avatar pm-avatar-lg" style="background-image: url('<?php echo esc_url( $community->featured_image ); ?>'); background-size: cover; background-position: center;">
+						</div>
+					<?php else : ?>
+						<div class="pm-avatar pm-avatar-lg">
+							<?php echo strtoupper( substr( $community->name, 0, 2 ) ); ?>
+						</div>
+					<?php endif; ?>
 					<div>
 						<div class="pm-flex pm-gap pm-text-muted pm-mb-2">
 							<span>Community</span>

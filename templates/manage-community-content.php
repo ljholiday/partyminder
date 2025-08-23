@@ -14,6 +14,43 @@ require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
 
 $community_manager = new PartyMinder_Community_Manager();
 
+// Helper function for cover image upload
+function handle_community_cover_image_upload( $file, $community_id ) {
+	// Validate file
+	$allowed_types = array( 'image/jpeg', 'image/png', 'image/gif', 'image/webp' );
+	if ( ! in_array( $file['type'], $allowed_types ) ) {
+		return new WP_Error( 'invalid_file_type', __( 'Only JPG, PNG, GIF, and WebP images are allowed.', 'partyminder' ) );
+	}
+
+	if ( $file['size'] > 5 * 1024 * 1024 ) { // 5MB limit
+		return new WP_Error( 'file_too_large', __( 'File size must be less than 5MB.', 'partyminder' ) );
+	}
+
+	// Use WordPress built-in upload handling
+	if ( ! function_exists( 'wp_handle_upload' ) ) {
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+	}
+
+	$uploaded_file = wp_handle_upload( $file, array( 'test_form' => false ) );
+
+	if ( $uploaded_file && ! isset( $uploaded_file['error'] ) ) {
+		// Update community with the image URL
+		global $wpdb;
+		$communities_table = $wpdb->prefix . 'partyminder_communities';
+		$wpdb->update(
+			$communities_table,
+			array( 'featured_image' => $uploaded_file['url'] ),
+			array( 'id' => $community_id ),
+			array( '%s' ),
+			array( '%d' )
+		);
+
+		return $uploaded_file;
+	} else {
+		return new WP_Error( 'upload_failed', __( 'File upload failed.', 'partyminder' ) );
+	}
+}
+
 // Get community ID from URL parameter
 $community_id = isset( $_GET['community_id'] ) ? intval( $_GET['community_id'] ) : 0;
 $current_tab  = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'settings';
@@ -58,14 +95,31 @@ if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['action'] ) ) {
 			'privacy'     => sanitize_text_field( $_POST['privacy'] ),
 		);
 
-		$result = $community_manager->update_community( $community_id, $update_data );
+		// Handle cover image removal
+		if ( isset( $_POST['remove_cover_image'] ) && $_POST['remove_cover_image'] == '1' ) {
+			$update_data['featured_image'] = '';
+		}
 
-		if ( ! is_wp_error( $result ) ) {
-			$success_message = __( 'Community settings updated successfully.', 'partyminder' );
-			// Refresh community data
-			$community = $community_manager->get_community( $community_id );
-		} else {
-			$error_message = $result->get_error_message();
+		// Handle cover image upload
+		if ( isset( $_FILES['cover_image'] ) && $_FILES['cover_image']['error'] === UPLOAD_ERR_OK ) {
+			$upload_result = handle_community_cover_image_upload( $_FILES['cover_image'], $community_id );
+			if ( is_wp_error( $upload_result ) ) {
+				$error_message = $upload_result->get_error_message();
+			} else {
+				$update_data['featured_image'] = $upload_result['url'];
+			}
+		}
+
+		if ( ! isset( $error_message ) ) {
+			$result = $community_manager->update_community( $community_id, $update_data );
+
+			if ( ! is_wp_error( $result ) ) {
+				$success_message = __( 'Community settings updated successfully.', 'partyminder' );
+				// Refresh community data
+				$community = $community_manager->get_community( $community_id );
+			} else {
+				$error_message = $result->get_error_message();
+			}
 		}
 	}
 	
@@ -152,7 +206,7 @@ ob_start();
 		<h2 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Community Settings', 'partyminder' ); ?></h2>
 	</div>
 	
-	<form method="post" class="pm-form">
+	<form method="post" class="pm-form" enctype="multipart/form-data">
 		<input type="hidden" name="action" value="update_community_settings">
 		<input type="hidden" name="nonce" value="<?php echo wp_create_nonce( 'partyminder_community_management' ); ?>">
 		
@@ -172,6 +226,23 @@ ob_start();
 			</label>
 			<textarea name="description" class="pm-form-textarea" rows="4" 
 						placeholder="<?php _e( 'Update community description...', 'partyminder' ); ?>"><?php echo esc_textarea( $community->description ); ?></textarea>
+		</div>
+		
+		<!-- Cover Image Upload -->
+		<div class="pm-form-group">
+			<label class="pm-form-label"><?php _e( 'Cover Image', 'partyminder' ); ?></label>
+			<input type="file" name="cover_image" class="pm-form-input" accept="image/*">
+			<p class="pm-form-help pm-text-muted"><?php _e( 'Optional: Upload a cover image for this community (JPG, PNG, max 5MB)', 'partyminder' ); ?></p>
+			
+			<?php if ( ! empty( $community->featured_image ) ) : ?>
+				<div class="pm-current-cover pm-mt-2">
+					<p class="pm-text-muted pm-mb-2"><?php _e( 'Current cover image:', 'partyminder' ); ?></p>
+					<img src="<?php echo esc_url( $community->featured_image ); ?>" alt="Current cover" style="max-width: 200px; height: auto; border-radius: 4px;">
+					<label class="pm-mt-2">
+						<input type="checkbox" name="remove_cover_image" value="1"> <?php _e( 'Remove current cover image', 'partyminder' ); ?>
+					</label>
+				</div>
+			<?php endif; ?>
 		</div>
 		
 		<div class="pm-form-group">
@@ -642,6 +713,13 @@ ob_start();
 	<div class="pm-section-header">
 		<h3 class="pm-heading pm-heading-sm"><?php echo esc_html( $community->name ); ?></h3>
 	</div>
+	
+	<?php if ( ! empty( $community->featured_image ) ) : ?>
+		<div class="pm-mb-4">
+			<img src="<?php echo esc_url( $community->featured_image ); ?>" alt="<?php echo esc_attr( $community->name ); ?>" style="width: 100%; height: 120px; object-fit: cover; border-radius: 4px;">
+		</div>
+	<?php endif; ?>
+	
 	<?php if ( $community->description ) : ?>
 		<p class="pm-text-muted pm-mb"><?php echo esc_html( $community->description ); ?></p>
 	<?php endif; ?>

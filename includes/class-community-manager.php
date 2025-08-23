@@ -489,7 +489,7 @@ class PartyMinder_Community_Manager {
 		}
 
 		// Prepare update data
-		$allowed_fields = array( 'description', 'privacy' );
+		$allowed_fields = array( 'description', 'privacy', 'featured_image' );
 		$update_values  = array();
 		$update_formats = array();
 
@@ -506,6 +506,10 @@ class PartyMinder_Community_Manager {
 							$update_values[ $field ] = $update_data[ $field ];
 							$update_formats[]        = '%s';
 						}
+						break;
+					case 'featured_image':
+						$update_values[ $field ] = esc_url_raw( $update_data[ $field ] );
+						$update_formats[]        = '%s';
 						break;
 				}
 			}

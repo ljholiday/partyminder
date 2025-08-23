@@ -153,6 +153,14 @@ ob_start();
 				<label for="cover_image" class="pm-form-label"><?php _e( 'Cover Image', 'partyminder' ); ?></label>
 				<input type="file" id="cover_image" name="cover_image" class="pm-form-input" accept="image/*">
 				<p class="pm-form-help pm-text-muted"><?php _e( 'Optional: Upload a cover image for this event (JPG, PNG, max 5MB)', 'partyminder' ); ?></p>
+				
+				<!-- Upload Progress Bar -->
+				<div id="create-event-upload-progress" class="pm-progress-container pm-mt-2" style="display: none;">
+					<div class="pm-progress-bar">
+						<div class="pm-progress-fill" style="width: 0%;"></div>
+					</div>
+					<div id="create-event-upload-message" class="pm-text-muted pm-mt-1"></div>
+				</div>
 			</div>
 		</div>
 
@@ -283,20 +291,39 @@ jQuery(document).ready(function($) {
 		// Disable submit button and show loading
 		$submitBtn.prop('disabled', true).html('<span>⏳</span> <?php _e( 'Creating Event...', 'partyminder' ); ?>');
 		
-		// Prepare form data
+		// Check if we have file uploads
+		const hasFiles = $form.find('input[type="file"]').get().some(input => input.files.length > 0);
+		const $progress = $('#create-event-upload-progress');
+		const $progressFill = $progress.find('.pm-progress-fill');
+		const $message = $('#create-event-upload-message');
+		
+		if (hasFiles) {
+			$progress.show();
+			$message.empty();
+		}
+		
+		// Prepare form data properly for file uploads
 		const formData = new FormData(this);
 		formData.append('action', 'partyminder_create_event');
-		
-		// Convert FormData to regular object for jQuery
-		const data = {};
-		for (let [key, value] of formData.entries()) {
-			data[key] = value;
-		}
 		
 		$.ajax({
 			url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
 			type: 'POST',
-			data: data,
+			data: formData,
+			processData: false,
+			contentType: false,
+			xhr: function() {
+				const xhr = new window.XMLHttpRequest();
+				if (hasFiles) {
+					xhr.upload.addEventListener('progress', function(evt) {
+						if (evt.lengthComputable) {
+							const percentComplete = (evt.loaded / evt.total) * 100;
+							$progressFill.css('width', percentComplete + '%');
+						}
+					}, false);
+				}
+				return xhr;
+			},
 			success: function(response) {
 				if (response.success) {
 					// Redirect to success page
@@ -490,227 +517,5 @@ jQuery(document).ready(function($) {
 		});
 	}
 	<?php endif; ?>
-=======
-    // Date picker confirmation functionality
-    $('#confirm-date-btn').on('click', function() {
-        const dateValue = $('#event_date').val();
-        if (dateValue) {
-            const dateObj = new Date(dateValue);
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric', 
-                hour: 'numeric', 
-                minute: '2-digit' 
-            };
-            const formattedDate = dateObj.toLocaleDateString('en-US', options);
-            $('#selected-date-text').text(formattedDate);
-            $('#selected-date-display').show();
-            $(this).text('<?php _e("Date Confirmed", "partyminder"); ?>').removeClass('pm-btn-secondary').addClass('pm-btn-success');
-        }
-    });
-    
-    // Reset confirmation when date changes
-    $('#event_date').on('change', function() {
-        $('#selected-date-display').hide();
-        $('#confirm-date-btn').text('<?php _e("Select This Date", "partyminder"); ?>').removeClass('pm-btn-success').addClass('pm-btn-secondary');
-    });
-    
-    // Initialize Bluesky connection check on page load
-    <?php if (PartyMinder_Feature_Flags::is_at_protocol_enabled()): ?>
-    checkCreateBlueskyConnection();
-    
-    // Handle Bluesky buttons
-    $('#create-connect-bluesky-btn').on('click', showCreateBlueskyConnectModal);
-    $('#create-disconnect-bluesky-btn').on('click', disconnectCreateBluesky);
-    <?php endif; ?>
-    
-    $('#partyminder-event-form').on('submit', function(e) {
-        e.preventDefault();
-        
-        const $form = $(this);
-        const $submitBtn = $form.find('button[type="submit"]');
-        const originalText = $submitBtn.html();
-        
-        // Disable submit button and show loading
-        $submitBtn.prop('disabled', true).html('<span>⏳</span> <?php _e("Creating Event...", "partyminder"); ?>');
-        
-        // Prepare form data
-        const formData = new FormData(this);
-        formData.append('action', 'partyminder_create_event');
-        
-        // Convert FormData to regular object for jQuery
-        const data = {};
-        for (let [key, value] of formData.entries()) {
-            data[key] = value;
-        }
-        
-        $.ajax({
-            url: '<?php echo admin_url("admin-ajax.php"); ?>',
-            type: 'POST',
-            data: data,
-            success: function(response) {
-                if (response.success) {
-                    // Redirect to success page
-                    window.location.href = '<?php echo PartyMinder::get_create_event_url(); ?>?partyminder_created=1';
-                } else {
-                    // Show error message
-                    $form.before('<div class="partyminder-errors" style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; margin: 15px 0; border-radius: 4px;"><h4><?php _e("Please fix the following issues:", "partyminder"); ?></h4><ul><li>' + (response.data || 'Unknown error occurred') + '</li></ul></div>');
-                    
-                    // Scroll to top to show error message
-                    $('html, body').animate({scrollTop: 0}, 500);
-                }
-            },
-            error: function() {
-                $form.before('<div class="partyminder-errors" style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; margin: 15px 0; border-radius: 4px;"><h4><?php _e("Error", "partyminder"); ?></h4><p><?php _e("Network error. Please try again.", "partyminder"); ?></p></div>');
-                
-                // Scroll to top to show error message
-                $('html, body').animate({scrollTop: 0}, 500);
-            },
-            complete: function() {
-                // Re-enable submit button
-                $submitBtn.prop('disabled', false).html(originalText);
-            }
-        });
-    });
-    
-    <?php if (PartyMinder_Feature_Flags::is_at_protocol_enabled()): ?>
-    // Bluesky Integration Functions for Create Event Page
-    function checkCreateBlueskyConnection() {
-        $.ajax({
-            url: partyminder_ajax.ajax_url,
-            type: 'POST',
-            data: {
-                action: 'partyminder_check_bluesky_connection',
-                nonce: partyminder_ajax.at_protocol_nonce
-            },
-            success: function(response) {
-                if (response.success && response.data.connected) {
-                    showCreateBlueskyConnected(response.data.handle);
-                } else {
-                    showCreateBlueskyNotConnected();
-                }
-            },
-            error: function() {
-                showCreateBlueskyNotConnected();
-            }
-        });
-    }
-    
-    function showCreateBlueskyConnected(handle) {
-        $('#create-bluesky-not-connected').hide();
-        $('#create-bluesky-connected').show();
-        $('#create-bluesky-handle').text(handle);
-    }
-    
-    function showCreateBlueskyNotConnected() {
-        $('#create-bluesky-not-connected').show();
-        $('#create-bluesky-connected').hide();
-    }
-    
-    function showCreateBlueskyConnectModal() {
-        const connectHtml = `
-            <div id="create-bluesky-connect-modal" class="pm-modal-overlay" style="z-index: 10001;">
-                <div class="pm-modal pm-modal-sm">
-                    <div class="pm-modal-header">
-                        <h3>🦋 <?php _e('Connect to Bluesky', 'partyminder'); ?></h3>
-                        <button type="button" class="create-bluesky-connect-close pm-btn pm-btn-secondary" style="padding: 5px; border-radius: 50%; width: 35px; height: 35px;">×</button>
-                    </div>
-                    <div class="pm-modal-body">
-                        <form id="create-bluesky-connect-form">
-                            <div class="pm-form-group">
-                                <label class="pm-form-label"><?php _e('Bluesky Handle', 'partyminder'); ?></label>
-                                <input type="text" class="pm-form-input" id="create-bluesky-handle-input" 
-                                       placeholder="<?php _e('username.bsky.social', 'partyminder'); ?>" required>
-                            </div>
-                            <div class="pm-form-group">
-                                <label class="pm-form-label"><?php _e('App Password', 'partyminder'); ?></label>
-                                <input type="password" class="pm-form-input" id="create-bluesky-password-input" 
-                                       placeholder="<?php _e('Your Bluesky app password', 'partyminder'); ?>" required>
-                                <small class="pm-text-muted">
-                                    <?php _e('Create an app password in your Bluesky settings for secure access.', 'partyminder'); ?>
-                                </small>
-                            </div>
-                            <div class="pm-flex pm-gap pm-mt-4">
-                                <button type="submit" class="pm-btn">
-                                    <?php _e('Connect Account', 'partyminder'); ?>
-                                </button>
-                                <button type="button" class="create-bluesky-connect-close pm-btn pm-btn-secondary">
-                                    <?php _e('Cancel', 'partyminder'); ?>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        $('body').append(connectHtml);
-        
-        const $connectModal = $('#create-bluesky-connect-modal');
-        $connectModal.addClass('active');
-        
-        // Close handlers
-        $connectModal.find('.create-bluesky-connect-close').on('click', function() {
-            $connectModal.remove();
-        });
-        
-        // Form submission
-        $('#create-bluesky-connect-form').on('submit', function(e) {
-            e.preventDefault();
-            
-            const handle = $('#create-bluesky-handle-input').val();
-            const password = $('#create-bluesky-password-input').val();
-            const $submitBtn = $(this).find('button[type="submit"]');
-            
-            $submitBtn.prop('disabled', true).text('<?php _e('Connecting...', 'partyminder'); ?>');
-            
-            $.ajax({
-                url: partyminder_ajax.ajax_url,
-                type: 'POST',
-                data: {
-                    action: 'partyminder_connect_bluesky',
-                    handle: handle,
-                    password: password,
-                    nonce: partyminder_ajax.at_protocol_nonce
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showCreateBlueskyConnected(response.data.handle);
-                        $connectModal.remove();
-                    } else {
-                        alert(response.data || '<?php _e('Connection failed. Please check your credentials.', 'partyminder'); ?>');
-                    }
-                },
-                error: function() {
-                    alert('<?php _e('Connection failed. Please try again.', 'partyminder'); ?>');
-                },
-                complete: function() {
-                    $submitBtn.prop('disabled', false).text('<?php _e('Connect Account', 'partyminder'); ?>');
-                }
-            });
-        });
-    }
-    
-    function disconnectCreateBluesky() {
-        if (!confirm('<?php _e('Are you sure you want to disconnect your Bluesky account?', 'partyminder'); ?>')) {
-            return;
-        }
-        
-        $.ajax({
-            url: partyminder_ajax.ajax_url,
-            type: 'POST',
-            data: {
-                action: 'partyminder_disconnect_bluesky',
-                nonce: partyminder_ajax.at_protocol_nonce
-            },
-            success: function(response) {
-                showCreateBlueskyNotConnected();
-            }
-        });
-    }
-    <?php endif; ?>
->>>>>>> lonn
 });
 </script>
