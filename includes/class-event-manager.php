@@ -123,6 +123,31 @@ class PartyMinder_Event_Manager {
 		return $event;
 	}
 
+	public function get_event_by_rsvp_token( $token ) {
+		global $wpdb;
+
+		$events_table = $wpdb->prefix . 'partyminder_events';
+		$rsvps_table = $wpdb->prefix . 'partyminder_event_rsvps';
+
+		$event = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT e.* FROM $events_table e 
+				 INNER JOIN $rsvps_table r ON e.id = r.event_id 
+				 WHERE r.invitation_token = %s AND e.event_status = 'active'",
+				$token
+			)
+		);
+
+		if ( ! $event ) {
+			return null;
+		}
+
+		// Get guest stats
+		$event->guest_stats = $this->get_guest_stats( $event->id );
+
+		return $event;
+	}
+
 	/**
 	 * Check if the current user can view an event based on privacy settings
 	 */
@@ -933,5 +958,156 @@ The %9$s Team',
 		}
 		
 		return $privacy;
+	}
+
+	/**
+	 * Send RSVP invitation for anonymous guest flow
+	 */
+	public function send_rsvp_invitation( $event_id, $email, $inviter_name = '', $personal_message = '' ) {
+		global $wpdb;
+
+		// Get event
+		$event = $this->get_event( $event_id );
+		if ( ! $event ) {
+			return new WP_Error( 'event_not_found', __( 'Event not found', 'partyminder' ) );
+		}
+
+		// Validate email
+		if ( ! is_email( $email ) ) {
+			return new WP_Error( 'invalid_email', __( 'Please provide a valid email address', 'partyminder' ) );
+		}
+
+		// Check if RSVP already exists
+		$rsvps_table = $wpdb->prefix . 'partyminder_event_rsvps';
+		$existing_rsvp = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT * FROM $rsvps_table WHERE event_id = %d AND email = %s",
+				$event_id,
+				$email
+			)
+		);
+
+		if ( $existing_rsvp ) {
+			// Update invitation token and send new email
+			$invitation_token = wp_generate_password( 32, false );
+			$wpdb->update(
+				$rsvps_table,
+				array( 'invitation_token' => $invitation_token ),
+				array( 'id' => $existing_rsvp->id ),
+				array( '%s' ),
+				array( '%d' )
+			);
+		} else {
+			// Create new RSVP record with pending status
+			$invitation_token = wp_generate_password( 32, false );
+			
+			$result = $wpdb->insert(
+				$rsvps_table,
+				array(
+					'event_id' => $event_id,
+					'invitation_token' => $invitation_token,
+					'email' => $email,
+					'status' => 'pending',
+					'created_at' => current_time( 'mysql' ),
+					'updated_at' => current_time( 'mysql' )
+				),
+				array( '%d', '%s', '%s', '%s', '%s', '%s' )
+			);
+
+			if ( $result === false ) {
+				return new WP_Error( 'rsvp_creation_failed', __( 'Failed to create RSVP invitation', 'partyminder' ) );
+			}
+		}
+
+		// Send invitation email
+		$email_sent = $this->send_rsvp_invitation_email( $event, $email, $invitation_token, $inviter_name, $personal_message );
+
+		if ( is_wp_error( $email_sent ) ) {
+			return $email_sent;
+		}
+
+		return array(
+			'success' => true,
+			'message' => __( 'RSVP invitation sent successfully', 'partyminder' ),
+			'invitation_token' => $invitation_token
+		);
+	}
+
+	/**
+	 * Send RSVP invitation email with quick action buttons
+	 */
+	private function send_rsvp_invitation_email( $event, $email, $token, $inviter_name = '', $personal_message = '' ) {
+		$site_name = get_bloginfo( 'name' );
+		$rsvp_url = home_url( '/rsvp/' . $token );
+
+		// Quick action URLs
+		$rsvp_yes_url = add_query_arg( array( 'response' => 'yes' ), $rsvp_url );
+		$rsvp_maybe_url = add_query_arg( array( 'response' => 'maybe' ), $rsvp_url );
+		$rsvp_no_url = add_query_arg( array( 'response' => 'no' ), $rsvp_url );
+
+		$subject = sprintf( __( '[%s] You\'re invited: %s', 'partyminder' ), $site_name, $event->title );
+
+		$event_date = date( 'l, F j, Y', strtotime( $event->event_date ) );
+		$event_time = date( 'g:i A', strtotime( $event->event_date ) );
+
+		$greeting = $inviter_name ? 
+			sprintf( __( 'Hi! %s has invited you to:', 'partyminder' ), $inviter_name ) :
+			__( 'You\'re invited to:', 'partyminder' );
+
+		$personal_note = $personal_message ? 
+			"\n\nPersonal message: \"" . $personal_message . "\"\n" : '';
+
+		$email_message = sprintf(
+			__(
+				'%1$s
+
+**%2$s**
+
+📅 When: %3$s at %4$s
+📍 Where: %5$s
+
+%6$s%7$s
+
+Quick RSVP - Just click one of these:
+
+🟢 YES, I\'ll be there: %8$s
+🟡 MAYBE: %9$s  
+🔴 Sorry, can\'t make it: %10$s
+
+Or RSVP with details (dietary restrictions, plus one, etc.):
+%11$s
+
+This invitation is just for you - please don\'t forward this email.
+
+Thanks,
+%12$s',
+				'partyminder'
+			),
+			$greeting,
+			$event->title,
+			$event_date,
+			$event_time,
+			$event->venue_info ?: __( 'TBD', 'partyminder' ),
+			$event->description ? "\n" . wp_strip_all_tags( $event->description ) . "\n" : '',
+			$personal_note,
+			$rsvp_yes_url,
+			$rsvp_maybe_url,
+			$rsvp_no_url,
+			$rsvp_url,
+			$site_name
+		);
+
+		$headers = array(
+			'Content-Type: text/plain; charset=UTF-8',
+			'From: ' . get_option( 'partyminder_email_from_name', $site_name ) . ' <' . get_option( 'partyminder_email_from_address', get_option( 'admin_email' ) ) . '>',
+		);
+
+		$sent = wp_mail( $email, $subject, $email_message, $headers );
+
+		if ( ! $sent ) {
+			return new WP_Error( 'email_failed', __( 'Failed to send RSVP invitation email', 'partyminder' ) );
+		}
+
+		return true;
 	}
 }

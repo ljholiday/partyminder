@@ -321,4 +321,16 @@ class PartyMinder_Page_Content_Injector {
 		}
 		return $content;
 	}
+
+	public function inject_rsvp_content( $content ) {
+		if ( ! $this->should_inject_content( 'rsvp' ) ) {
+			return $content;
+		}
+
+		ob_start();
+		echo '<div class="partyminder-content partyminder-rsvp-page">';
+		include PARTYMINDER_PLUGIN_DIR . 'templates/rsvp-content.php';
+		echo '</div>';
+		return ob_get_clean();
+	}
 }

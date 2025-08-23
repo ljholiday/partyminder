@@ -40,6 +40,9 @@ class PartyMinder_Page_Router {
 		add_rewrite_rule( '^create-community/?$', 'index.php?pagename=create-community', 'top' );
 		add_rewrite_rule( '^create-conversation/?$', 'index.php?pagename=create-conversation', 'top' );
 
+		// RSVP routing
+		add_rewrite_rule( '^rsvp/([^/]+)/?$', 'index.php?pagename=rsvp&rsvp_token=$matches[1]', 'top' );
+
 		// Add query vars
 		add_filter( 'query_vars', array( $this, 'add_query_vars' ) );
 	}
@@ -54,6 +57,7 @@ class PartyMinder_Page_Router {
 		$vars[] = 'community_view';
 		$vars[] = 'community_action';
 		$vars[] = 'user';
+		$vars[] = 'rsvp_token';
 		return $vars;
 	}
 
@@ -66,7 +70,7 @@ class PartyMinder_Page_Router {
 			return;
 		}
 
-		$page_keys        = array( 'dashboard', 'events', 'create-event', 'create-community-event', 'my-events', 'edit-event', 'create-conversation', 'create-community', 'create-group', 'conversations', 'communities', 'my-communities', 'profile', 'login', 'manage-community' );
+		$page_keys        = array( 'dashboard', 'events', 'create-event', 'create-community-event', 'my-events', 'edit-event', 'create-conversation', 'create-community', 'create-group', 'conversations', 'communities', 'my-communities', 'profile', 'login', 'manage-community', 'rsvp' );
 		$current_page_key = null;
 
 		foreach ( $page_keys as $key ) {
@@ -92,6 +96,12 @@ class PartyMinder_Page_Router {
 			case 'my-events':
 				if ( ! is_user_logged_in() && ! isset( $_GET['email'] ) ) {
 					// Could redirect to login or show guest access form
+				}
+				break;
+
+			case 'rsvp':
+				if ( ! get_query_var( 'rsvp_token' ) && isset( $_GET['token'] ) ) {
+					set_query_var( 'rsvp_token', sanitize_text_field( $_GET['token'] ) );
 				}
 				break;
 		}
@@ -191,6 +201,11 @@ class PartyMinder_Page_Router {
 					add_filter( 'the_content', array( $this->content_injector, 'inject_manage_community_content' ) );
 					add_filter( 'body_class', array( $this->body_class_manager, 'add_manage_community_body_class' ) );
 				}
+				break;
+
+			case 'rsvp':
+				add_filter( 'the_content', array( $this->content_injector, 'inject_rsvp_content' ) );
+				add_filter( 'body_class', array( $this->body_class_manager, 'add_rsvp_body_class' ) );
 				break;
 		}
 	}

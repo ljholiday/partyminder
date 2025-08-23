@@ -3,48 +3,295 @@
 ## Core Tables
 
 ### Events System
-- **`partyminder_events`** - Main events table
-  - `id, title, slug, description, excerpt, event_date, location, max_guests, created_by, status, created_at, updated_at`
 
-- **`partyminder_guests`** - Event attendees/RSVPs  
-  - `id, event_id, name, email, phone, rsvp_status, dietary_restrictions, additional_info, invited_by, created_at`
+#### `partyminder_events` - Main events table
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+title varchar(255) NOT NULL
+slug varchar(255) NOT NULL
+description text
+excerpt text
+event_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL
+event_time varchar(20) DEFAULT ''
+guest_limit int(11) DEFAULT 0
+venue_info text
+host_email varchar(100) DEFAULT ''
+host_notes text
+ai_plan longtext
+privacy varchar(20) DEFAULT 'public'
+event_status varchar(20) DEFAULT 'active'
+author_id bigint(20) UNSIGNED DEFAULT 1
+community_id mediumint(9) DEFAULT NULL
+featured_image varchar(255) DEFAULT ''
+meta_title varchar(255) DEFAULT ''
+meta_description text DEFAULT ''
+created_at datetime DEFAULT CURRENT_TIMESTAMP
+updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+```
 
-- **`partyminder_event_invitations`** - Event invitation tracking
-  - `id, event_id, inviter_id, invited_email, invitation_token, status, expires_at, created_at, responded_at`
+#### `partyminder_guests` - Event attendees/RSVPs
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+event_id mediumint(9) NOT NULL
+name varchar(100) NOT NULL
+email varchar(100) NOT NULL
+phone varchar(20) DEFAULT ''
+status varchar(20) DEFAULT 'pending'
+dietary_restrictions text
+plus_one tinyint(1) DEFAULT 0
+plus_one_name varchar(100) DEFAULT ''
+notes text
+rsvp_date datetime DEFAULT CURRENT_TIMESTAMP
+reminder_sent tinyint(1) DEFAULT 0
+```
 
-### Communities System  
-- **`partyminder_communities`** - Communities/groups
-  - `id, name, slug, description, type, privacy, created_by, member_count, event_count, created_at, updated_at`
+#### `partyminder_event_invitations` - Event invitation tracking
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+event_id mediumint(9) NOT NULL
+invited_by_user_id bigint(20) UNSIGNED NOT NULL
+invited_email varchar(100) NOT NULL
+invitation_token varchar(32) NOT NULL
+status varchar(20) DEFAULT 'pending'
+expires_at datetime DEFAULT NULL
+created_at datetime DEFAULT CURRENT_TIMESTAMP
+responded_at datetime DEFAULT NULL
+```
 
-- **`partyminder_community_members`** - Community membership
-  - `id, community_id, user_id, email, display_name, role, status, joined_at, last_active`
+#### `partyminder_event_rsvps` - Modern RSVP flow (separate from guests)
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+event_id mediumint(9) NOT NULL
+name varchar(100) NOT NULL
+email varchar(100) NOT NULL
+phone varchar(20) DEFAULT ''
+dietary_restrictions text DEFAULT ''
+accessibility_needs text DEFAULT ''
+plus_one tinyint(1) DEFAULT 0
+plus_one_name varchar(100) DEFAULT ''
+plus_one_dietary text DEFAULT ''
+notes text DEFAULT ''
+status varchar(20) DEFAULT 'pending'
+invitation_token varchar(255) DEFAULT ''
+user_id bigint(20) UNSIGNED DEFAULT NULL
+created_at datetime DEFAULT CURRENT_TIMESTAMP
+updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+```
 
-- **`partyminder_community_invitations`** - Community invitation tracking
-  - `id, community_id, invited_by_member_id, invited_email, invitation_token, message, status, expires_at, created_at, responded_at`
+### Communities System
+
+#### `partyminder_communities` - Communities/groups
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+name varchar(255) NOT NULL
+slug varchar(255) NOT NULL
+description text
+type varchar(50) DEFAULT 'standard'
+privacy varchar(20) DEFAULT 'public'
+member_count int(11) DEFAULT 0
+event_count int(11) DEFAULT 0
+creator_id bigint(20) UNSIGNED NOT NULL
+creator_email varchar(100) NOT NULL
+featured_image varchar(255) DEFAULT ''
+settings longtext DEFAULT ''
+at_protocol_did varchar(255) DEFAULT ''
+at_protocol_handle varchar(255) DEFAULT ''
+at_protocol_data longtext DEFAULT ''
+is_active tinyint(1) DEFAULT 1
+requires_approval tinyint(1) DEFAULT 0
+created_at datetime DEFAULT CURRENT_TIMESTAMP
+updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+```
+
+#### `partyminder_community_members` - Community membership
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+community_id mediumint(9) NOT NULL
+user_id bigint(20) UNSIGNED NOT NULL
+email varchar(100) NOT NULL
+display_name varchar(100) NOT NULL
+role varchar(50) DEFAULT 'member'
+permissions longtext DEFAULT ''
+status varchar(20) DEFAULT 'active'
+at_protocol_did varchar(255) DEFAULT ''
+joined_at datetime DEFAULT CURRENT_TIMESTAMP
+last_seen_at datetime DEFAULT CURRENT_TIMESTAMP
+invitation_data longtext DEFAULT ''
+```
+
+#### `partyminder_community_events` - Community-event relationships
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+community_id mediumint(9) NOT NULL
+event_id mediumint(9) NOT NULL
+created_at datetime DEFAULT CURRENT_TIMESTAMP
+```
+
+#### `partyminder_community_invitations` - Community invitation tracking
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+community_id mediumint(9) NOT NULL
+invited_by_member_id mediumint(9) NOT NULL
+invited_email varchar(100) NOT NULL
+invitation_token varchar(255) NOT NULL
+message text DEFAULT ''
+status varchar(20) DEFAULT 'pending'
+expires_at datetime DEFAULT NULL
+created_at datetime DEFAULT CURRENT_TIMESTAMP
+responded_at datetime DEFAULT NULL
+```
 
 ### Conversations System
-- **`partyminder_topics`** - Conversation topics/categories
-  - `id, name, slug, description, icon, color, is_active, sort_order, created_at`
 
-- **`partyminder_conversations`** - Discussion threads
-  - `id, topic_id, event_id, community_id, title, slug, description, author_id, is_pinned, is_locked, reply_count, last_reply_at, created_at, updated_at`
+#### `partyminder_conversation_topics` - Conversation topics/categories
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+name varchar(255) NOT NULL
+slug varchar(255) NOT NULL
+description text
+icon varchar(10) DEFAULT ''
+sort_order int(11) DEFAULT 0
+is_active tinyint(1) DEFAULT 1
+created_at datetime DEFAULT CURRENT_TIMESTAMP
+```
 
-- **`partyminder_replies`** - Conversation replies
-  - `id, conversation_id, parent_reply_id, content, author_id, is_ai_response, created_at, updated_at`
+#### `partyminder_conversations` - Discussion threads
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+event_id mediumint(9) DEFAULT NULL
+community_id mediumint(9) DEFAULT NULL
+title varchar(255) NOT NULL
+slug varchar(255) NOT NULL
+content longtext NOT NULL
+author_id bigint(20) UNSIGNED NOT NULL
+author_name varchar(100) NOT NULL
+author_email varchar(100) NOT NULL
+privacy varchar(20) DEFAULT 'public'
+is_pinned tinyint(1) DEFAULT 0
+is_locked tinyint(1) DEFAULT 0
+reply_count int(11) DEFAULT 0
+last_reply_date datetime DEFAULT CURRENT_TIMESTAMP
+last_reply_author varchar(100) DEFAULT ''
+featured_image varchar(255) DEFAULT ''
+created_at datetime DEFAULT CURRENT_TIMESTAMP
+updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+```
 
-- **`partyminder_follows`** - Conversation follows/subscriptions
-  - `id, conversation_id, user_id, email, last_read_at, created_at`
+#### `partyminder_conversation_replies` - Conversation replies
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+conversation_id mediumint(9) NOT NULL
+parent_reply_id mediumint(9) DEFAULT NULL
+content longtext NOT NULL
+author_id bigint(20) UNSIGNED NOT NULL
+author_name varchar(100) NOT NULL
+author_email varchar(100) NOT NULL
+depth_level int(11) DEFAULT 0
+created_at datetime DEFAULT CURRENT_TIMESTAMP
+updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+```
+
+#### `partyminder_conversation_follows` - Conversation follows/subscriptions
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+conversation_id mediumint(9) NOT NULL
+user_id bigint(20) UNSIGNED NOT NULL
+email varchar(100) NOT NULL
+last_read_at datetime DEFAULT CURRENT_TIMESTAMP
+notification_frequency varchar(20) DEFAULT 'immediate'
+created_at datetime DEFAULT CURRENT_TIMESTAMP
+```
 
 ### User System
-- **`partyminder_user_profiles`** - Extended user profiles
-  - `id, user_id, display_name, bio, profile_image, cover_image, phone, website, location, timezone, preferences, privacy_settings, last_active, created_at, updated_at`
 
-- **`partyminder_member_identities`** - AT Protocol/Bluesky integration
-  - `id, user_id, did, handle, access_jwt, refresh_jwt, pds_url, created_at, updated_at`
+#### `partyminder_user_profiles` - Extended user profiles
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+user_id bigint(20) UNSIGNED NOT NULL
+display_name varchar(255) DEFAULT ''
+bio text DEFAULT ''
+location varchar(255) DEFAULT ''
+profile_image varchar(255) DEFAULT ''
+cover_image varchar(255) DEFAULT ''
+avatar_source varchar(20) DEFAULT 'gravatar'
+website_url varchar(255) DEFAULT ''
+social_links longtext DEFAULT ''
+hosting_preferences longtext DEFAULT ''
+notification_preferences longtext DEFAULT ''
+privacy_settings longtext DEFAULT ''
+events_hosted int(11) DEFAULT 0
+events_attended int(11) DEFAULT 0
+host_rating decimal(3,2) DEFAULT 0.00
+host_reviews_count int(11) DEFAULT 0
+available_times longtext DEFAULT ''
+dietary_restrictions text DEFAULT ''
+accessibility_needs text DEFAULT ''
+is_verified tinyint(1) DEFAULT 0
+is_active tinyint(1) DEFAULT 1
+last_active datetime DEFAULT CURRENT_TIMESTAMP
+created_at datetime DEFAULT CURRENT_TIMESTAMP
+updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+```
+
+#### `partyminder_member_identities` - AT Protocol/Bluesky integration
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+user_id bigint(20) UNSIGNED NOT NULL
+email varchar(100) NOT NULL
+did varchar(255) DEFAULT ''
+handle varchar(255) DEFAULT ''
+access_jwt text DEFAULT ''
+refresh_jwt text DEFAULT ''
+pds_url varchar(255) DEFAULT ''
+profile_data longtext DEFAULT ''
+created_at datetime DEFAULT CURRENT_TIMESTAMP
+updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+```
+
+#### `partyminder_at_protocol_sync_log` - AT Protocol sync tracking
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+entity_type varchar(50) NOT NULL
+entity_id mediumint(9) NOT NULL
+user_id bigint(20) UNSIGNED NOT NULL
+action varchar(50) NOT NULL
+at_uri varchar(255) DEFAULT ''
+success tinyint(1) DEFAULT 0
+error_message text DEFAULT ''
+created_at datetime DEFAULT CURRENT_TIMESTAMP
+```
 
 ### AI/Analytics System
-- **`partyminder_ai_interactions`** - AI usage tracking
-  - `id, user_id, event_id, interaction_type, prompt_text, response_text, tokens_used, processing_time, created_at`
+
+#### `partyminder_ai_interactions` - AI usage tracking
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+user_id bigint(20) UNSIGNED NOT NULL
+event_id mediumint(9) DEFAULT NULL
+interaction_type varchar(50) NOT NULL
+prompt_text text
+response_text longtext
+tokens_used int(11) DEFAULT 0
+cost_cents int(11) DEFAULT 0
+provider varchar(20) DEFAULT 'openai'
+model varchar(50) DEFAULT ''
+created_at datetime DEFAULT CURRENT_TIMESTAMP
+```
+
+### Media System
+
+#### `partyminder_post_images` - Event/conversation image attachments
+```sql
+id mediumint(9) NOT NULL AUTO_INCREMENT
+event_id mediumint(9) NOT NULL
+user_id bigint(20) UNSIGNED NOT NULL
+image_url varchar(500) NOT NULL
+thumbnail_url varchar(500) DEFAULT ''
+alt_text varchar(255) DEFAULT ''
+caption text DEFAULT ''
+display_order int(11) DEFAULT 0
+created_at datetime DEFAULT CURRENT_TIMESTAMP
+```
 
 ## Table Relationships
 
@@ -52,37 +299,77 @@
 ```
 partyminder_events (1) → (many) partyminder_guests
 partyminder_events (1) → (many) partyminder_event_invitations  
+partyminder_events (1) → (many) partyminder_event_rsvps
 partyminder_events (1) → (many) partyminder_conversations
+partyminder_events (1) → (many) partyminder_post_images
+wp_users (1) → (many) partyminder_events (author_id)
 ```
 
 ### Communities Flow  
 ```
 partyminder_communities (1) → (many) partyminder_community_members
 partyminder_communities (1) → (many) partyminder_community_invitations
+partyminder_communities (1) → (many) partyminder_community_events
 partyminder_communities (1) → (many) partyminder_conversations
+wp_users (1) → (many) partyminder_communities (creator_id)
 ```
 
 ### Conversations Flow
 ```
-partyminder_topics (1) → (many) partyminder_conversations
-partyminder_conversations (1) → (many) partyminder_replies
-partyminder_conversations (1) → (many) partyminder_follows
+partyminder_conversation_topics (1) → (many) partyminder_conversations
+partyminder_conversations (1) → (many) partyminder_conversation_replies
+partyminder_conversations (1) → (many) partyminder_conversation_follows
+wp_users (1) → (many) partyminder_conversations (author_id)
+wp_users (1) → (many) partyminder_conversation_replies (author_id)
 ```
 
 ### User Connections
 ```
 wp_users (1) → (1) partyminder_user_profiles
 wp_users (1) → (1) partyminder_member_identities
-wp_users (1) → (many) partyminder_events (created_by)
-wp_users (1) → (many) partyminder_community_members
-wp_users (1) → (many) partyminder_conversations (author_id)
-wp_users (1) → (many) partyminder_replies (author_id)
+wp_users (1) → (many) partyminder_ai_interactions
+wp_users (1) → (many) partyminder_post_images
 ```
 
-## Page Type Categories
+## Status Enums
+
+### RSVP Status
+- `pending` - Initial state, invitation sent
+- `yes` - Confirmed attendance  
+- `no` - Declined attendance
+- `maybe` - Tentative attendance
+
+### Event Status
+- `active` - Event is published and accepting RSVPs
+- `cancelled` - Event has been cancelled
+- `completed` - Event has concluded
+
+### Community Privacy  
+- `public` - Open to join, visible in listings
+- `private` - Invite-only, hidden from public listings
+
+### Community Types
+- `standard` - General purpose community
+- `food` - Food and dining focused
+- `hobby` - Hobby-based community
+- `professional` - Work/career focused
+- `family` - Family-oriented events
+- `faith` - Religious/spiritual community
+
+### Community Roles
+- `admin` - Full management permissions
+- `member` - Standard member access
+
+### Invitation Status
+- `pending` - Invitation sent, awaiting response
+- `accepted` - Invitation accepted
+- `declined` - Invitation declined  
+- `expired` - Invitation expired without response
+
+## Page Routing Patterns
 
 ### Form Pages (Single Column, Focused)
-- **Events**: `/create-event`, `/edit-event/{id}`, `/events/{slug}/rsvp`
+- **Events**: `/create-event`, `/edit-event/{id}`, `/rsvp/{token}`
 - **Communities**: `/create-community`, `/communities/join?token=xxx`  
 - **Conversations**: `/create-conversation`, `/conversations/{slug}/reply`
 - **Profile**: `/profile/edit`, `/login`, `/register`
@@ -93,22 +380,5 @@ wp_users (1) → (many) partyminder_replies (author_id)
 - **Conversations**: `/conversations`, `/conversations/{slug}`, `/topic/{slug}`
 - **Dashboard**: `/dashboard`, `/profile/{user}`
 
-### Navigation Pages
-- **Manage**: `/manage-community`, `/manage-event` (admin interfaces)
-
-## Status Enums
-
-### RSVP Status
-- `pending`, `yes`, `no`, `maybe`
-
-### Community Privacy  
-- `public`, `private`
-
-### Community Types
-- `general`, `food`, `hobby`, `professional`, `family`, `faith`, `work`
-
-### Community Roles
-- `admin`, `member`
-
-### Invitation Status
-- `pending`, `accepted`, `declined`, `expired`
+### Management Pages
+- **Administration**: `/manage-community?community_id=X`, `/manage-event?event_id=X`

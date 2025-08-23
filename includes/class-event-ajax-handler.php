@@ -23,6 +23,8 @@ class PartyMinder_Event_Ajax_Handler {
 		add_action( 'wp_ajax_partyminder_get_event_stats', array( $this, 'ajax_get_event_stats' ) );
 		add_action( 'wp_ajax_partyminder_get_event_guests', array( $this, 'ajax_get_event_guests' ) );
 		add_action( 'wp_ajax_partyminder_delete_event', array( $this, 'ajax_delete_event' ) );
+		add_action( 'wp_ajax_partyminder_submit_rsvp', array( $this, 'ajax_submit_rsvp' ) );
+		add_action( 'wp_ajax_nopriv_partyminder_submit_rsvp', array( $this, 'ajax_submit_rsvp' ) );
 
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_partyminder_admin_delete_event', array( $this, 'ajax_admin_delete_event' ) );
@@ -906,6 +908,150 @@ class PartyMinder_Event_Ajax_Handler {
 			return $uploaded_file;
 		} else {
 			return new WP_Error( 'upload_failed', __( 'File upload failed.', 'partyminder' ) );
+		}
+	}
+
+	public function ajax_submit_rsvp() {
+		try {
+			// Verify nonce
+			if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'partyminder_event_nonce' ) ) {
+				wp_die( json_encode( array( 'success' => false, 'data' => __( 'Security check failed', 'partyminder' ) ) ) );
+			}
+
+			// Validate required fields
+			if ( empty( $_POST['rsvp_token'] ) || empty( $_POST['event_id'] ) || empty( $_POST['rsvp_status'] ) ) {
+				wp_die( json_encode( array( 'success' => false, 'data' => __( 'Missing required fields', 'partyminder' ) ) ) );
+			}
+
+			$rsvp_token = sanitize_text_field( $_POST['rsvp_token'] );
+			$event_id = intval( $_POST['event_id'] );
+			$status = sanitize_text_field( $_POST['rsvp_status'] );
+
+			// Validate status
+			if ( ! in_array( $status, array( 'yes', 'no', 'maybe' ) ) ) {
+				wp_die( json_encode( array( 'success' => false, 'data' => __( 'Invalid RSVP status', 'partyminder' ) ) ) );
+			}
+
+			// Get guest info if attending
+			$guest_name = '';
+			$guest_email = '';
+			$dietary_restrictions = '';
+			$notes = '';
+			$plus_one = 0;
+			$plus_one_name = '';
+			$create_account = 0;
+
+			if ( $status !== 'no' ) {
+				if ( empty( $_POST['guest_name'] ) || empty( $_POST['guest_email'] ) ) {
+					wp_die( json_encode( array( 'success' => false, 'data' => __( 'Name and email are required when attending', 'partyminder' ) ) ) );
+				}
+
+				$guest_name = sanitize_text_field( $_POST['guest_name'] );
+				$guest_email = sanitize_email( $_POST['guest_email'] );
+				$dietary_restrictions = sanitize_textarea_field( $_POST['dietary_restrictions'] ?? '' );
+				$notes = sanitize_textarea_field( $_POST['guest_notes'] ?? '' );
+				$plus_one = isset( $_POST['plus_one'] ) ? 1 : 0;
+				$plus_one_name = sanitize_text_field( $_POST['plus_one_name'] ?? '' );
+				$create_account = isset( $_POST['create_account'] ) ? 1 : 0;
+
+				if ( ! is_email( $guest_email ) ) {
+					wp_die( json_encode( array( 'success' => false, 'data' => __( 'Please provide a valid email address', 'partyminder' ) ) ) );
+				}
+			}
+
+			global $wpdb;
+			$rsvps_table = $wpdb->prefix . 'partyminder_event_rsvps';
+
+			// Check if RSVP already exists
+			$existing_rsvp = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT * FROM $rsvps_table WHERE invitation_token = %s",
+					$rsvp_token
+				)
+			);
+
+			if ( $existing_rsvp ) {
+				// Update existing RSVP
+				$update_data = array(
+					'name' => $guest_name,
+					'email' => $guest_email,
+					'status' => $status,
+					'dietary_restrictions' => $dietary_restrictions,
+					'notes' => $notes,
+					'plus_one' => $plus_one,
+					'plus_one_name' => $plus_one_name,
+					'updated_at' => current_time( 'mysql' )
+				);
+
+				$result = $wpdb->update(
+					$rsvps_table,
+					$update_data,
+					array( 'id' => $existing_rsvp->id ),
+					array( '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s' ),
+					array( '%d' )
+				);
+
+				$success_message = __( 'Your RSVP has been updated successfully!', 'partyminder' );
+			} else {
+				// Create new RSVP
+				$insert_data = array(
+					'event_id' => $event_id,
+					'invitation_token' => $rsvp_token,
+					'name' => $guest_name,
+					'email' => $guest_email,
+					'status' => $status,
+					'dietary_restrictions' => $dietary_restrictions,
+					'notes' => $notes,
+					'plus_one' => $plus_one,
+					'plus_one_name' => $plus_one_name,
+					'created_at' => current_time( 'mysql' ),
+					'updated_at' => current_time( 'mysql' )
+				);
+
+				$result = $wpdb->insert(
+					$rsvps_table,
+					$insert_data,
+					array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s' )
+				);
+
+				$success_message = __( 'Your RSVP has been submitted successfully!', 'partyminder' );
+			}
+
+			if ( $result === false ) {
+				wp_die( json_encode( array( 'success' => false, 'data' => __( 'Failed to save RSVP. Please try again.', 'partyminder' ) ) ) );
+			}
+
+			// Create user account if requested and attending
+			if ( $create_account && $status !== 'no' && $guest_email ) {
+				$user_exists = get_user_by( 'email', $guest_email );
+				if ( ! $user_exists ) {
+					$user_id = wp_create_user( $guest_email, wp_generate_password(), $guest_email );
+					if ( ! is_wp_error( $user_id ) ) {
+						wp_update_user( array(
+							'ID' => $user_id,
+							'display_name' => $guest_name,
+							'first_name' => $guest_name
+						) );
+
+						// Update RSVP with user ID
+						$wpdb->update(
+							$rsvps_table,
+							array( 'user_id' => $user_id ),
+							array( 'invitation_token' => $rsvp_token ),
+							array( '%d' ),
+							array( '%s' )
+						);
+
+						$success_message .= ' ' . __( 'A PartyMinder account has been created for you!', 'partyminder' );
+					}
+				}
+			}
+
+			wp_die( json_encode( array( 'success' => true, 'data' => array( 'message' => $success_message ) ) ) );
+
+		} catch ( Exception $e ) {
+			error_log( 'PartyMinder RSVP Error: ' . $e->getMessage() );
+			wp_die( json_encode( array( 'success' => false, 'data' => __( 'An error occurred. Please try again.', 'partyminder' ) ) ) );
 		}
 	}
 }
