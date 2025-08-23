@@ -65,6 +65,7 @@ class PartyMinder_Event_Ajax_Handler {
 			'host_notes'  => wp_kses_post( wp_unslash( $_POST['host_notes'] ) ),
 			'privacy'     => sanitize_text_field( $_POST['privacy'] ?? 'public' ),
 		);
+		
 
 		$event_manager = $this->get_event_manager();
 		$event_id      = $event_manager->create_event( $event_data );

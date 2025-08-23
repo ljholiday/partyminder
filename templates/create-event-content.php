@@ -271,7 +271,6 @@ require PARTYMINDER_PLUGIN_DIR . 'templates/base/template-form.php';
 
 <script>
 jQuery(document).ready(function($) {
-<<<<<<< HEAD
 	// Initialize Bluesky connection check on page load
 	<?php if ( PartyMinder_Feature_Flags::is_at_protocol_enabled() ) : ?>
 	checkCreateBlueskyConnection();
