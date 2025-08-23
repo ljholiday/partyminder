@@ -85,13 +85,10 @@ ob_start();
 			</a>
 		<?php endif; ?>
 		<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'Overview', 'partyminder' ); ?>
+			<?php _e( 'Back to Community', 'partyminder' ); ?>
 		</a>
 		<a href="<?php echo home_url( '/communities/' . $community->slug . '/members' ); ?>" class="pm-btn pm-btn-secondary">
 			<?php _e( 'Members', 'partyminder' ); ?>
-		</a>
-		<a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'All Communities', 'partyminder' ); ?>
 		</a>
 	</div>
 </div>

@@ -94,9 +94,6 @@ ob_start();
 				<?php _e( 'Join Community', 'partyminder' ); ?>
 			</button>
 		<?php endif; ?>
-		<a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'All Communities', 'partyminder' ); ?>
-		</a>
 	</div>
 </div>
 
@@ -138,42 +135,6 @@ ob_start();
 	</div>
 </div>
 
-<div class="pm-section pm-mb">
-	<div class="pm-card">
-		<div class="pm-card-header">
-			<h3 class="pm-heading pm-heading-md">Welcome to <?php echo esc_html( $community->name ); ?></h3>
-		</div>
-		<div class="pm-card-body">
-			<div class="pm-grid pm-grid-2 pm-gap">
-				<div class="pm-card">
-					<div class="pm-card-header">
-						<h4 class="pm-heading pm-heading-sm pm-text-primary">Community Purpose</h4>
-					</div>
-					<div class="pm-card-body">
-						<p class="pm-text-muted">
-							A community for members to plan and attend events together.
-						</p>
-					</div>
-				</div>
-				
-				<div class="pm-card">
-					<div class="pm-card-header">
-						<h4 class="pm-heading pm-heading-sm pm-text-primary">Get Started</h4>
-					</div>
-					<div class="pm-card-body">
-						<p class="pm-text-muted">
-							<?php if ( $is_member ) : ?>
-								Create your first community event or browse upcoming events.
-							<?php else : ?>
-								Join this community to start planning events with other members.
-							<?php endif; ?>
-						</p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
 
 <!-- Community Events Section -->
 <div class="pm-section pm-mb">

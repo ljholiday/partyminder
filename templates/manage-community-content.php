@@ -636,20 +636,6 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
-<!-- Quick Actions -->
-<div class="pm-section pm-mb">
-	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Quick Actions', 'partyminder' ); ?></h3>
-	</div>
-	<div class="pm-flex pm-flex-column pm-gap">
-		<a href="<?php echo esc_url( PartyMinder::get_community_url( $community->slug ) ); ?>" class="pm-btn">
-			<?php _e( 'View Community', 'partyminder' ); ?>
-		</a>
-		<a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'All Communities', 'partyminder' ); ?>
-		</a>
-	</div>
-</div>
 
 <!-- Community Info -->
 <div class="pm-section pm-mb">

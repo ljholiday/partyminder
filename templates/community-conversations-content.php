@@ -249,40 +249,6 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
-<!-- Quick Actions (No Heading) -->
-<div class="pm-card pm-mb-4">
-	<div class="pm-card-body">
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<?php if ( ! $is_logged_in ) : ?>
-				<a href="<?php echo wp_login_url( get_permalink() ); ?>" class="pm-btn">
-					<?php _e( 'Login to Join', 'partyminder' ); ?>
-				</a>
-			<?php elseif ( $is_member ) : ?>
-				<?php if ( $user_role === 'admin' && isset( $community->id ) ) : ?>
-					<a href="<?php echo esc_url( site_url( '/manage-community?community_id=' . intval( $community->id ) . '&tab=conversations' ) ); ?>" class="pm-btn">
-						<?php _e( 'Manage Community', 'partyminder' ); ?>
-					</a>
-				<?php endif; ?>
-				<a href="<?php echo esc_url( site_url( '/create-conversation?community_id=' . intval( $community->id ) ) ); ?>" class="pm-btn pm-btn-secondary">
-					<?php _e( 'Start Conversation', 'partyminder' ); ?>
-				</a>
-				<a href="<?php echo esc_url( site_url( '/create-event?community_id=' . intval( $community->id ) ) ); ?>" class="pm-btn pm-btn-secondary">
-					<?php _e( 'Create Event', 'partyminder' ); ?>
-				</a>
-			<?php else : ?>
-				<button class="pm-btn join-community-btn" data-community-id="<?php echo esc_attr( intval( $community->id ) ); ?>">
-					<?php _e( 'Join Community', 'partyminder' ); ?>
-				</button>
-			<?php endif; ?>
-			<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( '← Back to Community', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( '← All Communities', 'partyminder' ); ?>
-			</a>
-		</div>
-	</div>
-</div>
 
 <!-- Community Navigation -->
 <div class="pm-card pm-mb-4">

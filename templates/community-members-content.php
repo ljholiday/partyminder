@@ -81,6 +81,16 @@ $breadcrumbs = array(
 // Main content
 ob_start();
 ?>
+
+<!-- Secondary Menu Bar -->
+<div class="pm-section pm-mb-4">
+	<div class="pm-flex pm-gap-4">
+		<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( '← Back to Community', 'partyminder' ); ?>
+		</a>
+	</div>
+</div>
+
 <div class="partyminder-community-members">
 
 	<!-- Members Content -->
@@ -294,48 +304,6 @@ $main_content = ob_get_clean();
 // Sidebar content
 ob_start();
 ?>
-
-<!-- Quick Actions (No Heading) -->
-<div class="pm-card pm-mb-4">
-	<div class="pm-card-body">
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<?php if ( $is_member && $user_role === 'admin' ) : ?>
-				<!-- Admin gets invite functionality -->
-				<span class="pm-text-muted"><?php _e( 'Use invite form above ↑', 'partyminder' ); ?></span>
-			<?php elseif ( ! $is_member && $is_logged_in ) : ?>
-				<button class="pm-btn join-community-btn" data-community-id="<?php echo esc_attr( $community->id ); ?>">
-					<?php _e( 'Join Community', 'partyminder' ); ?>
-				</button>
-			<?php endif; ?>
-			<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( '← Back to Overview', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( '← All Communities', 'partyminder' ); ?>
-			</a>
-		</div>
-	</div>
-</div>
-
-<!-- Community Navigation -->
-<div class="pm-card pm-mb-4">
-	<div class="pm-card-header">
-		<h3 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Community Pages', 'partyminder' ); ?></h3>
-	</div>
-	<div class="pm-card-body">
-		<div class="pm-flex pm-flex-column pm-gap-4">
-			<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'Overview', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'Events', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo home_url( '/communities/' . $community->slug . '/members' ); ?>" class="pm-btn pm-btn-primary">
-				<?php _e( 'Members', 'partyminder' ); ?>
-			</a>
-		</div>
-	</div>
-</div>
 
 <!-- Community Stats -->
 <div class="pm-card">
