@@ -23,8 +23,6 @@ class PartyMinder_Event_Ajax_Handler {
 		add_action( 'wp_ajax_partyminder_get_event_stats', array( $this, 'ajax_get_event_stats' ) );
 		add_action( 'wp_ajax_partyminder_get_event_guests', array( $this, 'ajax_get_event_guests' ) );
 		add_action( 'wp_ajax_partyminder_delete_event', array( $this, 'ajax_delete_event' ) );
-		add_action( 'wp_ajax_partyminder_submit_rsvp', array( $this, 'ajax_submit_rsvp' ) );
-		add_action( 'wp_ajax_nopriv_partyminder_submit_rsvp', array( $this, 'ajax_submit_rsvp' ) );
 
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_partyminder_admin_delete_event', array( $this, 'ajax_admin_delete_event' ) );
@@ -240,6 +238,7 @@ class PartyMinder_Event_Ajax_Handler {
 
 		$event_id = intval( $_POST['event_id'] );
 		$email    = sanitize_email( $_POST['email'] );
+		$message  = sanitize_textarea_field( $_POST['message'] ?? '' );
 
 		if ( ! $event_id || ! $email ) {
 			wp_send_json_error( __( 'Event ID and email are required.', 'partyminder' ) );
@@ -260,99 +259,37 @@ class PartyMinder_Event_Ajax_Handler {
 			return;
 		}
 
+		// Check if guest already exists
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
+		$guest_manager = new PartyMinder_Guest_Manager();
+		
 		global $wpdb;
-		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
-
-		$existing = $wpdb->get_var(
+		$guests_table = $wpdb->prefix . 'partyminder_guests';
+		$existing_guest = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT id FROM $invitations_table WHERE event_id = %d AND invited_email = %s AND status IN ('pending', 'accepted')",
+				"SELECT * FROM $guests_table WHERE event_id = %d AND email = %s",
 				$event_id,
 				$email
 			)
 		);
 
-		if ( $existing ) {
+		if ( $existing_guest && $existing_guest->status !== 'declined' ) {
 			wp_send_json_error( __( 'This email has already been invited.', 'partyminder' ) );
 			return;
 		}
 
-		$invitation_token = wp_generate_uuid4();
-		$message          = sanitize_textarea_field( $_POST['message'] ?? '' );
-		$expires_at       = date( 'Y-m-d H:i:s', strtotime( '+7 days' ) );
-
-		$result = $wpdb->insert(
-			$invitations_table,
-			array(
-				'event_id'           => $event_id,
-				'invited_by_user_id' => $current_user->ID,
-				'invited_email'      => $email,
-				'invitation_token'   => $invitation_token,
-				'message'            => $message,
-				'status'             => 'pending',
-				'expires_at'         => $expires_at,
-				'created_at'         => current_time( 'mysql' ),
-			),
-			array( '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s' )
+		// Send RSVP invitation using Guest Manager
+		$sent = $guest_manager->send_rsvp_invitation( 
+			$event_id, 
+			$email, 
+			$current_user->display_name, 
+			$message 
 		);
-
-		if ( $result === false ) {
-			wp_send_json_error( __( 'Failed to create invitation.', 'partyminder' ) );
-			return;
-		}
-
-		$invitation_url = add_query_arg(
-			array(
-				'invitation' => $invitation_token,
-				'event'      => $event_id,
-			),
-			home_url( '/events/join' )
-		);
-
-		// Create RSVP action URLs
-		$rsvp_yes_url   = add_query_arg( 'quick_rsvp', 'attending', $invitation_url );
-		$rsvp_maybe_url = add_query_arg( 'quick_rsvp', 'maybe', $invitation_url );
-		$rsvp_no_url    = add_query_arg( 'quick_rsvp', 'not_attending', $invitation_url );
-
-		$subject = sprintf( __( 'You\'re invited: %s', 'partyminder' ), $event->title );
-
-		// Generate HTML email template
-		$html_message = self::generate_invitation_email_html(
-			array(
-				'event'            => $event,
-				'invitation_url'   => $invitation_url,
-				'rsvp_yes_url'     => $rsvp_yes_url,
-				'rsvp_maybe_url'   => $rsvp_maybe_url,
-				'rsvp_no_url'      => $rsvp_no_url,
-				'host_name'        => $current_user->display_name,
-				'personal_message' => $message,
-				'invited_email'    => $email,
-			)
-		);
-
-		// Plain text fallback
-		$plain_message = sprintf(
-			__( "You've been invited to %1\$s!\n\nEvent Details:\n%2\$s\n\nDate: %3\$s\nVenue: %4\$s\n\nPersonal message: \"%5\$s\"\n\nRSVP here: %6\$s\n\n---\nThis invitation was sent through PartyMinder.", 'partyminder' ),
-			$event->title,
-			$event->description,
-			date( 'F j, Y \a\t g:i A', strtotime( $event->event_date ) ),
-			$event->venue_info,
-			$message,
-			$invitation_url
-		);
-
-		// Set HTML email headers
-		$headers = array(
-			'Content-Type: text/html; charset=UTF-8',
-			'Reply-To: ' . $current_user->user_email . ' <' . $current_user->user_email . '>',
-			'From: ' . $current_user->display_name . ' via PartyMinder <' . get_option( 'admin_email' ) . '>',
-		);
-
-		$sent = wp_mail( $email, $subject, $html_message, $headers );
 
 		if ( $sent ) {
 			wp_send_json_success(
 				array(
-					'message' => __( 'Invitation sent successfully!', 'partyminder' ),
+					'message' => __( 'RSVP invitation sent successfully!', 'partyminder' ),
 				)
 			);
 		} else {
@@ -383,66 +320,101 @@ class PartyMinder_Event_Ajax_Handler {
 			return;
 		}
 
+		// Get guests from the new Guest Manager system
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
+		$guest_manager = new PartyMinder_Guest_Manager();
+		
 		global $wpdb;
-		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
-
-		$invitations = $wpdb->get_results(
+		$guests_table = $wpdb->prefix . 'partyminder_guests';
+		$guests = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT ei.*, u.display_name as invited_by_name 
-             FROM $invitations_table ei 
-             LEFT JOIN {$wpdb->users} u ON ei.invited_by_user_id = u.ID 
-             WHERE ei.event_id = %d 
-             ORDER BY ei.created_at DESC",
+				"SELECT * FROM $guests_table 
+				 WHERE event_id = %d AND rsvp_token != '' 
+				 ORDER BY rsvp_date DESC",
 				$event_id
 			)
 		);
 
-		foreach ( $invitations as &$invitation ) {
-			$invitation->invitation_url = add_query_arg(
-				array(
-					'invitation' => $invitation->invitation_token,
-					'event'      => $event_id,
-				),
-				home_url( '/events/join' )
+		// Add invitation URLs to each guest
+		foreach ( $guests as &$guest ) {
+			$guest->invitation_url = add_query_arg( 
+				array( 'token' => $guest->rsvp_token ), 
+				home_url( '/events/join' ) 
 			);
 		}
 
 		// Generate HTML for invitations list
 		$html = '';
-		if ( empty( $invitations ) ) {
-			$html = '<div class="pm-text-center pm-text-muted">' . __( 'No pending invitations.', 'partyminder' ) . '</div>';
+		if ( empty( $guests ) ) {
+			$html = '<div class="pm-text-center pm-text-muted">' . __( 'No RSVP invitations sent yet.', 'partyminder' ) . '</div>';
 		} else {
-			foreach ( $invitations as $invitation ) {
+			foreach ( $guests as $guest ) {
+				$status_class = '';
+				$status_text = '';
+				switch ( $guest->status ) {
+					case 'confirmed':
+						$status_class = 'success';
+						$status_text = __( 'Confirmed', 'partyminder' );
+						break;
+					case 'declined':
+						$status_class = 'danger';
+						$status_text = __( 'Declined', 'partyminder' );
+						break;
+					case 'maybe':
+						$status_class = 'warning';
+						$status_text = __( 'Maybe', 'partyminder' );
+						break;
+					default:
+						$status_class = 'secondary';
+						$status_text = __( 'Pending', 'partyminder' );
+				}
+
 				$html .= '<div class="pm-flex pm-flex-between pm-p-4 pm-mb-4">';
 				$html .= '<div class="pm-flex-1">';
 				$html .= '<div class="pm-flex pm-gap-4">';
-				$html .= '<strong>' . esc_html( $invitation->invited_email ) . '</strong>';
-				$html .= '<span class="pm-badge pm-badge-' . ( $invitation->status === 'pending' ? 'warning' : 'success' ) . '">' . esc_html( ucfirst( $invitation->status ) ) . '</span>';
+				$html .= '<strong>' . esc_html( $guest->email ) . '</strong>';
+				$html .= '<span class="pm-badge pm-badge-' . $status_class . '">' . esc_html( $status_text ) . '</span>';
 				$html .= '</div>';
+				
+				if ( ! empty( $guest->name ) ) {
+					$html .= '<div class="pm-text-muted pm-mt-2">' . esc_html( $guest->name ) . '</div>';
+				}
+				
 				$html .= '<div class="pm-text-muted pm-mt-2">';
 				$html .= sprintf(
-					__( 'Invited by %1$s on %2$s', 'partyminder' ),
-					esc_html( $invitation->invited_by_name ?? 'Unknown' ),
-					date( 'M j, Y', strtotime( $invitation->created_at ) )
+					__( 'Invited on %s', 'partyminder' ),
+					date( 'M j, Y', strtotime( $guest->rsvp_date ) )
 				);
 				$html .= '</div>';
-				if ( ! empty( $invitation->message ) ) {
-					$html .= '<div class="pm-text-muted pm-mt-2"><em>"' . esc_html( $invitation->message ) . '"</em></div>';
+				
+				if ( ! empty( $guest->dietary_restrictions ) ) {
+					$html .= '<div class="pm-text-muted pm-mt-2"><strong>Dietary:</strong> ' . esc_html( $guest->dietary_restrictions ) . '</div>';
 				}
+				
+				if ( ! empty( $guest->notes ) ) {
+					$html .= '<div class="pm-text-muted pm-mt-2"><em>"' . esc_html( $guest->notes ) . '"</em></div>';
+				}
+				
 				$html .= '</div>';
-				if ( $invitation->status === 'pending' ) {
+				
+				if ( $guest->status === 'pending' ) {
 					$html .= '<div class="pm-flex pm-flex-column pm-gap-4" style="align-items: stretch; min-height: 80px;">';
-					$html .= '<button type="button" class="pm-btn pm-btn-secondary" onclick="copyInvitationUrl(\'' . esc_js( $invitation->invitation_url ) . '\')">' . __( 'Copy Link', 'partyminder' ) . '</button>';
-					$html .= '<button type="button" class="pm-btn pm-btn-danger cancel-event-invitation" data-invitation-id="' . esc_attr( $invitation->invitation_token ) . '">' . __( 'Cancel', 'partyminder' ) . '</button>';
+					$html .= '<button type="button" class="pm-btn pm-btn-secondary" onclick="copyInvitationUrl(\'' . esc_js( $guest->invitation_url ) . '\')">' . __( 'Copy Link', 'partyminder' ) . '</button>';
+					$html .= '<button type="button" class="pm-btn pm-btn-danger cancel-event-invitation" data-invitation-id="' . esc_attr( $guest->id ) . '">' . __( 'Remove', 'partyminder' ) . '</button>';
+					$html .= '</div>';
+				} else {
+					$html .= '<div class="pm-flex pm-flex-column pm-gap-4" style="align-items: stretch; min-height: 80px;">';
+					$html .= '<button type="button" class="pm-btn pm-btn-secondary" onclick="copyInvitationUrl(\'' . esc_js( $guest->invitation_url ) . '\')">' . __( 'Copy Link', 'partyminder' ) . '</button>';
 					$html .= '</div>';
 				}
+				
 				$html .= '</div>';
 			}
 		}
 
 		wp_send_json_success(
 			array(
-				'invitations' => $invitations,
+				'invitations' => $guests,
 				'html'        => $html,
 			)
 		);
@@ -456,29 +428,29 @@ class PartyMinder_Event_Ajax_Handler {
 			return;
 		}
 
-		$invitation_token = sanitize_text_field( $_POST['invitation_id'] );
-		if ( ! $invitation_token ) {
-			wp_send_json_error( __( 'Invitation ID is required.', 'partyminder' ) );
+		$guest_id = intval( $_POST['invitation_id'] );
+		if ( ! $guest_id ) {
+			wp_send_json_error( __( 'Guest ID is required.', 'partyminder' ) );
 			return;
 		}
 
 		global $wpdb;
-		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
+		$guests_table = $wpdb->prefix . 'partyminder_guests';
 
-		$invitation = $wpdb->get_row(
+		$guest = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM $invitations_table WHERE invitation_token = %s",
-				$invitation_token
+				"SELECT * FROM $guests_table WHERE id = %d",
+				$guest_id
 			)
 		);
 
-		if ( ! $invitation ) {
-			wp_send_json_error( __( 'Invitation not found.', 'partyminder' ) );
+		if ( ! $guest ) {
+			wp_send_json_error( __( 'Guest invitation not found.', 'partyminder' ) );
 			return;
 		}
 
 		$event_manager = $this->get_event_manager();
-		$event         = $event_manager->get_event( $invitation->event_id );
+		$event         = $event_manager->get_event( $guest->event_id );
 
 		if ( ! $event ) {
 			wp_send_json_error( __( 'Event not found.', 'partyminder' ) );
@@ -487,24 +459,24 @@ class PartyMinder_Event_Ajax_Handler {
 
 		$current_user = wp_get_current_user();
 		if ( $event->author_id != $current_user->ID && ! current_user_can( 'edit_others_posts' ) ) {
-			wp_send_json_error( __( 'Only the event host can cancel invitations.', 'partyminder' ) );
+			wp_send_json_error( __( 'Only the event host can remove guests.', 'partyminder' ) );
 			return;
 		}
 
 		$result = $wpdb->delete(
-			$invitations_table,
-			array( 'invitation_token' => $invitation_token ),
-			array( '%s' )
+			$guests_table,
+			array( 'id' => $guest_id ),
+			array( '%d' )
 		);
 
 		if ( $result !== false ) {
 			wp_send_json_success(
 				array(
-					'message' => __( 'Invitation cancelled successfully.', 'partyminder' ),
+					'message' => __( 'Guest removed successfully.', 'partyminder' ),
 				)
 			);
 		} else {
-			wp_send_json_error( __( 'Failed to cancel invitation.', 'partyminder' ) );
+			wp_send_json_error( __( 'Failed to remove guest.', 'partyminder' ) );
 		}
 	}
 
@@ -908,150 +880,6 @@ class PartyMinder_Event_Ajax_Handler {
 			return $uploaded_file;
 		} else {
 			return new WP_Error( 'upload_failed', __( 'File upload failed.', 'partyminder' ) );
-		}
-	}
-
-	public function ajax_submit_rsvp() {
-		try {
-			// Verify nonce
-			if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'partyminder_event_nonce' ) ) {
-				wp_die( json_encode( array( 'success' => false, 'data' => __( 'Security check failed', 'partyminder' ) ) ) );
-			}
-
-			// Validate required fields
-			if ( empty( $_POST['rsvp_token'] ) || empty( $_POST['event_id'] ) || empty( $_POST['rsvp_status'] ) ) {
-				wp_die( json_encode( array( 'success' => false, 'data' => __( 'Missing required fields', 'partyminder' ) ) ) );
-			}
-
-			$rsvp_token = sanitize_text_field( $_POST['rsvp_token'] );
-			$event_id = intval( $_POST['event_id'] );
-			$status = sanitize_text_field( $_POST['rsvp_status'] );
-
-			// Validate status
-			if ( ! in_array( $status, array( 'yes', 'no', 'maybe' ) ) ) {
-				wp_die( json_encode( array( 'success' => false, 'data' => __( 'Invalid RSVP status', 'partyminder' ) ) ) );
-			}
-
-			// Get guest info if attending
-			$guest_name = '';
-			$guest_email = '';
-			$dietary_restrictions = '';
-			$notes = '';
-			$plus_one = 0;
-			$plus_one_name = '';
-			$create_account = 0;
-
-			if ( $status !== 'no' ) {
-				if ( empty( $_POST['guest_name'] ) || empty( $_POST['guest_email'] ) ) {
-					wp_die( json_encode( array( 'success' => false, 'data' => __( 'Name and email are required when attending', 'partyminder' ) ) ) );
-				}
-
-				$guest_name = sanitize_text_field( $_POST['guest_name'] );
-				$guest_email = sanitize_email( $_POST['guest_email'] );
-				$dietary_restrictions = sanitize_textarea_field( $_POST['dietary_restrictions'] ?? '' );
-				$notes = sanitize_textarea_field( $_POST['guest_notes'] ?? '' );
-				$plus_one = isset( $_POST['plus_one'] ) ? 1 : 0;
-				$plus_one_name = sanitize_text_field( $_POST['plus_one_name'] ?? '' );
-				$create_account = isset( $_POST['create_account'] ) ? 1 : 0;
-
-				if ( ! is_email( $guest_email ) ) {
-					wp_die( json_encode( array( 'success' => false, 'data' => __( 'Please provide a valid email address', 'partyminder' ) ) ) );
-				}
-			}
-
-			global $wpdb;
-			$rsvps_table = $wpdb->prefix . 'partyminder_event_rsvps';
-
-			// Check if RSVP already exists
-			$existing_rsvp = $wpdb->get_row(
-				$wpdb->prepare(
-					"SELECT * FROM $rsvps_table WHERE invitation_token = %s",
-					$rsvp_token
-				)
-			);
-
-			if ( $existing_rsvp ) {
-				// Update existing RSVP
-				$update_data = array(
-					'name' => $guest_name,
-					'email' => $guest_email,
-					'status' => $status,
-					'dietary_restrictions' => $dietary_restrictions,
-					'notes' => $notes,
-					'plus_one' => $plus_one,
-					'plus_one_name' => $plus_one_name,
-					'updated_at' => current_time( 'mysql' )
-				);
-
-				$result = $wpdb->update(
-					$rsvps_table,
-					$update_data,
-					array( 'id' => $existing_rsvp->id ),
-					array( '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s' ),
-					array( '%d' )
-				);
-
-				$success_message = __( 'Your RSVP has been updated successfully!', 'partyminder' );
-			} else {
-				// Create new RSVP
-				$insert_data = array(
-					'event_id' => $event_id,
-					'invitation_token' => $rsvp_token,
-					'name' => $guest_name,
-					'email' => $guest_email,
-					'status' => $status,
-					'dietary_restrictions' => $dietary_restrictions,
-					'notes' => $notes,
-					'plus_one' => $plus_one,
-					'plus_one_name' => $plus_one_name,
-					'created_at' => current_time( 'mysql' ),
-					'updated_at' => current_time( 'mysql' )
-				);
-
-				$result = $wpdb->insert(
-					$rsvps_table,
-					$insert_data,
-					array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s' )
-				);
-
-				$success_message = __( 'Your RSVP has been submitted successfully!', 'partyminder' );
-			}
-
-			if ( $result === false ) {
-				wp_die( json_encode( array( 'success' => false, 'data' => __( 'Failed to save RSVP. Please try again.', 'partyminder' ) ) ) );
-			}
-
-			// Create user account if requested and attending
-			if ( $create_account && $status !== 'no' && $guest_email ) {
-				$user_exists = get_user_by( 'email', $guest_email );
-				if ( ! $user_exists ) {
-					$user_id = wp_create_user( $guest_email, wp_generate_password(), $guest_email );
-					if ( ! is_wp_error( $user_id ) ) {
-						wp_update_user( array(
-							'ID' => $user_id,
-							'display_name' => $guest_name,
-							'first_name' => $guest_name
-						) );
-
-						// Update RSVP with user ID
-						$wpdb->update(
-							$rsvps_table,
-							array( 'user_id' => $user_id ),
-							array( 'invitation_token' => $rsvp_token ),
-							array( '%d' ),
-							array( '%s' )
-						);
-
-						$success_message .= ' ' . __( 'A PartyMinder account has been created for you!', 'partyminder' );
-					}
-				}
-			}
-
-			wp_die( json_encode( array( 'success' => true, 'data' => array( 'message' => $success_message ) ) ) );
-
-		} catch ( Exception $e ) {
-			error_log( 'PartyMinder RSVP Error: ' . $e->getMessage() );
-			wp_die( json_encode( array( 'success' => false, 'data' => __( 'An error occurred. Please try again.', 'partyminder' ) ) ) );
 		}
 	}
 }

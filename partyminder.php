@@ -158,6 +158,8 @@ class PartyMinder {
 		add_action( 'wp_ajax_nopriv_partyminder_load_more_events', array( $this, 'ajax_load_more_events' ) );
 		add_action( 'wp_ajax_partyminder_newsletter_signup', array( $this, 'ajax_newsletter_signup' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_newsletter_signup', array( $this, 'ajax_newsletter_signup' ) );
+		add_action( 'wp_ajax_partyminder_process_rsvp_landing', array( $this, 'ajax_process_rsvp_landing' ) );
+		add_action( 'wp_ajax_nopriv_partyminder_process_rsvp_landing', array( $this, 'ajax_process_rsvp_landing' ) );
 
 		// Image upload AJAX handlers
 		add_action( 'wp_ajax_partyminder_avatar_upload', array( 'PartyMinder_Image_Upload', 'handle_avatar_upload' ) );
@@ -391,6 +393,101 @@ class PartyMinder {
 		update_option( 'partyminder_newsletter_subscribers', $subscribers );
 
 		wp_send_json_success( __( 'Thank you for subscribing!', 'partyminder' ) );
+	}
+
+	public function ajax_process_rsvp_landing() {
+		check_ajax_referer( 'partyminder_event_nonce', 'nonce' );
+
+		// Get form data
+		$rsvp_token = sanitize_text_field( $_POST['rsvp_token'] ?? '' );
+		$event_id = intval( $_POST['event_id'] ?? 0 );
+		$rsvp_status = sanitize_text_field( $_POST['rsvp_status'] ?? '' );
+		$guest_name = sanitize_text_field( $_POST['guest_name'] ?? '' );
+		$dietary_restrictions = sanitize_text_field( $_POST['dietary_restrictions'] ?? '' );
+		$plus_one = intval( $_POST['plus_one'] ?? 0 );
+		$plus_one_name = sanitize_text_field( $_POST['plus_one_name'] ?? '' );
+		$guest_notes = sanitize_text_field( $_POST['guest_notes'] ?? '' );
+		$create_account = intval( $_POST['create_account'] ?? 0 );
+
+		if ( empty( $rsvp_token ) || empty( $event_id ) ) {
+			wp_send_json_error( __( 'Invalid RSVP data', 'partyminder' ) );
+		}
+
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
+		$guest_manager = new PartyMinder_Guest_Manager();
+
+		// Get guest by token
+		$guest = $guest_manager->get_guest_by_token( $rsvp_token );
+		if ( ! $guest ) {
+			wp_send_json_error( __( 'Invalid or expired RSVP link', 'partyminder' ) );
+		}
+
+		// Prepare guest data
+		$guest_data = array();
+		if ( ! empty( $guest_name ) ) {
+			$guest_data['name'] = $guest_name;
+		}
+		if ( ! empty( $dietary_restrictions ) ) {
+			$guest_data['dietary'] = $dietary_restrictions;
+		}
+		if ( ! empty( $guest_notes ) ) {
+			$guest_data['notes'] = $guest_notes;
+		}
+
+		// Process RSVP
+		if ( ! empty( $rsvp_status ) ) {
+			$result = $guest_manager->process_anonymous_rsvp( $rsvp_token, $rsvp_status, $guest_data );
+			if ( ! $result['success'] ) {
+				wp_send_json_error( $result['message'] );
+			}
+		} else {
+			// Update existing guest data without changing status
+			global $wpdb;
+			$guests_table = $wpdb->prefix . 'partyminder_guests';
+			
+			$update_data = array();
+			if ( ! empty( $guest_name ) ) {
+				$update_data['name'] = $guest_name;
+			}
+			if ( ! empty( $dietary_restrictions ) ) {
+				$update_data['dietary_restrictions'] = $dietary_restrictions;
+			}
+			if ( ! empty( $guest_notes ) ) {
+				$update_data['notes'] = $guest_notes;
+			}
+			$update_data['plus_one'] = $plus_one;
+			if ( ! empty( $plus_one_name ) ) {
+				$update_data['plus_one_name'] = $plus_one_name;
+			}
+
+			$wpdb->update(
+				$guests_table,
+				$update_data,
+				array( 'id' => $guest->id ),
+				null,
+				array( '%d' )
+			);
+		}
+
+		// Handle account creation if requested
+		$account_created = false;
+		if ( $create_account && ! $guest->converted_user_id ) {
+			$user_id = $guest_manager->convert_guest_to_user( $guest->id, $guest_data );
+			if ( ! is_wp_error( $user_id ) ) {
+				$account_created = true;
+			}
+		}
+
+		$response_data = array(
+			'message' => __( 'RSVP updated successfully!', 'partyminder' ),
+			'account_created' => $account_created
+		);
+
+		if ( $account_created ) {
+			$response_data['message'] .= ' ' . __( 'Your PartyMinder account has been created!', 'partyminder' );
+		}
+
+		wp_send_json_success( $response_data );
 	}
 
 	// All other AJAX methods moved to dedicated handler classes

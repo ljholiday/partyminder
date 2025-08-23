@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get RSVP token and response from URL parameters
-$rsvp_token = sanitize_text_field( $_GET['token'] ?? '' );
+$rsvp_token = get_query_var( 'rsvp_token' ) ?: sanitize_text_field( $_GET['token'] ?? '' );
 $quick_response = sanitize_text_field( $_GET['response'] ?? '' );
 
 if ( ! $rsvp_token ) {

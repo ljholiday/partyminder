@@ -236,21 +236,22 @@ class PartyMinder_Activator {
 			$wpdb->query( "ALTER TABLE $events_table ADD INDEX community_id (community_id)" );
 		}
 
-		// Check if temporary_guest_id column exists in event_rsvps table
-		$rsvps_table = $wpdb->prefix . 'partyminder_event_rsvps';
-		$temp_guest_column = $wpdb->get_results(
+		// Add anonymous RSVP support fields to guests table
+		$guests_table = $wpdb->prefix . 'partyminder_guests';
+		$rsvp_token_column = $wpdb->get_results(
 			$wpdb->prepare(
-				"SHOW COLUMNS FROM $rsvps_table LIKE %s",
-				'temporary_guest_id'
+				"SHOW COLUMNS FROM $guests_table LIKE %s",
+				'rsvp_token'
 			)
 		);
 
-		if ( empty( $temp_guest_column ) ) {
-			// Add fields for anonymous RSVP support
-			$wpdb->query( "ALTER TABLE $rsvps_table ADD COLUMN temporary_guest_id varchar(32) DEFAULT '' AFTER id" );
-			$wpdb->query( "ALTER TABLE $rsvps_table ADD COLUMN converted_user_id bigint(20) UNSIGNED DEFAULT NULL AFTER invitation_token" );
-			$wpdb->query( "ALTER TABLE $rsvps_table ADD INDEX temporary_guest_id (temporary_guest_id)" );
-			$wpdb->query( "ALTER TABLE $rsvps_table ADD INDEX converted_user_id (converted_user_id)" );
+		if ( empty( $rsvp_token_column ) ) {
+			$wpdb->query( "ALTER TABLE $guests_table ADD COLUMN rsvp_token varchar(255) DEFAULT '' AFTER id" );
+			$wpdb->query( "ALTER TABLE $guests_table ADD COLUMN temporary_guest_id varchar(32) DEFAULT '' AFTER rsvp_token" );
+			$wpdb->query( "ALTER TABLE $guests_table ADD COLUMN converted_user_id bigint(20) UNSIGNED DEFAULT NULL AFTER temporary_guest_id" );
+			$wpdb->query( "ALTER TABLE $guests_table ADD INDEX rsvp_token (rsvp_token)" );
+			$wpdb->query( "ALTER TABLE $guests_table ADD INDEX temporary_guest_id (temporary_guest_id)" );
+			$wpdb->query( "ALTER TABLE $guests_table ADD INDEX converted_user_id (converted_user_id)" );
 		}
 
 		// Run other existing migrations

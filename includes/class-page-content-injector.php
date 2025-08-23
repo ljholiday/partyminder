@@ -38,7 +38,19 @@ class PartyMinder_Page_Content_Injector {
 		if ( $event_action === 'join' ) {
 			ob_start();
 			echo '<div class="partyminder-content partyminder-events-join-page">';
-			include PARTYMINDER_PLUGIN_DIR . 'templates/event-rsvp-guest.php';
+			
+			// Check if using new token-based RSVP system or old invitation system
+			$rsvp_token = isset( $_GET['token'] ) ? sanitize_text_field( $_GET['token'] ) : '';
+			$invitation_token = isset( $_GET['invitation'] ) ? sanitize_text_field( $_GET['invitation'] ) : '';
+			
+			if ( $rsvp_token ) {
+				// New token-based RSVP landing page
+				include PARTYMINDER_PLUGIN_DIR . 'templates/rsvp-landing-content.php';
+			} else {
+				// Legacy invitation-based RSVP
+				include PARTYMINDER_PLUGIN_DIR . 'templates/event-rsvp-guest.php';
+			}
+			
 			echo '</div>';
 			return ob_get_clean();
 		}
@@ -320,17 +332,5 @@ class PartyMinder_Page_Content_Injector {
 			return ob_get_clean();
 		}
 		return $content;
-	}
-
-	public function inject_rsvp_content( $content ) {
-		if ( ! $this->should_inject_content( 'rsvp' ) ) {
-			return $content;
-		}
-
-		ob_start();
-		echo '<div class="partyminder-content partyminder-rsvp-page">';
-		include PARTYMINDER_PLUGIN_DIR . 'templates/rsvp-content.php';
-		echo '</div>';
-		return ob_get_clean();
 	}
 }

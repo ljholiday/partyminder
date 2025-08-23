@@ -149,9 +149,4 @@ class PartyMinder_Page_Body_Class_Manager {
 		$classes[] = 'partyminder-group-creation';
 		return $classes;
 	}
-
-	public function add_rsvp_body_class( $classes ) {
-		$classes[] = 'partyminder-rsvp';
-		return $classes;
-	}
 }
