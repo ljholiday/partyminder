@@ -293,6 +293,7 @@ class PartyMinder_Guest_Manager {
 				),
 				array( '%s', '%s', '%d', '%s', '%s', '%s', '%s' )
 			);
+		}
 
 		return array(
 			'token' => $rsvp_token,
