@@ -596,7 +596,8 @@ class PartyMinder_Guest_Manager {
 
 		$headers = array(
 			'Content-Type: text/html; charset=UTF-8',
-			'From: ' . get_option( 'partyminder_email_from_name', get_bloginfo( 'name' ) ) . ' <' . get_option( 'partyminder_email_from_address', get_option( 'admin_email' ) ) . '>',
+			'From: ' . get_option( 'partyminder_email_from_name', get_bloginfo( 'name' ) ) . ' <no-reply@partyminder.com>',
+			'Reply-To: no-reply@partyminder.com',
 		);
 
 		$sent = wp_mail( $email, $subject, $message, $headers );
