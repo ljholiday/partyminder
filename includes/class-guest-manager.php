@@ -248,11 +248,6 @@ class PartyMinder_Guest_Manager {
 	public function create_rsvp_invitation( $event_id, $email, $temporary_guest_id = '' ) {
 		global $wpdb;
 
-		// Debug: Log the input parameters
-		if ( WP_DEBUG ) {
-			error_log( 'RSVP Debug - create_rsvp_invitation called with event_id: ' . $event_id . ', email: ' . $email );
-		}
-
 		// Generate secure token
 		$rsvp_token = wp_generate_password( 32, false );
 		
@@ -298,24 +293,6 @@ class PartyMinder_Guest_Manager {
 				),
 				array( '%s', '%s', '%d', '%s', '%s', '%s', '%s' )
 			);
-			
-			// Debug: Log the insert result
-			if ( WP_DEBUG ) {
-				error_log( 'RSVP Debug - Insert result: ' . ( $insert_result ? 'SUCCESS' : 'FAILED' ) );
-				if ( ! $insert_result ) {
-					error_log( 'RSVP Debug - Database error: ' . $wpdb->last_error );
-					error_log( 'RSVP Debug - Last query: ' . $wpdb->last_query );
-				} else {
-					error_log( 'RSVP Debug - New guest ID: ' . $wpdb->insert_id );
-				}
-			}
-		}
-
-		// Debug: Log the token generation
-		if ( WP_DEBUG ) {
-			error_log( 'RSVP Debug - Generated token: ' . $rsvp_token . ' for email: ' . $email );
-			error_log( 'RSVP Debug - Generated URL: ' . add_query_arg( array( 'token' => $rsvp_token ), home_url( '/events/join' ) ) );
-		}
 
 		return array(
 			'token' => $rsvp_token,
@@ -403,25 +380,12 @@ class PartyMinder_Guest_Manager {
 
 		$guests_table = $wpdb->prefix . 'partyminder_guests';
 		
-		// Debug: Log the database query
-		if ( WP_DEBUG ) {
-			error_log( 'RSVP Debug - Querying table: ' . $guests_table . ' for token: ' . $rsvp_token );
-		}
-		
-		$result = $wpdb->get_row(
+		return $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT * FROM $guests_table WHERE rsvp_token = %s",
 				$rsvp_token
 			)
 		);
-		
-		// Debug: Log the query result
-		if ( WP_DEBUG ) {
-			error_log( 'RSVP Debug - Database query result: ' . ( $result ? 'Found guest with email: ' . $result->email : 'No guest found' ) );
-			error_log( 'RSVP Debug - Last database error: ' . $wpdb->last_error );
-		}
-		
-		return $result;
 	}
 
 	/**

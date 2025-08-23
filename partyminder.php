@@ -160,7 +160,6 @@ class PartyMinder {
 		add_action( 'wp_ajax_nopriv_partyminder_newsletter_signup', array( $this, 'ajax_newsletter_signup' ) );
 		add_action( 'wp_ajax_partyminder_process_rsvp_landing', array( $this, 'ajax_process_rsvp_landing' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_process_rsvp_landing', array( $this, 'ajax_process_rsvp_landing' ) );
-		add_action( 'wp_ajax_partyminder_create_test_rsvp', array( $this, 'ajax_create_test_rsvp' ) );
 
 		// Image upload AJAX handlers
 		add_action( 'wp_ajax_partyminder_avatar_upload', array( 'PartyMinder_Image_Upload', 'handle_avatar_upload' ) );
@@ -407,40 +406,6 @@ class PartyMinder {
 		wp_send_json_success( 'Database migration completed' );
 	}
 
-	public function ajax_create_test_rsvp() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( 'Permission denied' );
-		}
-
-		$event_id = $_POST['event_id'] ?? 'auto';
-		$test_email = sanitize_email( $_POST['test_email'] ?? 'test@example.com' );
-
-		// Auto-find a valid event if needed
-		if ( $event_id === 'auto' ) {
-			global $wpdb;
-			$events_table = $wpdb->prefix . 'partyminder_events';
-			$event_id = $wpdb->get_var( "SELECT id FROM $events_table ORDER BY created_at DESC LIMIT 1" );
-			
-			if ( ! $event_id ) {
-				wp_send_json_error( 'No events found. Create an event first.' );
-			}
-		} else {
-			$event_id = intval( $event_id );
-		}
-
-		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
-		$guest_manager = new PartyMinder_Guest_Manager();
-
-		// Create test RSVP invitation
-		$result = $guest_manager->create_rsvp_invitation( $event_id, $test_email );
-
-		wp_send_json_success( array(
-			'token' => $result['token'],
-			'url' => $result['url'],
-			'event_id' => $event_id,
-			'message' => 'Test RSVP created successfully'
-		) );
-	}
 
 	public function ajax_process_rsvp_landing() {
 		check_ajax_referer( 'partyminder_event_nonce', 'nonce' );
