@@ -201,7 +201,7 @@ class PartyMinder_Event_Manager {
 					 LEFT JOIN $communities_table c ON e.community_id = c.id
 	                 WHERE e.event_status = 'active'
 	                 AND (
-						((e.community_id IS NULL OR e.community_id = 0) AND (e.privacy = 'public' OR e.author_id = %d)) OR
+						((e.community_id IS NULL OR e.community_id = 0) AND e.privacy = 'public') OR
 						(e.community_id IS NOT NULL AND e.community_id != 0 AND (
 							c.privacy = 'public' OR 
 							c.creator_id = %d OR
@@ -215,7 +215,7 @@ class PartyMinder_Event_Manager {
 	                 ORDER BY e.event_date ASC 
 	                 LIMIT %d";
 
-			$results = $wpdb->get_results( $wpdb->prepare( $query, $current_user_id, $current_user_id, $current_user_id, $limit ) );
+			$results = $wpdb->get_results( $wpdb->prepare( $query, $current_user_id, $current_user_id, $limit ) );
 		} else {
 			// Not logged in: only show public events and events from public communities
 			$query = "SELECT DISTINCT e.* FROM $events_table e

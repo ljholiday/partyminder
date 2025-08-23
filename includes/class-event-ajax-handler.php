@@ -335,7 +335,7 @@ class PartyMinder_Event_Ajax_Handler {
 		$guests = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM $guests_table 
-				 WHERE event_id = %d 
+				 WHERE event_id = %d AND rsvp_token != '' 
 				 ORDER BY rsvp_date DESC",
 				$event_id
 			)
