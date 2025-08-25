@@ -136,56 +136,113 @@ ob_start();
 <?php
 $main_content = ob_get_clean();
 
+// Get recent activity data
+global $wpdb;
+$events_table = $wpdb->prefix . 'partyminder_events';
+$communities_table = $wpdb->prefix . 'partyminder_communities';
+$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+
+// Get recent community events
+$recent_events = $wpdb->get_results( $wpdb->prepare(
+	"SELECT e.id, e.title, e.slug, e.event_date, e.created_at, c.name as community_name, c.slug as community_slug
+	 FROM $events_table e 
+	 INNER JOIN $communities_table c ON e.community_id = c.id
+	 WHERE c.privacy = 'public' AND e.event_status = 'active'
+	 ORDER BY e.created_at DESC 
+	 LIMIT %d", 5
+) );
+
+// Get recent community conversations
+$recent_conversations = $wpdb->get_results( $wpdb->prepare(
+	"SELECT conv.id, conv.title, conv.slug, conv.created_at, conv.reply_count, c.name as community_name, c.slug as community_slug
+	 FROM $conversations_table conv
+	 INNER JOIN $communities_table c ON conv.community_id = c.id
+	 WHERE c.privacy = 'public' AND conv.privacy = 'public'
+	 ORDER BY conv.created_at DESC 
+	 LIMIT %d", 5
+) );
+
 // Sidebar content
 ob_start();
 ?>
 
-<!-- Community Stats -->
+<!-- Recent Communities Activity -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Community Overview', 'partyminder' ); ?></h3>
+		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Recent Activity', 'partyminder' ); ?></h3>
 	</div>
-	<div class="pm-stat-list">
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Public Communities', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo count( $public_communities ); ?></span>
-		</div>
-		<?php if ( is_user_logged_in() ) : ?>
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Your Memberships', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo count( $user_communities ); ?></span>
-		</div>
-		<?php endif; ?>
-		<?php
-		$total_members = 0;
-		$total_events = 0;
-		foreach ( $public_communities as $community ) {
-			$total_members += (int) $community->member_count;
-			$total_events += (int) $community->event_count;
-		}
-		?>
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Total Members', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo $total_members; ?></span>
-		</div>
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Community Events', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo $total_events; ?></span>
-		</div>
+	
+	<?php if ( ! empty( $recent_events ) ) : ?>
+	<div class="pm-activity-section pm-mb-4">
+		<h4 class="pm-heading pm-heading-xs pm-mb-2"><?php _e( 'Recent Events', 'partyminder' ); ?></h4>
+		<?php foreach ( $recent_events as $event ) : ?>
+			<div class="pm-activity-item pm-mb-3">
+				<div class="pm-flex pm-gap-2">
+					<span class="pm-activity-icon">🎉</span>
+					<div class="pm-flex-1">
+						<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-text-primary pm-text-sm pm-font-medium">
+							<?php echo esc_html( wp_trim_words( $event->title, 6 ) ); ?>
+						</a>
+						<div class="pm-text-muted pm-text-xs pm-mb-1">
+							<?php _e( 'in', 'partyminder' ); ?> 
+							<a href="<?php echo home_url( '/communities/' . $event->community_slug ); ?>" class="pm-text-muted">
+								<?php echo esc_html( $event->community_name ); ?>
+							</a>
+						</div>
+						<div class="pm-text-muted pm-text-xs">
+							<?php 
+							$event_date = new DateTime( $event->event_date );
+							$now = new DateTime();
+							if ( $event_date > $now ) {
+								echo $event_date->format( 'M j, g:i A' );
+							} else {
+								echo human_time_diff( strtotime( $event->created_at ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'partyminder' );
+							}
+							?>
+						</div>
+					</div>
+				</div>
+			</div>
+		<?php endforeach; ?>
 	</div>
-</div>
-
-<!-- Community Benefits -->
-<div class="pm-section pm-mb">
-	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Why Join Communities?', 'partyminder' ); ?></h3>
+	<?php endif; ?>
+	
+	<?php if ( ! empty( $recent_conversations ) ) : ?>
+	<div class="pm-activity-section pm-mb-4">
+		<h4 class="pm-heading pm-heading-xs pm-mb-2"><?php _e( 'Recent Conversations', 'partyminder' ); ?></h4>
+		<?php foreach ( $recent_conversations as $conversation ) : ?>
+			<div class="pm-activity-item pm-mb-3">
+				<div class="pm-flex pm-gap-2">
+					<span class="pm-activity-icon">💬</span>
+					<div class="pm-flex-1">
+						<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary pm-text-sm pm-font-medium">
+							<?php echo esc_html( wp_trim_words( $conversation->title, 6 ) ); ?>
+						</a>
+						<div class="pm-text-muted pm-text-xs pm-mb-1">
+							<?php _e( 'in', 'partyminder' ); ?> 
+							<a href="<?php echo home_url( '/communities/' . $conversation->community_slug ); ?>" class="pm-text-muted">
+								<?php echo esc_html( $conversation->community_name ); ?>
+							</a>
+						</div>
+						<div class="pm-text-muted pm-text-xs">
+							<?php if ( $conversation->reply_count > 0 ) : ?>
+								<?php echo $conversation->reply_count; ?> <?php _e( 'replies', 'partyminder' ); ?> • 
+							<?php endif; ?>
+							<?php echo human_time_diff( strtotime( $conversation->created_at ), current_time( 'timestamp' ) ); ?> <?php _e( 'ago', 'partyminder' ); ?>
+						</div>
+					</div>
+				</div>
+			</div>
+		<?php endforeach; ?>
 	</div>
-	<div class="pm-text-muted">
-		<p class="pm-mb-2"><?php _e( 'Connect with like-minded people who share your interests and values.', 'partyminder' ); ?></p>
-		<p class="pm-mb-2"><?php _e( 'Discover and attend events organized by community members.', 'partyminder' ); ?></p>
-		<p class="pm-mb-2"><?php _e( 'Share your own events with an engaged, relevant audience.', 'partyminder' ); ?></p>
-		<p><?php _e( 'Build lasting relationships through shared experiences.', 'partyminder' ); ?></p>
-	</div>
+	<?php endif; ?>
+	
+	<?php if ( empty( $recent_events ) && empty( $recent_conversations ) ) : ?>
+		<div class="pm-text-center pm-p-4">
+			<p class="pm-text-muted pm-text-sm"><?php _e( 'No recent activity yet.', 'partyminder' ); ?></p>
+			<p class="pm-text-muted pm-text-sm"><?php _e( 'Join a community to see what\'s happening!', 'partyminder' ); ?></p>
+		</div>
+	<?php endif; ?>
 </div>
 <?php
 $sidebar_content = ob_get_clean();

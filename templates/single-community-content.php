@@ -325,6 +325,24 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
+<!-- Recent Activity -->
+<?php if ( ! empty( $community_conversations ) ) : ?>
+<div class="pm-section pm-mb">
+	<div class="pm-section-header">
+		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Recent Activity', 'partyminder' ); ?></h3>
+	</div>
+	<div class="pm-text-muted">
+		<?php
+		$recent_conversation = $community_conversations[0];
+		$time_ago = human_time_diff( strtotime( $recent_conversation->last_reply_date ), current_time( 'timestamp' ) );
+		?>
+		<p class="pm-mb-2"><?php printf( __( 'Last conversation: %s ago', 'partyminder' ), $time_ago ); ?></p>
+		<p class="pm-mb-2"><?php printf( __( 'Most recent: "%s"', 'partyminder' ), esc_html( $conversation_manager->get_display_title( $recent_conversation, false ) ) ); ?></p>
+		<p><?php printf( __( 'By %s', 'partyminder' ), esc_html( $recent_conversation->author_name ) ); ?></p>
+	</div>
+</div>
+<?php endif; ?>
+
 <!-- Community Stats -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
@@ -359,37 +377,6 @@ ob_start();
 		<?php endif; ?>
 	</div>
 </div>
-
-<!-- Community Guidelines -->
-<div class="pm-section pm-mb">
-	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Community Guidelines', 'partyminder' ); ?></h3>
-	</div>
-	<div class="pm-text-muted">
-		<p class="pm-mb-2"><?php _e( 'Be respectful and welcoming to all members.', 'partyminder' ); ?></p>
-		<p class="pm-mb-2"><?php _e( 'Share relevant events and engage in meaningful discussions.', 'partyminder' ); ?></p>
-		<p class="pm-mb-2"><?php _e( 'Follow community-specific rules and guidelines.', 'partyminder' ); ?></p>
-		<p><?php _e( 'Report any inappropriate behavior to community administrators.', 'partyminder' ); ?></p>
-	</div>
-</div>
-
-<!-- Recent Activity -->
-<?php if ( ! empty( $community_conversations ) ) : ?>
-<div class="pm-section pm-mb">
-	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Recent Activity', 'partyminder' ); ?></h3>
-	</div>
-	<div class="pm-text-muted">
-		<?php
-		$recent_conversation = $community_conversations[0];
-		$time_ago = human_time_diff( strtotime( $recent_conversation->last_reply_date ), current_time( 'timestamp' ) );
-		?>
-		<p class="pm-mb-2"><?php printf( __( 'Last conversation: %s ago', 'partyminder' ), $time_ago ); ?></p>
-		<p class="pm-mb-2"><?php printf( __( 'Most recent: "%s"', 'partyminder' ), esc_html( $conversation_manager->get_display_title( $recent_conversation, false ) ) ); ?></p>
-		<p><?php printf( __( 'By %s', 'partyminder' ), esc_html( $recent_conversation->author_name ) ); ?></p>
-	</div>
-</div>
-<?php endif; ?>
 
 <?php
 $sidebar_content = ob_get_clean();
