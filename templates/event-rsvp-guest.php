@@ -26,20 +26,16 @@ $event_manager = new PartyMinder_Event_Manager();
 
 // Verify invitation token
 global $wpdb;
-$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
+$guests_table = $wpdb->prefix . 'partyminder_guests';
 
 $invitation = $wpdb->get_row(
 	$wpdb->prepare(
-		"SELECT ei.*, e.title, e.slug, e.description, e.event_date, e.venue_info, e.host_email,
-            u.display_name as invited_by_name
-     FROM $invitations_table ei
-     LEFT JOIN {$wpdb->prefix}partyminder_events e ON ei.event_id = e.id
-     LEFT JOIN {$wpdb->users} u ON ei.invited_by_user_id = u.ID
-     WHERE ei.invitation_token = %s AND ei.event_id = %d AND ei.status IN ('pending', 'accepted')
-     AND ei.expires_at > %s",
+		"SELECT g.*, e.title, e.slug, e.description, e.event_date, e.venue_info, e.host_email
+     FROM $guests_table g
+     LEFT JOIN {$wpdb->prefix}partyminder_events e ON g.event_id = e.id
+     WHERE g.rsvp_token = %s AND g.event_id = %d",
 		$invitation_token,
-		$event_id,
-		current_time( 'mysql' )
+		$event_id
 	)
 );
 

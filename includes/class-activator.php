@@ -760,33 +760,7 @@ class PartyMinder_Activator {
 
 		$charset_collate = $wpdb->get_charset_collate();
 
-		// Event invitations table
-		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
-		$invitations_sql   = "CREATE TABLE $invitations_table (
-            id mediumint(9) NOT NULL AUTO_INCREMENT,
-            event_id mediumint(9) NOT NULL,
-            invited_by_user_id bigint(20) UNSIGNED NOT NULL,
-            invited_email varchar(100) NOT NULL,
-            invited_user_id bigint(20) UNSIGNED DEFAULT NULL,
-            invitation_token varchar(64) NOT NULL,
-            message text DEFAULT '',
-            status varchar(20) DEFAULT 'pending',
-            expires_at datetime NOT NULL,
-            responded_at datetime DEFAULT NULL,
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
-            KEY event_id (event_id),
-            KEY invited_by_user_id (invited_by_user_id),
-            KEY invited_email (invited_email),
-            KEY invited_user_id (invited_user_id),
-            KEY status (status),
-            KEY expires_at (expires_at),
-            UNIQUE KEY invitation_token (invitation_token),
-            UNIQUE KEY unique_event_invitation (event_id, invited_email, status)
-        ) $charset_collate;";
-
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta( $invitations_sql );
+		// Note: Event invitations functionality consolidated into partyminder_guests table
 	}
 
 	private static function create_event_rsvps_table() {

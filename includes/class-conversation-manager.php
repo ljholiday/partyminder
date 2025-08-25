@@ -17,7 +17,6 @@ class PartyMinder_Conversation_Manager {
 		$communities_table = $wpdb->prefix . 'partyminder_communities';
 		$members_table = $wpdb->prefix . 'partyminder_community_members';
 		$guests_table = $wpdb->prefix . 'partyminder_guests';
-		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
 		
 		$event_clause        = $exclude_event_conversations ? 'AND c.event_id IS NULL' : '';
 		$community_clause    = $exclude_community_conversations ? 'AND c.community_id IS NULL' : '';
@@ -453,7 +452,6 @@ class PartyMinder_Conversation_Manager {
 		
 		$members_table = $wpdb->prefix . 'partyminder_community_members';
 		$guests_table = $wpdb->prefix . 'partyminder_guests';
-		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
 		
 		if ( ! $current_user_id || ! is_user_logged_in() ) {
 			// Non-logged in users can only see conversations from public events/communities

@@ -25,7 +25,8 @@ try {
     // 1. Delete custom tables
     $tables_to_delete = array(
         $wpdb->prefix . 'partyminder_events',
-        $wpdb->prefix . 'partyminder_guests', 
+        $wpdb->prefix . 'partyminder_guests',
+        $wpdb->prefix . 'partyminder_event_invitations', // Legacy table - remove if exists
         $wpdb->prefix . 'partyminder_ai_interactions'
     );
 

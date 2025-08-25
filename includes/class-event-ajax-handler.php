@@ -521,37 +521,36 @@ class PartyMinder_Event_Ajax_Handler {
 		}
 
 		global $wpdb;
-		$rsvps_table       = $wpdb->prefix . 'partyminder_rsvps';
-		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
+		$guests_table = $wpdb->prefix . 'partyminder_guests';
 
 		$stats = array(
 			'total_rsvps'      => $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM $rsvps_table WHERE event_id = %d",
+					"SELECT COUNT(*) FROM $guests_table WHERE event_id = %d",
 					$event_id
 				)
 			),
 			'attending'        => $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM $rsvps_table WHERE event_id = %d AND status = 'attending'",
+					"SELECT COUNT(*) FROM $guests_table WHERE event_id = %d AND status = 'confirmed'",
 					$event_id
 				)
 			),
 			'not_attending'    => $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM $rsvps_table WHERE event_id = %d AND status = 'not_attending'",
+					"SELECT COUNT(*) FROM $guests_table WHERE event_id = %d AND status = 'declined'",
 					$event_id
 				)
 			),
 			'maybe'            => $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM $rsvps_table WHERE event_id = %d AND status = 'maybe'",
+					"SELECT COUNT(*) FROM $guests_table WHERE event_id = %d AND status = 'maybe'",
 					$event_id
 				)
 			),
 			'invitations_sent' => $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM $invitations_table WHERE event_id = %d",
+					"SELECT COUNT(*) FROM $guests_table WHERE event_id = %d AND rsvp_token != ''",
 					$event_id
 				)
 			),
@@ -589,11 +588,11 @@ class PartyMinder_Event_Ajax_Handler {
 		}
 
 		global $wpdb;
-		$rsvps_table = $wpdb->prefix . 'partyminder_rsvps';
+		$guests_table = $wpdb->prefix . 'partyminder_guests';
 
 		$guests = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM $rsvps_table WHERE event_id = %d ORDER BY created_at DESC",
+				"SELECT * FROM $guests_table WHERE event_id = %d ORDER BY rsvp_date DESC",
 				$event_id
 			)
 		);

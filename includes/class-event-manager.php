@@ -165,11 +165,11 @@ class PartyMinder_Event_Manager {
 			}
 
 			// Also check if user has a pending invitation
-			$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
+			$guests_table = $wpdb->prefix . 'partyminder_guests';
 			$invitation_record = $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT id FROM $invitations_table 
-                 WHERE event_id = %d AND invited_email = %s AND status = 'pending' AND expires_at > NOW()",
+					"SELECT id FROM $guests_table 
+                 WHERE event_id = %d AND email = %s AND status = 'pending' AND rsvp_token != ''",
 					$event->id,
 					$user_email
 				)
@@ -190,7 +190,6 @@ class PartyMinder_Event_Manager {
 		$communities_table = $wpdb->prefix . 'partyminder_communities';
 		$members_table = $wpdb->prefix . 'partyminder_community_members';
 		$guests_table = $wpdb->prefix . 'partyminder_guests';
-		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
 		$current_user_id = get_current_user_id();
 
 		// Enhanced privacy logic that respects inheritance
@@ -347,11 +346,11 @@ class PartyMinder_Event_Manager {
 		}
 
 		// Check for existing pending invitation
-		$invitations_table   = $wpdb->prefix . 'partyminder_event_invitations';
+		$guests_table = $wpdb->prefix . 'partyminder_guests';
 		$existing_invitation = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM $invitations_table 
-             WHERE event_id = %d AND invited_email = %s AND status = 'pending' AND expires_at > NOW()",
+				"SELECT * FROM $guests_table 
+             WHERE event_id = %d AND email = %s AND status = 'pending' AND rsvp_token != ''",
 				$event_id,
 				$email
 			)
@@ -479,16 +478,13 @@ The %9$s Team',
 			return new WP_Error( 'event_not_found', __( 'Event not found', 'partyminder' ) );
 		}
 
-		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
-		$users_table       = $wpdb->users;
+		$guests_table = $wpdb->prefix . 'partyminder_guests';
 
 		$invitations = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT i.*, u.display_name as inviter_name
-             FROM $invitations_table i
-             LEFT JOIN $users_table u ON i.invited_by_user_id = u.ID
-             WHERE i.event_id = %d AND i.status = 'pending'
-             ORDER BY i.created_at DESC
+				"SELECT * FROM $guests_table 
+             WHERE event_id = %d AND status = 'pending' AND rsvp_token != ''
+             ORDER BY rsvp_date DESC
              LIMIT %d OFFSET %d",
 				$event_id,
 				$limit,
@@ -521,20 +517,15 @@ The %9$s Team',
 			return new WP_Error( 'permission_denied', __( 'Only the event host can cancel invitations', 'partyminder' ) );
 		}
 
-		// Update invitation status
-		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
-		$result            = $wpdb->update(
-			$invitations_table,
-			array(
-				'status'       => 'cancelled',
-				'responded_at' => current_time( 'mysql' ),
-			),
+		// Delete invitation record (cancelling invitation)
+		$guests_table = $wpdb->prefix . 'partyminder_guests';
+		$result = $wpdb->delete(
+			$guests_table,
 			array(
 				'id'       => $invitation_id,
 				'event_id' => $event_id,
 				'status'   => 'pending',
 			),
-			array( '%s', '%s' ),
 			array( '%d', '%d', '%s' )
 		);
 
@@ -556,18 +547,16 @@ The %9$s Team',
 	public function get_invitation_by_token( $token ) {
 		global $wpdb;
 
-		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
-		$events_table      = $wpdb->prefix . 'partyminder_events';
-		$users_table       = $wpdb->users;
+		$guests_table = $wpdb->prefix . 'partyminder_guests';
+		$events_table = $wpdb->prefix . 'partyminder_events';
 
 		return $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT i.*, e.title as event_title, e.slug as event_slug, e.description as event_description,
-                    e.event_date, e.event_time, e.venue_info, u.display_name as inviter_name
-             FROM $invitations_table i
-             LEFT JOIN $events_table e ON i.event_id = e.id
-             LEFT JOIN $users_table u ON i.invited_by_user_id = u.ID
-             WHERE i.invitation_token = %s",
+				"SELECT g.*, e.title as event_title, e.slug as event_slug, e.description as event_description,
+                    e.event_date, e.venue_info
+             FROM $guests_table g
+             LEFT JOIN $events_table e ON g.event_id = e.id
+             WHERE g.rsvp_token = %s",
 				$token
 			)
 		);
@@ -635,18 +624,8 @@ The %9$s Team',
 			return new WP_Error( 'rsvp_failed', __( 'Failed to create RSVP', 'partyminder' ) );
 		}
 
-		// Mark invitation as accepted
-		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
-		$wpdb->update(
-			$invitations_table,
-			array(
-				'status'       => 'accepted',
-				'responded_at' => current_time( 'mysql' ),
-			),
-			array( 'id' => $invitation->id ),
-			array( '%s', '%s' ),
-			array( '%d' )
-		);
+		// Invitation acceptance is handled by updating the guest record status
+		// (RSVP creation above already updates the status)
 
 		return $wpdb->insert_id;
 	}
@@ -679,21 +658,17 @@ The %9$s Team',
 		try {
 			// Delete related data first (to maintain referential integrity)
 
-			// 1. Delete event invitations
-			$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
-			$wpdb->delete( $invitations_table, array( 'event_id' => $event_id ), array( '%d' ) );
-
-			// 2. Delete guest RSVPs
+			// 1. Delete guest RSVPs and invitations
 			$guests_table = $wpdb->prefix . 'partyminder_guests';
 			$wpdb->delete( $guests_table, array( 'event_id' => $event_id ), array( '%d' ) );
 
-			// 3. Delete event conversations (if conversation feature is enabled)
+			// 2. Delete event conversations (if conversation feature is enabled)
 			if ( class_exists( 'PartyMinder_Conversation_Manager' ) ) {
 				$conversations_table = $wpdb->prefix . 'partyminder_conversations';
 				$wpdb->delete( $conversations_table, array( 'event_id' => $event_id ), array( '%d' ) );
 			}
 
-			// 4. Finally, delete the event itself
+			// 3. Finally, delete the event itself
 			$events_table = $wpdb->prefix . 'partyminder_events';
 			$result       = $wpdb->delete( $events_table, array( 'id' => $event_id ), array( '%d' ) );
 
