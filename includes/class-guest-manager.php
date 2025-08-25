@@ -267,15 +267,17 @@ class PartyMinder_Guest_Manager {
 		);
 
 		if ( $existing_guest ) {
-			// Update token for existing guest
+			// Update token and reset status to pending for existing guest
 			$wpdb->update(
 				$guests_table,
 				array( 
 					'rsvp_token' => $rsvp_token,
-					'temporary_guest_id' => $temporary_guest_id
+					'temporary_guest_id' => $temporary_guest_id,
+					'status' => 'pending',
+					'rsvp_date' => current_time( 'mysql' )
 				),
 				array( 'id' => $existing_guest->id ),
-				array( '%s', '%s' ),
+				array( '%s', '%s', '%s', '%s' ),
 				array( '%d' )
 			);
 		} else {

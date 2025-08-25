@@ -70,15 +70,12 @@ ob_start();
 		<p class="pm-mb-4"><?php _e( 'Your event has been created and is ready for guests to RSVP.', 'partyminder' ); ?></p>
 		<div class="pm-flex pm-gap">
 			<a href="<?php echo $creation_data['event_url']; ?>" class="pm-btn">
-				<span>👀</span>
 				<?php _e( 'View Event', 'partyminder' ); ?>
 			</a>
 			<a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-btn pm-btn-secondary">
-				<span>📋</span>
 				<?php _e( 'My Events', 'partyminder' ); ?>
 			</a>
 			<button type="button" onclick="navigator.share({title: 'Check out my event!', url: '<?php echo esc_js( $creation_data['event_url'] ); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js( $creation_data['event_url'] ); ?>')" class="pm-btn pm-btn-secondary">
-				<span>📤</span>
 				<?php _e( 'Share Event', 'partyminder' ); ?>
 			</button>
 		</div>
@@ -252,7 +249,6 @@ ob_start();
 
 		<div class="pm-flex pm-gap pm-mt-4">
 			<button type="submit" name="partyminder_create_event" class="pm-btn pm-btn-lg">
-				<span></span>
 				<?php _e( 'Create Event', 'partyminder' ); ?>
 			</button>
 			<a href="<?php echo PartyMinder::get_events_page_url(); ?>" class="pm-btn pm-btn-secondary">
@@ -364,7 +360,7 @@ jQuery(document).ready(function($) {
 				minute: '2-digit'
 			});
 			
-			$(this).html('<span>✅</span> ' + formattedDate)
+			$(this).html(formattedDate)
 				.removeClass('pm-btn-secondary')
 				.addClass('pm-btn-success')
 				.prop('disabled', true);
