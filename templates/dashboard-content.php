@@ -52,8 +52,13 @@ if ( $user_logged_in ) {
 	);
 }
 
-// Get recent conversations for dashboard
-$recent_conversations = $conversation_manager->get_recent_conversations( 3, true );
+// Get recent conversations from user's close circle for dashboard
+$recent_conversations = array();
+if ( $user_logged_in ) {
+	require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-circle-scope.php';
+	$scope = PartyMinder_Circle_Scope::resolve_conversation_scope( $current_user->ID, 'close' );
+	$recent_conversations = $conversation_manager->get_conversations_by_scope( $scope, '', 1, 3 );
+}
 
 // Get recent event conversations for dashboard, grouped by event
 $recent_event_conversations = $conversation_manager->get_event_conversations( null, 10 );
@@ -209,44 +214,64 @@ ob_start();
 <!-- Conversations Section -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
-		<h2 class="pm-heading pm-heading-md pm-mb"> <?php _e( 'Conversations', 'partyminder' ); ?></h2>
-		<p class="pm-text-muted"><?php _e( 'Latest discussions about hosting and party planning', 'partyminder' ); ?></p>
+		<h2 class="pm-heading pm-heading-md pm-mb"><?php _e( 'Recent Conversations', 'partyminder' ); ?></h2>
+		<p class="pm-text-muted"><?php _e( 'Latest discussions in your close circle', 'partyminder' ); ?></p>
 	</div>
 	
-	<!-- Secondary Menu Bar -->
-	<div class="pm-section pm-mb-4">
-		<div class="pm-flex pm-gap-4 pm-flex-wrap">
+	<?php if ( ! empty( $recent_conversations ) ) : ?>
+		<div class="pm-grid pm-grid-3 pm-gap">
+			<?php foreach ( $recent_conversations as $conversation ) : ?>
+				<div class="pm-card">
+					<div class="pm-card-body">
+						<h3 class="pm-heading pm-heading-sm pm-mb-4">
+							<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary">
+								<?php echo esc_html( $conversation_manager->get_display_title( $conversation ) ); ?>
+							</a>
+						</h3>
+						
+						<div class="pm-mb-4">
+							<span class="pm-text-muted">
+								<?php
+								if ( $conversation->event_id ) {
+									echo esc_html( $conversation->event_title );
+								} elseif ( $conversation->community_id ) {
+									echo esc_html( $conversation->community_name );
+								} else {
+									_e( 'General Discussion', 'partyminder' );
+								}
+								?>
+							</span>
+						</div>
+						
+						<div class="pm-flex pm-flex-between">
+							<div class="pm-stat">
+								<div class="pm-stat-number pm-text-primary"><?php echo $conversation->reply_count; ?></div>
+								<div class="pm-stat-label"><?php _e( 'Replies', 'partyminder' ); ?></div>
+							</div>
+							<div class="pm-text-muted pm-text-sm">
+								<?php echo human_time_diff( strtotime( $conversation->created_at ), current_time( 'timestamp' ) ); ?> <?php _e( 'ago', 'partyminder' ); ?>
+							</div>
+						</div>
+					</div>
+				</div>
+			<?php endforeach; ?>
+		</div>
+	<?php else : ?>
+		<div class="pm-text-center pm-p-4">
+			<h3 class="pm-heading pm-heading-sm pm-mb-4"><?php _e( 'No Recent Conversations', 'partyminder' ); ?></h3>
+			<p class="pm-text-muted pm-mb-4"><?php _e( 'Start a conversation to connect with people in your circle.', 'partyminder' ); ?></p>
 			<?php if ( $user_logged_in ) : ?>
 				<a href="<?php echo PartyMinder::get_create_conversation_url(); ?>" class="pm-btn">
-					<?php _e( 'Start Conversation', 'partyminder' ); ?>
+					<?php _e( 'Start a Conversation', 'partyminder' ); ?>
 				</a>
 			<?php endif; ?>
-			<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'Browse Events', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'Dashboard', 'partyminder' ); ?>
-			</a>
-			
-			<!-- Circle Filter Buttons -->
-			<button class="pm-btn pm-btn-secondary is-active" data-circle="close" role="tab" aria-selected="true" aria-controls="pm-convo-list">
-				<?php _e( 'Close Circle', 'partyminder' ); ?>
-			</button>
-			<button class="pm-btn pm-btn-secondary" data-circle="trusted" role="tab" aria-selected="false" aria-controls="pm-convo-list">
-				<?php _e( 'Trusted Circle', 'partyminder' ); ?>
-			</button>
-			<button class="pm-btn pm-btn-secondary" data-circle="extended" role="tab" aria-selected="false" aria-controls="pm-convo-list">
-				<?php _e( 'Extended Circle', 'partyminder' ); ?>
-			</button>
 		</div>
-	</div>
+	<?php endif; ?>
 	
-	<div id="pm-convo-list" class="pm-conversations-list" aria-live="polite">
-		<?php
-		// Load conversations directly instead of via AJAX to avoid duplicate navigation
-		$conversations = $recent_conversations;
-		include PARTYMINDER_PLUGIN_DIR . 'templates/partials/conversations-list.php';
-		?>
+	<div class="pm-text-center pm-mt-4">
+		<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( 'View All Conversations', 'partyminder' ); ?>
+		</a>
 	</div>
 </div>
 			
