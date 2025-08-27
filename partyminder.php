@@ -849,7 +849,7 @@ class PartyMinder {
 			}
 
 			// Load form handler
-			require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-form-handler.php';
+			require_once __DIR__ . '/includes/class-event-form-handler.php';
 			
 			// Validate form data
 			$form_errors = PartyMinder_Event_Form_Handler::validate_event_form( $_POST );

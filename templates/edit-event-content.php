@@ -102,8 +102,11 @@ $secondary_color = get_option( 'partyminder_secondary_color', '#764ba2' );
 $button_style    = get_option( 'partyminder_button_style', 'rounded' );
 $form_layout     = get_option( 'partyminder_form_layout', 'card' );
 
-// Format event date for datetime-local input
-$event_datetime = date( 'Y-m-d\TH:i', strtotime( $event->event_date ) );
+// Parse existing event date/time data for Flatpickr fields
+$event_start_date = date( 'Y-m-d', strtotime( $event->event_date ) );
+$event_start_time = $event->all_day ? '' : date( 'H:i', strtotime( $event->event_date ) );
+$event_end_date = $event->end_date ? date( 'Y-m-d', strtotime( $event->end_date ) ) : '';
+$event_end_time = ($event->end_date && !$event->all_day) ? date( 'H:i', strtotime( $event->end_date ) ) : '';
 
 // Set up template variables
 $page_title       = __( 'Edit Event', 'partyminder' );
@@ -185,12 +188,75 @@ ob_start();
 		</div>
 
 		<div class="pm-form-row">
-			<div class="pm-form-group">
-				<label for="event_date" class="pm-form-label"><?php _e( 'Event Date *', 'partyminder' ); ?></label>
-				<input type="datetime-local" id="event_date" name="event_date" class="pm-form-input" 
-						value="<?php echo esc_attr( $_POST['event_date'] ?? $event_datetime ); ?>" 
-						min="<?php echo date( 'Y-m-d\TH:i' ); ?>" required />
+			<!-- Event Date & Time Section -->
+			<div class="pm-form-section">
+				<h3 class="pm-heading pm-heading-sm pm-mb-4"><?php _e('When is your event?', 'partyminder'); ?></h3>
+				
+				<!-- All Day Toggle -->
+				<div class="pm-form-group pm-mb-4">
+					<label class="pm-form-label pm-flex pm-gap-2">
+						<input type="checkbox" id="all_day" name="all_day" value="1" class="pm-form-checkbox" 
+							   <?php checked( $event->all_day ); ?>>
+						<?php _e('All day event', 'partyminder'); ?>
+					</label>
+				</div>
+				
+				<!-- Start Date & Time -->
+				<div class="pm-form-group pm-grid pm-grid-2 pm-gap">
+					<div>
+						<label for="start_date" class="pm-form-label"><?php _e('Start Date *', 'partyminder'); ?></label>
+						<input type="text" id="start_date" name="start_date" class="pm-form-input" 
+							   value="<?php echo esc_attr( $_POST['start_date'] ?? $event_start_date ); ?>"
+							   placeholder="<?php _e('Select start date...', 'partyminder'); ?>" required />
+					</div>
+					<div class="pm-time-field">
+						<label for="start_time" class="pm-form-label"><?php _e('Start Time *', 'partyminder'); ?></label>
+						<input type="text" id="start_time" name="start_time" class="pm-form-input" 
+							   value="<?php echo esc_attr( $_POST['start_time'] ?? $event_start_time ); ?>"
+							   placeholder="<?php _e('Select start time...', 'partyminder'); ?>" />
+					</div>
+				</div>
+				
+				<!-- End Date & Time -->
+				<div class="pm-form-group pm-grid pm-grid-2 pm-gap">
+					<div>
+						<label for="end_date" class="pm-form-label"><?php _e('End Date', 'partyminder'); ?></label>
+						<input type="text" id="end_date" name="end_date" class="pm-form-input" 
+							   value="<?php echo esc_attr( $_POST['end_date'] ?? $event_end_date ); ?>"
+							   placeholder="<?php _e('Select end date...', 'partyminder'); ?>" />
+					</div>
+					<div class="pm-time-field">
+						<label for="end_time" class="pm-form-label"><?php _e('End Time', 'partyminder'); ?></label>
+						<input type="text" id="end_time" name="end_time" class="pm-form-input" 
+							   value="<?php echo esc_attr( $_POST['end_time'] ?? $event_end_time ); ?>"
+							   placeholder="<?php _e('Select end time...', 'partyminder'); ?>" />
+					</div>
+				</div>
+				
+				<!-- Recurrence Options -->
+				<div class="pm-form-group pm-mt-4">
+					<label for="recurrence_type" class="pm-form-label"><?php _e('Repeat Event', 'partyminder'); ?></label>
+					<select id="recurrence_type" name="recurrence_type" class="pm-form-input">
+						<option value="none" <?php selected( $event->recurrence_type ?? 'none', 'none' ); ?>><?php _e('Does not repeat', 'partyminder'); ?></option>
+						<option value="daily" <?php selected( $event->recurrence_type ?? '', 'daily' ); ?>><?php _e('Daily', 'partyminder'); ?></option>
+						<option value="weekly" <?php selected( $event->recurrence_type ?? '', 'weekly' ); ?>><?php _e('Weekly', 'partyminder'); ?></option>
+						<option value="monthly" <?php selected( $event->recurrence_type ?? '', 'monthly' ); ?>><?php _e('Monthly', 'partyminder'); ?></option>
+						<option value="yearly" <?php selected( $event->recurrence_type ?? '', 'yearly' ); ?>><?php _e('Yearly', 'partyminder'); ?></option>
+						<option value="custom" <?php selected( $event->recurrence_type ?? '', 'custom' ); ?>><?php _e('Custom...', 'partyminder'); ?></option>
+					</select>
+				</div>
+				
+				<!-- Recurrence Options (simplified for edit form) -->
+				<div class="pm-recurrence-options" style="display: none;">
+					<div class="pm-recurrence-interval pm-form-group pm-mt-4">
+						<label for="recurrence_interval" class="pm-form-label"><?php _e('Repeat every', 'partyminder'); ?></label>
+						<input type="number" id="recurrence_interval" name="recurrence_interval" 
+							   class="pm-form-input" min="1" 
+							   value="<?php echo esc_attr( $event->recurrence_interval ?? 1 ); ?>" />
+					</div>
+				</div>
 			</div>
+		</div>
 
 			<div class="pm-form-group">
 				<label for="guest_limit" class="pm-form-label"><?php _e( 'Guest Limit', 'partyminder' ); ?></label>
