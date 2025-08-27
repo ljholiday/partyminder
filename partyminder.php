@@ -1212,6 +1212,13 @@ class PartyMinder {
 					'4.6.13',
 					true
 				);
+				wp_enqueue_script(
+					'partyminder-flatpickr-init',
+					PARTYMINDER_PLUGIN_URL . 'assets/js/flatpickr-event-form.js',
+					array( 'jquery', 'flatpickr' ),
+					'1.0.0',
+					true
+				);
 			}
 		}
 	}
