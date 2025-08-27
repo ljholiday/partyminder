@@ -212,7 +212,7 @@ ob_start();
 			</form>
 			
 			<div>
-				<h4 class="pm-heading pm-heading-sm pm-mb-4"><?php _e( 'Pending Invitations', 'partyminder' ); ?></h4>
+				<h4 class="pm-heading pm-heading-sm pm-mb-4"><?php _e( 'Invitations', 'partyminder' ); ?></h4>
 				<div id="event-invitations-list">
 					<div class="pm-text-center pm-text-muted">
 						<?php _e( 'Loading invitations...', 'partyminder' ); ?>

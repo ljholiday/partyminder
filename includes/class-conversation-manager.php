@@ -33,7 +33,7 @@ class PartyMinder_Conversation_Manager {
             LEFT JOIN $events_table e ON c.event_id = e.id
             LEFT JOIN $communities_table cm ON c.community_id = cm.id
             WHERE ($privacy_filter) $event_clause $community_clause
-            ORDER BY c.last_reply_date DESC
+            ORDER BY c.created_at DESC
             LIMIT %d
         ",
 				$limit
@@ -60,7 +60,7 @@ class PartyMinder_Conversation_Manager {
             FROM $conversations_table c
             LEFT JOIN $events_table e ON c.event_id = e.id
             $where_clause
-            ORDER BY c.last_reply_date DESC
+            ORDER BY c.created_at DESC
             LIMIT %d
         ",
 				...$prepare_values
@@ -87,7 +87,7 @@ class PartyMinder_Conversation_Manager {
             FROM $conversations_table c
             LEFT JOIN $communities_table cm ON c.community_id = cm.id
             $where_clause
-            ORDER BY c.last_reply_date DESC
+            ORDER BY c.created_at DESC
             LIMIT %d
         ",
 				...$prepare_values
@@ -114,7 +114,7 @@ class PartyMinder_Conversation_Manager {
             FROM $conversations_table c
             WHERE c.event_id IS NULL AND c.community_id IS NULL
             AND ($privacy_filter)
-            ORDER BY c.last_reply_date DESC
+            ORDER BY c.created_at DESC
             LIMIT %d
         ",
 				$limit
@@ -274,7 +274,7 @@ class PartyMinder_Conversation_Manager {
 				"
             SELECT * FROM $replies_table 
             WHERE conversation_id = %d 
-            ORDER BY created_at ASC
+            ORDER BY created_at DESC
         ",
 				$conversation_id
 			)
