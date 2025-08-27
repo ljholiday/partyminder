@@ -107,17 +107,133 @@ ob_start();
 						placeholder="<?php esc_attr_e( 'e.g., Summer Dinner Party', 'partyminder' ); ?>" required />
 			</div>
 
+<!-- Date form -->
             <div class="pm-form-row">
-                <div class="pm-form-group">
-                    <label for="event_date" class="pm-form-label"><?php _e('Event Date *', 'partyminder'); ?></label>
-                    <input type="datetime-local" id="event_date" name="event_date" class="pm-form-input"
-                           value="<?php echo esc_attr($_POST['event_date'] ?? date('Y-m-d\TH:i', strtotime('next Saturday 6:00 PM'))); ?>" 
-                           min="<?php echo date('Y-m-d\TH:i'); ?>" required />
-                    <button type="button" id="confirm-date-btn" class="pm-btn pm-btn-secondary pm-mt-2">
-                        <?php _e('Select This Date', 'partyminder'); ?>
-                    </button>
-                    <div id="selected-date-display" class="pm-text-success pm-mt-2" style="display: none;">
-                        <strong><?php _e('Selected:', 'partyminder'); ?></strong> <span id="selected-date-text"></span>
+                <!-- Event Date & Time Section -->
+                <div class="pm-form-section">
+                    <h3 class="pm-heading pm-heading-sm pm-mb-4"><?php _e('When is your event?', 'partyminder'); ?></h3>
+                    
+                    <!-- All Day Toggle -->
+                    <div class="pm-form-group pm-mb-4">
+                        <label class="pm-form-label pm-flex pm-gap-2">
+                            <input type="checkbox" id="all_day" name="all_day" value="1" class="pm-form-checkbox">
+                            <?php _e('All day event', 'partyminder'); ?>
+                        </label>
+                    </div>
+                    
+                    <!-- Start Date & Time -->
+                    <div class="pm-form-group pm-grid pm-grid-2 pm-gap">
+                        <div>
+                            <label for="start_date" class="pm-form-label"><?php _e('Start Date *', 'partyminder'); ?></label>
+                            <input type="text" id="start_date" name="start_date" class="pm-form-input" 
+                                   placeholder="<?php _e('Select start date...', 'partyminder'); ?>" required />
+                        </div>
+                        <div id="start_time_group">
+                            <label for="start_time" class="pm-form-label"><?php _e('Start Time *', 'partyminder'); ?></label>
+                            <input type="text" id="start_time" name="start_time" class="pm-form-input" 
+                                   placeholder="<?php _e('Select start time...', 'partyminder'); ?>" required />
+                        </div>
+                    </div>
+                    
+                    <!-- End Date & Time -->
+                    <div class="pm-form-group pm-grid pm-grid-2 pm-gap">
+                        <div>
+                            <label for="end_date" class="pm-form-label"><?php _e('End Date', 'partyminder'); ?></label>
+                            <input type="text" id="end_date" name="end_date" class="pm-form-input" 
+                                   placeholder="<?php _e('Select end date...', 'partyminder'); ?>" />
+                        </div>
+                        <div id="end_time_group">
+                            <label for="end_time" class="pm-form-label"><?php _e('End Time', 'partyminder'); ?></label>
+                            <input type="text" id="end_time" name="end_time" class="pm-form-input" 
+                                   placeholder="<?php _e('Select end time...', 'partyminder'); ?>" />
+                        </div>
+                    </div>
+                    
+                    <!-- Recurring Event Options -->
+                    <div class="pm-form-group pm-mt-4">
+                        <label for="recurrence_type" class="pm-form-label"><?php _e('Repeat Event', 'partyminder'); ?></label>
+                        <select id="recurrence_type" name="recurrence_type" class="pm-form-input">
+                            <option value=""><?php _e('Does not repeat', 'partyminder'); ?></option>
+                            <option value="daily"><?php _e('Daily', 'partyminder'); ?></option>
+                            <option value="weekly"><?php _e('Weekly', 'partyminder'); ?></option>
+                            <option value="monthly"><?php _e('Monthly', 'partyminder'); ?></option>
+                            <option value="yearly"><?php _e('Yearly', 'partyminder'); ?></option>
+                            <option value="custom"><?php _e('Custom...', 'partyminder'); ?></option>
+                        </select>
+                    </div>
+                    
+                    <!-- Custom Recurrence Options (Hidden by default) -->
+                    <div id="custom_recurrence" class="pm-form-group pm-mt-4" style="display: none;">
+                        <div class="pm-mb-4">
+                            <label class="pm-form-label"><?php _e('Repeat on:', 'partyminder'); ?></label>
+                            <div class="pm-flex pm-gap-2 pm-flex-wrap">
+                                <label class="pm-form-label pm-flex pm-gap-1">
+                                    <input type="checkbox" name="recurrence_days[]" value="1" class="pm-form-checkbox">
+                                    <?php _e('Mon', 'partyminder'); ?>
+                                </label>
+                                <label class="pm-form-label pm-flex pm-gap-1">
+                                    <input type="checkbox" name="recurrence_days[]" value="2" class="pm-form-checkbox">
+                                    <?php _e('Tue', 'partyminder'); ?>
+                                </label>
+                                <label class="pm-form-label pm-flex pm-gap-1">
+                                    <input type="checkbox" name="recurrence_days[]" value="3" class="pm-form-checkbox">
+                                    <?php _e('Wed', 'partyminder'); ?>
+                                </label>
+                                <label class="pm-form-label pm-flex pm-gap-1">
+                                    <input type="checkbox" name="recurrence_days[]" value="4" class="pm-form-checkbox">
+                                    <?php _e('Thu', 'partyminder'); ?>
+                                </label>
+                                <label class="pm-form-label pm-flex pm-gap-1">
+                                    <input type="checkbox" name="recurrence_days[]" value="5" class="pm-form-checkbox">
+                                    <?php _e('Fri', 'partyminder'); ?>
+                                </label>
+                                <label class="pm-form-label pm-flex pm-gap-1">
+                                    <input type="checkbox" name="recurrence_days[]" value="6" class="pm-form-checkbox">
+                                    <?php _e('Sat', 'partyminder'); ?>
+                                </label>
+                                <label class="pm-form-label pm-flex pm-gap-1">
+                                    <input type="checkbox" name="recurrence_days[]" value="0" class="pm-form-checkbox">
+                                    <?php _e('Sun', 'partyminder'); ?>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="pm-grid pm-grid-2 pm-gap">
+                            <div>
+                                <label for="recurrence_interval" class="pm-form-label"><?php _e('Every', 'partyminder'); ?></label>
+                                <input type="number" id="recurrence_interval" name="recurrence_interval" 
+                                       class="pm-form-input" min="1" value="1" />
+                            </div>
+                            <div>
+                                <label for="recurrence_unit" class="pm-form-label"><?php _e('Week(s)', 'partyminder'); ?></label>
+                                <select id="recurrence_unit" name="recurrence_unit" class="pm-form-input">
+                                    <option value="weeks"><?php _e('Week(s)', 'partyminder'); ?></option>
+                                    <option value="months"><?php _e('Month(s)', 'partyminder'); ?></option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Monthly specific options -->
+                        <div id="monthly_options" style="display: none;" class="pm-mt-4">
+                            <label class="pm-form-label"><?php _e('Repeat by:', 'partyminder'); ?></label>
+                            <div class="pm-flex pm-gap-4">
+                                <label class="pm-form-label pm-flex pm-gap-1">
+                                    <input type="radio" name="monthly_type" value="date" class="pm-form-radio" checked>
+                                    <?php _e('Day of month', 'partyminder'); ?>
+                                </label>
+                                <label class="pm-form-label pm-flex pm-gap-1">
+                                    <input type="radio" name="monthly_type" value="weekday" class="pm-form-radio">
+                                    <?php _e('Day of week (e.g., 3rd Thursday)', 'partyminder'); ?>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recurrence End -->
+                    <div id="recurrence_end" class="pm-form-group pm-mt-4" style="display: none;">
+                        <label for="recurrence_end_date" class="pm-form-label"><?php _e('End repeat (optional)', 'partyminder'); ?></label>
+                        <input type="text" id="recurrence_end_date" name="recurrence_end_date" class="pm-form-input" 
+                               placeholder="<?php _e('Select end date for recurring event...', 'partyminder'); ?>" />
                     </div>
                 </div>
 
@@ -344,37 +460,83 @@ jQuery(document).ready(function($) {
 		});
 	});
 	
-	// Date confirmation button functionality
-	$('#confirm-date-btn').on('click', function() {
-		const dateInput = $('#event_date');
-		const selectedDate = dateInput.val();
-		
-		if (selectedDate) {
-			const date = new Date(selectedDate);
-			const formattedDate = date.toLocaleDateString('en-US', {
-				weekday: 'long',
-				year: 'numeric',
-				month: 'long',
-				day: 'numeric',
-				hour: '2-digit',
-				minute: '2-digit'
-			});
+	// Initialize Flatpickr date and time pickers
+	if (typeof flatpickr !== 'undefined') {
+		// Initialize start date picker
+		const startDatePicker = flatpickr('#start_date', {
+			dateFormat: 'Y-m-d',
+			minDate: 'today',
+			defaultDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Next week
+			onChange: function(selectedDates, dateStr) {
+				// Update end date minimum to start date
+				if (selectedDates.length > 0 && endDatePicker) {
+					endDatePicker.set('minDate', selectedDates[0]);
+					if (!$('#end_date').val()) {
+						endDatePicker.setDate(selectedDates[0]);
+					}
+				}
+			}
+		});
+
+		// Initialize start time picker
+		const startTimePicker = flatpickr('#start_time', {
+			enableTime: true,
+			noCalendar: true,
+			dateFormat: 'H:i',
+			defaultDate: '18:00',
+			time_24hr: false
+		});
+
+		// Initialize end date picker
+		const endDatePicker = flatpickr('#end_date', {
+			dateFormat: 'Y-m-d',
+			minDate: 'today'
+		});
+
+		// Initialize end time picker
+		const endTimePicker = flatpickr('#end_time', {
+			enableTime: true,
+			noCalendar: true,
+			dateFormat: 'H:i',
+			defaultDate: '20:00',
+			time_24hr: false
+		});
+
+		// Initialize recurrence end date picker
+		const recurrenceEndPicker = flatpickr('#recurrence_end_date', {
+			dateFormat: 'Y-m-d',
+			minDate: 'today'
+		});
+
+		// All day event toggle
+		$('#all_day').on('change', function() {
+			const isAllDay = $(this).is(':checked');
+			$('#start_time_group, #end_time_group').toggle(!isAllDay);
+			$('#start_time, #end_time').prop('required', !isAllDay);
+		});
+
+		// Recurrence type handling
+		$('#recurrence_type').on('change', function() {
+			const recurrenceType = $(this).val();
 			
-			$(this).html(formattedDate)
-				.removeClass('pm-btn-secondary')
-				.addClass('pm-btn-success')
-				.prop('disabled', true);
-		}
-	});
-	
-	// Reset confirmation when date changes
-	$('#event_date').on('change', function() {
-		$('#confirm-date-btn')
-			.html('<?php _e( 'Select This Date', 'partyminder' ); ?>')
-			.removeClass('pm-btn-success')
-			.addClass('pm-btn-secondary')
-			.prop('disabled', false);
-	});
+			// Show/hide recurrence options
+			$('#recurrence_end').toggle(recurrenceType !== '');
+			$('#custom_recurrence').toggle(recurrenceType === 'custom');
+			
+			// Show monthly options when months selected in custom
+			if (recurrenceType === 'monthly') {
+				$('#monthly_options').show();
+			} else {
+				$('#monthly_options').hide();
+			}
+		});
+
+		// Custom recurrence unit handling
+		$('#recurrence_unit').on('change', function() {
+			const unit = $(this).val();
+			$('#monthly_options').toggle(unit === 'months');
+		});
+	}
 	
 	<?php if ( PartyMinder_Feature_Flags::is_at_protocol_enabled() ) : ?>
 	// Bluesky Integration Functions for Create Event Page
