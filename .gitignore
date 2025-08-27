@@ -10,7 +10,6 @@ CLAUDE.md
 debug.log
 
 # Old test infrastructure files (no longer used)
-vendor/
 composer.json
 composer.lock
 phpunit.xml
