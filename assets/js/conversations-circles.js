@@ -115,17 +115,26 @@ jQuery(document).ready(function($) {
 			}
 		});
 
-		// Load initial content (default to 'close' circle)
-		const $activeButton = $nav.find('button.is-active');
-		const initialCircle = $activeButton.data('circle');
-		const initialFilter = $activeButton.data('filter');
+		// Check URL parameters for filter
+		const urlParams = new URLSearchParams(window.location.search);
+		const urlFilter = urlParams.get('filter');
 		
-		if (initialCircle) {
-			loadConversations({ circle: initialCircle });
-		} else if (initialFilter) {
-			loadConversations({ filter: initialFilter });
+		// Activate the appropriate button based on URL parameter
+		if (urlFilter && (urlFilter === 'events' || urlFilter === 'communities')) {
+			// Deactivate all buttons first
+			$nav.find('button').removeClass('is-active').attr('aria-selected', 'false');
+			
+			// Activate the filter button
+			const $filterButton = $nav.find(`button[data-filter="${urlFilter}"]`);
+			$filterButton.addClass('is-active').attr('aria-selected', 'true');
+			
+			// Load the filtered conversations
+			loadConversations({ filter: urlFilter });
 		} else {
-			loadConversations({ circle: 'close' });
+			// Default behavior - load close circle
+			const $activeButton = $nav.find('button.is-active');
+			const initialCircle = $activeButton.data('circle') || 'close';
+			loadConversations({ circle: initialCircle });
 		}
 
 		// Keyboard navigation support

@@ -34,6 +34,13 @@ if ( $user_logged_in ) {
 	$user_conversations = $conversation_manager->get_user_conversations( $current_user->ID, 6 );
 }
 
+// Check for filter parameter from URL
+$active_filter = sanitize_text_field( $_GET['filter'] ?? '' );
+$valid_filters = array( 'events', 'communities' );
+if ( ! in_array( $active_filter, $valid_filters ) ) {
+	$active_filter = '';
+}
+
 // Set up template variables
 $page_title       = __( 'Conversations', 'partyminder' );
 $page_description = __( 'Connect, share tips, and plan amazing gatherings with fellow hosts and guests', 'partyminder' );

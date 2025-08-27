@@ -366,8 +366,8 @@ ob_start();
 		</div>
 	<?php endif; ?>
 	<div class="pm-text-center pm-mt-4">
-		<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'View All Conversations', 'partyminder' ); ?>
+		<a href="<?php echo esc_url( add_query_arg( 'filter', 'events', PartyMinder::get_conversations_url() ) ); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( 'View Event Discussions', 'partyminder' ); ?>
 		</a>
 	</div>
 </div>
@@ -460,8 +460,8 @@ ob_start();
 		</div>
 	<?php endif; ?>
 	<div class="pm-text-center pm-mt-4">
-		<a href="<?php echo esc_url( PartyMinder::get_communities_url() ); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'Browse Communities', 'partyminder' ); ?>
+		<a href="<?php echo esc_url( add_query_arg( 'filter', 'communities', PartyMinder::get_conversations_url() ) ); ?>" class="pm-btn pm-btn-secondary">
+			<?php _e( 'View Community Discussions', 'partyminder' ); ?>
 		</a>
 	</div>
 </div>
