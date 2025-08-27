@@ -278,7 +278,7 @@ ob_start();
 <!-- Event Conversations Section -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
-		<h2 class="pm-heading pm-heading-md pm-mb"><?php _e( 'Event Planning Discussions', 'partyminder' ); ?></h2>
+		<h2 class="pm-heading pm-heading-md pm-mb"><?php _e( 'Event Conversations', 'partyminder' ); ?></h2>
 		<p class="pm-text-muted"><?php _e( 'Active conversations about specific events', 'partyminder' ); ?></p>
 	</div>
 	<?php if ( ! empty( $conversations_by_event ) ) : ?>
@@ -375,7 +375,7 @@ ob_start();
 <!-- Community Conversations Section -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
-		<h2 class="pm-heading pm-heading-md pm-mb"><?php _e( 'Community Discussions', 'partyminder' ); ?></h2>
+		<h2 class="pm-heading pm-heading-md pm-mb"><?php _e( 'Community Conversations', 'partyminder' ); ?></h2>
 		<p class="pm-text-muted"><?php _e( 'Active conversations in your communities', 'partyminder' ); ?></p>
 	</div>
 	<?php if ( ! empty( $conversations_by_community ) ) : ?>

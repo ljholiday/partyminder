@@ -220,6 +220,7 @@ class PartyMinder_Conversation_Ajax_Handler {
 		}
 
 		$circle = sanitize_text_field( $_POST['circle'] ?? 'close' );
+		$filter = sanitize_text_field( $_POST['filter'] ?? '' );
 		$topic_slug = sanitize_title( $_POST['topic_slug'] ?? '' );
 		$page = max( 1, intval( $_POST['page'] ?? 1 ) );
 		$per_page = 20;
@@ -230,18 +231,37 @@ class PartyMinder_Conversation_Ajax_Handler {
 			$circle = 'close';
 		}
 
-		$conversation_manager = $this->get_conversation_manager();
+		// Validate filter
+		$allowed_filters = array( '', 'events', 'communities' );
+		if ( ! in_array( $filter, $allowed_filters ) ) {
+			$filter = '';
+		}
 
-		// Load circle scope resolver
-		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-circle-scope.php';
-		
-		// Resolve scope for the current user and circle
+		$conversation_manager = $this->get_conversation_manager();
 		$current_user_id = get_current_user_id();
-		$scope = PartyMinder_Circle_Scope::resolve_conversation_scope( $current_user_id, $circle );
-		
-		// Get conversations and count using scope
-		$conversations = $conversation_manager->get_conversations_by_scope( $scope, $topic_slug, $page, $per_page );
-		$total_conversations = $conversation_manager->get_conversations_count_by_scope( $scope, $topic_slug );
+
+		// Handle different filter types
+		if ( $filter === 'events' ) {
+			// Get event conversations
+			$conversations = $conversation_manager->get_event_conversations( null, $per_page, ( $page - 1 ) * $per_page );
+			// Get total count for pagination
+			global $wpdb;
+			$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+			$total_conversations = $wpdb->get_var( "SELECT COUNT(*) FROM $conversations_table WHERE event_id IS NOT NULL" );
+		} elseif ( $filter === 'communities' ) {
+			// Get community conversations
+			$conversations = $conversation_manager->get_community_conversations( null, $per_page, ( $page - 1 ) * $per_page );
+			// Get total count for pagination
+			global $wpdb;
+			$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+			$total_conversations = $wpdb->get_var( "SELECT COUNT(*) FROM $conversations_table WHERE community_id IS NOT NULL" );
+		} else {
+			// Use circle scope filtering
+			require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-circle-scope.php';
+			$scope = PartyMinder_Circle_Scope::resolve_conversation_scope( $current_user_id, $circle );
+			$conversations = $conversation_manager->get_conversations_by_scope( $scope, $topic_slug, $page, $per_page );
+			$total_conversations = $conversation_manager->get_conversations_count_by_scope( $scope, $topic_slug );
+		}
 		$total_pages = ceil( $total_conversations / $per_page );
 		$has_more = $page < $total_pages;
 
@@ -256,7 +276,8 @@ class PartyMinder_Conversation_Ajax_Handler {
 				'count' => $total_conversations,
 				'page' => $page,
 				'has_more' => $has_more,
-				'circle' => $circle
+				'circle' => $circle,
+				'filter' => $filter
 			)
 		) );
 	}

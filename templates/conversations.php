@@ -63,9 +63,10 @@ ob_start();
 			</a>
 		</div>
 
-		<!-- Circle Filter Buttons -->
+		<!-- Filter Buttons -->
 		<?php if ( $user_logged_in ) : ?>
-		<div class="pm-conversations-nav pm-flex pm-gap-4">
+		<div class="pm-conversations-nav pm-flex pm-gap-4 pm-flex-wrap">
+			<!-- Circle Filters -->
 			<button class="pm-btn pm-btn-secondary is-active" data-circle="close" role="tab" aria-selected="true" aria-controls="pm-convo-list">
 				<?php _e( 'Close Circle', 'partyminder' ); ?>
 			</button>
@@ -74,6 +75,14 @@ ob_start();
 			</button>
 			<button class="pm-btn pm-btn-secondary" data-circle="extended" role="tab" aria-selected="false" aria-controls="pm-convo-list">
 				<?php _e( 'Extended Circle', 'partyminder' ); ?>
+			</button>
+			
+			<!-- Type Filters -->
+			<button class="pm-btn pm-btn-secondary" data-filter="events" role="tab" aria-selected="false" aria-controls="pm-convo-list">
+				<?php _e( 'Event Discussions', 'partyminder' ); ?>
+			</button>
+			<button class="pm-btn pm-btn-secondary" data-filter="communities" role="tab" aria-selected="false" aria-controls="pm-convo-list">
+				<?php _e( 'Community Discussions', 'partyminder' ); ?>
 			</button>
 		</div>
 		<?php endif; ?>

@@ -32,8 +32,10 @@ jQuery(document).ready(function($) {
 			return; // Navigation not present on this page
 		}
 
-		// Load conversations for a specific circle
-		function loadCircle(circle, options = {}) {
+		// Load conversations for a specific circle or filter
+		function loadConversations(options = {}) {
+			const circle = options.circle || 'close';
+			const filter = options.filter || '';
 			const topicSlug = $list.data('topic') || options.topic || '';
 			const page = options.page || 1;
 
@@ -47,6 +49,11 @@ jQuery(document).ready(function($) {
 				circle: circle,
 				page: page
 			};
+
+			// Add filter if present
+			if (filter) {
+				ajaxData.filter = filter;
+			}
 
 			// Add topic if present
 			if (topicSlug) {
@@ -83,12 +90,13 @@ jQuery(document).ready(function($) {
 				});
 		}
 
-		// Handle circle button clicks
-		$nav.on('click', 'button[data-circle]', function(e) {
+		// Handle button clicks (both circle and filter buttons)
+		$nav.on('click', 'button[data-circle], button[data-filter]', function(e) {
 			e.preventDefault();
 			
 			const $button = $(this);
 			const circle = $button.data('circle');
+			const filter = $button.data('filter');
 
 			// Update button states
 			$nav.find('button')
@@ -99,13 +107,26 @@ jQuery(document).ready(function($) {
 				.addClass('is-active')
 				.attr('aria-selected', 'true');
 
-			// Load conversations for the selected circle
-			loadCircle(circle);
+			// Load conversations based on button type
+			if (circle) {
+				loadConversations({ circle: circle });
+			} else if (filter) {
+				loadConversations({ filter: filter });
+			}
 		});
 
-		// Load initial circle (default to 'close')
-		const initialCircle = $nav.find('button.is-active').data('circle') || 'close';
-		loadCircle(initialCircle);
+		// Load initial content (default to 'close' circle)
+		const $activeButton = $nav.find('button.is-active');
+		const initialCircle = $activeButton.data('circle');
+		const initialFilter = $activeButton.data('filter');
+		
+		if (initialCircle) {
+			loadConversations({ circle: initialCircle });
+		} else if (initialFilter) {
+			loadConversations({ filter: initialFilter });
+		} else {
+			loadConversations({ circle: 'close' });
+		}
 
 		// Keyboard navigation support
 		$nav.on('keydown', 'button', function(e) {
