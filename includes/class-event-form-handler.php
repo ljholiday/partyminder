@@ -90,6 +90,7 @@ class PartyMinder_Event_Form_Handler {
 			'guest_limit' => intval( $post_data['guest_limit'] ),
 			'host_email'  => sanitize_email( $post_data['host_email'] ),
 			'host_notes'  => wp_kses_post( wp_unslash( $post_data['host_notes'] ) ),
+			'author_id'   => get_current_user_id(),
 			'all_day'     => ! empty( $post_data['all_day'] ) ? 1 : 0,
 			'end_date'    => $end_datetime ? sanitize_text_field( $end_datetime ) : null,
 			'recurrence_type' => sanitize_text_field( $post_data['recurrence_type'] ?? 'none' ),
