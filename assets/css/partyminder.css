@@ -1299,3 +1299,27 @@ body.admin-bar .pm-page-two-column {
     height: 80px;
   }
 }
+
+/* Enhanced Date Picker - Minimal additions to existing classes */
+.pm-date-time-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.pm-option-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.pm-field-error {
+  border-color: var(--pm-danger) !important;
+}
+
+@media (max-width: 768px) {
+  .pm-date-time-grid {
+    grid-template-columns: 1fr;
+  }
+}

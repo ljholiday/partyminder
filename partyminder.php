@@ -1178,6 +1178,12 @@ class PartyMinder {
 		$page_type = get_post_meta( $post->ID, '_partyminder_page_type', true );
 
 		if ( $page_type ) {
+			// Add Flatpickr for event forms with enhanced date picker
+			if ( in_array( $page_type, array( 'create-event', 'edit-event', 'create-community-event' ) ) ) {
+				wp_enqueue_style( 'flatpickr', PARTYMINDER_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.css', array(), '4.6.13' );
+				wp_enqueue_script( 'flatpickr', PARTYMINDER_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.js', array(), '4.6.13', true );
+				wp_enqueue_script( 'partyminder-enhanced-date-picker', PARTYMINDER_PLUGIN_URL . 'assets/js/enhanced-date-picker.js', array( 'jquery', 'flatpickr' ), PARTYMINDER_VERSION, true );
+			}
 
 			// Add page-specific JavaScript
 			if ( $page_type === 'conversations' || $page_type === 'dashboard' ) {
