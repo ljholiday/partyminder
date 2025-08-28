@@ -185,12 +185,19 @@ ob_start();
 		</div>
 
 		<div class="pm-form-row">
-			<div class="pm-form-group">
-				<label for="event_date" class="pm-form-label"><?php _e( 'Event Date *', 'partyminder' ); ?></label>
-				<input type="datetime-local" id="event_date" name="event_date" class="pm-form-input" 
-						value="<?php echo esc_attr( $_POST['event_date'] ?? $event_datetime ); ?>" 
-						min="<?php echo date( 'Y-m-d\TH:i' ); ?>" required />
-			</div>
+			<?php 
+			// Prepare existing event data for the enhanced date picker
+			$start_date = $_POST['start_date'] ?? $event_start_date;
+			$start_time = $_POST['start_time'] ?? $event_start_time;
+			$end_date = $_POST['end_date'] ?? $event_end_date;
+			$end_time = $_POST['end_time'] ?? $event_end_time;
+			$all_day = $_POST['all_day'] ?? ($event->all_day ?? false);
+			$date_range = $_POST['date_range'] ?? (!empty($event->end_date));
+			$repeat_type = $_POST['repeat_type'] ?? ($event->repeat_type ?? 'none');
+			$repeat_end = $_POST['repeat_end'] ?? ($event->repeat_end ?? '');
+			
+			include PARTYMINDER_PLUGIN_DIR . 'templates/partials/enhanced-date-picker.php'; 
+			?>
 
 			<div class="pm-form-group">
 				<label for="guest_limit" class="pm-form-label"><?php _e( 'Guest Limit', 'partyminder' ); ?></label>

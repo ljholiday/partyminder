@@ -145,11 +145,7 @@ ob_start();
 			</div>
 
 			<div class="pm-form-row">
-				<div class="pm-form-group">
-					<label for="event_date" class="pm-form-label"><?php _e( 'Event Date *', 'partyminder' ); ?></label>
-					<input type="datetime-local" id="event_date" name="event_date" class="pm-form-input"
-							value="<?php echo esc_attr( $_POST['event_date'] ?? '' ); ?>" required />
-				</div>
+				<?php include PARTYMINDER_PLUGIN_DIR . 'templates/partials/enhanced-date-picker.php'; ?>
 			</div>
 
 			<div class="pm-form-group">
