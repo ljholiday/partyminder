@@ -41,6 +41,7 @@ $is_event_host = ( is_user_logged_in() && $current_user->ID == $event->author_id
 				( $current_user->user_email == $event->host_email ) ||
 				current_user_can( 'edit_others_posts' );
 
+
 // Set up template variables
 $page_title       = esc_html( $event->title );
 $page_description = '';

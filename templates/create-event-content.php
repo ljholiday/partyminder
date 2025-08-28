@@ -107,8 +107,9 @@ ob_start();
 						placeholder="<?php esc_attr_e( 'e.g., Summer Dinner Party', 'partyminder' ); ?>" required />
 			</div>
 
+<!-- Date form -->
             <div class="pm-form-row">
-                <?php include PARTYMINDER_PLUGIN_DIR . 'templates/partials/enhanced-date-picker.php'; ?>
+                <?php include PARTYMINDER_PLUGIN_DIR . 'templates/partials/date-picker.php'; ?>
 
 				<div class="pm-form-group">
 					<label for="guest_limit" class="pm-form-label"><?php _e( 'Guest Limit', 'partyminder' ); ?></label>
@@ -332,6 +333,84 @@ jQuery(document).ready(function($) {
 			}
 		});
 	});
+	
+	// Initialize Flatpickr date and time pickers
+	if (typeof flatpickr !== 'undefined') {
+		// Initialize start date picker
+		const startDatePicker = flatpickr('#start_date', {
+			dateFormat: 'Y-m-d',
+			minDate: 'today',
+			defaultDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Next week
+			onChange: function(selectedDates, dateStr) {
+				// Update end date minimum to start date
+				if (selectedDates.length > 0 && endDatePicker) {
+					endDatePicker.set('minDate', selectedDates[0]);
+					if (!$('#end_date').val()) {
+						endDatePicker.setDate(selectedDates[0]);
+					}
+				}
+			}
+		});
+
+		// Initialize start time picker
+		const startTimePicker = flatpickr('#start_time', {
+			enableTime: true,
+			noCalendar: true,
+			dateFormat: 'H:i',
+			defaultDate: '18:00',
+			time_24hr: false
+		});
+
+		// Initialize end date picker
+		const endDatePicker = flatpickr('#end_date', {
+			dateFormat: 'Y-m-d',
+			minDate: 'today'
+		});
+
+		// Initialize end time picker
+		const endTimePicker = flatpickr('#end_time', {
+			enableTime: true,
+			noCalendar: true,
+			dateFormat: 'H:i',
+			defaultDate: '20:00',
+			time_24hr: false
+		});
+
+		// Initialize recurrence end date picker
+		const recurrenceEndPicker = flatpickr('#recurrence_end_date', {
+			dateFormat: 'Y-m-d',
+			minDate: 'today'
+		});
+
+		// All day event toggle
+		$('#all_day').on('change', function() {
+			const isAllDay = $(this).is(':checked');
+			$('#start_time_group, #end_time_group').toggle(!isAllDay);
+			$('#start_time, #end_time').prop('required', !isAllDay);
+		});
+
+		// Recurrence type handling
+		$('#recurrence_type').on('change', function() {
+			const recurrenceType = $(this).val();
+			
+			// Show/hide recurrence options
+			$('#recurrence_end').toggle(recurrenceType !== '');
+			$('#custom_recurrence').toggle(recurrenceType === 'custom');
+			
+			// Show monthly options when months selected in custom
+			if (recurrenceType === 'monthly') {
+				$('#monthly_options').show();
+			} else {
+				$('#monthly_options').hide();
+			}
+		});
+
+		// Custom recurrence unit handling
+		$('#recurrence_unit').on('change', function() {
+			const unit = $(this).val();
+			$('#monthly_options').toggle(unit === 'months');
+		});
+	}
 	
 	<?php if ( PartyMinder_Feature_Flags::is_at_protocol_enabled() ) : ?>
 	// Bluesky Integration Functions for Create Event Page

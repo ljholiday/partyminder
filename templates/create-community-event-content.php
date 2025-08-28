@@ -130,7 +130,7 @@ ob_start();
 			</div>
 
 			<div class="pm-form-row">
-				<?php include PARTYMINDER_PLUGIN_DIR . 'templates/partials/enhanced-date-picker.php'; ?>
+				<?php include PARTYMINDER_PLUGIN_DIR . 'templates/partials/date-picker.php'; ?>
 			</div>
 
 			<div class="pm-form-group">

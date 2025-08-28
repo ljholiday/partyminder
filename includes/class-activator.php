@@ -921,6 +921,47 @@ class PartyMinder_Activator {
 		if ( empty( $featured_image_column_exists ) ) {
 			$wpdb->query( "ALTER TABLE $conversations_table ADD COLUMN featured_image varchar(255) DEFAULT '' AFTER privacy" );
 		}
+
+		// Add enhanced date/time columns to events table for Flatpickr functionality
+		$events_table = $wpdb->prefix . 'partyminder_events';
+		
+		// Check and add end_date column
+		$end_date_column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $events_table LIKE %s",
+				'end_date'
+			)
+		);
+		if ( empty( $end_date_column_exists ) ) {
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN end_date datetime DEFAULT NULL AFTER event_time" );
+		}
+
+		// Check and add all_day column
+		$all_day_column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $events_table LIKE %s",
+				'all_day'
+			)
+		);
+		if ( empty( $all_day_column_exists ) ) {
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN all_day tinyint(1) DEFAULT 0 AFTER end_date" );
+		}
+
+		// Check and add recurrence columns
+		$recurrence_type_column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $events_table LIKE %s",
+				'recurrence_type'
+			)
+		);
+		if ( empty( $recurrence_type_column_exists ) ) {
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN recurrence_type varchar(20) DEFAULT 'none' AFTER all_day" );
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN recurrence_interval int(11) DEFAULT 1 AFTER recurrence_type" );
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN recurrence_days varchar(255) DEFAULT '' AFTER recurrence_interval" );
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN monthly_type varchar(20) DEFAULT 'date' AFTER recurrence_days" );
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN monthly_week varchar(20) DEFAULT '' AFTER monthly_type" );
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN monthly_day varchar(20) DEFAULT '' AFTER monthly_week" );
+		}
 	}
 
 	/**

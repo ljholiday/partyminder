@@ -102,8 +102,11 @@ $secondary_color = get_option( 'partyminder_secondary_color', '#764ba2' );
 $button_style    = get_option( 'partyminder_button_style', 'rounded' );
 $form_layout     = get_option( 'partyminder_form_layout', 'card' );
 
-// Format event date for datetime-local input
-$event_datetime = date( 'Y-m-d\TH:i', strtotime( $event->event_date ) );
+// Parse existing event date/time data for Flatpickr fields
+$event_start_date = date( 'Y-m-d', strtotime( $event->event_date ) );
+$event_start_time = $event->all_day ? '' : date( 'H:i', strtotime( $event->event_date ) );
+$event_end_date = $event->end_date ? date( 'Y-m-d', strtotime( $event->end_date ) ) : '';
+$event_end_time = ($event->end_date && !$event->all_day) ? date( 'H:i', strtotime( $event->end_date ) ) : '';
 
 // Set up template variables
 $page_title       = __( 'Edit Event', 'partyminder' );
@@ -186,18 +189,18 @@ ob_start();
 
 		<div class="pm-form-row">
 			<?php 
-			// Prepare existing event data for the enhanced date picker
+			// Set variables for date picker partial
 			$start_date = $_POST['start_date'] ?? $event_start_date;
 			$start_time = $_POST['start_time'] ?? $event_start_time;
 			$end_date = $_POST['end_date'] ?? $event_end_date;
 			$end_time = $_POST['end_time'] ?? $event_end_time;
-			$all_day = $_POST['all_day'] ?? ($event->all_day ?? false);
-			$date_range = $_POST['date_range'] ?? (!empty($event->end_date));
-			$repeat_type = $_POST['repeat_type'] ?? ($event->repeat_type ?? 'none');
-			$repeat_end = $_POST['repeat_end'] ?? ($event->repeat_end ?? '');
+			$all_day = $_POST['all_day'] ?? $event->all_day;
+			$recurrence_type = $_POST['recurrence_type'] ?? ($event->recurrence_type ?? 'none');
+			$recurrence_interval = $_POST['recurrence_interval'] ?? ($event->recurrence_interval ?? 1);
 			
-			include PARTYMINDER_PLUGIN_DIR . 'templates/partials/enhanced-date-picker.php'; 
+			include PARTYMINDER_PLUGIN_DIR . 'templates/partials/date-picker.php'; 
 			?>
+		</div>
 
 			<div class="pm-form-group">
 				<label for="guest_limit" class="pm-form-label"><?php _e( 'Guest Limit', 'partyminder' ); ?></label>

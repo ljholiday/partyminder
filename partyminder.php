@@ -849,30 +849,15 @@ class PartyMinder {
 				return;
 			}
 
-			$form_errors = array();
-
-			// Validate required fields
-			if ( empty( $_POST['event_title'] ) ) {
-				$form_errors[] = __( 'Event title is required.', 'partyminder' );
-			}
-			if ( empty( $_POST['event_date'] ) ) {
-				$form_errors[] = __( 'Event date is required.', 'partyminder' );
-			}
-			if ( empty( $_POST['host_email'] ) ) {
-				$form_errors[] = __( 'Host email is required.', 'partyminder' );
-			}
+			// Load form handler
+			require_once __DIR__ . '/includes/class-event-form-handler.php';
+			
+			// Validate form data
+			$form_errors = PartyMinder_Event_Form_Handler::validate_event_form( $_POST );
 
 			// If no errors, create the event
 			if ( empty( $form_errors ) ) {
-				$event_data = array(
-					'title'       => sanitize_text_field( wp_unslash( $_POST['event_title'] ) ),
-					'description' => wp_kses_post( wp_unslash( $_POST['event_description'] ) ),
-					'event_date'  => sanitize_text_field( $_POST['event_date'] ),
-					'venue'       => sanitize_text_field( $_POST['venue_info'] ),
-					'guest_limit' => intval( $_POST['guest_limit'] ),
-					'host_email'  => sanitize_email( $_POST['host_email'] ),
-					'host_notes'  => wp_kses_post( wp_unslash( $_POST['host_notes'] ) ),
-				);
+				$event_data = PartyMinder_Event_Form_Handler::process_event_form_data( $_POST );
 
 				$event_id = $this->create_event_via_form( $event_data );
 
@@ -1215,6 +1200,30 @@ class PartyMinder {
 					PARTYMINDER_PLUGIN_URL . 'assets/js/conversations-circles.js',
 					array( 'jquery', 'partyminder-public' ),
 					PARTYMINDER_VERSION,
+					true
+				);
+			}
+
+			// Add Flatpickr for event creation/editing
+			if ( $page_type === 'create-event' || $page_type === 'edit-event' ) {
+				wp_enqueue_style(
+					'flatpickr',
+					PARTYMINDER_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.css',
+					array(),
+					'4.6.13'
+				);
+				wp_enqueue_script(
+					'flatpickr',
+					PARTYMINDER_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.js',
+					array(),
+					'4.6.13',
+					true
+				);
+				wp_enqueue_script(
+					'partyminder-flatpickr-init',
+					PARTYMINDER_PLUGIN_URL . 'assets/js/flatpickr-event-form.js',
+					array( 'jquery', 'flatpickr' ),
+					'1.0.0',
 					true
 				);
 			}

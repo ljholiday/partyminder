@@ -41,30 +41,17 @@ class PartyMinder_Event_Ajax_Handler {
 		check_ajax_referer( 'create_partyminder_event', 'partyminder_event_nonce' );
 
 		$form_errors = array();
-		if ( empty( $_POST['event_title'] ) ) {
-			$form_errors[] = __( 'Event title is required.', 'partyminder' );
-		}
-		if ( empty( $_POST['event_date'] ) ) {
-			$form_errors[] = __( 'Event date is required.', 'partyminder' );
-		}
-		if ( empty( $_POST['host_email'] ) ) {
-			$form_errors[] = __( 'Host email is required.', 'partyminder' );
-		}
+		// Load form handler
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-form-handler.php';
+		
+		// Validate form data
+		$form_errors = PartyMinder_Event_Form_Handler::validate_event_form( $_POST );
 
 		if ( ! empty( $form_errors ) ) {
 			wp_send_json_error( implode( ' ', $form_errors ) );
 		}
 
-		$event_data = array(
-			'title'       => sanitize_text_field( wp_unslash( $_POST['event_title'] ) ),
-			'description' => wp_kses_post( wp_unslash( $_POST['event_description'] ) ),
-			'event_date'  => sanitize_text_field( $_POST['event_date'] ),
-			'venue'       => sanitize_text_field( $_POST['venue_info'] ),
-			'guest_limit' => intval( $_POST['guest_limit'] ),
-			'host_email'  => sanitize_email( $_POST['host_email'] ),
-			'host_notes'  => wp_kses_post( wp_unslash( $_POST['host_notes'] ) ),
-			'privacy'     => sanitize_text_field( $_POST['privacy'] ?? 'public' ),
-		);
+		$event_data = PartyMinder_Event_Form_Handler::process_event_form_data( $_POST );
 		
 
 		$event_manager = $this->get_event_manager();
@@ -128,30 +115,17 @@ class PartyMinder_Event_Ajax_Handler {
 		}
 
 		$form_errors = array();
-		if ( empty( $_POST['event_title'] ) ) {
-			$form_errors[] = __( 'Event title is required.', 'partyminder' );
-		}
-		if ( empty( $_POST['event_date'] ) ) {
-			$form_errors[] = __( 'Event date is required.', 'partyminder' );
-		}
-		if ( empty( $_POST['host_email'] ) ) {
-			$form_errors[] = __( 'Host email is required.', 'partyminder' );
-		}
+		// Load form handler
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-form-handler.php';
+		
+		// Validate form data
+		$form_errors = PartyMinder_Event_Form_Handler::validate_event_form( $_POST );
 
 		if ( ! empty( $form_errors ) ) {
 			wp_send_json_error( implode( ' ', $form_errors ) );
 		}
 
-		$event_data = array(
-			'title'       => sanitize_text_field( wp_unslash( $_POST['event_title'] ) ),
-			'description' => wp_kses_post( wp_unslash( $_POST['event_description'] ) ),
-			'event_date'  => sanitize_text_field( $_POST['event_date'] ),
-			'venue'       => sanitize_text_field( $_POST['venue_info'] ),
-			'guest_limit' => intval( $_POST['guest_limit'] ),
-			'host_email'  => sanitize_email( $_POST['host_email'] ),
-			'host_notes'  => wp_kses_post( wp_unslash( $_POST['host_notes'] ) ),
-			'privacy'     => sanitize_text_field( $_POST['privacy'] ?? 'public' ),
-		);
+		$event_data = PartyMinder_Event_Form_Handler::process_event_form_data( $_POST );
 
 		$result = $event_manager->update_event( $event_id, $event_data );
 
