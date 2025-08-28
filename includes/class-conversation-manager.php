@@ -934,9 +934,10 @@ class PartyMinder_Conversation_Manager {
 		$data = array(
 			'title' => sanitize_text_field( $update_data['title'] ),
 			'content' => wp_kses_post( $update_data['content'] ),
+			'slug' => $this->generate_conversation_slug( $update_data['title'] ),
 		);
 
-		$formats = array( '%s', '%s' );
+		$formats = array( '%s', '%s', '%s' );
 
 		// Only update privacy if provided (for standalone conversations)
 		if ( isset( $update_data['privacy'] ) ) {
