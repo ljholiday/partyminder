@@ -114,7 +114,7 @@ ob_start();
 			<p><?php printf( __( 'You\'ve already responded: %s', 'partyminder' ), '<strong>' . ucfirst( $existing_rsvp->status ) . '</strong>' ); ?></p>
 			
 			<div class="pm-mt-4">
-				<button type="button" class="pm-btn pm-btn-secondary" onclick="document.getElementById('update-rsvp-form').style.display='block'; this.style.display='none';">
+				<button type="button" class="pm-btn pm-btn" onclick="document.getElementById('update-rsvp-form').style.display='block'; this.style.display='none';">
 					<?php _e( 'Update My RSVP', 'partyminder' ); ?>
 				</button>
 			</div>

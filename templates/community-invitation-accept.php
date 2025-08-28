@@ -204,7 +204,7 @@ ob_start();
 			<?php else : ?>
 				<div style="text-align: center;">
 					<p><?php _e( 'Return to communities to explore other options.', 'partyminder' ); ?></p>
-					<a href="<?php echo home_url( '/communities' ); ?>" class="pm-btn pm-btn-secondary">
+					<a href="<?php echo home_url( '/communities' ); ?>" class="pm-btn pm-btn">
 						<span>🏘️</span> <?php _e( 'Browse Communities', 'partyminder' ); ?>
 					</a>
 				</div>

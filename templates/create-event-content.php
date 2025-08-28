@@ -72,10 +72,10 @@ ob_start();
 			<a href="<?php echo $creation_data['event_url']; ?>" class="pm-btn">
 				<?php _e( 'View Event', 'partyminder' ); ?>
 			</a>
-			<a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-btn pm-btn">
 				<?php _e( 'My Events', 'partyminder' ); ?>
 			</a>
-			<button type="button" onclick="navigator.share({title: 'Check out my event!', url: '<?php echo esc_js( $creation_data['event_url'] ); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js( $creation_data['event_url'] ); ?>')" class="pm-btn pm-btn-secondary">
+			<button type="button" onclick="navigator.share({title: 'Check out my event!', url: '<?php echo esc_js( $creation_data['event_url'] ); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js( $creation_data['event_url'] ); ?>')" class="pm-btn pm-btn">
 				<?php _e( 'Share Event', 'partyminder' ); ?>
 			</button>
 		</div>
@@ -194,7 +194,7 @@ ob_start();
 						<p class="pm-text-muted pm-mb-4">
 							<?php _e( 'Connect your Bluesky account to quickly invite your contacts after creating the event.', 'partyminder' ); ?>
 						</p>
-						<button type="button" class="pm-btn pm-btn-secondary" id="create-connect-bluesky-btn">
+						<button type="button" class="pm-btn pm-btn" id="create-connect-bluesky-btn">
 							<?php _e( 'Connect Bluesky Account', 'partyminder' ); ?>
 						</button>
 					</div>
@@ -229,7 +229,7 @@ ob_start();
 					<div class="pm-form-group">
 						<textarea class="pm-form-textarea" rows="2" placeholder="<?php _e( 'Add a personal message...', 'partyminder' ); ?>" disabled></textarea>
 					</div>
-					<button type="button" class="pm-btn pm-btn-secondary" disabled>
+					<button type="button" class="pm-btn pm-btn" disabled>
 						<?php _e( 'Available After Event Creation', 'partyminder' ); ?>
 					</button>
 				</div>
@@ -240,7 +240,7 @@ ob_start();
 			<button type="submit" name="partyminder_create_event" class="pm-btn pm-btn-lg">
 				<?php _e( 'Create Event', 'partyminder' ); ?>
 			</button>
-			<a href="<?php echo PartyMinder::get_events_page_url(); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo PartyMinder::get_events_page_url(); ?>" class="pm-btn pm-btn">
 				<?php _e( 'Back to Events', 'partyminder' ); ?>
 			</a>
 		</div>
@@ -373,7 +373,7 @@ jQuery(document).ready(function($) {
 				<div class="pm-modal pm-modal-sm">
 					<div class="pm-modal-header">
 						<h3>🦋 <?php _e( 'Connect to Bluesky', 'partyminder' ); ?></h3>
-						<button type="button" class="create-bluesky-connect-close pm-btn pm-btn-secondary" style="padding: 5px; border-radius: 50%; width: 35px; height: 35px;">×</button>
+						<button type="button" class="create-bluesky-connect-close pm-btn pm-btn" style="padding: 5px; border-radius: 50%; width: 35px; height: 35px;">×</button>
 					</div>
 					<div class="pm-modal-body">
 						<form id="create-bluesky-connect-form">
@@ -394,7 +394,7 @@ jQuery(document).ready(function($) {
 								<button type="submit" class="pm-btn">
 									<?php _e( 'Connect Account', 'partyminder' ); ?>
 								</button>
-								<button type="button" class="create-bluesky-connect-close pm-btn pm-btn-secondary">
+								<button type="button" class="create-bluesky-connect-close pm-btn pm-btn">
 									<?php _e( 'Cancel', 'partyminder' ); ?>
 								</button>
 							</div>

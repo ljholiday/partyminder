@@ -72,7 +72,7 @@ ob_start();
 			<button class="pm-btn pm-create-event-btn">
 				<?php _e( 'Create Event', 'partyminder' ); ?>
 			</button>
-			<a href="<?php echo home_url( '/communities/' . $community->slug . '/members' ); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo home_url( '/communities/' . $community->slug . '/members' ); ?>" class="pm-btn pm-btn">
 				<?php _e( 'View Members', 'partyminder' ); ?>
 			</a>
 		<?php elseif ( $is_logged_in ) : ?>
@@ -84,10 +84,10 @@ ob_start();
 				<?php _e( 'Login to Join', 'partyminder' ); ?>
 			</a>
 		<?php endif; ?>
-		<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn-secondary">
+		<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn">
 			<?php _e( 'Back to Community', 'partyminder' ); ?>
 		</a>
-		<a href="<?php echo home_url( '/communities/' . $community->slug . '/members' ); ?>" class="pm-btn pm-btn-secondary">
+		<a href="<?php echo home_url( '/communities/' . $community->slug . '/members' ); ?>" class="pm-btn pm-btn">
 			<?php _e( 'Members', 'partyminder' ); ?>
 		</a>
 	</div>
@@ -149,13 +149,13 @@ ob_start();
 		<!-- Event Filters -->
 		<div class="pm-flex pm-gap-4 pm-mb-4">
 			<span class="pm-text-muted"><?php _e( 'Filter:', 'partyminder' ); ?></span>
-			<button class="pm-filter-button pm-btn-secondary pm-active" data-filter="all">
+			<button class="pm-filter-button pm-btn pm-active" data-filter="all">
 				<?php _e( 'All Events', 'partyminder' ); ?>
 			</button>
-			<button class="pm-filter-button pm-btn-secondary" data-filter="upcoming">
+			<button class="pm-filter-button pm-btn" data-filter="upcoming">
 				<?php _e( 'Upcoming', 'partyminder' ); ?>
 			</button>
-			<button class="pm-filter-button pm-btn-secondary" data-filter="past">
+			<button class="pm-filter-button pm-btn" data-filter="past">
 				<?php _e( 'Past Events', 'partyminder' ); ?>
 			</button>
 		</div>
@@ -234,7 +234,7 @@ ob_start();
 						</div>
 						
 						<div class="pm-flex pm-gap">
-							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn-secondary">
+							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn">
 								<?php echo $is_past ? __( 'View', 'partyminder' ) : __( 'RSVP', 'partyminder' ); ?>
 							</a>
 						</div>

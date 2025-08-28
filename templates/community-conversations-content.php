@@ -205,7 +205,7 @@ ob_start();
 
 							if ( $page > 1 ) :
 								?>
-								<a href="<?php echo $base_url . '?paged=' . ( $page - 1 ); ?>" class="pm-btn pm-btn-secondary">
+								<a href="<?php echo $base_url . '?paged=' . ( $page - 1 ); ?>" class="pm-btn pm-btn">
 									<?php _e( '← Previous', 'partyminder' ); ?>
 								</a>
 							<?php endif; ?>
@@ -215,7 +215,7 @@ ob_start();
 							</span>
 							
 							<?php if ( $page < $total_pages ) : ?>
-								<a href="<?php echo $base_url . '?paged=' . ( $page + 1 ); ?>" class="pm-btn pm-btn-secondary">
+								<a href="<?php echo $base_url . '?paged=' . ( $page + 1 ); ?>" class="pm-btn pm-btn">
 									<?php _e( 'Next →', 'partyminder' ); ?>
 								</a>
 							<?php endif; ?>
@@ -257,13 +257,13 @@ ob_start();
 	</div>
 	<div class="pm-card-body">
 		<div class="pm-flex pm-flex-column pm-gap-4">
-			<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn">
 				<?php _e( 'Overview', 'partyminder' ); ?>
 			</a>
-			<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn pm-btn">
 				<?php _e( 'Events', 'partyminder' ); ?>
 			</a>
-			<a href="<?php echo home_url( '/communities/' . $community->slug . '/members' ); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo home_url( '/communities/' . $community->slug . '/members' ); ?>" class="pm-btn pm-btn">
 				<?php _e( 'Members', 'partyminder' ); ?>
 			</a>
 			<a href="<?php echo home_url( '/communities/' . $community->slug . '/conversations' ); ?>" class="pm-btn pm-btn-primary">

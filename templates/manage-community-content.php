@@ -184,16 +184,16 @@ ob_start();
 <!-- Secondary Menu Bar -->
 <div class="pm-section pm-mb-4">
 	<div class="pm-flex pm-gap-4">
-		<a href="?community_id=<?php echo $community_id; ?>&tab=settings" class="pm-btn <?php echo $current_tab === 'settings' ? '' : 'pm-btn-secondary'; ?>">
+		<a href="?community_id=<?php echo $community_id; ?>&tab=settings" class="pm-btn <?php echo $current_tab === 'settings' ? '' : 'pm-btn'; ?>">
 			<?php _e( 'Settings', 'partyminder' ); ?>
 		</a>
-		<a href="?community_id=<?php echo $community_id; ?>&tab=members" class="pm-btn <?php echo $current_tab === 'members' ? '' : 'pm-btn-secondary'; ?>">
+		<a href="?community_id=<?php echo $community_id; ?>&tab=members" class="pm-btn <?php echo $current_tab === 'members' ? '' : 'pm-btn'; ?>">
 			<?php _e( 'Members', 'partyminder' ); ?>
 		</a>
-		<a href="?community_id=<?php echo $community_id; ?>&tab=invitations" class="pm-btn <?php echo $current_tab === 'invitations' ? '' : 'pm-btn-secondary'; ?>">
+		<a href="?community_id=<?php echo $community_id; ?>&tab=invitations" class="pm-btn <?php echo $current_tab === 'invitations' ? '' : 'pm-btn'; ?>">
 			<?php _e( 'Invitations', 'partyminder' ); ?>
 		</a>
-		<a href="<?php echo esc_url( PartyMinder::get_community_url( $community->slug ) ); ?>" class="pm-btn pm-btn-secondary">
+		<a href="<?php echo esc_url( PartyMinder::get_community_url( $community->slug ) ); ?>" class="pm-btn pm-btn">
 			<?php _e( 'View Community', 'partyminder' ); ?>
 		</a>
 	</div>
@@ -506,8 +506,8 @@ document.addEventListener('DOMContentLoaded', function() {
 					<div class="pm-flex pm-flex-between" style="align-items: center; min-height: 40px;">
 						<div class="pm-flex pm-gap-4">
 							${member.role === 'member' ? 
-								'<button class="pm-btn pm-btn-secondary promote-btn" data-member-id="' + member.id + '"><?php _e( 'Promote', 'partyminder' ); ?></button>' : 
-								(member.role === 'admin' ? '<button class="pm-btn pm-btn-secondary demote-btn" data-member-id="' + member.id + '"><?php _e( 'Demote', 'partyminder' ); ?></button>' : '')
+								'<button class="pm-btn pm-btn promote-btn" data-member-id="' + member.id + '"><?php _e( 'Promote', 'partyminder' ); ?></button>' : 
+								(member.role === 'admin' ? '<button class="pm-btn pm-btn demote-btn" data-member-id="' + member.id + '"><?php _e( 'Demote', 'partyminder' ); ?></button>' : '')
 							}
 						</div>
 						<button class="pm-btn pm-btn-danger remove-btn" data-member-id="${member.id}" data-member-name="${member.display_name || member.email}">

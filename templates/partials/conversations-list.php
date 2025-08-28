@@ -82,7 +82,7 @@ if ( ! isset( $conversation_manager ) ) {
 					</div>
 				</div>
 				
-				<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-btn pm-btn-secondary">
+				<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-btn pm-btn">
 					<?php _e( 'View Details', 'partyminder' ); ?>
 				</a>
 			</div>

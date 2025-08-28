@@ -49,52 +49,31 @@ $page_description = __( 'Connect, share tips, and plan amazing gatherings with f
 ob_start();
 ?>
 
-<!-- Secondary Menu Bar -->
+<!-- Conversation Filters -->
+<?php if ( $user_logged_in ) : ?>
 <div class="pm-section pm-mb-4">
-	<div class="pm-flex pm-flex-between pm-gap-4">
-		<div class="pm-flex pm-gap-4">
-			<?php if ( $user_logged_in ) : ?>
-				<a href="<?php echo PartyMinder::get_create_conversation_url(); ?>" class="pm-btn">
-					<?php _e( 'Start Conversation', 'partyminder' ); ?>
-				</a>
-			<?php else : ?>
-				<a href="<?php echo add_query_arg( 'redirect_to', urlencode( $_SERVER['REQUEST_URI'] ), PartyMinder::get_login_url() ); ?>" class="pm-btn">
-					<?php _e( 'Login to Participate', 'partyminder' ); ?>
-				</a>
-			<?php endif; ?>
-			<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'Browse Events', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'Dashboard', 'partyminder' ); ?>
-			</a>
-		</div>
-
-		<!-- Filter Buttons -->
-		<?php if ( $user_logged_in ) : ?>
-		<div class="pm-conversations-nav pm-flex pm-gap-4 pm-flex-wrap">
-			<!-- Circle Filters -->
-			<button class="pm-btn pm-btn-secondary is-active" data-circle="close" role="tab" aria-selected="true" aria-controls="pm-convo-list">
-				<?php _e( 'Close Circle', 'partyminder' ); ?>
-			</button>
-			<button class="pm-btn pm-btn-secondary" data-circle="trusted" role="tab" aria-selected="false" aria-controls="pm-convo-list">
-				<?php _e( 'Trusted Circle', 'partyminder' ); ?>
-			</button>
-			<button class="pm-btn pm-btn-secondary" data-circle="extended" role="tab" aria-selected="false" aria-controls="pm-convo-list">
-				<?php _e( 'Extended Circle', 'partyminder' ); ?>
-			</button>
-			
-			<!-- Type Filters -->
-			<button class="pm-btn pm-btn-secondary" data-filter="events" role="tab" aria-selected="false" aria-controls="pm-convo-list">
-				<?php _e( 'Event Discussions', 'partyminder' ); ?>
-			</button>
-			<button class="pm-btn pm-btn-secondary" data-filter="communities" role="tab" aria-selected="false" aria-controls="pm-convo-list">
-				<?php _e( 'Community Discussions', 'partyminder' ); ?>
-			</button>
-		</div>
-		<?php endif; ?>
+	<div class="pm-conversations-nav pm-flex pm-gap-4 pm-flex-wrap">
+		<!-- Circle Filters -->
+		<button class="pm-btn pm-btn is-active" data-circle="close" role="tab" aria-selected="true" aria-controls="pm-convo-list">
+			<?php _e( 'Close Circle', 'partyminder' ); ?>
+		</button>
+		<button class="pm-btn pm-btn" data-circle="trusted" role="tab" aria-selected="false" aria-controls="pm-convo-list">
+			<?php _e( 'Trusted Circle', 'partyminder' ); ?>
+		</button>
+		<button class="pm-btn pm-btn" data-circle="extended" role="tab" aria-selected="false" aria-controls="pm-convo-list">
+			<?php _e( 'Extended Circle', 'partyminder' ); ?>
+		</button>
+		
+		<!-- Type Filters -->
+		<button class="pm-btn pm-btn" data-filter="events" role="tab" aria-selected="false" aria-controls="pm-convo-list">
+			<?php _e( 'Event Discussions', 'partyminder' ); ?>
+		</button>
+		<button class="pm-btn pm-btn" data-filter="communities" role="tab" aria-selected="false" aria-controls="pm-convo-list">
+			<?php _e( 'Community Discussions', 'partyminder' ); ?>
+		</button>
 	</div>
 </div>
+<?php endif; ?>
 
 <div class="pm-section">
 	<div id="pm-convo-list" class="pm-grid pm-grid-2 pm-gap">
@@ -145,7 +124,7 @@ ob_start();
 								</div>
 							</div>
 							
-							<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-btn pm-btn-secondary">
+							<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-btn pm-btn">
 								<?php _e( 'View Details', 'partyminder' ); ?>
 							</a>
 						</div>

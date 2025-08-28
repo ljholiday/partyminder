@@ -42,26 +42,6 @@ $page_description = $show_past
 ob_start();
 ?>
 
-<!-- Secondary Menu Bar -->
-<div class="pm-section pm-mb-4">
-	<div class="pm-flex pm-gap-4">
-		<a href="<?php echo esc_url( PartyMinder::get_create_event_url() ); ?>" class="pm-btn">
-			<?php _e( 'Create Event', 'partyminder' ); ?>
-		</a>
-		<?php if ( is_user_logged_in() ) : ?>
-			<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
-				<?php _e( 'My Events', 'partyminder' ); ?>
-			</a>
-		<?php endif; ?>
-		<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'Join Conversations', 'partyminder' ); ?>
-		</a>
-		<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'Dashboard', 'partyminder' ); ?>
-		</a>
-	</div>
-</div>
-
 <div class="pm-section">
 	<?php if ( ! empty( $events ) ) : ?>
 		<div class="pm-grid pm-grid-2 pm-gap">
@@ -127,7 +107,7 @@ ob_start();
 						</div>
 						
 						<?php if ( $is_past ) : ?>
-							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn-secondary">
+							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn">
 								<?php _e( 'View Details', 'partyminder' ); ?>
 							</a>
 						<?php else : ?>
@@ -142,11 +122,11 @@ ob_start();
 									<?php echo $is_full ? __( 'Join Waitlist', 'partyminder' ) : __( 'RSVP Now', 'partyminder' ); ?>
 								</a>
 							<?php elseif ( $is_host ) : ?>
-								<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn-secondary">
+								<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn">
 									<?php _e( 'View Details', 'partyminder' ); ?>
 								</a>
 							<?php else : ?>
-								<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn-secondary">
+								<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn">
 									<?php _e( 'View Details', 'partyminder' ); ?>
 								</a>
 							<?php endif; ?>
@@ -188,7 +168,7 @@ ob_start();
 				PartyMinder::get_login_url()
 			);
 			?>
-					" class="pm-btn pm-btn-secondary">
+					" class="pm-btn pm-btn">
 			<?php _e( 'Sign Up', 'partyminder' ); ?>
 		</a>
 		<?php endif; ?>

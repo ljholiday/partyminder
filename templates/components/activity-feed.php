@@ -93,7 +93,7 @@ if ( $user_id ) {
 					<?php _e( 'Create Event', 'partyminder' ); ?>
 				</a>
 				<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" 
-					class="pm-btn pm-btn-secondary pm-btn-sm">
+					class="pm-btn pm-btn pm-btn-sm">
 					<?php _e( 'Join Conversations', 'partyminder' ); ?>
 				</a>
 			</div>

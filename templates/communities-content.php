@@ -45,7 +45,8 @@ ob_start();
 		<?php _e( 'Community has been successfully deleted.', 'partyminder' ); ?>
 	</div>
 <?php endif; ?>
-<!-- Secondary Menu Bar -->
+
+<!-- Essential Actions -->
 <div class="pm-section pm-mb-4">
 	<div class="pm-flex pm-gap-4">
 		<?php if ( PartyMinder_Feature_Flags::can_user_create_community() ) : ?>
@@ -54,19 +55,10 @@ ob_start();
 			</a>
 		<?php endif; ?>
 		<?php if ( is_user_logged_in() && ! empty( $user_communities ) ) : ?>
-			<a href="<?php echo home_url( '/my-communities' ); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo home_url( '/my-communities' ); ?>" class="pm-btn pm-btn">
 				<?php _e( 'My Communities', 'partyminder' ); ?>
 			</a>
 		<?php endif; ?>
-		<a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'Create Event', 'partyminder' ); ?>
-		</a>
-		<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'Conversations', 'partyminder' ); ?>
-		</a>
-		<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'Dashboard', 'partyminder' ); ?>
-		</a>
 	</div>
 </div>
 
@@ -114,7 +106,7 @@ ob_start();
 								$is_member = $community_manager->is_member( $community->id, $current_user->ID );
 								?>
 								<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" 
-									class="pm-btn <?php echo $is_member ? 'pm-btn-secondary' : ''; ?>">
+									class="pm-btn <?php echo $is_member ? 'pm-btn' : ''; ?>">
 									<?php echo $is_member ? __( 'Member', 'partyminder' ) : __( 'Join', 'partyminder' ); ?>
 								</a>
 							<?php else : ?>

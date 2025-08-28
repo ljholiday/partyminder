@@ -436,7 +436,7 @@ ob_start();
 			<?php else : ?>
 				<div class="pm-text-center">
 					<p><?php _e( 'Return to events to explore other options.', 'partyminder' ); ?></p>
-					<a href="<?php echo home_url( '/events' ); ?>" class="pm-btn pm-btn-secondary">
+					<a href="<?php echo home_url( '/events' ); ?>" class="pm-btn pm-btn">
 						<span></span> <?php _e( 'Browse Events', 'partyminder' ); ?>
 					</a>
 				</div>

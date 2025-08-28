@@ -77,7 +77,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 
 	<div class="pm-sidebar">
+		<!-- Standardized Secondary Navigation -->
+		<?php include PARTYMINDER_PLUGIN_DIR . 'templates/partials/sidebar-secondary-nav.php'; ?>
+		
 		<!-- Sidebar Content -->
-		<?php echo $sidebar_content; ?>
+		<?php if ( isset( $sidebar_content ) && $sidebar_content ) : ?>
+			<?php echo $sidebar_content; ?>
+		<?php endif; ?>
 	</div>
 </div>
