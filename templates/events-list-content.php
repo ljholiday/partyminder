@@ -49,7 +49,7 @@ ob_start();
 			<?php _e( 'Create Event', 'partyminder' ); ?>
 		</a>
 		<?php if ( is_user_logged_in() ) : ?>
-			<a href="<?php echo esc_url( PartyMinder::get_my_events_url() ); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
 				<?php _e( 'My Events', 'partyminder' ); ?>
 			</a>
 		<?php endif; ?>

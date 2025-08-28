@@ -107,6 +107,9 @@ ob_start();
 			<a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn">
 				<?php _e( 'Create Event', 'partyminder' ); ?>
 			</a>
+			<a href="<?php echo add_query_arg('show_all', '1', PartyMinder::get_events_page_url()); ?>" class="pm-btn pm-btn-secondary">
+				<?php _e( 'All Events', 'partyminder' ); ?>
+			</a>
 			<a href="<?php echo PartyMinder::get_profile_url(); ?>" class="pm-btn pm-btn-secondary">
 				<?php _e( 'My Profile', 'partyminder' ); ?>
 			</a>

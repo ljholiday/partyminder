@@ -56,12 +56,20 @@ class PartyMinder_Page_Content_Injector {
 		}
 
 		ob_start();
-		echo '<div class="partyminder-content partyminder-events-page">';
-		$atts = array(
-			'limit'     => 10,
-			'show_past' => false,
-		);
-		include PARTYMINDER_PLUGIN_DIR . 'templates/events-list-content.php';
+		// Show all events if ?show_all=1 parameter, otherwise show user's events if logged in
+		$show_all = isset($_GET['show_all']) && $_GET['show_all'] === '1';
+		
+		if ( $show_all || ! is_user_logged_in() ) {
+			echo '<div class="partyminder-content partyminder-events-page">';
+			$atts = array(
+				'limit'     => 10,
+				'show_past' => false,
+			);
+			include PARTYMINDER_PLUGIN_DIR . 'templates/events-list-content.php';
+		} else {
+			echo '<div class="partyminder-content partyminder-my-events-page">';
+			include PARTYMINDER_PLUGIN_DIR . 'templates/my-events-content.php';
+		}
 		echo '</div>';
 		return ob_get_clean();
 	}
