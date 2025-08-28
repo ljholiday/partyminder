@@ -1323,3 +1323,130 @@ body.admin-bar .pm-page-two-column {
     grid-template-columns: 1fr;
   }
 }
+
+/* Mobile Menu - Minimal additions using existing classes */
+.pm-mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.pm-mobile-menu-toggle.pm-main-nav-item {
+  justify-content: center;
+  align-items: center;
+}
+
+.pm-hamburger-icon {
+  display: flex;
+  flex-direction: column;
+  width: 18px;
+  height: 14px;
+  gap: 3px;
+}
+
+.pm-hamburger-icon span {
+  height: 2px;
+  width: 100%;
+  background: currentColor;
+  border-radius: 1px;
+  transition: all 0.2s ease;
+  transform-origin: center;
+}
+
+.pm-mobile-menu-toggle-active .pm-hamburger-icon span:nth-child(1) {
+  transform: rotate(45deg) translate(3px, 3px);
+}
+
+.pm-mobile-menu-toggle-active .pm-hamburger-icon span:nth-child(2) {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.pm-mobile-menu-toggle-active .pm-hamburger-icon span:nth-child(3) {
+  transform: rotate(-45deg) translate(3px, -3px);
+}
+
+/* Mobile Menu Modal Positioning */
+.pm-mobile-menu-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.pm-mobile-menu-modal .pm-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.pm-mobile-menu-modal .pm-modal-content {
+  position: relative;
+  z-index: 2;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  width: 100%;
+  max-width: 320px;
+}
+
+.pm-mobile-menu-close {
+  min-width: auto;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .pm-mobile-menu-toggle {
+    display: flex;
+  }
+  
+  .pm-has-mobile-menu .pm-btn-secondary,
+  .pm-has-mobile-menu .pm-btn:not(:first-child) {
+    display: none;
+  }
+  
+  .pm-mobile-menu-modal {
+    padding: 1rem;
+  }
+  
+  .pm-mobile-menu-modal .pm-modal-content {
+    max-width: none;
+    width: 100%;
+  }
+  
+  /* Hide sidebar completely on mobile since navigation is now in mobile menu */
+  .pm-sidebar {
+    display: none;
+  }
+  
+  /* Make main content full width on mobile */
+  .pm-main-content {
+    flex: 1;
+    max-width: none;
+  }
+  
+  /* Adjust two-column layout for mobile */
+  .pm-two-column-layout {
+    flex-direction: column;
+  }
+}

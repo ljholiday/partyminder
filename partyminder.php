@@ -240,6 +240,7 @@ class PartyMinder {
 		wp_add_inline_style( 'partyminder', $custom_css );
 
 		wp_enqueue_script( 'partyminder-public', PARTYMINDER_PLUGIN_URL . 'assets/js/public.js', array( 'jquery' ), PARTYMINDER_VERSION, true );
+		wp_enqueue_script( 'partyminder-mobile-menu', PARTYMINDER_PLUGIN_URL . 'assets/js/mobile-menu.js', array(), PARTYMINDER_VERSION, true );
 
 		$current_user = wp_get_current_user();
 		wp_localize_script(

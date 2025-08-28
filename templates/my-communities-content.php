@@ -61,7 +61,7 @@ ob_start();
 					<?php _e( 'Create Community', 'partyminder' ); ?>
 				</a>
 			<?php endif; ?>
-			<a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo PartyMinder::get_create_event_url(); ?>" class="pm-btn pm-btn">
 				<?php _e( 'Create Event', 'partyminder' ); ?>
 			</a>
 		<?php else : ?>
@@ -69,10 +69,10 @@ ob_start();
 				<?php _e( 'Login', 'partyminder' ); ?>
 			</a>
 		<?php endif; ?>
-		<a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn-secondary">
+		<a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn">
 			<?php _e( 'Browse Communities', 'partyminder' ); ?>
 		</a>
-		<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
+		<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn">
 			<?php _e( 'Dashboard', 'partyminder' ); ?>
 		</a>
 	</div>
@@ -145,11 +145,11 @@ ob_start();
 					</div>
 					
 					<div class="pm-flex pm-gap">
-						<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn-secondary">
+						<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn">
 							<?php _e( 'View', 'partyminder' ); ?>
 						</a>
 						<?php if ( $community->role === 'admin' ) : ?>
-							<a href="<?php echo esc_url( site_url( '/manage-community?community_id=' . $community->id . '&tab=settings' ) ); ?>" class="pm-btn pm-btn-secondary">
+							<a href="<?php echo esc_url( site_url( '/manage-community?community_id=' . $community->id . '&tab=settings' ) ); ?>" class="pm-btn pm-btn">
 								<?php _e( 'Manage', 'partyminder' ); ?>
 							</a>
 						<?php endif; ?>
@@ -171,7 +171,7 @@ ob_start();
 			<?php _e( 'Browse Communities', 'partyminder' ); ?>
 		</a>
 		<?php if ( PartyMinder_Feature_Flags::can_user_create_community() ) : ?>
-			<a href="<?php echo esc_url( site_url( '/create-community' ) ); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo esc_url( site_url( '/create-community' ) ); ?>" class="pm-btn pm-btn">
 				<?php _e( 'Create Community', 'partyminder' ); ?>
 			</a>
 		<?php endif; ?>

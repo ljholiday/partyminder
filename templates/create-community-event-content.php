@@ -73,21 +73,6 @@ $page_description = sprintf( __( 'Create a new event for the %s community.', 'pa
 ob_start();
 ?>
 
-<!-- Secondary Menu Bar -->
-<div class="pm-section pm-mb-4">
-	<div class="pm-flex pm-gap-4">
-		<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'Back to Events', 'partyminder' ); ?>
-		</a>
-		<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'Community Overview', 'partyminder' ); ?>
-		</a>
-		<a href="<?php echo PartyMinder::get_dashboard_url(); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'Dashboard', 'partyminder' ); ?>
-		</a>
-	</div>
-</div>
-
 <?php if ( $event_created ) : ?>
 	<!-- Success Message -->
 	<div class="pm-section pm-mb-4">
@@ -95,7 +80,7 @@ ob_start();
 			<h4 class="pm-heading pm-heading-sm"><?php _e( 'Community Event Created!', 'partyminder' ); ?></h4>
 			<p><?php _e( 'Your community event has been successfully created and is now live.', 'partyminder' ); ?></p>
 			<div class="pm-mt-4">
-				<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn pm-btn-secondary">
+				<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn pm-btn">
 					<?php _e( 'View Community Events', 'partyminder' ); ?>
 				</a>
 			</div>
@@ -222,7 +207,7 @@ ob_start();
 			<button type="submit" class="pm-btn pm-btn-lg">
 				<?php _e( 'Create Community Event', 'partyminder' ); ?>
 			</button>
-			<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn pm-btn">
 				<?php _e( 'Cancel', 'partyminder' ); ?>
 			</a>
 		</div>

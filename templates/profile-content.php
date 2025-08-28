@@ -70,7 +70,7 @@ if ( $is_editing ) {
 		echo '<div class="pm-alert pm-alert-success pm-mb-4">';
 		echo '<h4 class="pm-heading pm-heading-sm">' . __( 'Profile Updated!', 'partyminder' ) . '</h4>';
 		echo '<p>' . __( 'Your profile has been successfully updated.', 'partyminder' ) . '</p>';
-		echo '<a href="' . esc_url( PartyMinder::get_profile_url() ) . '" class="pm-btn pm-btn-secondary">';
+		echo '<a href="' . esc_url( PartyMinder::get_profile_url() ) . '" class="pm-btn pm-btn">';
 		echo '👤 ' . __( 'View Profile', 'partyminder' );
 		echo '</a>';
 		echo '</div>';
@@ -149,18 +149,18 @@ if ( $is_editing ) {
 					<div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
 						<label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
 							<input type="radio" name="avatar_source" value="gravatar" <?php checked( $profile_data['avatar_source'] ?? 'gravatar', 'gravatar' ); ?>>
-							<span class="pm-btn pm-btn-secondary"><?php _e( 'Gravatar', 'partyminder' ); ?></span>
+							<span class="pm-btn pm-btn"><?php _e( 'Gravatar', 'partyminder' ); ?></span>
 						</label>
 						<label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
 							<input type="radio" name="avatar_source" value="custom" <?php checked( $profile_data['avatar_source'] ?? 'gravatar', 'custom' ); ?>>
-							<span class="pm-btn pm-btn-secondary"><?php _e( 'Custom Avatar', 'partyminder' ); ?></span>
+							<span class="pm-btn pm-btn"><?php _e( 'Custom Avatar', 'partyminder' ); ?></span>
 						</label>
 					</div>
 				</div>
 				
 				<div class="pm-avatar-upload">
 					<input type="file" id="avatar_upload" accept="image/*" style="display: none;">
-					<button type="button" class="pm-btn pm-btn-secondary" onclick="document.getElementById('avatar_upload').click()">
+					<button type="button" class="pm-btn pm-btn" onclick="document.getElementById('avatar_upload').click()">
 						Upload Profile Photo
 					</button>
 					<div class="pm-upload-progress" style="display: none; margin-top: 10px;">
@@ -197,7 +197,7 @@ if ( $is_editing ) {
 				
 				<div class="pm-cover-upload">
 					<input type="file" id="cover_upload" accept="image/*" style="display: none;">
-					<button type="button" class="pm-btn pm-btn-secondary" onclick="document.getElementById('cover_upload').click()">
+					<button type="button" class="pm-btn pm-btn" onclick="document.getElementById('cover_upload').click()">
 						Upload Cover Photo
 					</button>
 					<div class="pm-upload-progress" style="display: none; margin-top: 10px;">
@@ -216,7 +216,7 @@ if ( $is_editing ) {
 			<button type="submit" class="pm-btn">
 				<?php _e( 'Save Profile Info', 'partyminder' ); ?>
 			</button>
-			<a href="<?php echo esc_url( PartyMinder::get_profile_url() ); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo esc_url( PartyMinder::get_profile_url() ); ?>" class="pm-btn pm-btn">
 				<?php _e( 'View Profile', 'partyminder' ); ?>
 			</a>
 		</div>
@@ -339,17 +339,17 @@ if ( $is_editing ) {
 				<a href="<?php echo esc_url( PartyMinder::get_create_event_url() ); ?>" class="pm-btn">
 					<?php _e( 'Create Event', 'partyminder' ); ?>
 				</a>
-				<a href="<?php echo add_query_arg( 'edit', '1', PartyMinder::get_profile_url() ); ?>" class="pm-btn pm-btn-secondary">
+				<a href="<?php echo add_query_arg( 'edit', '1', PartyMinder::get_profile_url() ); ?>" class="pm-btn pm-btn">
 					<?php _e( 'Edit Profile', 'partyminder' ); ?>
 				</a>
 			<?php endif; ?>
-			<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn">
 				<?php _e( 'Conversations', 'partyminder' ); ?>
 			</a>
-			<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn">
 				<?php _e( 'Browse Events', 'partyminder' ); ?>
 			</a>
-			<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn">
 				<?php _e( 'Dashboard', 'partyminder' ); ?>
 			</a>
 		</div>

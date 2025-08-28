@@ -66,7 +66,7 @@ ob_start();
 				<a href="<?php echo add_query_arg( 'topic_id', $topic->id, PartyMinder::get_create_conversation_url() ); ?>" class="pm-btn">
 					<?php _e( 'Start New Conversation', 'partyminder' ); ?>
 				</a>
-				<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
+				<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn">
 					← <?php _e( 'Back to All Topics', 'partyminder' ); ?>
 				</a>
 			</div>

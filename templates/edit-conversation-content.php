@@ -102,13 +102,13 @@ $breadcrumbs      = array(
 ob_start();
 ?>
 
-<!-- Secondary Navigation -->
+<!-- Navigation -->
 <div class="pm-section pm-mb-4">
 	<div class="pm-flex pm-gap-4">
-		<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-btn pm-btn-secondary">
+		<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-btn pm-btn">
 			<?php _e( '← Back to Conversation', 'partyminder' ); ?>
 		</a>
-		<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
+		<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn">
 			<?php _e( 'All Conversations', 'partyminder' ); ?>
 		</a>
 	</div>
@@ -211,7 +211,7 @@ ob_start();
 		<button type="submit" name="partyminder_update_conversation" class="pm-btn">
 			<?php _e( 'Save Changes', 'partyminder' ); ?>
 		</button>
-		<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-btn pm-btn-secondary">
+		<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-btn pm-btn">
 			<?php _e( 'Cancel', 'partyminder' ); ?>
 		</a>
 	</div>

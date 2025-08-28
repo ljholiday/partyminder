@@ -85,7 +85,7 @@ ob_start();
 <!-- Secondary Menu Bar -->
 <div class="pm-section pm-mb-4">
 	<div class="pm-flex pm-gap-4">
-		<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn-secondary">
+		<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn">
 			<?php _e( '← Back to Community', 'partyminder' ); ?>
 		</a>
 	</div>

@@ -77,7 +77,6 @@ $breadcrumbs      = array(
 ob_start();
 ?>
 
-<!-- Secondary Navigation for Admins -->
 <?php
 // Check if current user can manage this conversation
 $can_manage_conversation = false;
@@ -89,19 +88,16 @@ if ( is_user_logged_in() ) {
 ?>
 
 <?php if ( $can_manage_conversation ) : ?>
-<!-- Admin Navigation Bar -->
+<!-- Admin Controls -->
 <div class="pm-section pm-mb-4">
 	<div class="pm-flex pm-gap-4">
-		<a href="<?php echo home_url( '/conversations/edit/' . $conversation->slug ); ?>" class="pm-btn pm-btn-secondary">
+		<a href="<?php echo home_url( '/conversations/edit/' . $conversation->slug ); ?>" class="pm-btn pm-btn">
 			<?php _e( 'Edit Conversation', 'partyminder' ); ?>
 		</a>
 		<button type="button" class="pm-btn pm-btn-danger delete-conversation-btn" 
 				data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
 			<?php _e( 'Delete Conversation', 'partyminder' ); ?>
 		</button>
-		<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
-			<?php _e( 'Back to Conversations', 'partyminder' ); ?>
-		</a>
 	</div>
 </div>
 <?php endif; ?>
@@ -129,12 +125,12 @@ if ( is_user_logged_in() ) {
 		
 		<div class="pm-flex pm-gap">
 			<?php if ( $event_data ) : ?>
-				<a href="<?php echo home_url( '/events/' . $event_data->slug ); ?>" class="pm-btn pm-btn-secondary pm-btn-sm">
+				<a href="<?php echo home_url( '/events/' . $event_data->slug ); ?>" class="pm-btn pm-btn pm-btn-sm">
 					<?php _e( 'Go To Event', 'partyminder' ); ?>
 				</a>
 			<?php endif; ?>
 			<?php if ( $user_email ) : ?>
-				<button class="pm-btn pm-btn-secondary pm-btn-sm follow-btn" 
+				<button class="pm-btn pm-btn pm-btn-sm follow-btn" 
 						data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
 					<?php if ( $is_following ) : ?>
 						<?php _e( 'Unfollow', 'partyminder' ); ?>
@@ -225,7 +221,7 @@ if ( ! empty( $conversation_photos ) ) :
 					<?php echo $conversation_manager->process_content_embeds( $reply->content ); ?>
 				</div>
 				<div class="pm-reply-actions">
-					<a href="#reply-form" class="pm-btn pm-btn-secondary pm-btn-sm reply-btn"
+					<a href="#reply-form" class="pm-btn pm-btn pm-btn-sm reply-btn"
 						data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>"
 						data-parent-reply-id="<?php echo esc_attr( $reply->id ); ?>">
 						<?php _e( 'Reply', 'partyminder' ); ?>
@@ -240,7 +236,7 @@ if ( ! empty( $conversation_photos ) ) :
 					}
 					if ( $can_delete ) :
 					?>
-						<button type="button" class="pm-btn pm-btn-secondary pm-btn-sm delete-reply-btn" 
+						<button type="button" class="pm-btn pm-btn pm-btn-sm delete-reply-btn" 
 								data-reply-id="<?php echo esc_attr( $reply->id ); ?>"
 								data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
 							<?php _e( 'Delete', 'partyminder' ); ?>
@@ -319,7 +315,7 @@ if ( ! empty( $conversation_photos ) ) :
 				<span class="button-text"><?php _e( 'Post Reply', 'partyminder' ); ?></span>
 				<span class="button-spinner" style="display: none;"><?php _e( 'Posting...', 'partyminder' ); ?></span>
 			</button>
-			<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn">
 				← <?php _e( 'Back to Conversations', 'partyminder' ); ?>
 			</a>
 		</div>
@@ -427,14 +423,14 @@ ob_start();
 			</button>
 		<?php endif; ?>
 		<?php if ( $event_data ) : ?>
-			<a href="<?php echo home_url( '/events/' . $event_data->slug ); ?>" class="pm-btn pm-btn-secondary">
+			<a href="<?php echo home_url( '/events/' . $event_data->slug ); ?>" class="pm-btn pm-btn">
 				<?php _e( 'View Event', 'partyminder' ); ?>
 			</a>
 		<?php endif; ?>
-		<a href="#reply-form" class="pm-btn pm-btn-secondary">
+		<a href="#reply-form" class="pm-btn pm-btn">
 			<?php _e( 'Add Reply', 'partyminder' ); ?>
 		</a>
-		<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn-secondary">
+		<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn">
 			<?php _e( 'Back to Conversations', 'partyminder' ); ?>
 		</a>
 	</div>
