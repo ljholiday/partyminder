@@ -22,6 +22,16 @@ $is_logged_in = is_user_logged_in();
                 <?php _e( 'Create Event', 'partyminder' ); ?>
             </a>
             
+            <a href="<?php echo esc_url( PartyMinder::get_create_conversation_url() ); ?>" class="pm-btn pm-btn-secondary">
+                <?php _e( 'Create Conversation', 'partyminder' ); ?>
+            </a>
+            
+            <?php if ( PartyMinder_Feature_Flags::can_user_create_community() ) : ?>
+                <a href="<?php echo esc_url( site_url( '/create-community' ) ); ?>" class="pm-btn pm-btn-secondary">
+                    <?php _e( 'Create Community', 'partyminder' ); ?>
+                </a>
+            <?php endif; ?>
+            
             <a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
                 <?php _e( 'My Events', 'partyminder' ); ?>
             </a>
@@ -32,10 +42,6 @@ $is_logged_in = is_user_logged_in();
             
             <a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn-secondary">
                 <?php _e( 'Join Conversations', 'partyminder' ); ?>
-            </a>
-            
-            <a href="<?php echo esc_url( PartyMinder::get_create_conversation_url() ); ?>" class="pm-btn pm-btn-secondary">
-                <?php _e( 'Start Conversation', 'partyminder' ); ?>
             </a>
             
             <a href="<?php echo esc_url( PartyMinder::get_communities_url() ); ?>" class="pm-btn pm-btn-secondary">

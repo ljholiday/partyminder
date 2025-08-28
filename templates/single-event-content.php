@@ -76,6 +76,11 @@ ob_start();
 		<div class="pm-card-body">
 			<div class="pm-grid pm-grid-2 pm-gap pm-mb-4">
 				<div class="pm-flex pm-gap">
+					<strong>Host:</strong>
+					<span><?php echo esc_html( $event->host_email ); ?></span>
+				</div>
+				
+				<div class="pm-flex pm-gap">
 					<strong>Date:</strong>
 					<span>
 						<?php if ( $is_today ) : ?>
@@ -247,31 +252,6 @@ ob_start();
 ?>
 
 
-<div class="pm-section pm-mb">
-	<div class="pm-card">
-		<div class="pm-card-header">
-			<h3 class="pm-heading pm-heading-md">Event Details</h3>
-		</div>
-		<div class="pm-card-body">
-			<div class="pm-flex pm-flex-column pm-gap">
-				<div>
-					<strong class="pm-text-primary">Host:</strong><br>
-					<span class="pm-text-muted"><?php echo esc_html( $event->host_email ); ?></span>
-				</div>
-				<div>
-					<strong class="pm-text-primary">Created:</strong><br>
-					<span class="pm-text-muted"><?php echo date( 'F j, Y', strtotime( $event->created_at ) ); ?></span>
-				</div>
-				<?php if ( $event->guest_limit > 0 ) : ?>
-				<div>
-					<strong class="pm-text-primary">Guest Limit:</strong><br>
-					<span class="pm-text-muted"><?php echo $event->guest_limit; ?> people</span>
-				</div>
-				<?php endif; ?>
-			</div>
-		</div>
-	</div>
-</div>
 
 <?php if ( ! $is_past && ! $is_event_host ) : ?>
 <div class="pm-section pm-mb" id="rsvp">
