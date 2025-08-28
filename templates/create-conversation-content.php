@@ -279,8 +279,9 @@ jQuery(document).ready(function($) {
 			contentType: false,
 			success: function(response) {
 				if (response.success) {
-					// Stay on page and show success message instead of redirecting
-					window.location.href = '<?php echo PartyMinder::get_create_conversation_url(); ?>?partyminder_created=1';
+					// Redirect to the URL provided by the server (event page for event conversations)
+					const redirectUrl = response.data.redirect_url || '<?php echo PartyMinder::get_create_conversation_url(); ?>?partyminder_created=1';
+					window.location.href = redirectUrl;
 				} else {
 					// Show error message
 					$form.before('<div class="pm-alert pm-alert-error pm-mb-4"><h4><?php _e( 'Please fix the following issues:', 'partyminder' ); ?></h4><ul><li>' + (response.data || 'Unknown error occurred') + '</li></ul></div>');
