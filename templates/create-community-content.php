@@ -171,20 +171,15 @@ jQuery(document).ready(function($) {
 		// Disable submit button and show loading
 		$submitBtn.prop('disabled', true).html('<?php _e( 'Creating Community...', 'partyminder' ); ?>');
 		
-		// Prepare form data
+		// Prepare form data including file upload
 		const formData = new FormData(this);
-		formData.append('action', 'partyminder_create_community');
-		
-		// Convert FormData to regular object for jQuery
-		const data = {};
-		for (let [key, value] of formData.entries()) {
-			data[key] = value;
-		}
 		
 		$.ajax({
 			url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
 			type: 'POST',
-			data: data,
+			data: formData,
+			processData: false,
+			contentType: false,
 			success: function(response) {
 				if (response.success) {
 					// Redirect to success page or community

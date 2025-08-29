@@ -271,6 +271,13 @@ jQuery(document).ready(function($) {
 		// Prepare form data including file upload
 		const formData = new FormData(this);
 		
+		// Debug logging for mobile issues
+		console.log('Form submission started', {
+			url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
+			userAgent: navigator.userAgent,
+			formDataEntries: Array.from(formData.entries())
+		});
+		
 		$.ajax({
 			url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
 			type: 'POST',
@@ -290,8 +297,25 @@ jQuery(document).ready(function($) {
 					$('html, body').animate({scrollTop: 0}, 500);
 				}
 			},
-			error: function() {
-				$form.before('<div class="pm-alert pm-alert-error pm-mb-4"><h4><?php _e( 'Error', 'partyminder' ); ?></h4><p><?php _e( 'Network error. Please try again.', 'partyminder' ); ?></p></div>');
+			error: function(xhr, status, error) {
+				console.log('AJAX Error Details:', {
+					xhr: xhr,
+					status: status,
+					error: error,
+					responseText: xhr.responseText
+				});
+				
+				let errorMessage = '<?php _e( 'Network error. Please try again.', 'partyminder' ); ?>';
+				if (xhr.status === 403) {
+					errorMessage = '<?php _e( 'Security check failed. Please refresh the page and try again.', 'partyminder' ); ?>';
+				} else if (xhr.status === 500) {
+					errorMessage = '<?php _e( 'Server error. Please try again later.', 'partyminder' ); ?>';
+				} else if (xhr.status === 0) {
+					errorMessage = '<?php _e( 'Connection failed. Please check your internet connection.', 'partyminder' ); ?>';
+				}
+				
+				// Show error message with fallback option
+				$form.before('<div class="pm-alert pm-alert-error pm-mb-4"><h4><?php _e( 'Error', 'partyminder' ); ?></h4><p>' + errorMessage + '</p><p><button type="button" class="pm-btn pm-btn-secondary" onclick="window.pmFallbackSubmit()"><?php _e( 'Try Alternative Method', 'partyminder' ); ?></button></p></div>');
 				
 				// Scroll to top to show error message
 				$('html, body').animate({scrollTop: 0}, 500);
@@ -302,5 +326,16 @@ jQuery(document).ready(function($) {
 			}
 		});
 	});
+
+	// Fallback function for mobile issues
+	window.pmFallbackSubmit = function() {
+		console.log('Using fallback submission method');
+		// Change form action to a regular page that handles POST
+		const $form = $('#partyminder-conversation-form');
+		$form.off('submit'); // Remove AJAX handler
+		$form.attr('action', '<?php echo esc_url( $_SERVER['REQUEST_URI'] ); ?>'); // Submit to current page
+		$form.append('<input type="hidden" name="pm_fallback_submit" value="1">');
+		$form.submit(); // Regular form submission
+	};
 });
 </script>
