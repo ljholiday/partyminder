@@ -51,13 +51,13 @@ $invitation_community_id = intval($_GET['community'] ?? 0);
 $show_invitation_prompt = false;
 $valid_invitation = null;
 
-if ( $invitation_token && $invitation_community_id === $community->id ) {
+if ( $invitation_token && $invitation_community_id === intval($community->id) ) {
 	// Verify invitation exists and is valid
 	global $wpdb;
 	$invitations_table = $wpdb->prefix . 'partyminder_community_invitations';
 	$valid_invitation = $wpdb->get_row(
 		$wpdb->prepare(
-			"SELECT * FROM $invitations_table WHERE token = %s AND community_id = %d AND status = 'pending' AND expires_at > NOW()",
+			"SELECT * FROM $invitations_table WHERE invitation_token = %s AND community_id = %d AND status = 'pending' AND expires_at > NOW()",
 			$invitation_token,
 			$community->id
 		)

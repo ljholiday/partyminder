@@ -552,6 +552,9 @@ document.addEventListener('DOMContentLoaded', function() {
 					</div>
 					<div class="pm-invitation-actions">
 						<span class="pm-member-role pending"><?php _e( 'pending', 'partyminder' ); ?></span>
+						<button class="pm-btn copy-invitation-btn" data-invitation-token="${invitation.invitation_token}" data-community-id="${invitation.community_id}">
+							<?php _e( 'Copy Invite', 'partyminder' ); ?>
+						</button>
 						<button class="pm-btn pm-btn-danger cancel-invitation-btn" data-invitation-id="${invitation.id}" data-email="${invitation.invited_email}">
 							<?php _e( 'Cancel', 'partyminder' ); ?>
 						</button>
@@ -600,6 +603,52 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 	// Attach event listeners for invitation actions
 	function attachInvitationActionListeners() {
+		// Copy invitation buttons
+		document.querySelectorAll('.copy-invitation-btn').forEach(btn => {
+			btn.addEventListener('click', function() {
+				const token = this.getAttribute('data-invitation-token');
+				const communityId = this.getAttribute('data-community-id');
+				
+				// Get community slug from the current URL or community data
+				const communitySlug = '<?php echo esc_js( $community->slug ); ?>';
+				const invitationUrl = '<?php echo home_url(); ?>/communities/' + communitySlug + '?invitation=' + token + '&community=' + communityId;
+				
+				// Copy to clipboard
+				if (navigator.clipboard && navigator.clipboard.writeText) {
+					navigator.clipboard.writeText(invitationUrl).then(() => {
+						// Change button text temporarily
+						const originalText = this.textContent;
+						this.textContent = '<?php _e( 'Copied!', 'partyminder' ); ?>';
+						setTimeout(() => {
+							this.textContent = originalText;
+						}, 2000);
+					}).catch(err => {
+						console.error('Failed to copy: ', err);
+						alert('<?php _e( 'Failed to copy to clipboard', 'partyminder' ); ?>');
+					});
+				} else {
+					// Fallback for older browsers
+					const textArea = document.createElement('textarea');
+					textArea.value = invitationUrl;
+					document.body.appendChild(textArea);
+					textArea.focus();
+					textArea.select();
+					try {
+						document.execCommand('copy');
+						const originalText = this.textContent;
+						this.textContent = '<?php _e( 'Copied!', 'partyminder' ); ?>';
+						setTimeout(() => {
+							this.textContent = originalText;
+						}, 2000);
+					} catch (err) {
+						console.error('Fallback copy failed: ', err);
+						alert('<?php _e( 'Failed to copy to clipboard', 'partyminder' ); ?>');
+					}
+					document.body.removeChild(textArea);
+				}
+			});
+		});
+		
 		// Cancel invitation buttons
 		document.querySelectorAll('.cancel-invitation-btn').forEach(btn => {
 			btn.addEventListener('click', function() {

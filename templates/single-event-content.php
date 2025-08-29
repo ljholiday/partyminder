@@ -71,6 +71,14 @@ ob_start();
 						<?php endif; ?>
 					</div>
 				</div>
+				
+				<?php if ( $is_event_host ) : ?>
+				<div class="pm-flex pm-gap">
+					<a href="<?php echo esc_url( site_url( '/manage-event?event_id=' . $event->id ) ); ?>" class="pm-btn">
+						<?php _e( 'Manage Event', 'partyminder' ); ?>
+					</a>
+				</div>
+				<?php endif; ?>
 			</div>
 		</div>
 		
