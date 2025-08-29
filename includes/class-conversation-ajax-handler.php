@@ -98,6 +98,10 @@ class PartyMinder_Conversation_Ajax_Handler {
 					error_log( 'Cover image upload failed: ' . $upload_result->get_error_message() );
 				}
 			}
+
+			// Get the created conversation for URL generation
+			$conversation = $conversation_manager->get_conversation_by_id( $conversation_id );
+			
 			$success_data = array(
 				'conversation_id' => $conversation_id,
 				'message'         => __( 'Conversation started successfully!', 'partyminder' ),
@@ -117,7 +121,20 @@ class PartyMinder_Conversation_Ajax_Handler {
 					$success_data['redirect_url'] = home_url( '/communities/' . $community->slug );
 					$success_data['message']      = __( 'Community conversation created successfully!', 'partyminder' );
 				}
+			} else {
+				// For general conversations, redirect to the new conversation page
+				if ( $conversation ) {
+					$success_data['redirect_url'] = home_url( '/conversations/' . $conversation->slug );
+				}
 			}
+
+			// Store success data in transient for non-AJAX fallback
+			$transient_key = 'partyminder_conversation_created_' . ( is_user_logged_in() ? get_current_user_id() : session_id() );
+			set_transient( $transient_key, array(
+				'id' => $conversation_id,
+				'url' => $success_data['redirect_url'] ?? '',
+				'message' => $success_data['message']
+			), 300 ); // 5 minutes
 
 			wp_send_json_success( $success_data );
 		} else {
