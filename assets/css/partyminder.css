@@ -1367,6 +1367,11 @@ body.admin-bar .pm-page-two-column {
   transform: rotate(-45deg) translate(3px, -3px);
 }
 
+/* Utility Classes */
+.pm-hidden {
+  display: none;
+}
+
 /* Mobile Menu Modal Positioning */
 .pm-mobile-menu-modal {
   position: fixed;

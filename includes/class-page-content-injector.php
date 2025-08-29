@@ -56,20 +56,8 @@ class PartyMinder_Page_Content_Injector {
 		}
 
 		ob_start();
-		// Show all events if ?show_all=1 parameter, otherwise show user's events if logged in
-		$show_all = isset($_GET['show_all']) && $_GET['show_all'] === '1';
-		
-		if ( $show_all || ! is_user_logged_in() ) {
-			echo '<div class="partyminder-content partyminder-events-page">';
-			$atts = array(
-				'limit'     => 10,
-				'show_past' => false,
-			);
-			include PARTYMINDER_PLUGIN_DIR . 'templates/events-list-content.php';
-		} else {
-			echo '<div class="partyminder-content partyminder-my-events-page">';
-			include PARTYMINDER_PLUGIN_DIR . 'templates/my-events-content.php';
-		}
+		echo '<div class="partyminder-content partyminder-events-page">';
+		include PARTYMINDER_PLUGIN_DIR . 'templates/events-unified-content.php';
 		echo '</div>';
 		return ob_get_clean();
 	}
@@ -236,7 +224,7 @@ class PartyMinder_Page_Content_Injector {
 
 		ob_start();
 		echo '<div class="partyminder-content partyminder-communities-page">';
-		include PARTYMINDER_PLUGIN_DIR . 'templates/communities-content.php';
+		include PARTYMINDER_PLUGIN_DIR . 'templates/communities-unified-content.php';
 		echo '</div>';
 		return ob_get_clean();
 	}
@@ -255,20 +243,8 @@ class PartyMinder_Page_Content_Injector {
 	}
 
 	public function inject_my_communities_content( $content ) {
-		if ( ! $this->should_inject_content( 'my-communities' ) ) {
-			return $content;
-		}
-
-		if ( ! PartyMinder_Feature_Flags::is_communities_enabled() ) {
-			return $this->inject_communities_disabled_content( $content );
-		}
-
-		ob_start();
-		echo '<div class="partyminder-content partyminder-my-communities-page">';
-		$atts = array();
-		include PARTYMINDER_PLUGIN_DIR . 'templates/my-communities-content.php';
-		echo '</div>';
-		return ob_get_clean();
+		// Redirect to unified communities page
+		return $this->inject_communities_content( $content );
 	}
 
 	public function inject_single_community_content( $content ) {
