@@ -446,15 +446,18 @@ class PartyMinder_Community_Ajax_Handler {
 			home_url( '/communities/' . $community->slug )
 		);
 
-		$subject = sprintf( __( 'Invitation to join %s', 'partyminder' ), $community->name );
-		$message = sprintf(
-			__( "You've been invited to join the %1\$s community!\n\nCommunity Description:\n%2\$s\n\nAccept your invitation here: %3\$s", 'partyminder' ),
-			$community->name,
-			$community->description,
-			$invitation_url
-		);
-
+		$subject = sprintf( __( 'You\'re invited to join %s!', 'partyminder' ), $community->name );
+		
+		// Create HTML email
+		$message = $this->create_invitation_email_html( $community, $invitation_url, $email );
+		
+		// Set content type to HTML
+		add_filter( 'wp_mail_content_type', function() { return 'text/html'; } );
+		
 		$sent = wp_mail( $email, $subject, $message );
+		
+		// Reset content type
+		remove_filter( 'wp_mail_content_type', function() { return 'text/html'; } );
 
 		if ( $sent ) {
 			wp_send_json_success(
@@ -618,7 +621,7 @@ class PartyMinder_Community_Ajax_Handler {
 		$invitations_table = $wpdb->prefix . 'partyminder_community_invitations';
 		$invitation = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM $invitations_table WHERE token = %s AND community_id = %d AND status = 'pending' AND expires_at > NOW()",
+				"SELECT * FROM $invitations_table WHERE invitation_token = %s AND community_id = %d AND status = 'pending' AND expires_at > NOW()",
 				$token,
 				$community_id
 			)
@@ -684,5 +687,101 @@ class PartyMinder_Community_Ajax_Handler {
 		} else {
 			wp_send_json_error( __( 'Failed to join community. Please try again.', 'partyminder' ) );
 		}
+	}
+
+	/**
+	 * Create HTML email for community invitation
+	 */
+	private function create_invitation_email_html( $community, $invitation_url, $email ) {
+		$site_name = get_bloginfo( 'name' );
+		$site_url = home_url();
+		$primary_color = get_option( 'partyminder_primary_color', '#667eea' );
+		
+		// Check if user exists
+		$user_exists = email_exists( $email );
+		$signup_url = wp_registration_url();
+		
+		ob_start();
+		?>
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<meta charset="utf-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title><?php echo esc_html( sprintf( __( 'Invitation to join %s', 'partyminder' ), $community->name ) ); ?></title>
+			<style>
+				body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f8fafc; }
+				.container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+				.header { background: linear-gradient(135deg, <?php echo esc_attr( $primary_color ); ?>, #764ba2); padding: 40px 30px; text-align: center; }
+				.header h1 { color: white; margin: 0; font-size: 28px; font-weight: 600; }
+				.content { padding: 40px 30px; }
+				.community-info { background: #f8fafc; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid <?php echo esc_attr( $primary_color ); ?>; }
+				.community-name { font-size: 20px; font-weight: 600; color: #2d3748; margin: 0 0 10px 0; }
+				.community-description { color: #4a5568; line-height: 1.6; margin: 0; }
+				.button-container { text-align: center; margin: 35px 0; }
+				.accept-button { display: inline-block; background: <?php echo esc_attr( $primary_color ); ?>; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; transition: all 0.2s ease; }
+				.accept-button:hover { background: #5a67d8; transform: translateY(-1px); }
+				.signup-section { background: #edf2f7; padding: 25px; border-radius: 8px; margin: 25px 0; text-align: center; }
+				.signup-button { display: inline-block; background: #48bb78; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500; margin-top: 15px; }
+				.footer { background: #2d3748; color: #a0aec0; padding: 25px 30px; text-align: center; font-size: 14px; }
+				.footer a { color: #90cdf4; text-decoration: none; }
+				@media (max-width: 600px) {
+					.content, .header { padding: 25px 20px; }
+					.header h1 { font-size: 24px; }
+				}
+			</style>
+		</head>
+		<body>
+			<div class="container">
+				<!-- Header -->
+				<div class="header">
+					<h1><?php _e( 'You\'re Invited!', 'partyminder' ); ?></h1>
+				</div>
+
+				<!-- Content -->
+				<div class="content">
+					<p><?php printf( __( 'Hello! You\'ve been invited to join the <strong>%s</strong> community on %s.', 'partyminder' ), esc_html( $community->name ), esc_html( $site_name ) ); ?></p>
+
+					<!-- Community Info -->
+					<div class="community-info">
+						<div class="community-name"><?php echo esc_html( $community->name ); ?></div>
+						<?php if ( $community->description ) : ?>
+							<div class="community-description"><?php echo nl2br( esc_html( $community->description ) ); ?></div>
+						<?php endif; ?>
+					</div>
+
+					<!-- Accept Button -->
+					<div class="button-container">
+						<a href="<?php echo esc_url( $invitation_url ); ?>" class="accept-button">
+							<?php _e( 'Accept Invitation', 'partyminder' ); ?>
+						</a>
+					</div>
+
+					<?php if ( ! $user_exists ) : ?>
+					<!-- Signup Section for Non-Members -->
+					<div class="signup-section">
+						<h3 style="margin: 0 0 10px 0; color: #2d3748;"><?php _e( 'New to our community?', 'partyminder' ); ?></h3>
+						<p style="margin: 0 0 15px 0; color: #4a5568;"><?php printf( __( 'Create your free account first, then accept your invitation to join %s.', 'partyminder' ), esc_html( $community->name ) ); ?></p>
+						<a href="<?php echo esc_url( add_query_arg( 'redirect_to', urlencode( $invitation_url ), $signup_url ) ); ?>" class="signup-button">
+							<?php _e( 'Create Free Account', 'partyminder' ); ?>
+						</a>
+					</div>
+					<?php endif; ?>
+
+					<p style="color: #4a5568; font-size: 14px; line-height: 1.6; margin-top: 30px;">
+						<?php _e( 'This invitation will expire in 7 days. If you have any questions, feel free to contact us.', 'partyminder' ); ?>
+					</p>
+				</div>
+
+				<!-- Footer -->
+				<div class="footer">
+					<p><?php printf( __( 'This invitation was sent from %s', 'partyminder' ), '<a href="' . esc_url( $site_url ) . '">' . esc_html( $site_name ) . '</a>' ); ?></p>
+					<p><?php printf( __( 'If you don\'t want to receive these emails, you can <a href="%s">unsubscribe here</a>.', 'partyminder' ), '#' ); ?></p>
+				</div>
+			</div>
+		</body>
+		</html>
+		<?php
+		return ob_get_clean();
 	}
 }
