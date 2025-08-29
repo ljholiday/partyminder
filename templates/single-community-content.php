@@ -83,14 +83,9 @@ ob_start();
 		<div class="pm-card-header">
 			<div class="pm-flex pm-flex-between">
 				<div class="pm-flex pm-gap">
-					<?php if ( ! empty( $community->featured_image ) ) : ?>
-						<div class="pm-avatar pm-avatar-lg" style="background-image: url('<?php echo esc_url( $community->featured_image ); ?>'); background-size: cover; background-position: center;">
-						</div>
-					<?php else : ?>
-						<div class="pm-avatar pm-avatar-lg">
-							<?php echo strtoupper( substr( $community->name, 0, 2 ) ); ?>
-						</div>
-					<?php endif; ?>
+					<div class="pm-avatar pm-avatar-lg">
+						<?php echo strtoupper( substr( $community->name, 0, 2 ) ); ?>
+					</div>
 					<div>
 						<div class="pm-flex pm-gap pm-text-muted pm-mb-2">
 							<span>Community</span>
@@ -103,7 +98,12 @@ ob_start();
 						</div>
 					</div>
 				</div>
-				<div>
+				<div class="pm-flex pm-gap pm-flex-wrap">
+					<?php if ( $is_member && $user_role === 'admin' ) : ?>
+						<a href="<?php echo esc_url( site_url( '/manage-community?community_id=' . $community->id . '&tab=settings' ) ); ?>" class="pm-btn pm-btn">
+							<?php _e( 'Manage Community', 'partyminder' ); ?>
+						</a>
+					<?php endif; ?>
 					<span class="pm-badge pm-badge-secondary">
 						<?php echo esc_html( ucfirst( $community->privacy ) ); ?>
 					</span>
