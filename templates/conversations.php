@@ -55,21 +55,21 @@ ob_start();
 	<div class="pm-conversations-nav pm-flex pm-gap-4 pm-flex-wrap">
 		<!-- Circle Filters -->
 		<button class="pm-btn pm-btn is-active" data-circle="close" role="tab" aria-selected="true" aria-controls="pm-convo-list">
-			<?php _e( 'Close Circle', 'partyminder' ); ?>
+			<?php _e( 'Close', 'partyminder' ); ?>
 		</button>
 		<button class="pm-btn pm-btn" data-circle="trusted" role="tab" aria-selected="false" aria-controls="pm-convo-list">
-			<?php _e( 'Trusted Circle', 'partyminder' ); ?>
+			<?php _e( 'Trusted', 'partyminder' ); ?>
 		</button>
 		<button class="pm-btn pm-btn" data-circle="extended" role="tab" aria-selected="false" aria-controls="pm-convo-list">
-			<?php _e( 'Extended Circle', 'partyminder' ); ?>
+			<?php _e( 'Extended', 'partyminder' ); ?>
 		</button>
 		
 		<!-- Type Filters -->
 		<button class="pm-btn pm-btn" data-filter="events" role="tab" aria-selected="false" aria-controls="pm-convo-list">
-			<?php _e( 'Event Discussions', 'partyminder' ); ?>
+			<?php _e( 'Event', 'partyminder' ); ?>
 		</button>
 		<button class="pm-btn pm-btn" data-filter="communities" role="tab" aria-selected="false" aria-controls="pm-convo-list">
-			<?php _e( 'Community Discussions', 'partyminder' ); ?>
+			<?php _e( 'Community', 'partyminder' ); ?>
 		</button>
 	</div>
 </div>
