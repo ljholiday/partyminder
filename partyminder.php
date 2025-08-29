@@ -172,6 +172,10 @@ class PartyMinder {
 
 		// Smart login override - frontend only, preserves wp-admin access
 		add_filter( 'wp_login_url', array( $this, 'smart_login_url' ), 10, 2 );
+
+		// WordPress Avatar Integration
+		add_filter( 'get_avatar_url', array( $this, 'get_partyminder_avatar_url' ), 10, 3 );
+		add_filter( 'get_avatar', array( $this, 'get_partyminder_avatar' ), 10, 6 );
 	}
 
 	public function register_shortcodes() {
@@ -1390,5 +1394,101 @@ class PartyMinder {
 		
 		// Return the original output (likely a link) if we can't get metadata
 		return $output;
+	}
+
+	/**
+	 * Override WordPress get_avatar_url to use PartyMinder custom avatars
+	 * 
+	 * @param string $url The URL of the avatar
+	 * @param mixed $id_or_email User ID, email, or user object
+	 * @param array $args Arguments for the avatar
+	 * @return string Avatar URL
+	 */
+	public function get_partyminder_avatar_url( $url, $id_or_email, $args ) {
+		$user_id = $this->get_user_id_from_avatar_data( $id_or_email );
+		
+		if ( ! $user_id ) {
+			return $url; // Return original URL if we can't determine user ID
+		}
+		
+		// Get user's profile data
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-profile-manager.php';
+		$profile = PartyMinder_Profile_Manager::get_user_profile( $user_id );
+		
+		// Check if user has a custom avatar and prefers to use it
+		if ( ! empty( $profile['profile_image'] ) && $profile['avatar_source'] === 'custom' ) {
+			return $profile['profile_image'];
+		}
+		
+		return $url; // Return original URL (Gravatar or default)
+	}
+
+	/**
+	 * Override WordPress get_avatar to use PartyMinder custom avatars
+	 * 
+	 * @param string $avatar The avatar HTML
+	 * @param mixed $id_or_email User ID, email, or user object  
+	 * @param int $size Avatar size
+	 * @param string $default Default avatar type
+	 * @param string $alt Alt text
+	 * @param array $args Additional arguments
+	 * @return string Avatar HTML
+	 */
+	public function get_partyminder_avatar( $avatar, $id_or_email, $size, $default, $alt, $args ) {
+		$user_id = $this->get_user_id_from_avatar_data( $id_or_email );
+		
+		if ( ! $user_id ) {
+			return $avatar; // Return original avatar if we can't determine user ID
+		}
+		
+		// Get user's profile data
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-profile-manager.php';
+		$profile = PartyMinder_Profile_Manager::get_user_profile( $user_id );
+		
+		// Check if user has a custom avatar and prefers to use it
+		if ( ! empty( $profile['profile_image'] ) && $profile['avatar_source'] === 'custom' ) {
+			$avatar_url = $profile['profile_image'];
+			$class = isset( $args['class'] ) ? $args['class'] : '';
+			$class = is_array( $class ) ? implode( ' ', $class ) : $class;
+			
+			return sprintf( 
+				'<img alt="%s" src="%s" class="avatar avatar-%d %s" height="%d" width="%d" />',
+				esc_attr( $alt ),
+				esc_url( $avatar_url ),
+				(int) $size,
+				esc_attr( $class ),
+				(int) $size,
+				(int) $size
+			);
+		}
+		
+		return $avatar; // Return original avatar (Gravatar or default)
+	}
+
+	/**
+	 * Helper function to extract user ID from various avatar data types
+	 * 
+	 * @param mixed $id_or_email User ID, email, or user object
+	 * @return int|false User ID or false if not found
+	 */
+	private function get_user_id_from_avatar_data( $id_or_email ) {
+		if ( is_numeric( $id_or_email ) ) {
+			return (int) $id_or_email;
+		}
+		
+		if ( is_string( $id_or_email ) && is_email( $id_or_email ) ) {
+			$user = get_user_by( 'email', $id_or_email );
+			return $user ? $user->ID : false;
+		}
+		
+		if ( is_object( $id_or_email ) && isset( $id_or_email->user_id ) ) {
+			return (int) $id_or_email->user_id;
+		}
+		
+		if ( is_object( $id_or_email ) && isset( $id_or_email->ID ) ) {
+			return (int) $id_or_email->ID;
+		}
+		
+		return false;
 	}
 }
