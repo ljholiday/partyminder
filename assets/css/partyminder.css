@@ -589,6 +589,52 @@ body.admin-bar .pm-page-two-column {
     transition: all 0.2s ease;
 }
 
+/* Avatar styles */
+.pm-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--pm-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.pm-avatar:hover {
+    background: var(--pm-primary-dark);
+    transform: scale(1.05);
+    color: white;
+    text-decoration: none;
+}
+
+.pm-avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+}
+
+.pm-avatar-lg {
+    width: 56px;
+    height: 56px;
+    font-size: 1.125rem;
+}
+
+.pm-avatar img,
+.pm-avatar .pm-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
 /* Layout Utilities */
 .pm-flex { display: flex; }
 .pm-flex-1 { flex: 1; }

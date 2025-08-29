@@ -158,9 +158,11 @@ if ( is_user_logged_in() ) {
 <!-- Original Post -->
 <div class="pm-section pm-mb">
 	<div class="pm-flex pm-gap pm-mb">
-		<div class="pm-avatar">
-			<?php echo strtoupper( substr( $conversation->author_name, 0, 2 ) ); ?>
-		</div>
+		<?php 
+		$user_id = $conversation->author_id;
+		$user_name = $conversation->author_name;
+		PartyMinder::render_avatar( $user_id, $user_name );
+		?>
 		<div class="pm-flex-1">
 			<h4 class="pm-heading pm-heading-sm"><?php echo esc_html( $conversation->author_name ); ?></h4>
 			<div class="pm-text-muted"><?php echo date( 'F j, Y \a\t g:i A', strtotime( $conversation->created_at ) ); ?></div>
@@ -209,9 +211,12 @@ if ( ! empty( $conversation_photos ) ) :
 		<?php foreach ( $replies as $reply ) : ?>
 			<div class="pm-reply-item pm-mb" id="reply-<?php echo $reply->id; ?>" style="margin-left: <?php echo min( $reply->depth_level, 5 ) * 20; ?>px;">
 				<div class="pm-flex pm-gap pm-mb">
-					<div class="pm-avatar pm-avatar-sm">
-						<?php echo strtoupper( substr( $reply->author_name, 0, 2 ) ); ?>
-					</div>
+					<?php 
+					$user_id = $reply->author_id;
+					$user_name = $reply->author_name;
+					$size = 'sm';
+					PartyMinder::render_avatar( $user_id, $user_name, $size );
+					?>
 					<div class="pm-flex-1">
 						<h5 class="pm-heading pm-heading-sm"><?php echo esc_html( $reply->author_name ); ?></h5>
 						<div class="pm-text-muted"><?php echo date( 'F j, Y \a\t g:i A', strtotime( $reply->created_at ) ); ?></div>

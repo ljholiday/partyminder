@@ -577,9 +577,12 @@ ob_start();
 		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Your Profile', 'partyminder' ); ?></h3>
 	</div>
 	<div class="pm-flex pm-gap pm-mb">
-		<div class="pm-avatar">
-			<?php echo get_avatar( $current_user->ID, 48, '', '', array( 'class' => 'avatar-img' ) ); ?>
-		</div>
+		<?php 
+		$user_id = $current_user->ID;
+		$user_name = $current_user->display_name;
+		$size = 'lg';
+		PartyMinder::render_avatar( $user_id, $user_name, $size );
+		?>
 		<div class="pm-flex-1">
 			<div class="pm-heading pm-heading-sm"><?php echo esc_html( $current_user->display_name ); ?></div>
 			<?php if ( $profile_data && $profile_data['location'] ) : ?>

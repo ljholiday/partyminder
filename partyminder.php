@@ -821,6 +821,19 @@ class PartyMinder {
 		return self::get_page_url( 'create-conversation' );
 	}
 
+	/**
+	 * Render user avatar with profile link
+	 * 
+	 * @param int $user_id WordPress user ID
+	 * @param string $user_name Display name
+	 * @param string $size Size: 'sm', 'md', 'lg' (default: 'md')
+	 * @param bool $link Whether to make it clickable (default: true)
+	 * @param string $class Additional CSS classes
+	 */
+	public static function render_avatar( $user_id, $user_name, $size = 'md', $link = true, $class = '' ) {
+		include PARTYMINDER_PLUGIN_DIR . 'templates/partials/avatar.php';
+	}
+
 	private function is_on_dedicated_page( $page_key ) {
 		global $post;
 
