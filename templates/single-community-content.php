@@ -45,6 +45,37 @@ if ( $is_logged_in ) {
 	$user_role = $community_manager->get_member_role( $community->id, $current_user->ID );
 }
 
+// Check for invitation acceptance
+$invitation_token = $_GET['invitation'] ?? '';
+$invitation_community_id = intval($_GET['community'] ?? 0);
+$show_invitation_prompt = false;
+$valid_invitation = null;
+
+if ( $invitation_token && $invitation_community_id === $community->id ) {
+	// Verify invitation exists and is valid
+	global $wpdb;
+	$invitations_table = $wpdb->prefix . 'partyminder_community_invitations';
+	$valid_invitation = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT * FROM $invitations_table WHERE token = %s AND community_id = %d AND status = 'pending' AND expires_at > NOW()",
+			$invitation_token,
+			$community->id
+		)
+	);
+	
+	if ( $valid_invitation ) {
+		if ( $is_logged_in ) {
+			// Check if the logged-in user's email matches the invitation
+			if ( $current_user->user_email === $valid_invitation->invited_email ) {
+				$show_invitation_prompt = !$is_member; // Only show if not already a member
+			}
+		} else {
+			// Show login prompt for non-logged-in users
+			$show_invitation_prompt = true;
+		}
+	}
+}
+
 // Get community conversations
 $community_conversations = $conversation_manager->get_community_conversations( $community->id, 5 );
 
@@ -74,6 +105,40 @@ ob_start();
 		<div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 20px; border-radius: 0 0 8px 8px;">
 			<h1 class="pm-heading pm-heading-lg" style="color: white; margin: 0;"><?php echo esc_html( $community->name ); ?></h1>
 		</div>
+	</div>
+</div>
+<?php endif; ?>
+
+<!-- Invitation Acceptance Prompt -->
+<?php if ( $show_invitation_prompt ) : ?>
+<div class="pm-section pm-mb-4">
+	<div class="pm-alert pm-alert-success">
+		<h3><?php _e( 'You\'re Invited!', 'partyminder' ); ?></h3>
+		<p><?php printf( __( 'You\'ve been invited to join <strong>%s</strong>.', 'partyminder' ), esc_html( $community->name ) ); ?></p>
+		
+		<?php if ( $is_logged_in ) : ?>
+			<?php if ( $current_user->user_email === $valid_invitation->invited_email ) : ?>
+				<div class="pm-flex pm-gap pm-mt-4">
+					<button class="pm-btn" onclick="acceptInvitation('<?php echo esc_js( $invitation_token ); ?>', <?php echo $community->id; ?>)">
+						<?php _e( 'Accept Invitation', 'partyminder' ); ?>
+					</button>
+					<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn-secondary">
+						<?php _e( 'Decline', 'partyminder' ); ?>
+					</a>
+				</div>
+			<?php else : ?>
+				<p class="pm-text-muted pm-mt-2">
+					<?php printf( __( 'This invitation is for %s. Please log in with that account to accept the invitation.', 'partyminder' ), $valid_invitation->invited_email ); ?>
+				</p>
+			<?php endif; ?>
+		<?php else : ?>
+			<p class="pm-mb-4"><?php _e( 'Please log in or create an account to accept this invitation.', 'partyminder' ); ?></p>
+			<div class="pm-flex pm-gap">
+				<a href="<?php echo add_query_arg( 'redirect_to', urlencode( $_SERVER['REQUEST_URI'] ), PartyMinder::get_login_url() ); ?>" class="pm-btn">
+					<?php _e( 'Log In to Accept', 'partyminder' ); ?>
+				</a>
+			</div>
+		<?php endif; ?>
 	</div>
 </div>
 <?php endif; ?>
@@ -416,5 +481,49 @@ document.addEventListener('DOMContentLoaded', function() {
 			window.location.href = '<?php echo esc_url( site_url( '/create-event' ) ); ?>?community_id=<?php echo intval( $community->id ); ?>';
 		});
 	}
+	
+	// Accept invitation function
+	window.acceptInvitation = function(token, communityId) {
+		const button = document.querySelector('button[onclick*="acceptInvitation"]');
+		if (button) {
+			button.disabled = true;
+			button.innerHTML = '<?php _e( 'Accepting...', 'partyminder' ); ?>';
+		}
+		
+		// Send AJAX request to accept invitation
+		fetch('<?php echo admin_url( 'admin-ajax.php' ); ?>', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: new URLSearchParams({
+				action: 'partyminder_accept_invitation',
+				token: token,
+				community_id: communityId,
+				nonce: '<?php echo wp_create_nonce( 'partyminder_accept_invitation' ); ?>'
+			})
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.success) {
+				// Reload page to show updated membership status
+				window.location.reload();
+			} else {
+				alert(data.data || '<?php _e( 'Failed to accept invitation', 'partyminder' ); ?>');
+				if (button) {
+					button.disabled = false;
+					button.innerHTML = '<?php _e( 'Accept Invitation', 'partyminder' ); ?>';
+				}
+			}
+		})
+		.catch(error => {
+			console.error('Error:', error);
+			alert('<?php _e( 'Network error occurred', 'partyminder' ); ?>');
+			if (button) {
+				button.disabled = false;
+				button.innerHTML = '<?php _e( 'Accept Invitation', 'partyminder' ); ?>';
+			}
+		});
+	};
 });
 </script>

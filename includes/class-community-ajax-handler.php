@@ -20,6 +20,8 @@ class PartyMinder_Community_Ajax_Handler {
 		add_action( 'wp_ajax_partyminder_send_invitation', array( $this, 'ajax_send_invitation' ) );
 		add_action( 'wp_ajax_partyminder_get_community_invitations', array( $this, 'ajax_get_community_invitations' ) );
 		add_action( 'wp_ajax_partyminder_cancel_invitation', array( $this, 'ajax_cancel_invitation' ) );
+		add_action( 'wp_ajax_partyminder_accept_invitation', array( $this, 'ajax_accept_invitation' ) );
+		add_action( 'wp_ajax_nopriv_partyminder_accept_invitation', array( $this, 'ajax_accept_invitation' ) );
 	}
 
 	private function get_community_manager() {
@@ -517,7 +519,7 @@ class PartyMinder_Community_Ajax_Handler {
 			return;
 		}
 
-		$invitation_id = sanitize_text_field( $_POST['invitation_id'] );
+		$invitation_id = intval( $_POST['invitation_id'] );
 		if ( ! $invitation_id ) {
 			wp_send_json_error( __( 'Invitation ID is required.', 'partyminder' ) );
 			return;
@@ -528,7 +530,7 @@ class PartyMinder_Community_Ajax_Handler {
 
 		$invitation = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM $invitations_table WHERE invitation_id = %s",
+				"SELECT * FROM $invitations_table WHERE id = %d",
 				$invitation_id
 			)
 		);
@@ -549,8 +551,8 @@ class PartyMinder_Community_Ajax_Handler {
 
 		$result = $wpdb->delete(
 			$invitations_table,
-			array( 'invitation_id' => $invitation_id ),
-			array( '%s' )
+			array( 'id' => $invitation_id ),
+			array( '%d' )
 		);
 
 		if ( $result !== false ) {
@@ -597,6 +599,90 @@ class PartyMinder_Community_Ajax_Handler {
 			return $uploaded_file;
 		} else {
 			return new WP_Error( 'upload_failed', __( 'File upload failed.', 'partyminder' ) );
+		}
+	}
+
+	public function ajax_accept_invitation() {
+		check_ajax_referer( 'partyminder_accept_invitation', 'nonce' );
+
+		$token = sanitize_text_field( $_POST['token'] ?? '' );
+		$community_id = intval( $_POST['community_id'] ?? 0 );
+
+		if ( ! $token || ! $community_id ) {
+			wp_send_json_error( __( 'Invalid invitation parameters.', 'partyminder' ) );
+			return;
+		}
+
+		// Find the invitation
+		global $wpdb;
+		$invitations_table = $wpdb->prefix . 'partyminder_community_invitations';
+		$invitation = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT * FROM $invitations_table WHERE token = %s AND community_id = %d AND status = 'pending' AND expires_at > NOW()",
+				$token,
+				$community_id
+			)
+		);
+
+		if ( ! $invitation ) {
+			wp_send_json_error( __( 'Invalid or expired invitation.', 'partyminder' ) );
+			return;
+		}
+
+		$community_manager = $this->get_community_manager();
+		$community = $community_manager->get_community( $community_id );
+		if ( ! $community ) {
+			wp_send_json_error( __( 'Community not found.', 'partyminder' ) );
+			return;
+		}
+
+		// Handle both logged-in and non-logged-in users
+		if ( is_user_logged_in() ) {
+			$current_user = wp_get_current_user();
+			
+			// Check if the logged-in user's email matches the invitation
+			if ( $current_user->user_email !== $invitation->invited_email ) {
+				wp_send_json_error( sprintf( __( 'This invitation is for %s. Please log in with that account.', 'partyminder' ), $invitation->invited_email ) );
+				return;
+			}
+
+			// Check if already a member
+			if ( $community_manager->is_member( $community_id, $current_user->ID ) ) {
+				wp_send_json_error( __( 'You are already a member of this community.', 'partyminder' ) );
+				return;
+			}
+
+			// Add user as member
+			$member_data = array(
+				'user_id'      => $current_user->ID,
+				'email'        => $current_user->user_email,
+				'display_name' => $current_user->display_name,
+				'role'         => 'member',
+			);
+
+			$result = $community_manager->add_member( $community_id, $member_data );
+		} else {
+			wp_send_json_error( __( 'Please log in to accept this invitation.', 'partyminder' ) );
+			return;
+		}
+
+		if ( $result ) {
+			// Mark invitation as accepted
+			$wpdb->update(
+				$invitations_table,
+				array( 'status' => 'accepted', 'accepted_at' => current_time( 'mysql' ) ),
+				array( 'id' => $invitation->id ),
+				array( '%s', '%s' ),
+				array( '%d' )
+			);
+
+			wp_send_json_success(
+				array(
+					'message' => sprintf( __( 'Welcome to %s!', 'partyminder' ), $community->name ),
+				)
+			);
+		} else {
+			wp_send_json_error( __( 'Failed to join community. Please try again.', 'partyminder' ) );
 		}
 	}
 }
