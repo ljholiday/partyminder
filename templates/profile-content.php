@@ -409,47 +409,6 @@ if ( $is_editing ) {
 		</div>
 	</section>
 
-	<div class="pm-section">
-		<div class="pm-section-header">
-			<h3 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Activity Stats', 'partyminder' ); ?></h3>
-		</div>
-		
-		<?php
-		// Get user activity stats
-		global $wpdb;
-		$events_table        = $wpdb->prefix . 'partyminder_events';
-		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
-
-		$events_created = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM $events_table WHERE author_id = %d AND event_status = 'active'",
-				$user_id
-			)
-		);
-
-		$conversations_started = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM $conversations_table WHERE author_id = %d",
-				$user_id
-			)
-		);
-		?>
-		
-		<div class="pm-grid pm-grid-3 pm-gap">
-			<div class="pm-text-center">
-				<div class="pm-stat-number pm-text-primary"><?php echo intval( $events_created ); ?></div>
-				<div class="pm-stat-label"><?php _e( 'Events Created', 'partyminder' ); ?></div>
-			</div>
-			<div class="pm-text-center">
-				<div class="pm-stat-number pm-text-primary"><?php echo intval( $conversations_started ); ?></div>
-				<div class="pm-stat-label"><?php _e( 'Conversations Started', 'partyminder' ); ?></div>
-			</div>
-			<div class="pm-text-center">
-				<div class="pm-stat-number pm-text-primary"><?php echo rand( 5, 25 ); ?></div>
-				<div class="pm-stat-label"><?php _e( 'Events Attended', 'partyminder' ); ?></div>
-			</div>
-		</div>
-	</div>
 
 	<?php
 	$main_content = ob_get_clean();
@@ -457,23 +416,6 @@ if ( $is_editing ) {
 	// Sidebar content
 	ob_start();
 	?>
-	
-
-	<div class="pm-section pm-mb">
-		<div class="pm-section-header">
-			<h3 class="pm-heading pm-heading-sm"> <?php _e( 'Community Stats', 'partyminder' ); ?></h3>
-		</div>
-		<div class="pm-stat-list">
-			<div class="pm-stat-item">
-				<span class="pm-stat-label"><?php _e( 'Member Level', 'partyminder' ); ?></span>
-				<span class="pm-stat-value"><?php _e( 'Active Host', 'partyminder' ); ?></span>
-			</div>
-			<div class="pm-stat-item">
-				<span class="pm-stat-label"><?php _e( 'Reputation', 'partyminder' ); ?></span>
-				<span class="pm-stat-value"><?php echo rand( 85, 98 ); ?>%</span>
-			</div>
-		</div>
-	</div>
 	
 	<?php
 	$sidebar_content = ob_get_clean();

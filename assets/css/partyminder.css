@@ -1019,7 +1019,6 @@ body.admin-bar .pm-page-two-column {
 .pm-conversations-nav {
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 1.5rem;
 }
 
 /* Combined navigation layout (circle filters + actions) */

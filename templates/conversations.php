@@ -147,28 +147,6 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
-<?php if ( $user_logged_in && ! empty( $user_conversations ) ) : ?>
-<!-- My Conversations -->
-<div class="pm-section pm-mb">
-	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"><?php _e( 'My Conversations', 'partyminder' ); ?></h3>
-		<p class="pm-text-muted mt-4"><?php _e( 'Conversations you\'ve started', 'partyminder' ); ?></p>
-	</div>
-	<?php foreach ( $user_conversations as $conversation ) : ?>
-		<div class="pm-mb-4">
-			<h4 class="pm-heading pm-heading-sm">
-				<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary">
-					<?php echo esc_html( $conversation_manager->get_display_title( $conversation ) ); ?>
-				</a>
-			</h4>
-			<div class="pm-text-muted">
-				<?php echo $conversation->reply_count; ?> <?php _e( 'replies', 'partyminder' ); ?>
-			</div>
-		</div>
-	<?php endforeach; ?>
-</div>
-<?php endif; ?>
-
 <?php
 $sidebar_content = ob_get_clean();
 

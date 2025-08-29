@@ -237,64 +237,6 @@ $recent_conversations = $wpdb->get_results( $wpdb->prepare(
 ob_start();
 ?>
 
-<!-- Community Stats -->
-<div class="pm-section pm-mb-4">
-	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Summary', 'partyminder' ); ?></h3>
-	</div>
-	<div class="pm-stat-list">
-		<?php if ( $user_logged_in ) : ?>
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Communities Joined', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo count( $user_communities ); ?></span>
-		</div>
-		<?php if ( ! empty( $user_communities ) ) : ?>
-		<?php
-		$admin_count = 0;
-		$member_count = 0;
-		$total_events = 0;
-		foreach ( $user_communities as $community ) {
-			if ( $community->role === 'admin' ) {
-				$admin_count++;
-			} else {
-				$member_count++;
-			}
-			$total_events += (int) $community->event_count;
-		}
-		?>
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Admin Role', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo $admin_count; ?></span>
-		</div>
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Member Role', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo $member_count; ?></span>
-		</div>
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Total Events', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo $total_events; ?></span>
-		</div>
-		<?php endif; ?>
-		<?php endif; ?>
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Public Communities', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo count( $public_communities ); ?></span>
-		</div>
-	</div>
-</div>
-
-<!-- Community Benefits -->
-<div class="pm-section pm-mb-4">
-	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Community Benefits', 'partyminder' ); ?></h3>
-	</div>
-	<div class="pm-text-muted">
-		<p class="pm-mb-2"><?php _e( 'Connect with like-minded people in your communities.', 'partyminder' ); ?></p>
-		<p class="pm-mb-2"><?php _e( 'Discover events organized by community members.', 'partyminder' ); ?></p>
-		<p class="pm-mb-2"><?php _e( 'Share your own events with engaged audiences.', 'partyminder' ); ?></p>
-		<p><?php _e( 'Build lasting relationships through shared interests.', 'partyminder' ); ?></p>
-	</div>
-</div>
 
 <?php
 $sidebar_content = ob_get_clean();
