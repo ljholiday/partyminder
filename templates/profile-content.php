@@ -332,28 +332,6 @@ if ( $is_editing ) {
 	ob_start();
 	?>
 	
-	<!-- Secondary Menu Bar -->
-	<div class="pm-section pm-mb-4">
-		<div class="pm-flex pm-gap-4 pm-flex-wrap">
-			<?php if ( $is_own_profile ) : ?>
-				<a href="<?php echo esc_url( PartyMinder::get_create_event_url() ); ?>" class="pm-btn">
-					<?php _e( 'Create Event', 'partyminder' ); ?>
-				</a>
-				<a href="<?php echo add_query_arg( 'edit', '1', PartyMinder::get_profile_url() ); ?>" class="pm-btn pm-btn">
-					<?php _e( 'Edit Profile', 'partyminder' ); ?>
-				</a>
-			<?php endif; ?>
-			<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn">
-				<?php _e( 'Conversations', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn">
-				<?php _e( 'Browse Events', 'partyminder' ); ?>
-			</a>
-			<a href="<?php echo esc_url( PartyMinder::get_dashboard_url() ); ?>" class="pm-btn pm-btn">
-				<?php _e( 'Dashboard', 'partyminder' ); ?>
-			</a>
-		</div>
-	</div>
 	
 	<?php
 	// Profile Header Section - Modern competitive style
@@ -393,6 +371,17 @@ if ( $is_editing ) {
 				<?php endif; ?>
 			</div>
 			
+<!-- Profile header buttons -->
+
+<!-- Edit profile if own profile -->
+    <div class="pm-flex pm-gap-4 pm-flex-wrap">
+      <?php if ( $is_own_profile ) : ?>
+        <a href="<?php echo add_query_arg( 'edit', '1', PartyMinder::get_profile_url() ); ?>" class="pm-btn pm-btn">
+          <?php _e( 'Edit Profile', 'partyminder' ); ?>
+        </a>
+      <?php endif; ?>
+
+<!-- Follow if not own profile -->
 			<?php if ( ! $is_own_profile ) : ?>
 			<div class="pm-flex pm-gap">
 				<button class="pm-btn" onclick="alert('Follow functionality coming soon!')">
