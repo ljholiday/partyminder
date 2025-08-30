@@ -118,7 +118,7 @@ $breadcrumbs      = array(
 	),
 	array(
 		'title' => __( 'My Events', 'partyminder' ),
-		'url'   => PartyMinder::get_my_events_url(),
+		'url'   => add_query_arg( 'tab', 'my-events', PartyMinder::get_events_page_url() ),
 	),
 	array(
 		'title' => esc_html( $event->title ),
