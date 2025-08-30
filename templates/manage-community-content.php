@@ -542,7 +542,6 @@ document.addEventListener('DOMContentLoaded', function() {
 			html += `
 				<div class="pm-invitation-item" data-invitation-id="${invitation.id}">
 					<div class="pm-invitation-info">
-						<div class="pm-invitation-avatar">📧</div>
 						<div class="pm-invitation-details">
 							<h4>${invitation.invited_email}</h4>
 							<small><?php _e( 'Invited on', 'partyminder' ); ?> ${createdDate}</small>
