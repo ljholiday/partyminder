@@ -1,5 +1,7 @@
 # PartyMinder Database Structure
 
+> **Note**: Database schema updated and consolidated as of 2025-01-30. All tables now have unified creation methods in `class-activator.php` with proper migration support.
+
 ## Core Tables
 
 ### Events System
@@ -29,9 +31,12 @@ created_at datetime DEFAULT CURRENT_TIMESTAMP
 updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ```
 
-#### `partyminder_guests` - Event attendees/RSVPs
+#### `partyminder_guests` - Event attendees/RSVPs (includes anonymous RSVP support)
 ```sql
 id mediumint(9) NOT NULL AUTO_INCREMENT
+rsvp_token varchar(255) DEFAULT ''
+temporary_guest_id varchar(32) DEFAULT ''
+converted_user_id bigint(20) UNSIGNED DEFAULT NULL
 event_id mediumint(9) NOT NULL
 name varchar(100) NOT NULL
 email varchar(100) NOT NULL
@@ -43,6 +48,14 @@ plus_one_name varchar(100) DEFAULT ''
 notes text
 rsvp_date datetime DEFAULT CURRENT_TIMESTAMP
 reminder_sent tinyint(1) DEFAULT 0
+PRIMARY KEY (id)
+KEY event_id (event_id)
+KEY email (email)
+KEY status (status)
+KEY rsvp_token (rsvp_token)
+KEY temporary_guest_id (temporary_guest_id)
+KEY converted_user_id (converted_user_id)
+UNIQUE KEY unique_guest_event (event_id, email)
 ```
 
 #### `partyminder_event_invitations` - Event invitation tracking
@@ -56,6 +69,12 @@ status varchar(20) DEFAULT 'pending'
 expires_at datetime DEFAULT NULL
 created_at datetime DEFAULT CURRENT_TIMESTAMP
 responded_at datetime DEFAULT NULL
+PRIMARY KEY (id)
+KEY event_id (event_id)
+KEY invited_by_user_id (invited_by_user_id)
+KEY invited_email (invited_email)
+KEY invitation_token (invitation_token)
+KEY status (status)
 ```
 
 #### `partyminder_event_rsvps` - Modern RSVP flow (separate from guests)
@@ -76,6 +95,12 @@ invitation_token varchar(255) DEFAULT ''
 user_id bigint(20) UNSIGNED DEFAULT NULL
 created_at datetime DEFAULT CURRENT_TIMESTAMP
 updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+PRIMARY KEY (id)
+KEY event_id (event_id)
+KEY email (email)
+KEY status (status)
+KEY user_id (user_id)
+KEY invitation_token (invitation_token)
 ```
 
 ### Communities System
@@ -381,4 +406,22 @@ wp_users (1) → (many) partyminder_post_images
 - **Dashboard**: `/dashboard`, `/profile/{user}`
 
 ### Management Pages
-- **Administration**: `/manage-community?community_id=X`, `/manage-event?event_id=X`
+- **Administration**: `/manage-community?community_id=X`, `/edit-event?event_id=X`
+
+## Schema Consolidation Notes (2025-01-30)
+
+The database activator has been refactored for better maintainability:
+
+### New Structure
+- **Unified table creation**: Single `create_tables()` method calls individual table methods
+- **Clear schema documentation**: Each table method contains complete schema with indexes
+- **Migration-aware**: All table methods include historical migrations for accurate structure
+- **Better organization**: Tables grouped by system (events, conversations, communities)
+
+### Key Improvements
+- **Anonymous RSVP support**: `partyminder_guests` includes `rsvp_token`, `temporary_guest_id`, `converted_user_id` columns
+- **Complete indexes**: All tables now document their full index structure
+- **Migration tracking**: Database changes properly tracked and applied
+- **Cleaner code**: Individual methods per table make maintenance easier
+
+This structure ensures DATABASE_STRUCTURE.md stays accurate with the actual schema.

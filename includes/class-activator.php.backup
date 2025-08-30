@@ -1,0 +1,1032 @@
+<?php
+
+class PartyMinder_Activator {
+
+	public static function activate() {
+		global $wpdb;
+
+		// Create custom tables
+		self::create_tables();
+
+		// Run database migrations
+		self::run_database_migrations();
+
+		// Set default options
+		self::set_default_options();
+
+		// Create dedicated pages for shortcode usage
+		self::create_pages();
+
+		// Flush rewrite rules only on activation
+		flush_rewrite_rules();
+
+		// Set activation flag
+		update_option( 'partyminder_activated', true );
+		update_option( 'partyminder_activation_date', current_time( 'mysql' ) );
+	}
+
+	private static function create_tables() {
+		global $wpdb;
+
+		$charset_collate = $wpdb->get_charset_collate();
+
+		// Events table - pure custom table, no WordPress posts
+		$events_table = $wpdb->prefix . 'partyminder_events';
+		$events_sql   = "CREATE TABLE $events_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            title varchar(255) NOT NULL,
+            slug varchar(255) NOT NULL,
+            description longtext,
+            excerpt text,
+            event_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+            event_time varchar(20) DEFAULT '',
+            guest_limit int(11) DEFAULT 0,
+            venue_info text,
+            host_email varchar(100) DEFAULT '',
+            host_notes text,
+            ai_plan longtext,
+            privacy varchar(20) DEFAULT 'public',
+            event_status varchar(20) DEFAULT 'active',
+            author_id bigint(20) UNSIGNED DEFAULT 1,
+            featured_image varchar(255) DEFAULT '',
+            meta_title varchar(255) DEFAULT '',
+            meta_description text DEFAULT '',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY slug (slug),
+            KEY event_date (event_date),
+            KEY event_status (event_status),
+            KEY author_id (author_id),
+            KEY privacy (privacy)
+        ) $charset_collate;";
+
+		// Guests table for RSVP management
+		$guests_table = $wpdb->prefix . 'partyminder_guests';
+		$guests_sql   = "CREATE TABLE $guests_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            event_id mediumint(9) NOT NULL,
+            name varchar(100) NOT NULL,
+            email varchar(100) NOT NULL,
+            phone varchar(20) DEFAULT '',
+            status varchar(20) DEFAULT 'pending',
+            dietary_restrictions text,
+            plus_one tinyint(1) DEFAULT 0,
+            plus_one_name varchar(100) DEFAULT '',
+            notes text,
+            rsvp_date datetime DEFAULT CURRENT_TIMESTAMP,
+            reminder_sent tinyint(1) DEFAULT 0,
+            PRIMARY KEY (id),
+            KEY event_id (event_id),
+            KEY email (email),
+            KEY status (status),
+            UNIQUE KEY unique_guest_event (event_id, email)
+        ) $charset_collate;";
+
+		// AI interactions table for cost tracking
+		$ai_table = $wpdb->prefix . 'partyminder_ai_interactions';
+		$ai_sql   = "CREATE TABLE $ai_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) UNSIGNED NOT NULL,
+            event_id mediumint(9) DEFAULT NULL,
+            interaction_type varchar(50) NOT NULL,
+            prompt_text text,
+            response_text longtext,
+            tokens_used int(11) DEFAULT 0,
+            cost_cents int(11) DEFAULT 0,
+            provider varchar(20) DEFAULT 'openai',
+            model varchar(50) DEFAULT '',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY user_id (user_id),
+            KEY event_id (event_id),
+            KEY interaction_type (interaction_type),
+            KEY created_at (created_at)
+        ) $charset_collate;";
+
+		// Conversation topics table
+		$topics_table = $wpdb->prefix . 'partyminder_conversation_topics';
+		$topics_sql   = "CREATE TABLE $topics_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            name varchar(255) NOT NULL,
+            slug varchar(255) NOT NULL,
+            description text,
+            icon varchar(10) DEFAULT '',
+            sort_order int(11) DEFAULT 0,
+            is_active tinyint(1) DEFAULT 1,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY slug (slug),
+            KEY sort_order (sort_order),
+            KEY is_active (is_active)
+        ) $charset_collate;";
+
+		// Conversations table
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+		$conversations_sql   = "CREATE TABLE $conversations_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            event_id mediumint(9) DEFAULT NULL,
+            community_id mediumint(9) DEFAULT NULL,
+            title varchar(255) NOT NULL,
+            slug varchar(255) NOT NULL,
+            content longtext NOT NULL,
+            author_id bigint(20) UNSIGNED NOT NULL,
+            author_name varchar(100) NOT NULL,
+            author_email varchar(100) NOT NULL,
+            privacy varchar(20) DEFAULT 'public',
+            is_pinned tinyint(1) DEFAULT 0,
+            is_locked tinyint(1) DEFAULT 0,
+            reply_count int(11) DEFAULT 0,
+            last_reply_date datetime DEFAULT CURRENT_TIMESTAMP,
+            last_reply_author varchar(100) DEFAULT '',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY event_id (event_id),
+            KEY community_id (community_id),
+            KEY author_id (author_id),
+            KEY is_pinned (is_pinned),
+            KEY last_reply_date (last_reply_date),
+            UNIQUE KEY slug (slug)
+        ) $charset_collate;";
+
+		// Conversation replies table
+		$replies_table = $wpdb->prefix . 'partyminder_conversation_replies';
+		$replies_sql   = "CREATE TABLE $replies_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            conversation_id mediumint(9) NOT NULL,
+            parent_reply_id mediumint(9) DEFAULT NULL,
+            content longtext NOT NULL,
+            author_id bigint(20) UNSIGNED NOT NULL,
+            author_name varchar(100) NOT NULL,
+            author_email varchar(100) NOT NULL,
+            depth_level int(11) DEFAULT 0,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY conversation_id (conversation_id),
+            KEY parent_reply_id (parent_reply_id),
+            KEY author_id (author_id),
+            KEY created_at (created_at)
+        ) $charset_collate;";
+
+		// Conversation follows table
+		$follows_table = $wpdb->prefix . 'partyminder_conversation_follows';
+		$follows_sql   = "CREATE TABLE $follows_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            conversation_id mediumint(9) NOT NULL,
+            user_id bigint(20) UNSIGNED NOT NULL,
+            email varchar(100) NOT NULL,
+            last_read_at datetime DEFAULT CURRENT_TIMESTAMP,
+            notification_frequency varchar(20) DEFAULT 'immediate',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY conversation_id (conversation_id),
+            KEY user_id (user_id),
+            KEY email (email),
+            UNIQUE KEY unique_follow (conversation_id, user_id, email)
+        ) $charset_collate;";
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta( $events_sql );
+		dbDelta( $guests_sql );
+		dbDelta( $ai_sql );
+		dbDelta( $topics_sql );
+		dbDelta( $conversations_sql );
+		dbDelta( $replies_sql );
+		dbDelta( $follows_sql );
+
+		// Event invitations table
+		self::create_event_invitations_table();
+
+		// Event RSVPs table (separate from guests for modern flow)
+		self::create_event_rsvps_table();
+
+		// User profiles table
+		self::create_user_profiles_table();
+
+		// Communities and AT Protocol tables (safe to create even if features disabled)
+		self::create_communities_tables();
+
+		// Create default conversation topics
+		self::create_default_conversation_topics();
+
+		// Create post images table
+		self::create_post_images_table();
+
+		// Upgrade existing installations
+		self::upgrade_database_schema();
+	}
+
+	private static function run_database_migrations() {
+		global $wpdb;
+		
+		// Check if community_id column exists in events table
+		$events_table = $wpdb->prefix . 'partyminder_events';
+		$column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $events_table LIKE %s",
+				'community_id'
+			)
+		);
+
+		if ( empty( $column_exists ) ) {
+			// Add community_id column to events table
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN community_id mediumint(9) DEFAULT NULL AFTER author_id" );
+			$wpdb->query( "ALTER TABLE $events_table ADD INDEX community_id (community_id)" );
+		}
+
+		// Add anonymous RSVP support fields to guests table
+		$guests_table = $wpdb->prefix . 'partyminder_guests';
+		$rsvp_token_column = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $guests_table LIKE %s",
+				'rsvp_token'
+			)
+		);
+
+		if ( empty( $rsvp_token_column ) ) {
+			$wpdb->query( "ALTER TABLE $guests_table ADD COLUMN rsvp_token varchar(255) DEFAULT '' AFTER id" );
+			$wpdb->query( "ALTER TABLE $guests_table ADD COLUMN temporary_guest_id varchar(32) DEFAULT '' AFTER rsvp_token" );
+			$wpdb->query( "ALTER TABLE $guests_table ADD COLUMN converted_user_id bigint(20) UNSIGNED DEFAULT NULL AFTER temporary_guest_id" );
+			$wpdb->query( "ALTER TABLE $guests_table ADD INDEX rsvp_token (rsvp_token)" );
+			$wpdb->query( "ALTER TABLE $guests_table ADD INDEX temporary_guest_id (temporary_guest_id)" );
+			$wpdb->query( "ALTER TABLE $guests_table ADD INDEX converted_user_id (converted_user_id)" );
+			
+			// Debug: Log the migration
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'RSVP Debug - Database migration completed. Added rsvp_token, temporary_guest_id, converted_user_id columns to ' . $guests_table );
+			}
+		} else {
+			// Debug: Log that migration was skipped
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'RSVP Debug - Database migration skipped. rsvp_token column already exists in ' . $guests_table );
+			}
+		}
+
+		// Run other existing migrations
+		self::upgrade_database_schema();
+		
+		// Run privacy inheritance migration
+		self::migrate_privacy_inheritance();
+	}
+
+	private static function set_default_options() {
+		// Plugin settings
+		add_option( 'partyminder_version', PARTYMINDER_VERSION );
+
+		// AI Configuration
+		add_option( 'partyminder_ai_provider', 'openai' );
+		add_option( 'partyminder_ai_api_key', '' );
+		add_option( 'partyminder_ai_model', 'gpt-4' );
+		add_option( 'partyminder_ai_cost_limit_monthly', 50 );
+
+		// Email Settings
+		add_option( 'partyminder_email_from_name', get_bloginfo( 'name' ) );
+		add_option( 'partyminder_email_from_address', get_option( 'admin_email' ) );
+
+		// Feature Settings
+		add_option( 'partyminder_enable_public_events', true );
+		add_option( 'partyminder_demo_mode', true );
+		add_option( 'partyminder_track_analytics', true );
+
+		// Communities Feature Flags - ENABLED BY DEFAULT FOR SOCIAL NETWORK
+		add_option( 'partyminder_enable_communities', true );
+		add_option( 'partyminder_enable_at_protocol', false );
+		add_option( 'partyminder_communities_require_approval', true );
+		add_option( 'partyminder_max_communities_per_user', 10 );
+
+		// UI options (removed color customization - now uses WordPress theme colors)
+		add_option( 'partyminder_button_style', 'rounded' );
+		add_option( 'partyminder_form_layout', 'card' );
+	}
+
+	private static function create_pages() {
+		$pages = array(
+			'dashboard'           => array(
+				'title'       => __( 'Dashboard', 'partyminder' ),
+				'content'     => '[partyminder_dashboard]',
+				'slug'        => 'dashboard',
+				'description' => __( 'Your PartyMinder home - manage events, join conversations, and discover new connections.', 'partyminder' ),
+			),
+			'events'              => array(
+				'title'       => __( 'Events', 'partyminder' ),
+				'content'     => '[partyminder_events_list]',
+				'slug'        => 'events',
+				'description' => __( 'Discover and RSVP to exciting events in your area.', 'partyminder' ),
+			),
+			'create-event'        => array(
+				'title'       => __( 'Create Event', 'partyminder' ),
+				'content'     => '[partyminder_event_form]',
+				'slug'        => 'create-event',
+				'description' => __( 'Plan and host your perfect event with our easy-to-use event creation tools.', 'partyminder' ),
+			),
+			'create-community-event' => array(
+				'title'       => __( 'Create Community Event', 'partyminder' ),
+				'content'     => '<p>Loading community event creation...</p>',
+				'slug'        => 'create-community-event',
+				'description' => __( 'Create an event for your community members to plan activities together.', 'partyminder' ),
+			),
+			'my-events'           => array(
+				'title'       => __( 'My Events', 'partyminder' ),
+				'content'     => '[partyminder_my_events]',
+				'slug'        => 'my-events',
+				'description' => __( 'View and manage all your created events and RSVPs in one convenient dashboard.', 'partyminder' ),
+			),
+			'edit-event'          => array(
+				'title'       => __( 'Edit Event', 'partyminder' ),
+				'content'     => '[partyminder_event_edit_form]',
+				'slug'        => 'edit-event',
+				'description' => __( 'Update your event details, manage guest lists, and edit event information.', 'partyminder' ),
+			),
+			'conversations'       => array(
+				'title'       => __( 'Community Conversations', 'partyminder' ),
+				'content'     => '[partyminder_conversations]',
+				'slug'        => 'conversations',
+				'description' => __( 'Connect, share tips, and plan amazing gatherings with the community.', 'partyminder' ),
+			),
+			'create-conversation' => array(
+				'title'       => __( 'Create Conversation', 'partyminder' ),
+				'content'     => '[partyminder_create_conversation]',
+				'slug'        => 'create-conversation',
+				'description' => __( 'Share ideas, ask questions, and start discussions with the community.', 'partyminder' ),
+			),
+			'communities'         => array(
+				'title'       => __( 'Communities', 'partyminder' ),
+				'content'     => '[partyminder_communities]',
+				'slug'        => 'communities',
+				'description' => __( 'Join communities of fellow hosts and guests to plan events together.', 'partyminder' ),
+			),
+			'my-communities'      => array(
+				'title'       => __( 'My Communities', 'partyminder' ),
+				'content'     => '<p>Loading my communities...</p>',
+				'slug'        => 'my-communities',
+				'description' => __( 'View and manage your community memberships and roles.', 'partyminder' ),
+			),
+			'profile'             => array(
+				'title'       => __( 'My Profile', 'partyminder' ),
+				'content'     => '[partyminder_profile]',
+				'slug'        => 'profile',
+				'description' => __( 'Manage your PartyMinder profile, preferences, and hosting reputation.', 'partyminder' ),
+			),
+			'login'               => array(
+				'title'       => __( 'Login', 'partyminder' ),
+				'content'     => '[partyminder_login]',
+				'slug'        => 'login',
+				'description' => __( 'Sign in to your PartyMinder account to manage events and connect with the community.', 'partyminder' ),
+			),
+			'manage-community'    => array(
+				'title'       => __( 'Manage Community', 'partyminder' ),
+				'content'     => '<p>Loading community management...</p>',
+				'slug'        => 'manage-community',
+				'description' => __( 'Manage your community settings, members, and invitations.', 'partyminder' ),
+			),
+			'create-community'    => array(
+				'title'       => __( 'Create Community', 'partyminder' ),
+				'content'     => '<p>Loading community creation...</p>',
+				'slug'        => 'create-community',
+				'description' => __( 'Create a new community to connect with like-minded hosts and guests.', 'partyminder' ),
+			),
+			'create-group'        => array(
+				'title'       => __( 'Create Group', 'partyminder' ),
+				'content'     => '<p>Loading group creation...</p>',
+				'slug'        => 'create-group',
+				'description' => __( 'Create a new group to organize events with specific people.', 'partyminder' ),
+			),
+		);
+
+		foreach ( $pages as $key => $page ) {
+			// Check if page already exists
+			$page_id       = get_option( 'partyminder_page_' . $key );
+			$existing_page = $page_id ? get_post( $page_id ) : null;
+
+			if ( ! $existing_page || $existing_page->post_status !== 'publish' ) {
+				// Create the page with shortcode content for theme integration
+				$page_content = $page['content'];
+
+				// Add introductory content for better theme integration
+				if ( $key === 'events' ) {
+					$page_content = '<p>' . $page['description'] . '</p>' . "\n\n" . $page_content;
+				} elseif ( $key === 'create-event' ) {
+					$page_content = '<p>' . $page['description'] . '</p>' . "\n\n" . $page_content;
+				}
+
+				$page_data = array(
+					'post_title'     => $page['title'],
+					'post_content'   => $page_content,
+					'post_status'    => 'publish',
+					'post_type'      => 'page',
+					'post_name'      => $page['slug'],
+					'post_author'    => 1,
+					'comment_status' => 'closed',
+					'ping_status'    => 'closed',
+					'post_excerpt'   => $page['description'],
+					'meta_input'     => array(
+						'_partyminder_page'      => $key,
+						'_partyminder_page_type' => $key,
+						// Remove custom page template - let theme handle it
+					),
+				);
+
+				$page_id = wp_insert_post( $page_data );
+
+				if ( ! is_wp_error( $page_id ) ) {
+					update_option( 'partyminder_page_' . $key, $page_id );
+
+					// Set SEO-friendly meta data
+					switch ( $key ) {
+						case 'dashboard':
+							update_post_meta( $page_id, '_yoast_wpseo_title', __( 'PartyMinder Dashboard - Your Social Event Hub', 'partyminder' ) );
+							update_post_meta( $page_id, '_yoast_wpseo_metadesc', __( 'Your personal dashboard for managing events, joining conversations, and connecting with fellow hosts and party-goers.', 'partyminder' ) );
+							break;
+						case 'events':
+							update_post_meta( $page_id, '_yoast_wpseo_title', __( 'Upcoming Events - Find Amazing Parties Near You', 'partyminder' ) );
+							update_post_meta( $page_id, '_yoast_wpseo_metadesc', __( 'Discover and RSVP to exciting events in your area. Join the community and never miss a great party!', 'partyminder' ) );
+							break;
+						case 'create-event':
+							update_post_meta( $page_id, '_yoast_wpseo_title', __( 'Create Your Event - Host an Amazing Party', 'partyminder' ) );
+							update_post_meta( $page_id, '_yoast_wpseo_metadesc', __( 'Plan and host your perfect event with our easy-to-use event creation tools. Invite guests and manage RSVPs effortlessly.', 'partyminder' ) );
+							break;
+						case 'my-events':
+							update_post_meta( $page_id, '_yoast_wpseo_title', __( 'My Events Dashboard - Manage Your Events', 'partyminder' ) );
+							update_post_meta( $page_id, '_yoast_wpseo_metadesc', __( 'View and manage all your created events and RSVPs in one convenient dashboard.', 'partyminder' ) );
+							break;
+						case 'edit-event':
+							update_post_meta( $page_id, '_yoast_wpseo_title', __( 'Edit Event - Update Your Event Details', 'partyminder' ) );
+							update_post_meta( $page_id, '_yoast_wpseo_metadesc', __( 'Update your event details, manage guest lists, and edit event information.', 'partyminder' ) );
+							update_post_meta( $page_id, '_yoast_wpseo_meta-robots-noindex', '1' ); // Don't index edit pages
+							break;
+						case 'conversations':
+							update_post_meta( $page_id, '_yoast_wpseo_title', __( 'Community Conversations - Connect & Share', 'partyminder' ) );
+							update_post_meta( $page_id, '_yoast_wpseo_metadesc', __( 'Join community conversations about hosting tips, recipes, party planning and more. Connect with fellow party hosts and guests.', 'partyminder' ) );
+							break;
+						case 'communities':
+							update_post_meta( $page_id, '_yoast_wpseo_title', __( 'Communities - Join Groups & Plan Together', 'partyminder' ) );
+							update_post_meta( $page_id, '_yoast_wpseo_metadesc', __( 'Join communities of fellow hosts and guests. Create work, family, or hobby groups to plan events together with shared interests.', 'partyminder' ) );
+							break;
+						case 'login':
+							update_post_meta( $page_id, '_yoast_wpseo_title', __( 'Sign In - PartyMinder Login', 'partyminder' ) );
+							update_post_meta( $page_id, '_yoast_wpseo_metadesc', __( 'Sign in to your PartyMinder account to manage events, join conversations, and connect with the community.', 'partyminder' ) );
+							update_post_meta( $page_id, '_yoast_wpseo_meta-robots-noindex', '1' ); // Don't index login pages
+							break;
+					}
+				}
+			}
+		}
+	}
+
+	private static function create_default_conversation_topics() {
+		global $wpdb;
+
+		$topics_table = $wpdb->prefix . 'partyminder_conversation_topics';
+
+		// Check if topics already exist
+		$existing_count = $wpdb->get_var( "SELECT COUNT(*) FROM $topics_table" );
+		if ( $existing_count > 0 ) {
+			return; // Topics already exist
+		}
+
+		$default_topics = array(
+			array(
+				'name'        => __( 'Welcome & Introductions', 'partyminder' ),
+				'slug'        => 'welcome-introductions',
+				'description' => __( 'Introduce yourself to the community and welcome new members.', 'partyminder' ),
+				'icon'        => '👋',
+				'sort_order'  => 10,
+			),
+			array(
+				'name'        => __( 'Hosting Tips & Questions', 'partyminder' ),
+				'slug'        => 'hosting-tips',
+				'description' => __( 'Share hosting wisdom and get help with your hosting challenges.', 'partyminder' ),
+				'icon'        => '🍽️',
+				'sort_order'  => 20,
+			),
+			array(
+				'name'        => __( 'Recipes & Food Ideas', 'partyminder' ),
+				'slug'        => 'recipes-food',
+				'description' => __( 'Share your favorite party recipes and discover new food ideas.', 'partyminder' ),
+				'icon'        => '🍳',
+				'sort_order'  => 30,
+			),
+			array(
+				'name'        => __( 'Party Planning & Themes', 'partyminder' ),
+				'slug'        => 'party-planning',
+				'description' => __( 'Brainstorm creative party themes and planning strategies.', 'partyminder' ),
+				'icon'        => '🎨',
+				'sort_order'  => 40,
+			),
+			array(
+				'name'        => __( 'Venue & Setup Ideas', 'partyminder' ),
+				'slug'        => 'venue-setup',
+				'description' => __( 'Share venue recommendations and setup inspiration.', 'partyminder' ),
+				'icon'        => '🏠',
+				'sort_order'  => 50,
+			),
+			array(
+				'name'        => __( 'General Community Chat', 'partyminder' ),
+				'slug'        => 'general-chat',
+				'description' => __( 'Casual conversations and community discussions.', 'partyminder' ),
+				'icon'        => '💡',
+				'sort_order'  => 60,
+			),
+		);
+
+		foreach ( $default_topics as $topic ) {
+			$wpdb->insert(
+				$topics_table,
+				array(
+					'name'        => $topic['name'],
+					'slug'        => $topic['slug'],
+					'description' => $topic['description'],
+					'icon'        => $topic['icon'],
+					'sort_order'  => $topic['sort_order'],
+					'is_active'   => 1,
+					'created_at'  => current_time( 'mysql' ),
+				),
+				array( '%s', '%s', '%s', '%s', '%d', '%d', '%s' )
+			);
+		}
+	}
+
+	private static function create_user_profiles_table() {
+		global $wpdb;
+
+		$charset_collate = $wpdb->get_charset_collate();
+
+		// User profiles table
+		$profiles_table = $wpdb->prefix . 'partyminder_user_profiles';
+		$profiles_sql   = "CREATE TABLE $profiles_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) UNSIGNED NOT NULL,
+            display_name varchar(255) DEFAULT '',
+            bio text DEFAULT '',
+            location varchar(255) DEFAULT '',
+            profile_image varchar(255) DEFAULT '',
+            cover_image varchar(255) DEFAULT '',
+            avatar_source varchar(20) DEFAULT 'gravatar',
+            website_url varchar(255) DEFAULT '',
+            social_links longtext DEFAULT '',
+            hosting_preferences longtext DEFAULT '',
+            notification_preferences longtext DEFAULT '',
+            privacy_settings longtext DEFAULT '',
+            events_hosted int(11) DEFAULT 0,
+            events_attended int(11) DEFAULT 0,
+            host_rating decimal(3,2) DEFAULT 0.00,
+            host_reviews_count int(11) DEFAULT 0,
+            available_times longtext DEFAULT '',
+            dietary_restrictions text DEFAULT '',
+            accessibility_needs text DEFAULT '',
+            is_verified tinyint(1) DEFAULT 0,
+            is_active tinyint(1) DEFAULT 1,
+            last_active datetime DEFAULT CURRENT_TIMESTAMP,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY user_id (user_id),
+            KEY display_name (display_name),
+            KEY location (location),
+            KEY is_verified (is_verified),
+            KEY is_active (is_active),
+            KEY last_active (last_active)
+        ) $charset_collate;";
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta( $profiles_sql );
+	}
+
+	private static function create_communities_tables() {
+		global $wpdb;
+
+		$charset_collate = $wpdb->get_charset_collate();
+
+		// Communities table
+		$communities_table = $wpdb->prefix . 'partyminder_communities';
+		$communities_sql   = "CREATE TABLE $communities_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            name varchar(255) NOT NULL,
+            slug varchar(255) NOT NULL,
+            description text,
+            type varchar(50) DEFAULT 'standard',
+            privacy varchar(20) DEFAULT 'public',
+            member_count int(11) DEFAULT 0,
+            event_count int(11) DEFAULT 0,
+            creator_id bigint(20) UNSIGNED NOT NULL,
+            creator_email varchar(100) NOT NULL,
+            featured_image varchar(255) DEFAULT '',
+            settings longtext DEFAULT '',
+            at_protocol_did varchar(255) DEFAULT '',
+            at_protocol_handle varchar(255) DEFAULT '',
+            at_protocol_data longtext DEFAULT '',
+            is_active tinyint(1) DEFAULT 1,
+            requires_approval tinyint(1) DEFAULT 0,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY slug (slug),
+            UNIQUE KEY at_protocol_did (at_protocol_did),
+            KEY creator_id (creator_id),
+            KEY privacy (privacy),
+            KEY type (type),
+            KEY is_active (is_active)
+        ) $charset_collate;";
+
+		// Community members table
+		$members_table = $wpdb->prefix . 'partyminder_community_members';
+		$members_sql   = "CREATE TABLE $members_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            community_id mediumint(9) NOT NULL,
+            user_id bigint(20) UNSIGNED NOT NULL,
+            email varchar(100) NOT NULL,
+            display_name varchar(100) NOT NULL,
+            role varchar(50) DEFAULT 'member',
+            permissions longtext DEFAULT '',
+            status varchar(20) DEFAULT 'active',
+            at_protocol_did varchar(255) DEFAULT '',
+            joined_at datetime DEFAULT CURRENT_TIMESTAMP,
+            last_seen_at datetime DEFAULT CURRENT_TIMESTAMP,
+            invitation_data longtext DEFAULT '',
+            PRIMARY KEY (id),
+            KEY community_id (community_id),
+            KEY user_id (user_id),
+            KEY email (email),
+            KEY role (role),
+            KEY status (status),
+            KEY at_protocol_did (at_protocol_did),
+            UNIQUE KEY unique_member (community_id, user_id, email)
+        ) $charset_collate;";
+
+		// Community events table (extends regular events with community context)
+		$community_events_table = $wpdb->prefix . 'partyminder_community_events';
+		$community_events_sql   = "CREATE TABLE $community_events_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            community_id mediumint(9) NOT NULL,
+            event_id mediumint(9) NOT NULL,
+            organizer_member_id mediumint(9) NOT NULL,
+            visibility varchar(20) DEFAULT 'community',
+            member_permissions varchar(50) DEFAULT 'view_rsvp',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY community_id (community_id),
+            KEY event_id (event_id),
+            KEY organizer_member_id (organizer_member_id),
+            KEY visibility (visibility),
+            UNIQUE KEY unique_community_event (community_id, event_id)
+        ) $charset_collate;";
+
+		// Member identity table (for AT Protocol DIDs and cross-site identity)
+		$identities_table = $wpdb->prefix . 'partyminder_member_identities';
+		$identities_sql   = "CREATE TABLE $identities_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) UNSIGNED NOT NULL,
+            email varchar(100) NOT NULL,
+            display_name varchar(100) NOT NULL,
+            at_protocol_did varchar(255) NOT NULL,
+            at_protocol_handle varchar(255) DEFAULT '',
+            at_protocol_pds varchar(255) DEFAULT '',
+            at_protocol_data longtext DEFAULT '',
+            public_key longtext DEFAULT '',
+            private_key_encrypted longtext DEFAULT '',
+            cross_site_data longtext DEFAULT '',
+            is_verified tinyint(1) DEFAULT 0,
+            last_sync_at datetime DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY user_id (user_id),
+            UNIQUE KEY email (email),
+            UNIQUE KEY at_protocol_did (at_protocol_did),
+            KEY at_protocol_handle (at_protocol_handle),
+            KEY is_verified (is_verified)
+        ) $charset_collate;";
+
+		// Community invitations table
+		$invitations_table = $wpdb->prefix . 'partyminder_community_invitations';
+		$invitations_sql   = "CREATE TABLE $invitations_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            community_id mediumint(9) NOT NULL,
+            invited_by_member_id mediumint(9) NOT NULL,
+            invited_email varchar(100) NOT NULL,
+            invited_user_id bigint(20) UNSIGNED DEFAULT NULL,
+            invitation_token varchar(64) NOT NULL,
+            message text DEFAULT '',
+            status varchar(20) DEFAULT 'pending',
+            expires_at datetime NOT NULL,
+            responded_at datetime DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY community_id (community_id),
+            KEY invited_by_member_id (invited_by_member_id),
+            KEY invited_email (invited_email),
+            KEY invited_user_id (invited_user_id),
+            KEY status (status),
+            KEY expires_at (expires_at),
+            UNIQUE KEY invitation_token (invitation_token)
+        ) $charset_collate;";
+
+		// AT Protocol sync log (for tracking federation state)
+		$sync_log_table = $wpdb->prefix . 'partyminder_at_protocol_sync';
+		$sync_log_sql   = "CREATE TABLE $sync_log_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            entity_type varchar(50) NOT NULL,
+            entity_id mediumint(9) NOT NULL,
+            sync_type varchar(50) NOT NULL,
+            at_protocol_uri varchar(255) DEFAULT '',
+            sync_status varchar(20) DEFAULT 'pending',
+            sync_data longtext DEFAULT '',
+            error_message text DEFAULT '',
+            attempts int(11) DEFAULT 0,
+            last_attempt_at datetime DEFAULT NULL,
+            synced_at datetime DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY entity_type (entity_type),
+            KEY entity_id (entity_id),
+            KEY sync_type (sync_type),
+            KEY sync_status (sync_status),
+            KEY at_protocol_uri (at_protocol_uri)
+        ) $charset_collate;";
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta( $communities_sql );
+		dbDelta( $members_sql );
+		dbDelta( $community_events_sql );
+		dbDelta( $identities_sql );
+		dbDelta( $invitations_sql );
+		dbDelta( $sync_log_sql );
+	}
+
+	private static function create_event_invitations_table() {
+		global $wpdb;
+
+		$charset_collate = $wpdb->get_charset_collate();
+
+		// Note: Event invitations functionality consolidated into partyminder_guests table
+	}
+
+	private static function create_event_rsvps_table() {
+		global $wpdb;
+
+		$charset_collate = $wpdb->get_charset_collate();
+
+		// Event RSVPs table (modernized guest management)
+		$rsvps_table = $wpdb->prefix . 'partyminder_rsvps';
+		$rsvps_sql   = "CREATE TABLE $rsvps_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            event_id mediumint(9) NOT NULL,
+            name varchar(100) NOT NULL,
+            email varchar(100) NOT NULL,
+            phone varchar(20) DEFAULT '',
+            status varchar(20) DEFAULT 'attending',
+            dietary_restrictions text DEFAULT '',
+            plus_one tinyint(1) DEFAULT 0,
+            plus_one_name varchar(100) DEFAULT '',
+            notes text DEFAULT '',
+            invitation_token varchar(64) DEFAULT '',
+            rsvp_date datetime DEFAULT CURRENT_TIMESTAMP,
+            reminder_sent tinyint(1) DEFAULT 0,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY event_id (event_id),
+            KEY email (email),
+            KEY status (status),
+            KEY invitation_token (invitation_token),
+            UNIQUE KEY unique_guest_event (event_id, email)
+        ) $charset_collate;";
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta( $rsvps_sql );
+	}
+
+	private static function create_post_images_table() {
+		global $wpdb;
+
+		$charset_collate = $wpdb->get_charset_collate();
+
+		// Post images table for event post images
+		$post_images_table = $wpdb->prefix . 'partyminder_post_images';
+		$post_images_sql   = "CREATE TABLE $post_images_table (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            event_id mediumint(9) NOT NULL,
+            user_id bigint(20) UNSIGNED NOT NULL,
+            filename varchar(255) NOT NULL,
+            original_filename varchar(255) NOT NULL,
+            file_url varchar(500) NOT NULL,
+            file_path varchar(500) NOT NULL,
+            file_size int(11) DEFAULT 0,
+            mime_type varchar(100) DEFAULT '',
+            width int(11) DEFAULT 0,
+            height int(11) DEFAULT 0,
+            caption text DEFAULT '',
+            alt_text varchar(255) DEFAULT '',
+            sort_order int(11) DEFAULT 0,
+            is_featured tinyint(1) DEFAULT 0,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY event_id (event_id),
+            KEY user_id (user_id),
+            KEY sort_order (sort_order),
+            KEY is_featured (is_featured),
+            KEY created_at (created_at)
+        ) $charset_collate;";
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta( $post_images_sql );
+	}
+
+	/**
+	 * Upgrade existing database schema for new features
+	 */
+	private static function upgrade_database_schema() {
+		global $wpdb;
+
+		// Check if community_id column exists in conversations table
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+		$column_exists       = $wpdb->get_results(
+			$wpdb->prepare(
+				"
+            SHOW COLUMNS FROM $conversations_table LIKE %s
+        ",
+				'community_id'
+			)
+		);
+
+		if ( empty( $column_exists ) ) {
+			// Add community_id column
+			$wpdb->query( "ALTER TABLE $conversations_table ADD COLUMN community_id mediumint(9) DEFAULT NULL AFTER event_id" );
+			$wpdb->query( "ALTER TABLE $conversations_table ADD INDEX community_id (community_id)" );
+		}
+
+		// Remove topic_id column if it exists (topic system removal)
+		$topic_column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $conversations_table LIKE %s",
+				'topic_id'
+			)
+		);
+
+		if ( ! empty( $topic_column_exists ) ) {
+			// Drop the topic_id index first, then the column
+			$wpdb->query( "ALTER TABLE $conversations_table DROP INDEX topic_id" );
+			$wpdb->query( "ALTER TABLE $conversations_table DROP COLUMN topic_id" );
+		}
+
+		// Remove favorite_event_types column if it exists (event types system removal)
+		$profiles_table = $wpdb->prefix . 'partyminder_user_profiles';
+		$event_types_column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $profiles_table LIKE %s",
+				'favorite_event_types'
+			)
+		);
+
+		if ( ! empty( $event_types_column_exists ) ) {
+			// Drop the favorite_event_types column
+			$wpdb->query( "ALTER TABLE $profiles_table DROP COLUMN favorite_event_types" );
+		}
+
+		// Simplify event privacy levels - convert complex privacy to simple public/private
+		$events_table = $wpdb->prefix . 'partyminder_events';
+		$wpdb->query( "
+			UPDATE $events_table 
+			SET privacy = CASE
+				WHEN privacy IN ('community', 'host', 'invited') THEN 'private'
+				WHEN privacy = 'public' THEN 'public'
+				ELSE 'public'
+			END
+			WHERE privacy NOT IN ('public', 'private')
+		" );
+
+		// Add avatar_source column if it doesn't exist
+		$profiles_table = $wpdb->prefix . 'partyminder_user_profiles';
+		$avatar_source_column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $profiles_table LIKE %s",
+				'avatar_source'
+			)
+		);
+
+		if ( empty( $avatar_source_column_exists ) ) {
+			$wpdb->query( "ALTER TABLE $profiles_table ADD COLUMN avatar_source varchar(20) DEFAULT 'gravatar' AFTER cover_image" );
+		}
+
+		// Add featured_image column to conversations table if it doesn't exist (stores image URL, not data)
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+		$featured_image_column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $conversations_table LIKE %s",
+				'featured_image'
+			)
+		);
+		if ( empty( $featured_image_column_exists ) ) {
+			$wpdb->query( "ALTER TABLE $conversations_table ADD COLUMN featured_image varchar(255) DEFAULT '' AFTER privacy" );
+		}
+
+		// Add enhanced date/time columns to events table for Flatpickr functionality
+		$events_table = $wpdb->prefix . 'partyminder_events';
+		
+		// Check and add end_date column
+		$end_date_column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $events_table LIKE %s",
+				'end_date'
+			)
+		);
+		if ( empty( $end_date_column_exists ) ) {
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN end_date datetime DEFAULT NULL AFTER event_time" );
+		}
+
+		// Check and add all_day column
+		$all_day_column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $events_table LIKE %s",
+				'all_day'
+			)
+		);
+		if ( empty( $all_day_column_exists ) ) {
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN all_day tinyint(1) DEFAULT 0 AFTER end_date" );
+		}
+
+		// Check and add recurrence columns
+		$recurrence_type_column_exists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $events_table LIKE %s",
+				'recurrence_type'
+			)
+		);
+		if ( empty( $recurrence_type_column_exists ) ) {
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN recurrence_type varchar(20) DEFAULT 'none' AFTER all_day" );
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN recurrence_interval int(11) DEFAULT 1 AFTER recurrence_type" );
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN recurrence_days varchar(255) DEFAULT '' AFTER recurrence_interval" );
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN monthly_type varchar(20) DEFAULT 'date' AFTER recurrence_days" );
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN monthly_week varchar(20) DEFAULT '' AFTER monthly_type" );
+			$wpdb->query( "ALTER TABLE $events_table ADD COLUMN monthly_day varchar(20) DEFAULT '' AFTER monthly_week" );
+		}
+	}
+
+	/**
+	 * Migrate existing data to follow privacy inheritance rules
+	 */
+	private static function migrate_privacy_inheritance() {
+		global $wpdb;
+		
+		// Check if migration has already been run
+		$migration_version = get_option( 'partyminder_privacy_inheritance_migration', '0' );
+		if ( version_compare( $migration_version, '1.0', '>=' ) ) {
+			return; // Migration already completed
+		}
+		
+		$events_table = $wpdb->prefix . 'partyminder_events';
+		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+		$communities_table = $wpdb->prefix . 'partyminder_communities';
+		
+		// Start transaction for data integrity
+		$wpdb->query( 'START TRANSACTION' );
+		
+		try {
+			// 1. Update community events to inherit community privacy
+			$community_events_updated = $wpdb->query("
+				UPDATE $events_table e
+				JOIN $communities_table c ON e.community_id = c.id 
+				SET e.privacy = c.privacy 
+				WHERE e.community_id IS NOT NULL
+			");
+			
+			// 2. Update community conversations to inherit community privacy
+			$community_conversations_updated = $wpdb->query("
+				UPDATE $conversations_table conv
+				JOIN $communities_table c ON conv.community_id = c.id 
+				SET conv.privacy = c.privacy 
+				WHERE conv.community_id IS NOT NULL
+			");
+			
+			// 3. Update event conversations to inherit event privacy
+			// For community events, this will use the community privacy that was just set
+			$event_conversations_updated = $wpdb->query("
+				UPDATE $conversations_table conv
+				JOIN $events_table e ON conv.event_id = e.id 
+				SET conv.privacy = e.privacy 
+				WHERE conv.event_id IS NOT NULL
+			");
+			
+			// Commit transaction
+			$wpdb->query( 'COMMIT' );
+			
+			// Mark migration as completed
+			update_option( 'partyminder_privacy_inheritance_migration', '1.0' );
+			
+			// Log migration results
+			error_log( sprintf(
+				'PartyMinder Privacy Inheritance Migration completed: %d community events, %d community conversations, %d event conversations updated',
+				$community_events_updated,
+				$community_conversations_updated,
+				$event_conversations_updated
+			) );
+			
+		} catch ( Exception $e ) {
+			// Rollback transaction on error
+			$wpdb->query( 'ROLLBACK' );
+			error_log( 'PartyMinder Privacy Inheritance Migration failed: ' . $e->getMessage() );
+		}
+	}
+}
