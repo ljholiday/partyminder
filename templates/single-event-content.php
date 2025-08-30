@@ -74,7 +74,7 @@ ob_start();
 				
 				<?php if ( $is_event_host ) : ?>
 				<div class="pm-flex pm-gap">
-					<a href="<?php echo esc_url( site_url( '/manage-event?event_id=' . $event->id ) ); ?>" class="pm-btn">
+					<a href="<?php echo esc_url( PartyMinder::get_edit_event_url( $event->id ) ); ?>" class="pm-btn">
 						<?php _e( 'Manage Event', 'partyminder' ); ?>
 					</a>
 				</div>
