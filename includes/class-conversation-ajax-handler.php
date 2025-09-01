@@ -75,6 +75,15 @@ class PartyMinder_Conversation_Ajax_Handler {
 			wp_send_json_error( __( 'Please fill in all required fields.', 'partyminder' ) );
 		}
 
+		// Step 4: If no community selected, default to author's personal community
+		if ( ! $community_id && $user_id && PartyMinder_Feature_Flags::is_general_convo_default_to_personal_enabled() ) {
+			require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-personal-community-service.php';
+			$personal_community = PartyMinder_Personal_Community_Service::get_personal_community_for_user( $user_id );
+			if ( $personal_community ) {
+				$community_id = $personal_community->id;
+			}
+		}
+
 		$conversation_manager = $this->get_conversation_manager();
 
 		$conversation_data = array(

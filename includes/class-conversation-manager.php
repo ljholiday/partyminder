@@ -130,6 +130,16 @@ class PartyMinder_Conversation_Manager {
 
 		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
 
+		// Step 4: If no community specified, default to author's personal community
+		$community_id = $data['community_id'] ?? null;
+		if ( ( ! $community_id || $community_id == 0 ) && ! empty( $data['author_id'] ) && PartyMinder_Feature_Flags::is_general_convo_default_to_personal_enabled() ) {
+			require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-personal-community-service.php';
+			$personal_community = PartyMinder_Personal_Community_Service::get_personal_community_for_user( $data['author_id'] );
+			if ( $personal_community ) {
+				$community_id = $personal_community->id;
+			}
+		}
+
 		// Generate slug from title
 		$slug = $this->generate_conversation_slug( $data['title'] );
 
@@ -137,7 +147,7 @@ class PartyMinder_Conversation_Manager {
 			$conversations_table,
 			array(
 				'event_id'          => $data['event_id'] ?? null,
-				'community_id'      => $data['community_id'] ?? null,
+				'community_id'      => $community_id,
 				'title'             => sanitize_text_field( $data['title'] ),
 				'slug'              => $slug,
 				'content'           => $data['content'],
