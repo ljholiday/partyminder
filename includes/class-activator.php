@@ -685,6 +685,8 @@ class PartyMinder_Activator {
 		add_option( 'partyminder_general_convo_default_to_personal', true );
 		// Step 5 complete, enable reply join flow
 		add_option( 'partyminder_reply_join_flow', true );
+		// Step 6 complete, enable circles resolver
+		add_option( 'partyminder_circles_resolver', true );
 
 		// UI options (removed color customization - now uses WordPress theme colors)
 		add_option( 'partyminder_show_avatars', true );
