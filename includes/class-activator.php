@@ -187,8 +187,8 @@ class PartyMinder_Activator {
             name varchar(100) NOT NULL,
             email varchar(100) NOT NULL,
             phone varchar(20) DEFAULT '',
-            dietary_restrictions text DEFAULT '',
-            accessibility_needs text DEFAULT '',
+            dietary_restrictions text,
+            accessibility_needs text,
             plus_one tinyint(1) DEFAULT 0,
             plus_one_name varchar(100) DEFAULT '',
             plus_one_dietary text DEFAULT '',
@@ -272,6 +272,7 @@ class PartyMinder_Activator {
             KEY author_id (author_id),
             KEY is_pinned (is_pinned),
             KEY last_reply_date (last_reply_date),
+            KEY community_created (community_id, created_at),
             UNIQUE KEY slug (slug)
         ) $charset_collate;";
 
@@ -303,7 +304,8 @@ class PartyMinder_Activator {
             KEY conversation_id (conversation_id),
             KEY parent_reply_id (parent_reply_id),
             KEY author_id (author_id),
-            KEY created_at (created_at)
+            KEY created_at (created_at),
+            KEY conversation_created (conversation_id, created_at)
         ) $charset_collate;";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -398,8 +400,8 @@ class PartyMinder_Activator {
             host_rating decimal(3,2) DEFAULT 0.00,
             host_reviews_count int(11) DEFAULT 0,
             available_times longtext DEFAULT '',
-            dietary_restrictions text DEFAULT '',
-            accessibility_needs text DEFAULT '',
+            dietary_restrictions text,
+            accessibility_needs text,
             is_verified tinyint(1) DEFAULT 0,
             is_active tinyint(1) DEFAULT 1,
             last_active datetime DEFAULT CURRENT_TIMESTAMP,
@@ -461,6 +463,8 @@ class PartyMinder_Activator {
             description text,
             type varchar(50) DEFAULT 'standard',
             privacy varchar(20) DEFAULT 'public',
+            personal_owner_user_id bigint(20) UNSIGNED DEFAULT NULL,
+            visibility enum('public','followers','private') NOT NULL DEFAULT 'public',
             member_count int(11) DEFAULT 0,
             event_count int(11) DEFAULT 0,
             creator_id bigint(20) UNSIGNED NOT NULL,
@@ -477,6 +481,8 @@ class PartyMinder_Activator {
             PRIMARY KEY (id),
             UNIQUE KEY slug (slug),
             KEY creator_id (creator_id),
+            KEY personal_owner_user_id (personal_owner_user_id),
+            KEY visibility (visibility),
             KEY type (type),
             KEY privacy (privacy),
             KEY is_active (is_active)
@@ -637,6 +643,8 @@ class PartyMinder_Activator {
 
 		// Run other existing migrations
 		self::upgrade_database_schema();
+		
+		// TODO: Fix member status schema mismatch (disabled until activation is stable)
 		
 		// Run privacy inheritance migration
 		self::migrate_privacy_inheritance();
@@ -909,4 +917,6 @@ class PartyMinder_Activator {
 			WHERE c.community_id IS NOT NULL AND c.privacy = 'public'
 		" );
 	}
+
+
 }

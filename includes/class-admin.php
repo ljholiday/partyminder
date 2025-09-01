@@ -77,6 +77,7 @@ class PartyMinder_Admin {
 			'partyminder-settings',
 			array( $this, 'settings_page' )
 		);
+
 	}
 
 	public function register_settings() {
@@ -1026,4 +1027,5 @@ class PartyMinder_Admin {
 		</div>
 		<?php
 	}
+
 }

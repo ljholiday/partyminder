@@ -176,7 +176,7 @@ class PartyMinder_Community_Manager {
 				"SELECT c.*, m.role, m.joined_at, m.status as member_status
              FROM $communities_table c
              INNER JOIN $members_table m ON c.id = m.community_id
-             WHERE m.user_id = %d AND m.status = 'active' AND c.is_active = 1
+             WHERE m.user_id = %d AND (m.status = 'member' OR m.status = '') AND c.is_active = 1
              ORDER BY m.joined_at DESC
              LIMIT %d",
 				$user_id,

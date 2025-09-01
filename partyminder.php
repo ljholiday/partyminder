@@ -30,6 +30,7 @@ define( 'PARTYMINDER_PLUGIN_FILE', __FILE__ );
 // Load activation/deactivation classes
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-activator.php';
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-deactivator.php';
+require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-personal-community-service.php';
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/pm_embed.php';
 
 // Activation and deactivation hooks
@@ -146,6 +147,9 @@ class PartyMinder {
 
 		// Theme integration hooks
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_page_specific_assets' ) );
+		
+		// Personal community creation for new users (Step 2 of circles plan)
+		add_action( 'user_register', array( $this, 'create_personal_community_for_new_user' ) );
 
 		// SEO and structured data
 		add_action( 'wp_head', array( $this, 'add_structured_data' ) );
@@ -1490,5 +1494,22 @@ class PartyMinder {
 		}
 		
 		return false;
+	}
+
+	/**
+	 * Create personal community for new user registration
+	 * Per Step 2 of the circles implementation plan
+	 */
+	public function create_personal_community_for_new_user( $user_id ) {
+		// Only create if communities feature is enabled and personal communities for new users is enabled
+		if ( ! PartyMinder_Feature_Flags::is_communities_enabled() || ! PartyMinder_Feature_Flags::is_personal_community_new_users_enabled() ) {
+			return;
+		}
+
+		$community_id = PartyMinder_Personal_Community_Service::create_for_user( $user_id );
+		
+		if ( $community_id && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( "PartyMinder: Created personal community (ID: $community_id) for new user $user_id" );
+		}
 	}
 }
