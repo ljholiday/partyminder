@@ -181,6 +181,14 @@ class PartyMinder_Conversation_Ajax_Handler {
 
 		$conversation_manager = $this->get_conversation_manager();
 
+		// Step 5: Handle reply join flow before posting
+		if ( $user_id && PartyMinder_Feature_Flags::is_reply_join_flow_enabled() ) {
+			$join_result = $this->handle_reply_join_flow( $conversation_id, $user_id );
+			if ( is_wp_error( $join_result ) ) {
+				wp_send_json_error( $join_result->get_error_message() );
+			}
+		}
+
 		$reply_data = array(
 			'content'         => $content,
 			'author_id'       => $user_id,
@@ -458,6 +466,94 @@ class PartyMinder_Conversation_Ajax_Handler {
 		);
 
 		return $uploaded_file['url'];
+	}
+
+	/**
+	 * Handle reply join flow logic
+	 * Step 5: Auto-join, pending approval, or access request based on community settings
+	 */
+	private function handle_reply_join_flow( $conversation_id, $user_id ) {
+		// Step 5: Spam protection - rate limit join attempts
+		$join_attempts_key = 'partyminder_join_attempts_' . $user_id;
+		$recent_attempts = get_transient( $join_attempts_key );
+		
+		if ( $recent_attempts && $recent_attempts >= 5 ) {
+			return new WP_Error( 'rate_limited', __( 'Too many join attempts. Please wait before trying again.', 'partyminder' ) );
+		}
+		
+		// Get the conversation to find its community
+		$conversation_manager = $this->get_conversation_manager();
+		$conversation = $conversation_manager->get_conversation( $conversation_id );
+		
+		if ( ! $conversation || ! $conversation->community_id ) {
+			// No community - allow reply (general conversation)
+			return true;
+		}
+		
+		// Check if user is already a member
+		$community_manager = $this->get_community_manager();
+		$member_role = $community_manager->get_member_role( $conversation->community_id, $user_id );
+		
+		if ( $member_role && $member_role !== 'blocked' ) {
+			// User is already a member - allow reply
+			return true;
+		}
+		
+		// Get community details
+		$community = $community_manager->get_community( $conversation->community_id );
+		if ( ! $community ) {
+			return new WP_Error( 'community_not_found', __( 'Community not found', 'partyminder' ) );
+		}
+		
+		// Handle based on community visibility and settings
+		switch ( $community->visibility ) {
+			case 'public':
+				// Public community - auto-join if allowed
+				if ( $community_manager->allows_auto_join_on_reply( $conversation->community_id ) ) {
+					// Track join attempt for spam protection
+					$this->track_join_attempt( $user_id );
+					
+					$join_result = $community_manager->join_community( $conversation->community_id, $user_id );
+					if ( is_wp_error( $join_result ) ) {
+						return new WP_Error( 'auto_join_failed', __( 'Failed to join community', 'partyminder' ) );
+					}
+					return true;
+				} else {
+					return new WP_Error( 'membership_required', __( 'You must be a member to reply in this community', 'partyminder' ) );
+				}
+				break;
+				
+			case 'followers':
+				// Followers-only - create pending membership request
+				$this->track_join_attempt( $user_id );
+				
+				$join_result = $community_manager->request_to_join_community( $conversation->community_id, $user_id );
+				if ( is_wp_error( $join_result ) ) {
+					return new WP_Error( 'join_request_failed', $join_result->get_error_message() );
+				}
+				return new WP_Error( 'approval_pending', __( 'Your request to join this community is pending approval', 'partyminder' ) );
+				break;
+				
+			case 'private':
+				// Private community - require explicit access request
+				return new WP_Error( 'access_restricted', __( 'This is a private community. Please request access from the community owner', 'partyminder' ) );
+				break;
+		}
+		
+		return new WP_Error( 'unknown_visibility', __( 'Unknown community visibility setting', 'partyminder' ) );
+	}
+
+	/**
+	 * Track join attempts for spam protection
+	 * Step 5: Prevent abuse of auto-join feature
+	 */
+	private function track_join_attempt( $user_id ) {
+		$join_attempts_key = 'partyminder_join_attempts_' . $user_id;
+		$recent_attempts = get_transient( $join_attempts_key );
+		$attempts = $recent_attempts ? (int) $recent_attempts + 1 : 1;
+		
+		// Track attempts for 1 hour
+		set_transient( $join_attempts_key, $attempts, HOUR_IN_SECONDS );
 	}
 
 }

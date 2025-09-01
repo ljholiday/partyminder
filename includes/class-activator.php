@@ -683,6 +683,8 @@ class PartyMinder_Activator {
 		add_option( 'partyminder_personal_community_backfill', true );
 		// Step 4 complete, enable general conversations default to personal
 		add_option( 'partyminder_general_convo_default_to_personal', true );
+		// Step 5 complete, enable reply join flow
+		add_option( 'partyminder_reply_join_flow', true );
 
 		// UI options (removed color customization - now uses WordPress theme colors)
 		add_option( 'partyminder_show_avatars', true );
