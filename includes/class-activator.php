@@ -271,8 +271,8 @@ class PartyMinder_Activator {
             KEY community_id (community_id),
             KEY author_id (author_id),
             KEY is_pinned (is_pinned),
-            KEY last_reply_date (last_reply_date),
             KEY community_created (community_id, created_at),
+            KEY last_reply_date (last_reply_date),
             UNIQUE KEY slug (slug)
         ) $charset_collate;";
 
@@ -498,7 +498,7 @@ class PartyMinder_Activator {
             display_name varchar(100) NOT NULL,
             role varchar(50) DEFAULT 'member',
             permissions longtext DEFAULT '',
-            status varchar(20) DEFAULT 'active',
+            status enum('active','pending','blocked') NOT NULL DEFAULT 'active',
             at_protocol_did varchar(255) DEFAULT '',
             joined_at datetime DEFAULT CURRENT_TIMESTAMP,
             last_seen_at datetime DEFAULT CURRENT_TIMESTAMP,
@@ -674,6 +674,13 @@ class PartyMinder_Activator {
 		add_option( 'partyminder_enable_at_protocol', false );
 		add_option( 'partyminder_communities_require_approval', true );
 		add_option( 'partyminder_max_communities_per_user', 10 );
+
+		// Circles Implementation Feature Flags - Step 1 complete, enable schema
+		add_option( 'partyminder_circles_schema', true );
+		// Step 2 complete, enable personal communities for new users
+		add_option( 'partyminder_personal_community_new_users', true );
+		// Step 3 complete, enable personal communities backfill
+		add_option( 'partyminder_personal_community_backfill', true );
 
 		// UI options (removed color customization - now uses WordPress theme colors)
 		add_option( 'partyminder_show_avatars', true );

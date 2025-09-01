@@ -24,6 +24,15 @@ class PartyMinder_Personal_Community_Service {
 		$communities_table = $wpdb->prefix . 'partyminder_communities';
 		$members_table = $wpdb->prefix . 'partyminder_community_members';
 
+		// Get user's AT Protocol data from member_identities table
+		$identities_table = $wpdb->prefix . 'partyminder_member_identities';
+		$identity = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT at_protocol_did, at_protocol_handle FROM $identities_table WHERE user_id = %d",
+				$user_id
+			)
+		);
+
 		// Create community with personal_owner_user_id set
 		$community_data = array(
 			'name' => $user->display_name . "'s Personal Community",
@@ -35,6 +44,8 @@ class PartyMinder_Personal_Community_Service {
 			'visibility' => 'public',
 			'creator_id' => $user_id,
 			'creator_email' => $user->user_email,
+			'at_protocol_did' => $identity ? $identity->at_protocol_did : null,
+			'at_protocol_handle' => $identity ? $identity->at_protocol_handle : null,
 			'is_active' => 1,
 			'created_at' => current_time( 'mysql' ),
 			'updated_at' => current_time( 'mysql' )
