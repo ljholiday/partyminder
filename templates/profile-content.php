@@ -347,7 +347,7 @@ if ( $is_editing ) {
 	<!-- Modern Profile Header -->
 	<section class="pm-profile-header-modern pm-mb">
 		<!-- Banner -->
-		<div class="pm-profile-cover pm-profile-banner">
+		<div class="pm-profile-cover">
 			<?php if ( $cover_photo_url ) : ?>
 				<img id="pm-banner-img" 
 					 src="<?php echo $cover_photo_url; ?>" 
