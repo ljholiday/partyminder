@@ -20,6 +20,13 @@ class PartyMinder_Activator {
 		// Flush rewrite rules only on activation
 		flush_rewrite_rules();
 
+		// Backfill personal communities for existing users
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-personal-community-service.php';
+		$created_count = PartyMinder_Personal_Community_Service::backfill_existing_users();
+		if ( $created_count > 0 ) {
+			error_log( "PartyMinder: Created $created_count personal communities during activation" );
+		}
+
 		// Set activation flag
 		update_option( 'partyminder_activated', true );
 		update_option( 'partyminder_activation_date', current_time( 'mysql' ) );
