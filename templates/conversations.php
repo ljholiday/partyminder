@@ -50,12 +50,12 @@ ob_start();
 ?>
 
 <!-- Conversation Filters -->
-<?php if ( $user_logged_in ) : ?>
+<?php if ( $user_logged_in && PartyMinder_Feature_Flags::is_circles_nav_ui_enabled() ) : ?>
 <div class="pm-section pm-mb-4">
 	<div class="pm-conversations-nav pm-flex pm-gap-4 pm-flex-wrap">
 		<!-- Circle Filters -->
-		<button class="pm-btn pm-btn is-active" data-circle="close" role="tab" aria-selected="true" aria-controls="pm-convo-list">
-			<?php _e( 'Close', 'partyminder' ); ?>
+		<button class="pm-btn pm-btn is-active" data-circle="inner" role="tab" aria-selected="true" aria-controls="pm-convo-list">
+			<?php _e( 'Inner', 'partyminder' ); ?>
 		</button>
 		<button class="pm-btn pm-btn" data-circle="trusted" role="tab" aria-selected="false" aria-controls="pm-convo-list">
 			<?php _e( 'Trusted', 'partyminder' ); ?>
