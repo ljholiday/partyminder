@@ -1,6 +1,6 @@
 # PartyMinder Database Structure
 
-> **Note**: Database schema updated and consolidated as of 2025-01-30. All tables now have unified creation methods in `class-activator.php` with proper migration support.
+> **Note**: Database schema updated and consolidated as of 2025-01-30. Major schema changes completed 2025-09-02 for circles implementation and privacy/visibility field standardization. All tables now have unified creation methods in `class-activator.php` with proper migration support.
 
 ## Core Tables
 
@@ -112,7 +112,8 @@ name varchar(255) NOT NULL
 slug varchar(255) NOT NULL
 description text
 type varchar(50) DEFAULT 'standard'
-privacy varchar(20) DEFAULT 'public'
+personal_owner_user_id bigint(20) UNSIGNED DEFAULT NULL
+visibility enum('public','private') NOT NULL DEFAULT 'public'
 member_count int(11) DEFAULT 0
 event_count int(11) DEFAULT 0
 creator_id bigint(20) UNSIGNED NOT NULL
@@ -126,6 +127,13 @@ is_active tinyint(1) DEFAULT 1
 requires_approval tinyint(1) DEFAULT 0
 created_at datetime DEFAULT CURRENT_TIMESTAMP
 updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+PRIMARY KEY (id)
+UNIQUE KEY slug (slug)
+KEY creator_id (creator_id)
+KEY personal_owner_user_id (personal_owner_user_id)
+KEY visibility (visibility)
+KEY type (type)
+KEY is_active (is_active)
 ```
 
 #### `partyminder_community_members` - Community membership
@@ -369,12 +377,15 @@ wp_users (1) → (many) partyminder_post_images
 - `cancelled` - Event has been cancelled
 - `completed` - Event has concluded
 
-### Community Privacy  
+### Community Visibility  
 - `public` - Open to join, visible in listings
 - `private` - Invite-only, hidden from public listings
 
+> **Note**: Field renamed from `privacy` to `visibility` as of 2025-09-02 to avoid confusion with privacy values.
+
 ### Community Types
-- `standard` - General purpose community
+- `standard` - General purpose community  
+- `personal` - Personal community for circles implementation (one per user)
 - `food` - Food and dining focused
 - `hobby` - Hobby-based community
 - `professional` - Work/career focused
@@ -425,3 +436,50 @@ The database activator has been refactored for better maintainability:
 - **Cleaner code**: Individual methods per table make maintenance easier
 
 This structure ensures DATABASE_STRUCTURE.md stays accurate with the actual schema.
+
+## Circles Implementation (2025-09-02)
+
+### Overview
+The circles system creates relationship networks based on community membership:
+- **Inner Circle**: Communities created by the viewer
+- **Trusted Circle**: Communities created by members of Inner communities  
+- **Extended Circle**: Communities created by members of Trusted communities
+
+### Personal Communities
+Each user gets a personal community (`type = 'personal'`) identified by:
+- `personal_owner_user_id` - Links to the owning user
+- Used as the foundation for the circles relationship system
+- Created automatically for new users (when feature flag enabled)
+
+### Key Classes
+- `PartyMinder_Circles_Resolver` - Calculates and caches circle relationships
+- `PartyMinder_Conversation_Feed` - Filters content based on circle membership  
+- `PartyMinder_Personal_Community_Service` - Manages personal community creation
+
+### Database Relationships for Circles
+```sql
+-- Find Inner Circle (communities user created)
+SELECT id FROM partyminder_communities WHERE creator_id = ? AND is_active = 1
+
+-- Find Trusted Circle (communities created by Inner circle members)  
+SELECT DISTINCT c.id FROM partyminder_communities c
+JOIN partyminder_community_members m ON c.creator_id = m.user_id
+WHERE m.community_id IN (inner_community_ids) AND m.status = 'active'
+
+-- Find Extended Circle (communities created by Trusted circle members)
+SELECT DISTINCT c.id FROM partyminder_communities c  
+JOIN partyminder_community_members m ON c.creator_id = m.user_id
+WHERE m.community_id IN (trusted_community_ids) AND m.status = 'active'
+```
+
+### Performance Optimizations
+- Results cached in WordPress transients (90 second TTL)
+- Cache key: `partyminder_circles_{user_id}`
+- Calculation metrics tracked for debugging
+- Permission gates applied at query level for efficiency
+
+### Privacy/Visibility Field Changes
+- **Before**: `privacy` field with values 'public'/'private'
+- **After**: `visibility` enum('public','private') with NOT NULL constraint
+- **Reason**: Eliminates confusion between field name and values
+- **Migration**: Automatic conversion during plugin activation

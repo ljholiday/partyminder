@@ -1,7 +1,6 @@
 
 # None of claudes stuff
 .claude
-CLAUDE.md
 
 # Claude local settings (can vary per developer)
 .claude/settings.local.json
@@ -9,12 +8,6 @@ CLAUDE.md
 # Only a local file
 debug.log
 
-# Old test infrastructure files (no longer used)
-composer.json
-composer.lock
-phpunit.xml
-bin/install-wp-tests.sh
-.phpunit.result.cache
 coverage/
 tmp/
 
