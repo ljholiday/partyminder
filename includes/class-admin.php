@@ -7,6 +7,7 @@ class PartyMinder_Admin {
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 		add_action( 'wp_ajax_partyminder_admin_delete_community', array( $this, 'ajax_admin_delete_community' ) );
+		add_action( 'admin_init', array( $this, 'restrict_dashboard_access' ) );
 	}
 
 	public function admin_menu() {
@@ -1175,6 +1176,26 @@ class PartyMinder_Admin {
 			// Rollback transaction on error
 			$wpdb->query( 'ROLLBACK' );
 			wp_send_json_error( __( 'Failed to delete community. Please try again.', 'partyminder' ) );
+		}
+	}
+
+	/**
+	 * Restrict dashboard access for subscribers
+	 */
+	public function restrict_dashboard_access() {
+		// Allow AJAX requests
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+			return;
+		}
+
+		// Get current user
+		$current_user = wp_get_current_user();
+		
+		// Only restrict subscribers (users with no capabilities beyond 'read')
+		if ( $current_user && in_array( 'subscriber', $current_user->roles ) && ! current_user_can( 'edit_posts' ) ) {
+			// Redirect to frontend
+			wp_redirect( home_url() );
+			exit;
 		}
 	}
 
