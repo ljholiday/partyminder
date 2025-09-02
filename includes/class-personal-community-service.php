@@ -116,10 +116,6 @@ class PartyMinder_Personal_Community_Service {
 	 * Per the plan: rate limit batches to avoid lock pressure
 	 */
 	public static function backfill_existing_users( $batch_size = 50 ) {
-		// Only backfill if the feature flag is enabled
-		if ( ! PartyMinder_Feature_Flags::is_personal_community_backfill_enabled() ) {
-			return 0;
-		}
 		$users = get_users( array(
 			'number' => $batch_size,
 			'fields' => 'ID'

@@ -182,7 +182,7 @@ class PartyMinder_Conversation_Ajax_Handler {
 		$conversation_manager = $this->get_conversation_manager();
 
 		// Step 5: Handle reply join flow before posting
-		if ( $user_id && PartyMinder_Feature_Flags::is_reply_join_flow_enabled() ) {
+		if ( $user_id ) {
 			$join_result = $this->handle_reply_join_flow( $conversation_id, $user_id );
 			if ( is_wp_error( $join_result ) ) {
 				wp_send_json_error( $join_result->get_error_message() );

@@ -1501,8 +1501,8 @@ class PartyMinder {
 	 * Per Step 2 of the circles implementation plan
 	 */
 	public function create_personal_community_for_new_user( $user_id ) {
-		// Only create if communities feature is enabled and personal communities for new users is enabled
-		if ( ! PartyMinder_Feature_Flags::is_communities_enabled() || ! PartyMinder_Feature_Flags::is_personal_community_new_users_enabled() ) {
+		// Only create if communities feature is enabled
+		if ( ! PartyMinder_Feature_Flags::is_communities_enabled() ) {
 			return;
 		}
 

@@ -1124,17 +1124,13 @@ The %6$s Team',
 	 * Step 5: Reply join flow - defaults to true for public personal communities
 	 */
 	public function allows_auto_join_on_reply( $community_id ) {
-		if ( ! PartyMinder_Feature_Flags::is_reply_join_flow_enabled() ) {
-			return false;
-		}
-		
 		$community = $this->get_community( $community_id );
 		if ( ! $community ) {
 			return false;
 		}
 		
-		// Default to true for public personal communities, false for others
-		$default = ( $community->visibility === 'public' && ! empty( $community->personal_owner_user_id ) );
+		// Default to true for all public communities
+		$default = ( $community->visibility === 'public' );
 		
 		return $this->get_community_setting( $community_id, 'allow_auto_join_on_reply', $default );
 	}
