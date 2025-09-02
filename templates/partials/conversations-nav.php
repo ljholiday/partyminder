@@ -9,18 +9,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Get current circle from URL parameter or default to 'close'
-$current_circle = sanitize_text_field( $_GET['circle'] ?? 'close' );
+// Get current circle from URL parameter or default to 'inner'
+$current_circle = sanitize_text_field( $_GET['circle'] ?? 'inner' );
 $topic_slug = get_query_var( 'topic_slug' ) ?? '';
 ?>
 
 <div class="pm-conversations-nav" role="tablist" aria-label="Filter conversations">
-	<button class="pm-btn pm-btn <?php echo $current_circle === 'close' ? 'is-active' : ''; ?>" 
-			data-circle="close" 
+	<button class="pm-btn pm-btn <?php echo $current_circle === 'inner' ? 'is-active' : ''; ?>" 
+			data-circle="inner" 
 			role="tab" 
-			aria-selected="<?php echo $current_circle === 'close' ? 'true' : 'false'; ?>" 
+			aria-selected="<?php echo $current_circle === 'inner' ? 'true' : 'false'; ?>" 
 			aria-controls="pm-convo-list">
-		<?php _e( 'Close Circle', 'partyminder' ); ?>
+		<?php _e( 'Inner Circle', 'partyminder' ); ?>
 	</button>
 	<button class="pm-btn pm-btn <?php echo $current_circle === 'trusted' ? 'is-active' : ''; ?>" 
 			data-circle="trusted" 

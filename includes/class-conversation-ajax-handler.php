@@ -253,16 +253,16 @@ class PartyMinder_Conversation_Ajax_Handler {
 			wp_send_json_error( __( 'Security verification failed.', 'partyminder' ) );
 		}
 
-		$circle = sanitize_text_field( $_POST['circle'] ?? 'close' );
+		$circle = sanitize_text_field( $_POST['circle'] ?? 'inner' );
 		$filter = sanitize_text_field( $_POST['filter'] ?? '' );
 		$topic_slug = sanitize_title( $_POST['topic_slug'] ?? '' );
 		$page = max( 1, intval( $_POST['page'] ?? 1 ) );
 		$per_page = 20;
 
 		// Validate circle
-		$allowed_circles = array( 'close', 'trusted', 'extended' );
+		$allowed_circles = array( 'inner', 'trusted', 'extended' );
 		if ( ! in_array( $circle, $allowed_circles ) ) {
-			$circle = 'close';
+			$circle = 'inner';
 		}
 
 		// Validate filter
@@ -290,11 +290,16 @@ class PartyMinder_Conversation_Ajax_Handler {
 			$conversations_table = $wpdb->prefix . 'partyminder_conversations';
 			$total_conversations = $wpdb->get_var( "SELECT COUNT(*) FROM $conversations_table WHERE community_id IS NOT NULL" );
 		} else {
-			// Use circle scope filtering
-			require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-circle-scope.php';
-			$scope = PartyMinder_Circle_Scope::resolve_conversation_scope( $current_user_id, $circle );
-			$conversations = $conversation_manager->get_conversations_by_scope( $scope, $topic_slug, $page, $per_page );
-			$total_conversations = $conversation_manager->get_conversations_count_by_scope( $scope, $topic_slug );
+			// Use new ConversationFeed with circles integration
+			require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-feed.php';
+			$opts = array(
+				'topic_slug' => $topic_slug,
+				'page' => $page,
+				'per_page' => $per_page
+			);
+			$feed_result = PartyMinder_Conversation_Feed::list( $current_user_id, $circle, $opts );
+			$conversations = $feed_result['conversations'];
+			$total_conversations = $feed_result['meta']['total'];
 		}
 		$total_pages = ceil( $total_conversations / $per_page );
 		$has_more = $page < $total_pages;

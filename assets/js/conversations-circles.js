@@ -34,7 +34,7 @@ jQuery(document).ready(function($) {
 
 		// Load conversations for a specific circle or filter
 		function loadConversations(options = {}) {
-			const circle = options.circle || 'close';
+			const circle = options.circle || 'inner';
 			const filter = options.filter || '';
 			const topicSlug = $list.data('topic') || options.topic || '';
 			const page = options.page || 1;
@@ -131,9 +131,9 @@ jQuery(document).ready(function($) {
 			// Load the filtered conversations
 			loadConversations({ filter: urlFilter });
 		} else {
-			// Default behavior - load close circle
+			// Default behavior - load inner circle
 			const $activeButton = $nav.find('button.is-active');
-			const initialCircle = $activeButton.data('circle') || 'close';
+			const initialCircle = $activeButton.data('circle') || 'inner';
 			loadConversations({ circle: initialCircle });
 		}
 

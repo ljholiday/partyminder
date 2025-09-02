@@ -687,6 +687,8 @@ class PartyMinder_Activator {
 		add_option( 'partyminder_reply_join_flow', true );
 		// Step 6 complete, enable circles resolver
 		add_option( 'partyminder_circles_resolver', true );
+		// Step 7 complete, enable conversation feed by circle
+		add_option( 'partyminder_convo_feed_by_circle', true );
 
 		// UI options (removed color customization - now uses WordPress theme colors)
 		add_option( 'partyminder_show_avatars', true );
