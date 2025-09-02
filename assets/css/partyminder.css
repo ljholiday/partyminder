@@ -732,7 +732,6 @@ body.admin-bar .pm-page-two-column {
         width: 96px;
         height: 96px;
         flex-shrink: 0;
-        margin: 0 auto;
     }
     
     .pm-profile-avatar img {
@@ -1303,6 +1302,10 @@ body.admin-bar .pm-page-two-column {
   border: 1px solid var(--pm-border);
 }
 
+.pm-profile-header-modern {
+  display: block;
+}
+
 .pm-profile-banner {
   height: 200px;
   position: relative;
@@ -1312,6 +1315,7 @@ body.admin-bar .pm-page-two-column {
   padding: 1rem;
   margin-top: -3rem;
   align-items: flex-end;
+  width: 100%;
 }
 
 .pm-avatar-modern {
@@ -1324,7 +1328,13 @@ body.admin-bar .pm-page-two-column {
 }
 
 .pm-profile-identity {
-  padding: 0 1rem 1rem 1rem;
+  padding: 1rem;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  clear: both;
 }
 
 @media (max-width: 640px) {
