@@ -870,8 +870,8 @@ class PartyMinder_Admin {
 										</td>
 										<td><?php echo (int) $community->member_count; ?></td>
 										<td>
-											<span class="privacy-badge" style="padding: 2px 8px; border-radius: 10px; font-size: 0.8em; <?php echo $community->privacy === 'public' ? 'background: #d4edda; color: #155724;' : 'background: #f8d7da; color: #721c24;'; ?>">
-												<?php echo esc_html( ucfirst( $community->privacy ) ); ?>
+											<span class="privacy-badge" style="padding: 2px 8px; border-radius: 10px; font-size: 0.8em; <?php echo $community->visibility === 'public' ? 'background: #d4edda; color: #155724;' : 'background: #f8d7da; color: #721c24;'; ?>">
+												<?php echo esc_html( ucfirst( $community->visibility ) ); ?>
 											</span>
 										</td>
 										<td><?php echo date( 'M j, Y', strtotime( $community->created_at ) ); ?></td>

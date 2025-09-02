@@ -45,7 +45,7 @@ if ( $is_logged_in ) {
 
 // Check if user can view conversations
 $can_view_conversations = true;
-if ( $community->privacy === 'private' && ! $is_member ) {
+if ( $community->visibility === 'private' && ! $is_member ) {
 	$can_view_conversations = false;
 }
 
@@ -294,7 +294,7 @@ ob_start();
 			</div>
 			<div>
 				<strong class="pm-text-primary"><?php _e( 'Privacy:', 'partyminder' ); ?></strong><br>
-				<span class="pm-text-muted"><?php echo esc_html( ucfirst( $community->privacy ) ); ?></span>
+				<span class="pm-text-muted"><?php echo esc_html( ucfirst( $community->visibility ) ); ?></span>
 			</div>
 		</div>
 	</div>

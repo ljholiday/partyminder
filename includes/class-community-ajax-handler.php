@@ -143,7 +143,7 @@ class PartyMinder_Community_Ajax_Handler {
 		$community_data = array(
 			'name'        => sanitize_text_field( wp_unslash( $_POST['name'] ) ),
 			'description' => wp_kses_post( wp_unslash( $_POST['description'] ?? '' ) ),
-			'privacy'     => sanitize_text_field( $_POST['privacy'] ?? 'public' ),
+			'visibility'  => sanitize_text_field( $_POST['visibility'] ?? 'public' ),
 		);
 
 		$community_manager = $this->get_community_manager();
@@ -222,7 +222,7 @@ class PartyMinder_Community_Ajax_Handler {
 			'id'          => $community_id,
 			'name'        => sanitize_text_field( wp_unslash( $_POST['name'] ) ),
 			'description' => wp_kses_post( wp_unslash( $_POST['description'] ?? '' ) ),
-			'privacy'     => sanitize_text_field( $_POST['privacy'] ?? 'public' ),
+			'visibility'  => sanitize_text_field( $_POST['visibility'] ?? 'public' ),
 		);
 
 		$result = $community_manager->update_community( $community_data );

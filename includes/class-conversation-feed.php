@@ -16,9 +16,6 @@ class PartyMinder_Conversation_Feed {
 	 * @return array Feed data with conversations, pagination, and metadata
 	 */
 	public static function list( $viewer_id, $circle = 'all', $opts = array() ) {
-		if ( ! PartyMinder_Feature_Flags::is_convo_feed_by_circle_enabled() ) {
-			return self::get_empty_feed( 'Feature not enabled' );
-		}
 
 		$viewer_id = intval( $viewer_id );
 		if ( ! $viewer_id ) {

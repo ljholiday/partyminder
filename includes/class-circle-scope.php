@@ -189,7 +189,7 @@ class PartyMinder_Circle_Scope {
 		// Get all public communities
 		$public_communities = $wpdb->get_col(
 			"SELECT id FROM $communities_table 
-			 WHERE privacy = 'public' AND is_active = 1"
+			 WHERE visibility = 'public' AND is_active = 1"
 		);
 
 		return array(

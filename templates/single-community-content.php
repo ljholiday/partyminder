@@ -170,7 +170,7 @@ ob_start();
 						</a>
 					<?php endif; ?>
 					<span class="pm-badge pm-badge-secondary">
-						<?php echo esc_html( ucfirst( $community->privacy ) ); ?>
+						<?php echo esc_html( ucfirst( $community->visibility ) ); ?>
 					</span>
 				</div>
 			</div>
@@ -398,7 +398,7 @@ ob_start();
 		</div>
 		<div class="pm-stat-item">
 			<span class="pm-stat-label"><?php _e( 'Privacy', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo esc_html( ucfirst( $community->privacy ) ); ?></span>
+			<span class="pm-stat-value"><?php echo esc_html( ucfirst( $community->visibility ) ); ?></span>
 		</div>
 		<div class="pm-stat-item">
 			<span class="pm-stat-label"><?php _e( 'Created', 'partyminder' ); ?></span>

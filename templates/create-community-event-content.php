@@ -170,12 +170,12 @@ ob_start();
 								<?php 
 								printf( 
 									__( 'This event will inherit the %s privacy setting from the community.', 'partyminder' ), 
-									'<span class="pm-badge pm-badge-' . esc_attr( $community->privacy === 'public' ? 'success' : 'warning' ) . '">' . esc_html( ucfirst( $community->privacy ) ) . '</span>'
+									'<span class="pm-badge pm-badge-' . esc_attr( $community->visibility === 'public' ? 'success' : 'warning' ) . '">' . esc_html( ucfirst( $community->visibility ) ) . '</span>'
 								); 
 								?>
 							</p>
 							<p class="pm-text-muted pm-text-sm">
-								<?php if ( $community->privacy === 'public' ) : ?>
+								<?php if ( $community->visibility === 'public' ) : ?>
 									<?php _e( 'This event will be visible to everyone and discoverable in public listings.', 'partyminder' ); ?>
 								<?php else : ?>
 									<?php _e( 'This event will only be visible to community members.', 'partyminder' ); ?>

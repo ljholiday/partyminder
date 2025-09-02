@@ -45,7 +45,7 @@ if ( $is_logged_in ) {
 
 // Check if user can view events
 $can_view_events = true;
-if ( $community->privacy === 'private' && ! $is_member ) {
+if ( $community->visibility === 'private' && ! $is_member ) {
 	$can_view_events = false;
 }
 
@@ -315,7 +315,7 @@ ob_start();
 		<?php else : ?>
 			<p class="pm-mb-2"><?php _e( 'A community for members to plan and attend events together.', 'partyminder' ); ?></p>
 		<?php endif; ?>
-		<p class="pm-mb-2"><?php printf( __( 'Privacy: %s', 'partyminder' ), esc_html( ucfirst( $community->privacy ) ) ); ?></p>
+		<p class="pm-mb-2"><?php printf( __( 'Privacy: %s', 'partyminder' ), esc_html( ucfirst( $community->visibility ) ) ); ?></p>
 		<p><?php printf( __( 'Created: %s', 'partyminder' ), date( 'M Y', strtotime( $community->created_at ) ) ); ?></p>
 	</div>
 </div>

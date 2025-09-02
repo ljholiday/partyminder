@@ -81,7 +81,7 @@ ob_start();
 										<span class="pm-badge pm-badge-<?php echo $community->role === 'admin' ? 'primary' : 'success'; ?>">
 											<?php echo esc_html( ucfirst( $community->role ) ); ?>
 										</span>
-										<?php if ( $community->privacy === 'private' ) : ?>
+										<?php if ( $community->visibility === 'private' ) : ?>
 											<span class="pm-badge pm-badge-secondary"><?php _e( 'Private', 'partyminder' ); ?></span>
 										<?php endif; ?>
 									</div>
@@ -156,8 +156,8 @@ ob_start();
 								<?php echo esc_html( $community->name ); ?>
 							</a>
 						</h3>
-						<div class="pm-badge pm-badge-<?php echo $community->privacy === 'public' ? 'success' : 'secondary'; ?>">
-							<?php echo esc_html( ucfirst( $community->privacy ) ); ?>
+						<div class="pm-badge pm-badge-<?php echo $community->visibility === 'public' ? 'success' : 'secondary'; ?>">
+							<?php echo esc_html( ucfirst( $community->visibility ) ); ?>
 						</div>
 					</div>
 							<div class="pm-mb-4">
@@ -218,7 +218,7 @@ $recent_events = $wpdb->get_results( $wpdb->prepare(
 	"SELECT e.id, e.title, e.slug, e.event_date, e.created_at, c.name as community_name, c.slug as community_slug
 	 FROM $events_table e 
 	 INNER JOIN $communities_table c ON e.community_id = c.id
-	 WHERE c.privacy = 'public' AND e.event_status = 'active'
+	 WHERE c.visibility = 'public' AND e.event_status = 'active'
 	 ORDER BY e.created_at DESC 
 	 LIMIT %d", 5
 ) );
@@ -228,7 +228,7 @@ $recent_conversations = $wpdb->get_results( $wpdb->prepare(
 	"SELECT conv.id, conv.title, conv.slug, conv.created_at, conv.reply_count, c.name as community_name, c.slug as community_slug
 	 FROM $conversations_table conv
 	 INNER JOIN $communities_table c ON conv.community_id = c.id
-	 WHERE c.privacy = 'public' AND conv.privacy = 'public'
+	 WHERE c.visibility = 'public' AND conv.privacy = 'public'
 	 ORDER BY conv.created_at DESC 
 	 LIMIT %d", 5
 ) );

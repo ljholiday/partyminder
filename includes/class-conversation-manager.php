@@ -468,7 +468,7 @@ class PartyMinder_Conversation_Manager {
 			return "(
 				(c.event_id IS NULL AND c.community_id IS NULL AND c.privacy = 'public') OR
 				(c.event_id IS NOT NULL AND e.privacy = 'public') OR
-				(c.community_id IS NOT NULL AND cm.privacy = 'public')
+				(c.community_id IS NOT NULL AND cm.visibility = 'public')
 			)";
 		}
 		
@@ -494,7 +494,7 @@ class PartyMinder_Conversation_Manager {
 				))
 			)) OR
 			(c.community_id IS NOT NULL AND (
-				cm.privacy = 'public' OR
+				cm.visibility = 'public' OR
 				cm.creator_id = $current_user_id OR
 				EXISTS(
 					SELECT 1 FROM $members_table m 
@@ -565,7 +565,7 @@ class PartyMinder_Conversation_Manager {
 		$communities_table = $wpdb->prefix . 'partyminder_communities';
 		$privacy = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT privacy FROM $communities_table WHERE id = %d",
+				"SELECT visibility FROM $communities_table WHERE id = %d",
 				$community_id
 			)
 		);

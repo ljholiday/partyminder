@@ -43,7 +43,7 @@ if ( $is_logged_in ) {
 
 // Check if user can view members
 $can_view_members = true;
-if ( $community->privacy === 'private' && ! $is_member ) {
+if ( $community->visibility === 'private' && ! $is_member ) {
 	$can_view_members = false;
 }
 
@@ -317,7 +317,7 @@ ob_start();
 				<div class="pm-stat-label pm-text-muted"><?php _e( 'Members', 'partyminder' ); ?></div>
 			</div>
 			<div class="pm-stat pm-text-center">
-				<div class="pm-stat-number pm-text-primary"><?php echo esc_html( ucfirst( $community->privacy ) ); ?></div>
+				<div class="pm-stat-number pm-text-primary"><?php echo esc_html( ucfirst( $community->visibility ) ); ?></div>
 				<div class="pm-stat-label pm-text-muted"><?php _e( 'Privacy', 'partyminder' ); ?></div>
 			</div>
 		</div>

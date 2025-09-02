@@ -202,7 +202,7 @@ class PartyMinder_Event_Manager {
 	                 AND (
 						((e.community_id IS NULL OR e.community_id = 0) AND e.privacy = 'public') OR
 						(e.community_id IS NOT NULL AND e.community_id != 0 AND (
-							c.privacy = 'public' OR 
+							c.visibility = 'public' OR 
 							c.creator_id = %d OR
 							EXISTS(
 								SELECT 1 FROM $members_table m 
@@ -222,7 +222,7 @@ class PartyMinder_Event_Manager {
 	                 WHERE e.event_status = 'active'
 	                 AND (
 						((e.community_id IS NULL OR e.community_id = 0) AND e.privacy = 'public') OR
-						(e.community_id IS NOT NULL AND e.community_id != 0 AND c.privacy = 'public')
+						(e.community_id IS NOT NULL AND e.community_id != 0 AND c.visibility = 'public')
 					)
 	                 ORDER BY e.event_date ASC 
 	                 LIMIT %d";
@@ -740,7 +740,7 @@ The %9$s Team',
 		// Community events inherit community privacy, so check community access
 		$can_access_community = false;
 		
-		if ( $community->privacy === 'public' ) {
+		if ( $community->visibility === 'public' ) {
 			$can_access_community = true;
 		} elseif ( $current_user_id && is_user_logged_in() ) {
 			// Check if user is community member or creator
@@ -814,7 +814,7 @@ The %9$s Team',
 			$community_manager = new PartyMinder_Community_Manager();
 			$community = $community_manager->get_community( $community_id );
 			
-			if ( $community && $community->privacy !== $provided_privacy ) {
+			if ( $community && $community->visibility !== $provided_privacy ) {
 				return new WP_Error( 
 					'privacy_mismatch', 
 					sprintf( 

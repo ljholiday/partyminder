@@ -462,7 +462,6 @@ class PartyMinder_Activator {
             slug varchar(255) NOT NULL,
             description text,
             type varchar(50) DEFAULT 'standard',
-            privacy varchar(20) DEFAULT 'public',
             personal_owner_user_id bigint(20) UNSIGNED DEFAULT NULL,
             visibility enum('public','private') NOT NULL DEFAULT 'public',
             member_count int(11) DEFAULT 0,
@@ -484,7 +483,6 @@ class PartyMinder_Activator {
             KEY personal_owner_user_id (personal_owner_user_id),
             KEY visibility (visibility),
             KEY type (type),
-            KEY privacy (privacy),
             KEY is_active (is_active)
         ) $charset_collate;";
 
@@ -642,12 +640,20 @@ class PartyMinder_Activator {
 		}
 
 		// Run other existing migrations
-		self::upgrade_database_schema();
+		try {
+			self::upgrade_database_schema();
+		} catch ( Exception $e ) {
+			error_log( 'PartyMinder: Database schema upgrade failed: ' . $e->getMessage() );
+		}
 		
 		// TODO: Fix member status schema mismatch (disabled until activation is stable)
 		
 		// Run privacy inheritance migration
-		self::migrate_privacy_inheritance();
+		try {
+			self::migrate_privacy_inheritance();
+		} catch ( Exception $e ) {
+			error_log( 'PartyMinder: Privacy migration failed: ' . $e->getMessage() );
+		}
 	}
 
 	private static function set_default_options() {
@@ -796,9 +802,11 @@ class PartyMinder_Activator {
 		);
 
 		foreach ( $pages as $page_key => $page_data ) {
-			$existing_page = get_option( 'partyminder_page_' . $page_key );
-
-			if ( ! $existing_page ) {
+			// Check if page already exists
+			$page_id = get_option( 'partyminder_page_' . $page_key );
+			$existing_page = $page_id ? get_post( $page_id ) : null;
+			
+			if ( ! $existing_page || $existing_page->post_status !== 'publish' ) {
 				$page_args = array(
 					'post_title'     => $page_data['title'],
 					'post_content'   => $page_data['content'],
@@ -928,7 +936,7 @@ class PartyMinder_Activator {
 		$wpdb->query( "
 			UPDATE $conversations_table c
 			JOIN $communities_table com ON c.community_id = com.id
-			SET c.privacy = com.privacy
+			SET c.privacy = com.visibility
 			WHERE c.community_id IS NOT NULL AND c.privacy = 'public'
 		" );
 	}

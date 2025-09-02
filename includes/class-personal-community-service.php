@@ -39,7 +39,6 @@ class PartyMinder_Personal_Community_Service {
 			'slug' => 'pc_' . $user_id,
 			'description' => 'Personal social feed for ' . $user->display_name,
 			'type' => 'personal',
-			'privacy' => 'public',
 			'personal_owner_user_id' => $user_id,
 			'visibility' => 'public',
 			'creator_id' => $user_id,

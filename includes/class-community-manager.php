@@ -50,7 +50,7 @@ class PartyMinder_Community_Manager {
 				'name'              => sanitize_text_field( $community_data['name'] ),
 				'slug'              => $slug,
 				'description'       => wp_kses_post( wp_unslash( $community_data['description'] ?? '' ) ),
-				'privacy'           => $this->validate_privacy_setting( $community_data['privacy'] ?? 'public' ),
+				'visibility'        => $this->validate_privacy_setting( $community_data['visibility'] ?? 'public' ),
 				'creator_id'        => $current_user->ID,
 				'creator_email'     => $current_user->user_email,
 				'settings'          => wp_json_encode( $community_data['settings'] ?? array() ),
@@ -197,13 +197,13 @@ class PartyMinder_Community_Manager {
 		$current_user_id = get_current_user_id();
 		
 		// Build privacy clause - Enhanced privacy with friends and private options
-		$privacy_clause = "c.privacy = 'public'";
+		$privacy_clause = "c.visibility = 'public'";
 		if ( $current_user_id && is_user_logged_in() ) {
 			$members_table = $wpdb->prefix . 'partyminder_community_members';
 			
-			$privacy_clause = "(c.privacy = 'public' OR 
+			$privacy_clause = "(c.visibility = 'public' OR 
                               c.creator_id = $current_user_id OR
-                              (c.privacy = 'friends' AND EXISTS(
+                              (c.visibility = 'friends' AND EXISTS(
                                   SELECT 1 FROM $members_table cm1, $members_table cm2 
                                   WHERE cm1.user_id = c.creator_id AND cm2.user_id = $current_user_id 
                                   AND cm1.community_id = cm2.community_id 
@@ -489,7 +489,7 @@ class PartyMinder_Community_Manager {
 		}
 
 		// Prepare update data
-		$allowed_fields = array( 'description', 'privacy', 'featured_image', 'settings' );
+		$allowed_fields = array( 'description', 'visibility', 'featured_image', 'settings' );
 		$update_values  = array();
 		$update_formats = array();
 
@@ -500,9 +500,9 @@ class PartyMinder_Community_Manager {
 						$update_values[ $field ] = wp_kses_post( $update_data[ $field ] );
 						$update_formats[]        = '%s';
 						break;
-					case 'privacy':
-						$allowed_privacy = array( 'public', 'private' );
-						if ( in_array( $update_data[ $field ], $allowed_privacy ) ) {
+					case 'visibility':
+						$allowed_visibility = array( 'public', 'private' );
+						if ( in_array( $update_data[ $field ], $allowed_visibility ) ) {
 							$update_values[ $field ] = $update_data[ $field ];
 							$update_formats[]        = '%s';
 						}

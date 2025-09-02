@@ -114,14 +114,14 @@ ob_start();
 		
 		<div class="pm-form-group">
 			<label for="community_privacy" class="pm-form-label"><?php _e( 'Privacy Setting *', 'partyminder' ); ?></label>
-			<select id="community_privacy" name="privacy" class="pm-form-input" required>
-				<option value="public" <?php selected( $_POST['privacy'] ?? 'public', 'public' ); ?>>
+			<select id="community_privacy" name="visibility" class="pm-form-input" required>
+				<option value="public" <?php selected( $_POST['visibility'] ?? 'public', 'public' ); ?>>
 					<?php _e( 'Public - Anyone can find and request to join', 'partyminder' ); ?>
 				</option>
-				<option value="friends" <?php selected( $_POST['privacy'] ?? '', 'friends' ); ?>>
+				<option value="friends" <?php selected( $_POST['visibility'] ?? '', 'friends' ); ?>>
 					<?php _e( 'Friends Only - Only your connections can find and join', 'partyminder' ); ?>
 				</option>
-				<option value="private" <?php selected( $_POST['privacy'] ?? '', 'private' ); ?>>
+				<option value="private" <?php selected( $_POST['visibility'] ?? '', 'private' ); ?>
 					<?php _e( 'Private - Members must be invited to join', 'partyminder' ); ?>
 				</option>
 			</select>

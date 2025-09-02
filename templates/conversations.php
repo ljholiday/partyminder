@@ -50,7 +50,7 @@ ob_start();
 ?>
 
 <!-- Conversation Filters -->
-<?php if ( $user_logged_in && PartyMinder_Feature_Flags::is_circles_nav_ui_enabled() ) : ?>
+<?php if ( $user_logged_in ) : ?>
 <div class="pm-section pm-mb-4">
 	<div class="pm-conversations-nav pm-flex pm-gap-4 pm-flex-wrap">
 		<!-- Circle Filters -->

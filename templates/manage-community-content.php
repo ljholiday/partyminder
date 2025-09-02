@@ -775,7 +775,7 @@ ob_start();
 	<div class="pm-stat-list">
 		<div class="pm-stat-item">
 			<span class="pm-stat-label"><?php _e( 'Privacy', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo esc_html( ucfirst( $community->privacy ) ); ?></span>
+			<span class="pm-stat-value"><?php echo esc_html( ucfirst( $community->visibility ) ); ?></span>
 		</div>
 		<div class="pm-stat-item">
 			<span class="pm-stat-label"><?php _e( 'Created', 'partyminder' ); ?></span>
