@@ -1168,42 +1168,4 @@ The %6$s Team',
 		return $this->add_member( $community_id, $member_data, true );
 	}
 
-	/**
-	 * Request to join a community (for followers-only communities)
-	 * Step 5: Reply join flow - creates pending membership
-	 */
-	public function request_to_join_community( $community_id, $user_id ) {
-		// Check if user already has a request or membership
-		$existing_role = $this->get_member_role( $community_id, $user_id );
-		if ( $existing_role ) {
-			if ( $existing_role === 'pending' ) {
-				return new WP_Error( 'request_pending', __( 'Your request to join is already pending', 'partyminder' ) );
-			}
-			return true; // Already a member
-		}
-
-		// Get user info
-		$user = get_user_by( 'id', $user_id );
-		if ( ! $user ) {
-			return new WP_Error( 'invalid_user', __( 'Invalid user', 'partyminder' ) );
-		}
-
-		// Add as pending member
-		$member_data = array(
-			'user_id'      => $user_id,
-			'email'        => $user->user_email,
-			'display_name' => $user->display_name,
-			'role'         => 'member',
-			'status'       => 'pending'
-		);
-
-		$result = $this->add_member( $community_id, $member_data, true );
-		
-		if ( $result && ! is_wp_error( $result ) ) {
-			// TODO: Send notification to community admins about pending request
-			return true;
-		}
-		
-		return $result;
-	}
 }

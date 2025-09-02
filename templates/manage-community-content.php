@@ -92,7 +92,7 @@ if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['action'] ) ) {
 	if ( $_POST['action'] === 'update_community_settings' && wp_verify_nonce( $_POST['nonce'], 'partyminder_community_management' ) ) {
 		$update_data = array(
 			'description' => sanitize_textarea_field( $_POST['description'] ),
-			'privacy'     => sanitize_text_field( $_POST['privacy'] ),
+			'visibility'  => sanitize_text_field( $_POST['visibility'] ),
 		);
 
 		// Handle cover image removal
@@ -249,11 +249,11 @@ ob_start();
 			<label class="pm-form-label">
 				<?php _e( 'Privacy Setting', 'partyminder' ); ?>
 			</label>
-			<select name="privacy" class="pm-form-select">
-				<option value="public" <?php selected( $community->privacy, 'public' ); ?>>
+			<select name="visibility" class="pm-form-select">
+				<option value="public" <?php selected( $community->visibility, 'public' ); ?>>
 					<?php _e( '🌍 Public - Anyone can join', 'partyminder' ); ?>
 				</option>
-				<option value="private" <?php selected( $community->privacy, 'private' ); ?>>
+				<option value="private" <?php selected( $community->visibility, 'private' ); ?>>
 					<?php _e( '🔒 Private - Invite only', 'partyminder' ); ?>
 				</option>
 			</select>

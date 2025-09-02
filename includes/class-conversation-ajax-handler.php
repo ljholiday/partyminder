@@ -528,17 +528,6 @@ class PartyMinder_Conversation_Ajax_Handler {
 				}
 				break;
 				
-			case 'followers':
-				// Followers-only - create pending membership request
-				$this->track_join_attempt( $user_id );
-				
-				$join_result = $community_manager->request_to_join_community( $conversation->community_id, $user_id );
-				if ( is_wp_error( $join_result ) ) {
-					return new WP_Error( 'join_request_failed', $join_result->get_error_message() );
-				}
-				return new WP_Error( 'approval_pending', __( 'Your request to join this community is pending approval', 'partyminder' ) );
-				break;
-				
 			case 'private':
 				// Private community - require explicit access request
 				return new WP_Error( 'access_restricted', __( 'This is a private community. Please request access from the community owner', 'partyminder' ) );

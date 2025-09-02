@@ -464,7 +464,7 @@ class PartyMinder_Activator {
             type varchar(50) DEFAULT 'standard',
             privacy varchar(20) DEFAULT 'public',
             personal_owner_user_id bigint(20) UNSIGNED DEFAULT NULL,
-            visibility enum('public','followers','private') NOT NULL DEFAULT 'public',
+            visibility enum('public','private') NOT NULL DEFAULT 'public',
             member_count int(11) DEFAULT 0,
             event_count int(11) DEFAULT 0,
             creator_id bigint(20) UNSIGNED NOT NULL,
