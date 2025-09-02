@@ -94,6 +94,7 @@ class PartyMinder_Event_Form_Handler {
 			'all_day'     => ! empty( $post_data['all_day'] ) ? 1 : 0,
 			'end_date'    => $end_datetime ? sanitize_text_field( $end_datetime ) : null,
 			'recurrence_type' => sanitize_text_field( $post_data['recurrence_type'] ?? 'none' ),
+			'privacy'     => sanitize_text_field( $post_data['privacy'] ?? 'public' ),
 		);
 
 		// Add recurrence data if specified

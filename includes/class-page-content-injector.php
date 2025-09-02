@@ -93,7 +93,7 @@ class PartyMinder_Page_Content_Injector {
 
 		ob_start();
 		echo '<div class="partyminder-content partyminder-my-events-page">';
-		include PARTYMINDER_PLUGIN_DIR . 'templates/my-events-content.php';
+		include PARTYMINDER_PLUGIN_DIR . 'templates/events-unified-content.php';
 		echo '</div>';
 		return ob_get_clean();
 	}
