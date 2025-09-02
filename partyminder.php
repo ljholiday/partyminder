@@ -304,9 +304,10 @@ class PartyMinder {
 				'partyminder-admin',
 				'partyminder_admin',
 				array(
-					'ajax_url'    => admin_url( 'admin-ajax.php' ),
-					'nonce'       => wp_create_nonce( 'partyminder_admin_nonce' ),
-					'event_nonce' => wp_create_nonce( 'partyminder_event_action' ),
+					'ajax_url'        => admin_url( 'admin-ajax.php' ),
+					'nonce'           => wp_create_nonce( 'partyminder_admin_nonce' ),
+					'event_nonce'     => wp_create_nonce( 'partyminder_event_action' ),
+					'community_nonce' => wp_create_nonce( 'partyminder_community_action' ),
 				)
 			);
 		}

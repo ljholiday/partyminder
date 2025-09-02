@@ -6,6 +6,7 @@ class PartyMinder_Admin {
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+		add_action( 'wp_ajax_partyminder_admin_delete_community', array( $this, 'ajax_admin_delete_community' ) );
 	}
 
 	public function admin_menu() {
@@ -331,6 +332,15 @@ class PartyMinder_Admin {
 									<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="button button-small" target="_blank">
 										<?php _e( 'View', 'partyminder' ); ?>
 									</a>
+									<a href="<?php echo PartyMinder::get_edit_event_url( $event->id ); ?>" class="button button-small">
+										<?php _e( 'Edit', 'partyminder' ); ?>
+									</a>
+									<button type="button" class="button button-small button-link-delete delete-event-link" 
+											data-event-id="<?php echo (int) $event->id; ?>" 
+											data-event-title="<?php echo esc_attr( $event->title ); ?>"
+											style="color: #d63638;">
+										<?php _e( 'Delete', 'partyminder' ); ?>
+									</button>
 								</td>
 							</tr>
 						<?php endforeach; ?>
@@ -855,6 +865,7 @@ class PartyMinder_Admin {
 									<th><?php _e( 'Privacy', 'partyminder' ); ?></th>
 									<th><?php _e( 'Created', 'partyminder' ); ?></th>
 									<th><?php _e( 'AT Protocol DID', 'partyminder' ); ?></th>
+									<th><?php _e( 'Actions', 'partyminder' ); ?></th>
 								</tr>
 							</thead>
 							<tbody>
@@ -881,6 +892,17 @@ class PartyMinder_Admin {
 											<?php else : ?>
 												<span style="color: #666;">—</span>
 											<?php endif; ?>
+										</td>
+										<td>
+											<a href="<?php echo esc_url( home_url( '/communities/' . $community->slug ) ); ?>" class="button button-small" target="_blank">
+												<?php _e( 'View', 'partyminder' ); ?>
+											</a>
+											<button type="button" class="button button-small button-link-delete delete-community" 
+													data-community-id="<?php echo (int) $community->id; ?>" 
+													data-community-name="<?php echo esc_attr( $community->name ); ?>"
+													style="color: #d63638;">
+												<?php _e( 'Delete', 'partyminder' ); ?>
+											</button>
 										</td>
 									</tr>
 								<?php endforeach; ?>
@@ -923,6 +945,65 @@ class PartyMinder_Admin {
 				
 			<?php endif; ?>
 		</div>
+		
+		<script>
+		jQuery(document).ready(function($) {
+			// Handle delete community clicks
+			$('.delete-community').on('click', function(e) {
+				e.preventDefault();
+				
+				const communityId = $(this).data('community-id');
+				const communityName = $(this).data('community-name');
+				const deleteButton = $(this);
+				const row = deleteButton.closest('tr');
+				
+				const confirmMessage = '<?php _e( 'Are you sure you want to delete', 'partyminder' ); ?> "' + communityName + '"?\n\n<?php _e( 'This action cannot be undone. All members, conversations, and related data will be permanently deleted.', 'partyminder' ); ?>';
+				
+				if (!confirm(confirmMessage)) {
+					return;
+				}
+				
+				// Show loading state
+				deleteButton.text('<?php _e( 'Deleting...', 'partyminder' ); ?>').css('color', '#666');
+				
+				$.ajax({
+					url: partyminder_admin.ajax_url,
+					type: 'POST',
+					data: {
+						action: 'partyminder_admin_delete_community',
+						community_id: communityId,
+						nonce: partyminder_admin.community_nonce
+					},
+					success: function(response) {
+						if (response.success) {
+							// Remove the row with animation
+							row.fadeOut(300, function() {
+								$(this).remove();
+								
+								// Check if table is now empty
+								if ($('.wp-list-table tbody tr').length === 0) {
+									location.reload();
+								}
+							});
+							
+							// Show success message
+							$('<div class="notice notice-success is-dismissible"><p>' + response.data.message + '</p></div>')
+								.insertAfter('.wrap h1')
+								.delay(3000)
+								.fadeOut();
+						} else {
+							alert(response.data || '<?php _e( 'Error deleting community', 'partyminder' ); ?>');
+							deleteButton.text('<?php _e( 'Delete', 'partyminder' ); ?>').css('color', '#d63638');
+						}
+					},
+					error: function() {
+						alert('<?php _e( 'Network error. Please try again.', 'partyminder' ); ?>');
+						deleteButton.text('<?php _e( 'Delete', 'partyminder' ); ?>').css('color', '#d63638');
+					}
+				});
+			});
+		});
+		</script>
 		<?php
 	}
 
@@ -1026,6 +1107,75 @@ class PartyMinder_Admin {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * AJAX handler for deleting communities from admin
+	 */
+	public function ajax_admin_delete_community() {
+		check_ajax_referer( 'partyminder_community_action', 'nonce' );
+
+		if ( ! current_user_can( 'delete_others_posts' ) ) {
+			wp_send_json_error( __( 'You do not have permission to delete communities.', 'partyminder' ) );
+			return;
+		}
+
+		$community_id = intval( $_POST['community_id'] );
+		if ( ! $community_id ) {
+			wp_send_json_error( __( 'Community ID is required.', 'partyminder' ) );
+			return;
+		}
+
+		global $wpdb;
+		
+		// Check if community exists
+		$communities_table = $wpdb->prefix . 'partyminder_communities';
+		$community = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $communities_table WHERE id = %d", $community_id ) );
+		
+		if ( ! $community ) {
+			wp_send_json_error( __( 'Community not found.', 'partyminder' ) );
+			return;
+		}
+
+		// Start transaction
+		$wpdb->query( 'START TRANSACTION' );
+		
+		try {
+			$members_table = $wpdb->prefix . 'partyminder_community_members';
+			$conversations_table = $wpdb->prefix . 'partyminder_conversations';
+			$replies_table = $wpdb->prefix . 'partyminder_conversation_replies';
+			
+			// Delete conversation replies first
+			$wpdb->query( $wpdb->prepare( 
+				"DELETE r FROM $replies_table r 
+				 JOIN $conversations_table c ON r.conversation_id = c.id 
+				 WHERE c.community_id = %d", 
+				$community_id 
+			) );
+			
+			// Delete conversations
+			$wpdb->delete( $conversations_table, array( 'community_id' => $community_id ), array( '%d' ) );
+			
+			// Delete community members
+			$wpdb->delete( $members_table, array( 'community_id' => $community_id ), array( '%d' ) );
+			
+			// Delete the community itself
+			$wpdb->delete( $communities_table, array( 'id' => $community_id ), array( '%d' ) );
+			
+			// Commit transaction
+			$wpdb->query( 'COMMIT' );
+			
+			wp_send_json_success(
+				array(
+					'message' => __( 'Community deleted successfully.', 'partyminder' ),
+				)
+			);
+			
+		} catch ( Exception $e ) {
+			// Rollback transaction on error
+			$wpdb->query( 'ROLLBACK' );
+			wp_send_json_error( __( 'Failed to delete community. Please try again.', 'partyminder' ) );
+		}
 	}
 
 }
