@@ -86,7 +86,7 @@ ob_start();
 			<div class="pm-grid pm-grid-2 pm-gap pm-mb-4">
 				<div class="pm-flex pm-gap">
 					<strong>Host:</strong>
-					<span><?php echo esc_html( $event->host_email ); ?></span>
+					<?php PartyMinder_Member_Display::event_host_display( $event, array( 'prefix' => '', 'avatar_size' => 24 ) ); ?>
 				</div>
 				
 				<div class="pm-flex pm-gap">

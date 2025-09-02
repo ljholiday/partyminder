@@ -206,7 +206,7 @@ ob_start();
 								<?php if ( $event->venue_info ) : ?>
 									• <?php echo esc_html( $event->venue_info ); ?>
 								<?php endif; ?>
-								• <?php printf( __( 'Hosted by %s', 'partyminder' ), esc_html( $event->host_email ) ); ?>
+								• <?php PartyMinder_Member_Display::event_host_display( $event, array( 'avatar_size' => 20 ) ); ?>
 							</div>
 						</div>
 						<div class="pm-stat pm-text-center">

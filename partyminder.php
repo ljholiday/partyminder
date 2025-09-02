@@ -92,6 +92,7 @@ class PartyMinder {
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-image-manager.php';
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-image-upload.php';
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-profile-manager.php';
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-member-display.php';
 
 		// AJAX handler classes
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-ajax-handler.php';
