@@ -14,7 +14,14 @@ $is_logged_in = is_user_logged_in();
 ?>
 
 <div class="pm-sidebar-section pm-mb-4">
-    <h3 class="pm-sidebar-title"><?php _e( 'Quick Actions', 'partyminder' ); ?></h3>
+    
+    <?php if ( $is_logged_in ) : ?>
+    <!-- Search Section -->
+    <div class="pm-search-box pm-mb-4">
+        <input type="text" id="pm-search-input" class="pm-input" placeholder="<?php _e( 'Search...', 'partyminder' ); ?>" autocomplete="off">
+        <div id="pm-search-results" class="pm-search-results" style="display: none;"></div>
+    </div>
+    <?php endif; ?>
     
     <div class="pm-sidebar-nav">
         <?php if ( $is_logged_in ) : ?>

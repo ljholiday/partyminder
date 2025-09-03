@@ -27,6 +27,9 @@ class PartyMinder_Activator {
 			error_log( "PartyMinder: Created $created_count personal communities during activation" );
 		}
 
+		// Index existing content for search
+		self::index_existing_content();
+
 		// Set activation flag
 		update_option( 'partyminder_activated', true );
 		update_option( 'partyminder_activation_date', current_time( 'mysql' ) );
@@ -57,6 +60,9 @@ class PartyMinder_Activator {
 
 		// AI tracking table
 		self::create_ai_interactions_table();
+
+		// Search index table
+		self::create_search_table();
 
 		// Create default conversation topics
 		self::create_default_conversation_topics();
@@ -948,5 +954,77 @@ class PartyMinder_Activator {
 		" );
 	}
 
+	/**
+	 * Search index table
+	 */
+	private static function create_search_table() {
+		global $wpdb;
+		
+		$charset_collate = $wpdb->get_charset_collate();
+		$search_table = $wpdb->prefix . 'partyminder_search';
+		
+		$search_sql = "CREATE TABLE $search_table (
+			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+			entity_type varchar(20) NOT NULL,
+			entity_id bigint(20) UNSIGNED NOT NULL,
+			title varchar(255) NOT NULL,
+			content mediumtext NOT NULL,
+			url varchar(255) NOT NULL,
+			owner_user_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+			community_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+			event_id bigint(20) UNSIGNED NOT NULL DEFAULT 0,
+			visibility_scope varchar(20) NOT NULL DEFAULT 'public',
+			last_activity_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			UNIQUE KEY entity_unique (entity_type, entity_id),
+			KEY entity_type_idx (entity_type),
+			KEY community_idx (community_id),
+			KEY event_idx (event_id),
+			KEY visibility_idx (visibility_scope),
+			KEY owner_idx (owner_user_id)
+		) $charset_collate;";
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta( $search_sql );
+		
+		// Add FULLTEXT index after table creation for better compatibility
+		$wpdb->query( "ALTER TABLE $search_table ADD FULLTEXT KEY ft_search (title, content)" );
+	}
+
+	/**
+	 * Index existing content for search functionality
+	 * Called during plugin activation to populate search table
+	 */
+	private static function index_existing_content() {
+		// Only run if we have the search indexer available
+		if ( ! class_exists( 'PartyMinder_Search_Indexer' ) ) {
+			require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-search-indexer.php';
+		}
+
+		if ( ! class_exists( 'PartyMinder_Search_Indexer_Init' ) ) {
+			require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-search-indexer-init.php';
+		}
+
+		try {
+			// Use a reasonable timeout to prevent activation failures
+			set_time_limit( 300 ); // 5 minutes max
+			
+			// Index all existing content
+			$indexed_count = PartyMinder_Search_Indexer_Init::index_all_content();
+			
+			// Log success for debugging
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( "PartyMinder: Search indexing completed during activation. Indexed $indexed_count items." );
+			}
+			
+		} catch ( Exception $e ) {
+			// Don't let search indexing break plugin activation
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'PartyMinder: Search indexing failed during activation: ' . $e->getMessage() );
+			}
+		}
+	}
 
 }

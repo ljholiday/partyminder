@@ -1501,3 +1501,121 @@ body.admin-bar .pm-page-two-column {
     flex-direction: column;
   }
 }
+
+/* Search Styles */
+.pm-search-box {
+  position: relative;
+  width: 100%;
+}
+
+.pm-search-box .pm-input {
+  background: var(--pm-surface);
+  color: var(--pm-text);
+  border: 2px solid var(--pm-border);
+  border-radius: 0.5rem;
+  padding: 0.25rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.pm-search-box .pm-input:focus {
+  outline: none;
+  border-color: var(--pm-primary);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  text-align: left;
+}
+
+.pm-search-box .pm-input::placeholder {
+  color: var(--pm-text-muted);
+  font-weight: 500;
+}
+
+.pm-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--pm-surface);
+  border: 1px solid var(--pm-border);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.pm-search-results-list {
+  padding: 0.5rem 0;
+}
+
+.pm-search-result-item {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--pm-border);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pm-search-result-item:hover,
+.pm-search-result-item.active {
+  background: var(--pm-background);
+}
+
+.pm-search-result-item:last-child {
+  border-bottom: none;
+}
+
+.pm-search-result-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.pm-search-result-title {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.pm-search-result-title a {
+  text-decoration: none;
+}
+
+.pm-search-result-snippet {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pm-search-result-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pm-badge-event {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.pm-badge-community {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.pm-badge-conversation {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.pm-badge-member {
+  background: #fce7f3;
+  color: #be185d;
+}

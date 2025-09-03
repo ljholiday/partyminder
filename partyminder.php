@@ -93,6 +93,8 @@ class PartyMinder {
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-image-upload.php';
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-profile-manager.php';
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-member-display.php';
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-search-indexer.php';
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-search-api.php';
 
 		// AJAX handler classes
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-ajax-handler.php';
@@ -114,6 +116,9 @@ class PartyMinder {
 		}
 
 		$this->init_handlers();
+		
+		// Initialize search API
+		new PartyMinder_Search_API();
 	}
 
 	private function init_handlers() {
@@ -165,6 +170,7 @@ class PartyMinder {
 		add_action( 'wp_ajax_nopriv_partyminder_newsletter_signup', array( $this, 'ajax_newsletter_signup' ) );
 		add_action( 'wp_ajax_partyminder_process_rsvp_landing', array( $this, 'ajax_process_rsvp_landing' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_process_rsvp_landing', array( $this, 'ajax_process_rsvp_landing' ) );
+		add_action( 'wp_ajax_partyminder_reindex_search', array( $this, 'ajax_reindex_search' ) );
 
 		// Image upload AJAX handlers
 		add_action( 'wp_ajax_partyminder_avatar_upload', array( 'PartyMinder_Image_Upload', 'handle_avatar_upload' ) );
@@ -250,6 +256,7 @@ class PartyMinder {
 
 		wp_enqueue_script( 'partyminder-public', PARTYMINDER_PLUGIN_URL . 'assets/js/public.js', array( 'jquery' ), PARTYMINDER_VERSION, true );
 		wp_enqueue_script( 'partyminder-mobile-menu', PARTYMINDER_PLUGIN_URL . 'assets/js/mobile-menu.js', array(), PARTYMINDER_VERSION, true );
+		wp_enqueue_script( 'partyminder-search', PARTYMINDER_PLUGIN_URL . 'assets/js/search.js', array( 'jquery' ), PARTYMINDER_VERSION, true );
 
 		$current_user = wp_get_current_user();
 		wp_localize_script(
@@ -416,6 +423,23 @@ class PartyMinder {
 		
 		wp_send_json_success( 'Database migration completed' );
 	}
+
+	public function ajax_reindex_search() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'Permission denied' );
+		}
+
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-search-indexer-init.php';
+		
+		// Clear existing search index
+		PartyMinder_Search_Indexer_Init::clear_search_index();
+		
+		// Reindex all content
+		$indexed_count = PartyMinder_Search_Indexer_Init::index_all_content();
+		
+		wp_send_json_success( "Search index rebuilt. Indexed $indexed_count items." );
+	}
+
 
 
 	public function ajax_process_rsvp_landing() {
