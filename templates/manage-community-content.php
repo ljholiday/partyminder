@@ -436,8 +436,8 @@ document.addEventListener('DOMContentLoaded', function() {
 				nonce: partyminder_ajax.community_nonce
 			},
 			success: function(response) {
-				if (response.success && response.data.members) {
-					renderMembersList(response.data.members);
+				if (response.success && response.data.members_html) {
+					membersList.innerHTML = response.data.members_html;
 				} else {
 					membersList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e( 'No members found.', 'partyminder' ); ?></p></div>';
 				}
@@ -474,55 +474,6 @@ document.addEventListener('DOMContentLoaded', function() {
 				invitationsList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e( 'Error loading invitations.', 'partyminder' ); ?></p></div>';
 			}
 		});
-	}
-	
-	// Render members list
-	function renderMembersList(members) {
-		const membersList = document.getElementById('members-list');
-		
-		if (!members || members.length === 0) {
-			membersList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e( 'No members found.', 'partyminder' ); ?></p></div>';
-			return;
-		}
-		
-		let html = '<div class="pm-grid pm-grid-2 pm-gap">';
-		members.forEach(member => {
-			const initials = member.display_name ? member.display_name.substring(0, 2).toUpperCase() : 'U';
-			const joinedDate = new Date(member.joined_at).toLocaleDateString();
-			
-			html += `
-				<div class="pm-section" data-member-id="${member.id}">
-					<div class="pm-flex pm-flex-between pm-mb-4">
-						<h4 class="pm-heading pm-heading-sm">${member.display_name || member.email}</h4>
-						<span class="pm-badge pm-badge-${member.role === 'admin' ? 'primary' : 'secondary'}">${member.role}</span>
-					</div>
-					
-					<div class="pm-mb-4">
-						<div class="pm-flex pm-gap pm-mb-4">
-							<span class="pm-text-muted"><?php _e( 'Member since', 'partyminder' ); ?> ${joinedDate}</span>
-						</div>
-					</div>
-					
-					<div class="pm-flex pm-flex-between" style="align-items: center; min-height: 40px;">
-						<div class="pm-flex pm-gap-4">
-							${member.role === 'member' ? 
-								'<button class="pm-btn pm-btn promote-btn" data-member-id="' + member.id + '"><?php _e( 'Promote', 'partyminder' ); ?></button>' : 
-								(member.role === 'admin' ? '<button class="pm-btn pm-btn demote-btn" data-member-id="' + member.id + '"><?php _e( 'Demote', 'partyminder' ); ?></button>' : '')
-							}
-						</div>
-						<button class="pm-btn pm-btn-danger remove-btn" data-member-id="${member.id}" data-member-name="${member.display_name || member.email}">
-							<?php _e( 'Remove', 'partyminder' ); ?>
-						</button>
-					</div>
-				</div>
-			`;
-		});
-		html += '</div>';
-		
-		membersList.innerHTML = html;
-		
-		// Add event listeners for member actions
-		attachMemberActionListeners();
 	}
 	
 	// Render invitations list

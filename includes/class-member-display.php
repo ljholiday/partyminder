@@ -53,7 +53,7 @@ class PartyMinder_Member_Display {
 		}
 		$profile_url = self::get_profile_url( $user_obj->ID );
 		
-		$output = '<div class="' . esc_attr( $args['class'] ) . ' pm-flex pm-items-center pm-gap-2">';
+		$output = '<div class="' . esc_attr( $args['class'] ) . ' pm-flex pm-items-center pm-gap">';
 		
 		if ( $args['show_avatar'] ) {
 			$avatar = get_avatar( $user_obj->ID, $args['avatar_size'], '', $display_name, array(

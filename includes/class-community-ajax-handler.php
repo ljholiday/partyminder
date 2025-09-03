@@ -264,12 +264,38 @@ class PartyMinder_Community_Ajax_Handler {
 
 		$members   = $community_manager->get_community_members( $community_id );
 		$user_role = $community_manager->get_member_role( $community_id, $current_user->ID );
+		
+		// Generate HTML for each member using our member display function
+		$members_html = '';
+		if ( ! empty( $members ) ) {
+			$members_html = '<div class="pm-grid pm-grid-2 pm-gap">';
+			foreach ( $members as $member ) {
+				$bio_text = ! empty( $member->bio ) ? 
+					( strlen( $member->bio ) > 80 ? substr( $member->bio, 0, 80 ) . '...' : $member->bio ) : 
+					__( 'Community member', 'partyminder' );
+				
+				$members_html .= '<div class="pm-section" data-member-id="' . esc_attr( $member->id ) . '">';
+				$members_html .= '<div class="pm-flex pm-flex-between" style="align-items: flex-start;">';
+				$members_html .= '<div class="pm-member-info" style="flex: 1; min-width: 0;">';
+				$members_html .= PartyMinder_Member_Display::get_member_display( $member->user_id, array( 'avatar_size' => 40 ) );
+				$members_html .= '<div class="pm-text-muted pm-text-sm pm-mt-1">' . esc_html( $bio_text ) . '</div>';
+				$members_html .= '</div>';
+				$members_html .= '<div class="pm-ml-4" style="flex-shrink: 0;">';
+				$members_html .= '<div class="pm-mb-2"><span class="pm-badge pm-badge-' . ( $member->role === 'admin' ? 'primary' : 'secondary' ) . '">' . esc_html( $member->role ) . '</span></div>';
+				$members_html .= '<div><button class="pm-btn pm-btn-danger pm-btn-sm remove-btn" data-member-id="' . esc_attr( $member->id ) . '" data-member-name="' . esc_attr( $member->display_name ?: $member->email ) . '">' . __( 'Remove', 'partyminder' ) . '</button></div>';
+				$members_html .= '</div>';
+				$members_html .= '</div>';
+				$members_html .= '</div>';
+			}
+			$members_html .= '</div>';
+		}
 
 		wp_send_json_success(
 			array(
-				'members'    => $members,
-				'user_role'  => $user_role,
-				'can_manage' => ( $user_role === 'admin' || current_user_can( 'manage_options' ) ),
+				'members'      => $members,
+				'members_html' => $members_html,
+				'user_role'    => $user_role,
+				'can_manage'   => ( $user_role === 'admin' || current_user_can( 'manage_options' ) ),
 			)
 		);
 	}

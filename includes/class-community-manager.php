@@ -559,12 +559,14 @@ class PartyMinder_Community_Manager {
 
 		$members_table = $wpdb->prefix . 'partyminder_community_members';
 		$users_table   = $wpdb->users;
+		$profiles_table = $wpdb->prefix . 'partyminder_user_profiles';
 
 		$members = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT m.*, u.user_login, u.user_nicename, u.user_registered
+				"SELECT m.*, u.user_login, u.user_nicename, u.user_registered, p.bio, p.display_name
              FROM $members_table m
              LEFT JOIN $users_table u ON m.user_id = u.ID
+             LEFT JOIN $profiles_table p ON m.user_id = p.user_id
              WHERE m.community_id = %d AND m.status = 'active'
              ORDER BY m.role = 'admin' DESC, m.joined_at ASC
              LIMIT %d OFFSET %d",
