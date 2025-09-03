@@ -17,6 +17,7 @@ class PartyMinder_Conversation_Ajax_Handler {
 		add_action( 'wp_ajax_partyminder_delete_conversation', array( $this, 'ajax_delete_conversation' ) );
 		add_action( 'wp_ajax_partyminder_add_reply', array( $this, 'ajax_add_reply' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_add_reply', array( $this, 'ajax_add_reply' ) );
+		add_action( 'wp_ajax_partyminder_update_reply', array( $this, 'ajax_update_reply' ) );
 		add_action( 'wp_ajax_partyminder_delete_reply', array( $this, 'ajax_delete_reply' ) );
 		add_action( 'wp_ajax_partyminder_get_conversations', array( $this, 'ajax_get_conversations' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_get_conversations', array( $this, 'ajax_get_conversations' ) );
@@ -548,6 +549,48 @@ class PartyMinder_Conversation_Ajax_Handler {
 		
 		// Track attempts for 1 hour
 		set_transient( $join_attempts_key, $attempts, HOUR_IN_SECONDS );
+	}
+
+	public function ajax_update_reply() {
+		check_ajax_referer( 'partyminder_nonce', 'nonce' );
+
+		if ( ! is_user_logged_in() ) {
+			wp_send_json_error( __( 'You must be logged in to edit replies.', 'partyminder' ) );
+		}
+
+		$reply_id = intval( $_POST['reply_id'] ?? 0 );
+		$content = sanitize_textarea_field( $_POST['content'] ?? '' );
+
+		if ( ! $reply_id || empty( $content ) ) {
+			wp_send_json_error( __( 'Reply ID and content are required.', 'partyminder' ) );
+		}
+
+		$conversation_manager = $this->get_conversation_manager();
+		
+		// Get reply to check ownership
+		$reply = $conversation_manager->get_reply( $reply_id );
+		if ( ! $reply ) {
+			wp_send_json_error( __( 'Reply not found.', 'partyminder' ) );
+		}
+
+		$current_user = wp_get_current_user();
+		
+		// Check if user owns this reply
+		if ( $reply->author_id != $current_user->ID ) {
+			wp_send_json_error( __( 'You can only edit your own replies.', 'partyminder' ) );
+		}
+
+		// Update the reply
+		$result = $conversation_manager->update_reply( $reply_id, array( 'content' => $content ) );
+		
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( $result->get_error_message() );
+		}
+
+		wp_send_json_success( array(
+			'message' => __( 'Reply updated successfully.', 'partyminder' ),
+			'content' => $content
+		) );
 	}
 
 }

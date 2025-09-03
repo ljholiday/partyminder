@@ -807,6 +807,58 @@ class PartyMinder_Conversation_Manager {
 
 
 	/**
+	 * Update a reply in a conversation
+	 */
+	public function update_reply( $reply_id, $data ) {
+		global $wpdb;
+		$replies_table = $wpdb->prefix . 'partyminder_conversation_replies';
+
+		// Get current reply for validation
+		$reply = $this->get_reply( $reply_id );
+		if ( ! $reply ) {
+			return new WP_Error( 'reply_not_found', __( 'Reply not found', 'partyminder' ) );
+		}
+
+		// Prepare update data
+		$update_data = array();
+		if ( isset( $data['content'] ) ) {
+			$update_data['content'] = wp_kses_post( $data['content'] );
+		}
+
+		if ( empty( $update_data ) ) {
+			return new WP_Error( 'no_data', __( 'No data to update', 'partyminder' ) );
+		}
+
+		// Update the reply
+		$result = $wpdb->update(
+			$replies_table,
+			$update_data,
+			array( 'id' => $reply_id ),
+			array( '%s' ),
+			array( '%d' )
+		);
+
+		if ( $result === false ) {
+			return new WP_Error( 'update_failed', __( 'Failed to update reply', 'partyminder' ) );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get a single reply by ID
+	 */
+	public function get_reply( $reply_id ) {
+		global $wpdb;
+		$replies_table = $wpdb->prefix . 'partyminder_conversation_replies';
+
+		return $wpdb->get_row( $wpdb->prepare(
+			"SELECT * FROM $replies_table WHERE id = %d",
+			$reply_id
+		) );
+	}
+
+	/**
 	 * Delete a reply from a conversation
 	 */
 	public function delete_reply( $reply_id ) {

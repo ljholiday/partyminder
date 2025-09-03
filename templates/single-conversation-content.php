@@ -223,6 +223,20 @@ if ( ! empty( $conversation_photos ) ) :
 						<?php _e( 'Reply', 'partyminder' ); ?>
 					</a>
 					<?php
+					// Show edit/delete buttons if user owns this reply
+					$can_edit = false;
+					if ( is_user_logged_in() ) {
+						$current_user = wp_get_current_user();
+						$can_edit = ( $current_user->ID == $reply->author_id );
+					}
+					if ( $can_edit ) :
+					?>
+						<button type="button" class="pm-btn pm-btn-secondary pm-btn-sm edit-reply-btn" 
+								data-reply-id="<?php echo esc_attr( $reply->id ); ?>">
+							<?php _e( 'Edit', 'partyminder' ); ?>
+						</button>
+					<?php endif; ?>
+					<?php
 					// Show delete button if user can delete this reply
 					$can_delete = false;
 					if ( is_user_logged_in() ) {
@@ -590,6 +604,88 @@ jQuery(document).ready(function($) {
 				$form.data('submitting', false);
 			}
 		});
+	});
+	
+	// Handle edit reply button clicks
+	$('.edit-reply-btn').on('click', function(e) {
+		e.preventDefault();
+		
+		const $btn = $(this);
+		const replyId = $btn.data('reply-id');
+		const $replyItem = $btn.closest('.pm-reply-item');
+		const $content = $replyItem.find('.pm-content');
+		const $actions = $replyItem.find('.pm-reply-actions');
+		
+		// Get current content text
+		const currentContent = $content.text().trim();
+		
+		// Replace content with textarea
+		$content.html(`
+			<textarea class="pm-form-textarea edit-reply-textarea" style="width: 100%; min-height: 100px;">${currentContent}</textarea>
+		`);
+		
+		// Replace actions with save/cancel buttons
+		$actions.html(`
+			<button type="button" class="pm-btn pm-btn-sm save-reply-btn" data-reply-id="${replyId}">
+				<?php _e( 'Save', 'partyminder' ); ?>
+			</button>
+			<button type="button" class="pm-btn pm-btn-secondary pm-btn-sm cancel-edit-btn">
+				<?php _e( 'Cancel', 'partyminder' ); ?>
+			</button>
+		`);
+		
+		// Focus textarea
+		$content.find('.edit-reply-textarea').focus();
+	});
+	
+	// Handle save reply button clicks
+	$(document).on('click', '.save-reply-btn', function(e) {
+		e.preventDefault();
+		
+		const $btn = $(this);
+		const replyId = $btn.data('reply-id');
+		const $replyItem = $btn.closest('.pm-reply-item');
+		const $textarea = $replyItem.find('.edit-reply-textarea');
+		const newContent = $textarea.val().trim();
+		
+		if (!newContent) {
+			alert('<?php _e( 'Reply content cannot be empty.', 'partyminder' ); ?>');
+			return;
+		}
+		
+		$btn.prop('disabled', true).text('<?php _e( 'Saving...', 'partyminder' ); ?>');
+		
+		$.ajax({
+			url: partyminder_ajax.ajax_url,
+			type: 'POST',
+			data: {
+				action: 'partyminder_update_reply',
+				reply_id: replyId,
+				content: newContent,
+				nonce: partyminder_ajax.nonce
+			},
+			success: function(response) {
+				if (response.success) {
+					// Reload the page to show updated content
+					location.reload();
+				} else {
+					alert(response.data || '<?php _e( 'Failed to update reply.', 'partyminder' ); ?>');
+					$btn.prop('disabled', false).text('<?php _e( 'Save', 'partyminder' ); ?>');
+				}
+			},
+			error: function() {
+				alert('<?php _e( 'Network error. Please try again.', 'partyminder' ); ?>');
+				$btn.prop('disabled', false).text('<?php _e( 'Save', 'partyminder' ); ?>');
+			}
+		});
+	});
+	
+	// Handle cancel edit button clicks
+	$(document).on('click', '.cancel-edit-btn', function(e) {
+		e.preventDefault();
+		
+		// Reload the page to restore original content and actions
+		location.reload();
 	});
 	
 	// Handle delete reply button clicks
