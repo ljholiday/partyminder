@@ -39,22 +39,6 @@ $is_logged_in = is_user_logged_in();
                 </a>
             <?php endif; ?>
             
-            <a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn-secondary">
-                <?php _e( 'My Events', 'partyminder' ); ?>
-            </a>
-            
-            <a href="<?php echo add_query_arg('show_all', '1', PartyMinder::get_events_page_url()); ?>" class="pm-btn pm-btn-secondary">
-                <?php _e( 'All Events', 'partyminder' ); ?>
-            </a>
-            
-            <a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn-secondary">
-                <?php _e( 'Join Conversations', 'partyminder' ); ?>
-            </a>
-            
-            <a href="<?php echo esc_url( PartyMinder::get_communities_url() ); ?>" class="pm-btn pm-btn-secondary">
-                <?php _e( 'Browse Communities', 'partyminder' ); ?>
-            </a>
-            
             <a href="<?php echo esc_url( PartyMinder::get_profile_url() ); ?>" class="pm-btn pm-btn-secondary">
                 <?php _e( 'My Profile', 'partyminder' ); ?>
             </a>
