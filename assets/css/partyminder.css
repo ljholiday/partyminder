@@ -27,7 +27,7 @@
     --pm-surface: #ffffff;
     --pm-background: #f9fafb;
     --pm-border: #e5e7eb;
-    --pm-success: #10b981;
+    --pm-success: #ff0000;
     --pm-danger: #ef4444;
     --pm-warning: #f59e0b;
 }
@@ -1652,4 +1652,13 @@ body.admin-bar .pm-page-two-column {
 .pm-plus-icon {
   line-height: 1;
   margin-top: -2px;
+}
+
+.pm-attachment-btn.files-selected {
+  background: var(--pm-success);
+}
+
+.pm-attachment-btn.files-selected:hover {
+  background: var(--pm-success);
+  opacity: 0.9;
 }

@@ -61,19 +61,8 @@ if ( $conversation->community_id ) {
 	$community_data = $community_manager->get_community( $conversation->community_id );
 }
 
-// Check for form submission success
-$conversation_updated = false;
-$form_errors          = array();
-
-// Check if conversation was just updated
-if ( isset( $_GET['partyminder_updated'] ) && $_GET['partyminder_updated'] == '1' ) {
-	$update_data = get_transient( 'partyminder_conversation_updated_' . get_current_user_id() );
-	if ( $update_data ) {
-		$conversation_updated = true;
-		// Clear the transient
-		delete_transient( 'partyminder_conversation_updated_' . get_current_user_id() );
-	}
-}
+// Check for form errors
+$form_errors = array();
 
 // Check for form errors
 $stored_errors = get_transient( 'partyminder_edit_conversation_errors_' . get_current_user_id() );
@@ -113,19 +102,6 @@ ob_start();
 		</a>
 	</div>
 </div>
-
-<?php if ( $conversation_updated ) : ?>
-	<!-- Success Message -->
-	<div class="pm-alert pm-alert-success pm-mb-4">
-		<h3><?php _e( 'Conversation Updated Successfully!', 'partyminder' ); ?></h3>
-		<p><?php _e( 'Your changes have been saved.', 'partyminder' ); ?></p>
-		<div class="pm-success-actions">
-			<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-btn">
-				<?php _e( 'View Conversation', 'partyminder' ); ?>
-			</a>
-		</div>
-	</div>
-<?php endif; ?>
 
 <?php if ( ! empty( $form_errors ) ) : ?>
 	<div class="pm-alert pm-alert-error pm-mb-4">
@@ -217,13 +193,6 @@ ob_start();
 	</div>
 </form>
 
-<?php
-$content = ob_get_clean();
-
-// Include form template
-require PARTYMINDER_PLUGIN_DIR . 'templates/base/template-form.php';
-?>
-
 <script>
 jQuery(document).ready(function($) {
 	$('#partyminder-edit-conversation-form').on('submit', function(e) {
@@ -247,8 +216,8 @@ jQuery(document).ready(function($) {
 			contentType: false,
 			success: function(response) {
 				if (response.success) {
-					// Redirect to success page
-					window.location.href = '<?php echo home_url( '/conversations/edit/' . $conversation->slug ); ?>?partyminder_updated=1';
+					// Redirect back to conversation using updated slug
+					window.location.href = '<?php echo home_url( '/conversations/' ); ?>' + response.data.slug;
 				} else {
 					// Show error message
 					$form.before('<div class="pm-alert pm-alert-error pm-mb-4"><h4><?php _e( 'Please fix the following issues:', 'partyminder' ); ?></h4><ul><li>' + (response.data || 'Unknown error occurred') + '</li></ul></div>');
@@ -271,3 +240,9 @@ jQuery(document).ready(function($) {
 	});
 });
 </script>
+
+<?php
+$content = ob_get_clean();
+
+// Include form template
+require PARTYMINDER_PLUGIN_DIR . 'templates/base/template-form.php';

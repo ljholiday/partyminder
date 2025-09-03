@@ -26,9 +26,7 @@ if ( ! $conversation_slug ) {
 $conversation = $conversation_manager->get_conversation( $conversation_slug, true );
 
 if ( ! $conversation ) {
-	global $wp_query;
-	$wp_query->set_404();
-	status_header( 404 );
+	echo '<div class="pm-alert pm-alert-error">Conversation not found.</div>';
 	return;
 }
 
@@ -442,8 +440,27 @@ jQuery(document).ready(function($) {
 	// Handle file selection
 	$(document).on('change', '.pm-file-input', function(e) {
 		const files = this.files;
+		const $attachBtn = $(this).siblings('.pm-attachment-btn');
+		const $plusIcon = $attachBtn.find('.pm-plus-icon');
+		
 		if (files && files.length > 0) {
 			$(this).closest('form').data('attachedFiles', files);
+			
+			// Update button appearance and text
+			$attachBtn.addClass('files-selected');
+			
+			if (files.length === 1) {
+				$plusIcon.text('1');
+				$attachBtn.attr('title', '1 file selected: ' + files[0].name);
+			} else {
+				$plusIcon.text(files.length);
+				$attachBtn.attr('title', files.length + ' files selected');
+			}
+		} else {
+			// Reset button if no files
+			$attachBtn.removeClass('files-selected').attr('title', 'Add file');
+			$plusIcon.text('+');
+			$(this).closest('form').removeData('attachedFiles');
 		}
 	});
 	
@@ -499,6 +516,9 @@ jQuery(document).ready(function($) {
 			contentType: attachedFiles ? false : 'application/x-www-form-urlencoded; charset=UTF-8',
 			success: function(response) {
 				if (response.success) {
+					// Reset attachment button before reload
+					$form.find('.pm-attachment-btn').removeClass('files-selected').attr('title', 'Add file');
+					$form.find('.pm-plus-icon').text('+');
 					location.reload();
 				} else {
 					alert(response.data || 'Error posting reply. Please try again.');

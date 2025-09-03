@@ -429,9 +429,13 @@ class PartyMinder_Conversation_Ajax_Handler {
 			'message' => __( 'Conversation updated successfully!', 'partyminder' )
 		), 300 );
 
+		// Get updated conversation data to return new slug
+		$updated_conversation = $conversation_manager->get_conversation_by_id( $conversation_id );
+		
 		wp_send_json_success( array(
 			'message' => __( 'Conversation updated successfully!', 'partyminder' ),
-			'conversation_id' => $conversation_id
+			'conversation_id' => $conversation_id,
+			'slug' => $updated_conversation->slug
 		) );
 	}
 
