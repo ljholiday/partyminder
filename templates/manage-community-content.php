@@ -91,6 +91,7 @@ if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['action'] ) ) {
 	// Handle community settings update
 	if ( $_POST['action'] === 'update_community_settings' && wp_verify_nonce( $_POST['nonce'], 'partyminder_community_management' ) ) {
 		$update_data = array(
+			'name'        => sanitize_text_field( $_POST['community_name'] ),
 			'description' => sanitize_textarea_field( $_POST['description'] ),
 			'visibility'  => sanitize_text_field( $_POST['visibility'] ),
 		);
@@ -214,10 +215,7 @@ ob_start();
 			<label class="pm-form-label">
 				<?php _e( 'Community Name', 'partyminder' ); ?>
 			</label>
-			<input type="text" class="pm-form-input" value="<?php echo esc_attr( $community->name ); ?>" readonly>
-			<div class="pm-form-help">
-				<?php _e( 'Contact site administrator to change the community name', 'partyminder' ); ?>
-			</div>
+			<input type="text" name="community_name" class="pm-form-input" value="<?php echo esc_attr( $community->name ); ?>">
 		</div>
 		
 		<div class="pm-form-group">

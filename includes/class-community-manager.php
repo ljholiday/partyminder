@@ -489,13 +489,17 @@ class PartyMinder_Community_Manager {
 		}
 
 		// Prepare update data
-		$allowed_fields = array( 'description', 'visibility', 'featured_image', 'settings' );
+		$allowed_fields = array( 'name', 'description', 'visibility', 'featured_image', 'settings' );
 		$update_values  = array();
 		$update_formats = array();
 
 		foreach ( $allowed_fields as $field ) {
 			if ( isset( $update_data[ $field ] ) ) {
 				switch ( $field ) {
+					case 'name':
+						$update_values[ $field ] = sanitize_text_field( $update_data[ $field ] );
+						$update_formats[]        = '%s';
+						break;
 					case 'description':
 						$update_values[ $field ] = wp_kses_post( $update_data[ $field ] );
 						$update_formats[]        = '%s';
