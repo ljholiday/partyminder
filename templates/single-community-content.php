@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-community-manager.php';
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-manager.php';
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-member-display.php';
 
 $community_manager    = new PartyMinder_Community_Manager();
 $conversation_manager = new PartyMinder_Conversation_Manager();
@@ -147,42 +148,32 @@ ob_start();
 	<div class="pm-card">
 		<div class="pm-card-header">
 			<div class="pm-flex pm-flex-between">
-				<div class="pm-flex pm-gap">
-					<div class="pm-avatar pm-avatar-lg">
-						<?php echo strtoupper( substr( $community->name, 0, 2 ) ); ?>
+				<div>
+					<h3 class="pm-heading pm-heading-md pm-mb-2"><?php echo esc_html( $community->name ); ?></h3>
+					<div class="pm-mb-2">
+						<?php
+						// Display community creator with avatar and display name
+						PartyMinder_Member_Display::member_display( $community->creator_id, array( 'avatar_size' => 32, 'show_name' => true ) );
+						?>
 					</div>
-					<div>
-						<div class="pm-flex pm-gap pm-text-muted pm-mb-2">
-							<span>Community</span>
-							<span><?php echo date( 'M Y', strtotime( $community->created_at ) ); ?></span>
-							<?php if ( $is_member ) : ?>
-								<span class="pm-badge pm-badge-<?php echo $user_role === 'admin' ? 'primary' : 'success'; ?>">
-									<?php echo esc_html( ucfirst( $user_role ) ); ?>
-								</span>
-							<?php endif; ?>
+					<?php if ( $community->description ) : ?>
+						<div class="pm-text-muted" style="max-width: 400px;">
+							<?php echo esc_html( wp_trim_words( $community->description, 20 ) ); ?>
 						</div>
-					</div>
-				</div>
-				<div class="pm-flex pm-gap pm-flex-wrap">
-					<?php if ( $is_member && $user_role === 'admin' ) : ?>
-						<a href="<?php echo esc_url( site_url( '/manage-community?community_id=' . $community->id . '&tab=settings' ) ); ?>" class="pm-btn pm-btn">
-							<?php _e( 'Manage Community', 'partyminder' ); ?>
-						</a>
 					<?php endif; ?>
-					<span class="pm-badge pm-badge-secondary">
+				</div>
+				<div class="pm-flex pm-flex-column pm-gap-2" style="align-items: flex-end;">
+					<span class="pm-badge pm-badge-<?php echo $community->visibility === 'public' ? 'success' : 'secondary'; ?>">
 						<?php echo esc_html( ucfirst( $community->visibility ) ); ?>
 					</span>
+					<?php if ( $is_member && $user_role === 'admin' ) : ?>
+						<a href="<?php echo esc_url( site_url( '/manage-community?community_id=' . $community->id . '&tab=settings' ) ); ?>" class="pm-btn pm-btn-secondary">
+							<?php _e( 'Manage', 'partyminder' ); ?>
+						</a>
+					<?php endif; ?>
 				</div>
 			</div>
 		</div>
-		
-		<?php if ( $community->description ) : ?>
-		<div class="pm-card-body">
-			<div class="pm-text-muted">
-				<?php echo wpautop( esc_html( $community->description ) ); ?>
-			</div>
-		</div>
-		<?php endif; ?>
 	</div>
 </div>
 
