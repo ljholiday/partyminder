@@ -375,7 +375,7 @@ class PartyMinder_Conversation_Manager {
 	/**
 	 * Generate unique slug for conversation
 	 */
-	private function generate_conversation_slug( $title ) {
+	private function generate_conversation_slug( $title, $exclude_id = null ) {
 		global $wpdb;
 
 		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
@@ -383,8 +383,17 @@ class PartyMinder_Conversation_Manager {
 		$slug                = $base_slug;
 		$counter             = 1;
 
-		while ( $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $conversations_table WHERE slug = %s", $slug ) ) ) {
+		$where_clause = "WHERE slug = %s";
+		$params = array( $slug );
+		
+		if ( $exclude_id ) {
+			$where_clause .= " AND id != %d";
+			$params[] = $exclude_id;
+		}
+
+		while ( $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $conversations_table $where_clause", $params ) ) ) {
 			$slug = $base_slug . '-' . $counter;
+			$params[0] = $slug;
 			++$counter;
 		}
 
@@ -996,7 +1005,7 @@ class PartyMinder_Conversation_Manager {
 		$data = array(
 			'title' => sanitize_text_field( $update_data['title'] ),
 			'content' => wp_kses_post( $update_data['content'] ),
-			'slug' => $this->generate_conversation_slug( $update_data['title'] ),
+			'slug' => $this->generate_conversation_slug( $update_data['title'], $conversation_id ),
 		);
 
 		$formats = array( '%s', '%s', '%s' );
