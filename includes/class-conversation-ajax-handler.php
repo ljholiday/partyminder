@@ -180,6 +180,39 @@ class PartyMinder_Conversation_Ajax_Handler {
 			wp_send_json_error( __( 'Please provide a message to reply.', 'partyminder' ) );
 		}
 
+		// Handle file attachments if present
+		if ( isset( $_FILES['attachments'] ) && is_array( $_FILES['attachments']['name'] ) ) {
+			$upload_overrides = array( 'test_form' => false );
+			
+			for ( $i = 0; $i < count( $_FILES['attachments']['name'] ); $i++ ) {
+				if ( $_FILES['attachments']['error'][$i] === UPLOAD_ERR_OK ) {
+					// Prepare individual file array for wp_handle_upload
+					$file = array(
+						'name'     => $_FILES['attachments']['name'][$i],
+						'type'     => $_FILES['attachments']['type'][$i],
+						'tmp_name' => $_FILES['attachments']['tmp_name'][$i],
+						'error'    => $_FILES['attachments']['error'][$i],
+						'size'     => $_FILES['attachments']['size'][$i]
+					);
+					
+					$uploaded_file = wp_handle_upload( $file, $upload_overrides );
+					
+					if ( ! isset( $uploaded_file['error'] ) ) {
+						$attachment_url = $uploaded_file['url'];
+						
+						// Add image to content if it's an image file
+						if ( strpos( $file['type'], 'image/' ) === 0 ) {
+							$content .= "\n\n<img src=\"" . esc_url( $attachment_url ) . "\" alt=\"Attached image\" style=\"max-width: 100%; height: auto; border-radius: 0.375rem;\">";
+						} else {
+							// For non-images, add as a download link
+							$filename = sanitize_file_name( $file['name'] );
+							$content .= "\n\n<a href=\"" . esc_url( $attachment_url ) . "\" target=\"_blank\">📎 " . esc_html( $filename ) . "</a>";
+						}
+					}
+				}
+			}
+		}
+
 		$conversation_manager = $this->get_conversation_manager();
 
 		// Step 5: Handle reply join flow before posting

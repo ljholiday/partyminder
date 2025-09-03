@@ -102,6 +102,42 @@ if ( is_user_logged_in() ) {
 </div>
 <?php endif; ?>
 
+<!-- Simple Reply Form -->
+<div class="pm-section pm-mb" id="reply-form">
+	<form class="pm-form">
+		<input type="hidden" name="nonce" value="<?php echo wp_create_nonce( 'partyminder_nonce' ); ?>">
+		<input type="hidden" name="action" value="partyminder_add_reply">
+		<input type="hidden" name="conversation_id" value="<?php echo esc_attr( $conversation->id ); ?>">
+		<input type="hidden" name="parent_reply_id" value="">
+		
+		<?php if ( ! is_user_logged_in() ) : ?>
+			<div class="pm-form-row pm-mb">
+				<div class="pm-form-group">
+					<input type="text" name="guest_name" class="pm-form-input" placeholder="<?php esc_attr_e( 'Your Name', 'partyminder' ); ?>" required>
+				</div>
+				<div class="pm-form-group">
+					<input type="email" name="guest_email" class="pm-form-input" placeholder="<?php esc_attr_e( 'Your Email', 'partyminder' ); ?>" required>
+				</div>
+			</div>
+		<?php endif; ?>
+		
+		<div class="pm-form-group pm-reply-input-container">
+			<textarea name="content" class="pm-form-textarea" placeholder="<?php esc_attr_e( 'Reply', 'partyminder' ); ?>" required rows="3"></textarea>
+			<button type="button" class="pm-attachment-btn" title="Add file">
+				<span class="pm-plus-icon">+</span>
+			</button>
+			<input type="file" class="pm-file-input" accept="image/*,application/pdf,.doc,.docx" multiple style="display: none;">
+		</div>
+		
+		<div class="pm-form-actions">
+			<button type="submit" class="pm-btn">
+				<span class="button-text"><?php _e( 'Post Reply', 'partyminder' ); ?></span>
+				<span class="button-spinner" style="display: none;"><?php _e( 'Posting...', 'partyminder' ); ?></span>
+			</button>
+		</div>
+	</form>
+</div>
+
 <!-- Conversation Header -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
@@ -139,9 +175,6 @@ if ( is_user_logged_in() ) {
 					<?php endif; ?>
 				</button>
 			<?php endif; ?>
-			<a href="#reply-form" class="pm-btn pm-btn-sm">
-				<?php _e( 'Reply', 'partyminder' ); ?>
-			</a>
 		</div>
 	</div>
 </div>
@@ -169,33 +202,6 @@ if ( is_user_logged_in() ) {
 	</div>
 </div>
 
-<?php
-// Get uploaded conversation photos
-require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-image-upload.php';
-$conversation_photos = array();
-if ( class_exists( 'PartyMinder_Image_Upload' ) ) {
-	$conversation_photos = PartyMinder_Image_Upload::get_conversation_photos( $conversation->id );
-}
-if ( ! empty( $conversation_photos ) ) :
-?>
-<div class="pm-section pm-mb">
-	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-md">Photos</h3>
-	</div>
-	<div class="pm-flex pm-flex-column pm-gap">
-		<?php foreach ( $conversation_photos as $photo ) : ?>
-			<div class="pm-photo-item">
-				<img src="<?php echo esc_url( $photo['url'] ); ?>" 
-					 alt="Conversation photo" 
-					 style="max-width: 100%; height: auto; border-radius: 0.375rem;">
-				<div class="pm-text-muted" style="font-size: 12px; margin-top: 0.25rem;">
-					<?php echo human_time_diff( $photo['uploaded'], current_time( 'timestamp' ) ) . ' ago'; ?>
-				</div>
-			</div>
-		<?php endforeach; ?>
-	</div>
-</div>
-<?php endif; ?>
 
 <!-- Replies Section -->
 <div class="pm-section pm-mb">
@@ -262,75 +268,7 @@ if ( ! empty( $conversation_photos ) ) :
 	<?php endif; ?>
 </div>
 
-<!-- Photo Upload Section -->
-<?php if ( is_user_logged_in() ) : ?>
-<div class="pm-section pm-mb">
-	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-md"><?php _e( 'Share a Photo', 'partyminder' ); ?></h3>
-	</div>
-	
-	<form id="conversation-photo-upload-form" enctype="multipart/form-data">
-		<div class="pm-form-group">
-			<label class="pm-form-label">Choose Photo</label>
-			<input type="file" name="conversation_photo" accept="image/*" class="pm-form-input" required>
-			<div class="pm-form-help">Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</div>
-		</div>
-		<button type="submit" class="pm-btn pm-btn-sm">Upload Photo</button>
-	</form>
-	
-	<div id="conversation-photo-progress" style="display: none;">
-		<div class="pm-progress-bar">
-			<div class="pm-progress-fill"></div>
-		</div>
-		<div class="pm-progress-text">Uploading...</div>
-	</div>
-	
-	<div id="conversation-photo-message"></div>
-</div>
-<?php endif; ?>
 
-<!-- Reply Form -->
-<div class="pm-section" id="reply-form">
-	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-md"><?php _e( 'Add Your Reply', 'partyminder' ); ?></h3>
-	</div>
-	
-	<form class="pm-form">
-		<input type="hidden" name="nonce" value="<?php echo wp_create_nonce( 'partyminder_nonce' ); ?>">
-		<input type="hidden" name="action" value="partyminder_add_reply">
-		<input type="hidden" name="conversation_id" value="<?php echo esc_attr( $conversation->id ); ?>">
-		<input type="hidden" name="parent_reply_id" value="">
-		
-		<?php if ( ! is_user_logged_in() ) : ?>
-			<div class="pm-form-row">
-				<div class="pm-form-group">
-					<label for="reply_guest_name" class="pm-form-label"><?php _e( 'Your Name *', 'partyminder' ); ?></label>
-					<input type="text" id="reply_guest_name" name="guest_name" class="pm-form-input" required>
-				</div>
-				<div class="pm-form-group">
-					<label for="reply_guest_email" class="pm-form-label"><?php _e( 'Your Email *', 'partyminder' ); ?></label>
-					<input type="email" id="reply_guest_email" name="guest_email" class="pm-form-input" required>
-				</div>
-			</div>
-		<?php endif; ?>
-		
-		<div class="pm-form-group">
-			<label for="reply_content" class="pm-form-label"><?php _e( 'Your Reply *', 'partyminder' ); ?></label>
-			<textarea id="reply_content" name="content" class="pm-form-textarea" required rows="6" 
-						placeholder="<?php esc_attr_e( 'Share your thoughts on this conversation...', 'partyminder' ); ?>"></textarea>
-		</div>
-		
-		<div class="pm-form-actions">
-			<button type="submit" class="pm-btn">
-				<span class="button-text"><?php _e( 'Post Reply', 'partyminder' ); ?></span>
-				<span class="button-spinner" style="display: none;"><?php _e( 'Posting...', 'partyminder' ); ?></span>
-			</button>
-			<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn">
-				← <?php _e( 'Back to Conversations', 'partyminder' ); ?>
-			</a>
-		</div>
-	</form>
-</div>
 
 <?php
 $main_content = ob_get_clean();
@@ -455,72 +393,6 @@ require PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php';
 
 <script>
 jQuery(document).ready(function($) {
-	// Handle conversation photo upload
-	$('#conversation-photo-upload-form').on('submit', function(e) {
-		e.preventDefault();
-		
-		const formData = new FormData();
-		const fileInput = $(this).find('input[type="file"]')[0];
-		
-		if (!fileInput.files[0]) {
-			alert('Please select a photo to upload.');
-			return;
-		}
-		
-		formData.append('action', 'partyminder_conversation_photo_upload');
-		formData.append('conversation_id', <?php echo intval( $conversation->id ); ?>);
-		formData.append('conversation_photo', fileInput.files[0]);
-		formData.append('nonce', partyminder_ajax.conversation_photo_upload_nonce);
-		
-		const $form = $(this);
-		const $progress = $('#conversation-photo-progress');
-		const $progressFill = $('.pm-progress-fill');
-		const $message = $('#conversation-photo-message');
-		
-		$form.hide();
-		$progress.show();
-		$message.empty();
-		
-		$.ajax({
-			url: partyminder_ajax.ajax_url,
-			type: 'POST',
-			data: formData,
-			processData: false,
-			contentType: false,
-			xhr: function() {
-				const xhr = new window.XMLHttpRequest();
-				xhr.upload.addEventListener('progress', function(evt) {
-					if (evt.lengthComputable) {
-						const percentComplete = (evt.loaded / evt.total) * 100;
-						$progressFill.css('width', percentComplete + '%');
-					}
-				}, false);
-				return xhr;
-			},
-			success: function(response) {
-				if (response.success) {
-					$message.html('<div class="pm-upload-message success">' + response.data.message + '</div>');
-					$form[0].reset();
-					// Refresh page after 2 seconds to show the uploaded photo
-					setTimeout(function() {
-						location.reload();
-					}, 2000);
-				} else {
-					$message.html('<div class="pm-upload-message error">' + (response.data || 'Upload failed') + '</div>');
-				}
-			},
-			error: function() {
-				$message.html('<div class="pm-upload-message error">Network error. Please try again.</div>');
-			},
-			complete: function() {
-				$progress.hide();
-				$form.show();
-				setTimeout(function() {
-					$message.empty();
-				}, 5000);
-			}
-		});
-	});
 	
 	// Handle follow/unfollow
 	$('.follow-btn').on('click', function() {
@@ -560,6 +432,21 @@ jQuery(document).ready(function($) {
 		$('#reply_content').focus();
 	});
 	
+	// Handle attachment button click
+	$(document).on('click', '.pm-attachment-btn', function(e) {
+		e.preventDefault();
+		const $fileInput = $(this).siblings('.pm-file-input');
+		$fileInput.click();
+	});
+	
+	// Handle file selection
+	$(document).on('change', '.pm-file-input', function(e) {
+		const files = this.files;
+		if (files && files.length > 0) {
+			$(this).closest('form').data('attachedFiles', files);
+		}
+	});
+	
 	// Handle form submission
 	$('.pm-form').off('submit').on('submit', function(e) {
 		e.preventDefault();
@@ -583,10 +470,33 @@ jQuery(document).ready(function($) {
 		$buttonSpinner.show();
 		$submitBtn.prop('disabled', true);
 		
+		// Check for attached files
+		const attachedFiles = $form.data('attachedFiles');
+		let formData;
+		
+		if (attachedFiles && attachedFiles.length > 0) {
+			// Use FormData for file upload
+			formData = new FormData();
+			const formElements = $form.serializeArray();
+			formElements.forEach(function(field) {
+				formData.append(field.name, field.value);
+			});
+			
+			// Add all files
+			for (let i = 0; i < attachedFiles.length; i++) {
+				formData.append('attachments[]', attachedFiles[i]);
+			}
+		} else {
+			// Use regular form data
+			formData = $form.serialize();
+		}
+		
 		$.ajax({
 			url: partyminder_ajax.ajax_url,
 			type: 'POST',
-			data: $form.serialize(),
+			data: formData,
+			processData: !attachedFiles,
+			contentType: attachedFiles ? false : 'application/x-www-form-urlencoded; charset=UTF-8',
 			success: function(response) {
 				if (response.success) {
 					location.reload();

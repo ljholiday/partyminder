@@ -1619,3 +1619,37 @@ body.admin-bar .pm-page-two-column {
   background: #fce7f3;
   color: #be185d;
 }
+
+/* Reply Form with Attachment Button */
+.pm-reply-input-container {
+  position: relative;
+}
+
+.pm-attachment-btn {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.75rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--pm-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.pm-attachment-btn:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.pm-plus-icon {
+  line-height: 1;
+  margin-top: -2px;
+}
