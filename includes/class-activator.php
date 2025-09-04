@@ -46,7 +46,6 @@ class PartyMinder_Activator {
 		self::create_event_rsvps_table();
 
 		// Conversation system tables
-		self::create_conversation_topics_table();
 		self::create_conversations_table();
 		self::create_conversation_replies_table();
 		self::create_conversation_follows_table();
@@ -64,8 +63,6 @@ class PartyMinder_Activator {
 		// Search index table
 		self::create_search_table();
 
-		// Create default conversation topics
-		self::create_default_conversation_topics();
 
 		// Upgrade existing installations
 		self::upgrade_database_schema();

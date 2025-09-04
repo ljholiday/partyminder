@@ -182,17 +182,6 @@ class PartyMinder_Page_Content_Injector {
 		return ob_get_clean();
 	}
 
-	public function inject_topic_conversations_content( $content ) {
-		if ( ! $this->should_inject_content( 'conversations' ) ) {
-			return $content;
-		}
-
-		ob_start();
-		echo '<div class="partyminder-content partyminder-topic-conversations-page">';
-		include PARTYMINDER_PLUGIN_DIR . 'templates/topic-conversations-content.php';
-		echo '</div>';
-		return ob_get_clean();
-	}
 
 	public function inject_single_conversation_content( $content ) {
 		if ( ! $this->should_inject_content( 'conversations' ) ) {

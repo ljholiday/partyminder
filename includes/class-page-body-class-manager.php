@@ -57,16 +57,6 @@ class PartyMinder_Page_Body_Class_Manager {
 		return $classes;
 	}
 
-	public function add_topic_conversations_body_class( $classes ) {
-		$classes[] = 'partyminder-conversations';
-		$classes[] = 'partyminder-topic-conversations';
-
-		$topic_slug = get_query_var( 'conversation_topic' );
-		if ( $topic_slug ) {
-			$classes[] = 'partyminder-topic-' . sanitize_html_class( $topic_slug );
-		}
-		return $classes;
-	}
 
 	public function add_single_conversation_body_class( $classes ) {
 		$classes[] = 'partyminder-conversations';

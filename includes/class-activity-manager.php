@@ -82,14 +82,12 @@ class PartyMinder_Activity_Manager {
 		// Get recent conversations
 		if ( in_array( 'conversations', $types ) ) {
 			$conversations_table = $wpdb->prefix . 'partyminder_conversations';
-			$topics_table        = $wpdb->prefix . 'partyminder_conversation_topics';
 
 			$conversations = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT c.*, t.name as topic_name, t.slug as topic_slug,
+					"SELECT c.*,
                         'conversation_created' as activity_type, c.created_at as activity_date
                  FROM $conversations_table c
-                 LEFT JOIN $topics_table t ON c.topic_id = t.id
                  WHERE c.event_id IS NULL
                  ORDER BY c.created_at DESC
                  LIMIT %d",
@@ -163,14 +161,12 @@ class PartyMinder_Activity_Manager {
 	private function get_conversation_activities( $user_id ) {
 		global $wpdb;
 		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
-		$topics_table        = $wpdb->prefix . 'partyminder_conversation_topics';
 
 		return $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT c.*, t.name as topic_name, t.slug as topic_slug,
+				"SELECT c.*,
                     'conversation_created' as activity_type, c.created_at as activity_date
              FROM $conversations_table c
-             LEFT JOIN $topics_table t ON c.topic_id = t.id
              WHERE c.author_id = %d
              ORDER BY c.created_at DESC
              LIMIT 5",
@@ -186,16 +182,13 @@ class PartyMinder_Activity_Manager {
 		global $wpdb;
 		$replies_table       = $wpdb->prefix . 'partyminder_conversation_replies';
 		$conversations_table = $wpdb->prefix . 'partyminder_conversations';
-		$topics_table        = $wpdb->prefix . 'partyminder_conversation_topics';
 
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT r.*, c.title as conversation_title, c.slug as conversation_slug, 
-                    t.name as topic_name, t.slug as topic_slug,
                     'conversation_reply' as activity_type, r.created_at as activity_date
              FROM $replies_table r
              INNER JOIN $conversations_table c ON r.conversation_id = c.id
-             LEFT JOIN $topics_table t ON c.topic_id = t.id
              WHERE r.author_id = %d
              ORDER BY r.created_at DESC
              LIMIT 5",
