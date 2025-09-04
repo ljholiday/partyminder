@@ -124,7 +124,8 @@ class PartyMinder_Conversation_Ajax_Handler {
 					$success_data['redirect_url'] = home_url( '/events/' . $event->slug );
 					$success_data['message']      = __( 'Event conversation created successfully!', 'partyminder' );
 				}
-			} elseif ( $community_id ) {
+			} elseif ( $community_id && ! empty( $_POST['community_id'] ) ) {
+				// Only redirect to community if community was explicitly selected in the form
 				$community_manager = $this->get_community_manager();
 				$community         = $community_manager->get_community( $community_id );
 				if ( $community ) {
@@ -132,7 +133,7 @@ class PartyMinder_Conversation_Ajax_Handler {
 					$success_data['message']      = __( 'Community conversation created successfully!', 'partyminder' );
 				}
 			} else {
-				// For general conversations, redirect to the new conversation page
+				// For general conversations (including those auto-assigned to personal community), redirect to the conversation
 				if ( $conversation ) {
 					$success_data['redirect_url'] = home_url( '/conversations/' . $conversation->slug );
 				}
