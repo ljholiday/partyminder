@@ -1520,6 +1520,13 @@ body.admin-bar .pm-page-two-column {
   .pm-two-column-layout {
     flex-direction: column;
   }
+  
+  /* Mobile search input - slightly larger than buttons */
+  .pm-mobile-search-input {
+    height: 42px;
+    font-size: 15px;
+    padding: 10px 14px;
+  }
 }
 
 /* Search Styles */

@@ -171,6 +171,8 @@ class PartyMinder {
 		add_action( 'wp_ajax_partyminder_process_rsvp_landing', array( $this, 'ajax_process_rsvp_landing' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_process_rsvp_landing', array( $this, 'ajax_process_rsvp_landing' ) );
 		add_action( 'wp_ajax_partyminder_reindex_search', array( $this, 'ajax_reindex_search' ) );
+		add_action( 'wp_ajax_get_mobile_menu_content', array( $this, 'ajax_get_mobile_menu_content' ) );
+		add_action( 'wp_ajax_nopriv_get_mobile_menu_content', array( $this, 'ajax_get_mobile_menu_content' ) );
 
 		// Image upload AJAX handlers
 		add_action( 'wp_ajax_partyminder_avatar_upload', array( 'PartyMinder_Image_Upload', 'handle_avatar_upload' ) );
@@ -440,7 +442,22 @@ class PartyMinder {
 		wp_send_json_success( "Search index rebuilt. Indexed $indexed_count items." );
 	}
 
-
+	public function ajax_get_mobile_menu_content() {
+		// No nonce verification needed for non-sensitive mobile menu content
+		
+		// Start output buffering to capture the template output
+		ob_start();
+		
+		// Include the mobile menu content template
+		include PARTYMINDER_PLUGIN_DIR . 'templates/partials/mobile-menu-content.php';
+		
+		// Get the buffered content and clean the buffer
+		$mobile_content = ob_get_clean();
+		
+		// Return just the HTML content without JSON wrapper
+		echo $mobile_content;
+		wp_die();
+	}
 
 	public function ajax_process_rsvp_landing() {
 		check_ajax_referer( 'partyminder_event_nonce', 'nonce' );

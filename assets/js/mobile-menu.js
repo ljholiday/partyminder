@@ -41,21 +41,10 @@ class PartyMinderMobileMenu {
             return;
         }
 
-        // Find sidebar secondary navigation - much cleaner source!
-        const sidebarNav = document.querySelector('.pm-sidebar-nav');
-        if (!sidebarNav) {
-            return;
-        }
-
-        // Get all buttons from sidebar navigation
-        const sidebarButtons = sidebarNav.querySelectorAll('a.pm-btn');
-        
-        if (sidebarButtons.length > 0) {
-            this.createMobileMenuInTopNav(mainNav, Array.from(sidebarButtons));
-        }
+        this.createMobileMenuInTopNav(mainNav);
     }
 
-    createMobileMenuInTopNav(mainNav, sidebarButtons) {
+    createMobileMenuInTopNav(mainNav) {
         // Create mobile menu toggle button in top nav
         if (!this.menuToggle) {
             this.menuToggle = document.createElement('button');
@@ -95,27 +84,48 @@ class PartyMinderMobileMenu {
             document.body.appendChild(this.mobileMenu);
         }
 
-        // Add sidebar navigation items to mobile menu
+        // Load mobile menu content via AJAX
+        this.loadMobileMenuContent();
+    }
+
+    loadMobileMenuContent() {
         const menuContent = this.mobileMenu.querySelector('.pm-modal-content');
-        
-        // Clear any existing content
-        menuContent.innerHTML = '';
-        
-        // Add header with close button
-        const header = document.createElement('div');
-        header.className = 'pm-flex pm-justify-end pm-align-center pm-mb-4';
-        header.innerHTML = `
-            <button class="pm-mobile-menu-close pm-btn pm-btn-sm" aria-label="Close menu">&times;</button>
+        if (!menuContent) return;
+
+        // Add loading state
+        menuContent.innerHTML = `
+            <div class="pm-flex pm-justify-end pm-align-center pm-mb-4">
+                <button class="pm-mobile-menu-close pm-btn pm-btn-sm" aria-label="Close menu">&times;</button>
+            </div>
+            <div class="pm-text-center pm-p-4">Loading...</div>
         `;
-        menuContent.appendChild(header);
-        
-        // Add navigation buttons
-        sidebarButtons.forEach(button => {
-            const menuItem = button.cloneNode(true);
-            menuItem.classList.add('pm-mb-3');
-            menuItem.style.width = '100%';
-            menuItem.style.display = 'block';
-            menuContent.appendChild(menuItem);
+
+        // Make AJAX request to load mobile menu content
+        fetch(window.partyminder_ajax?.ajax_url || '/wp-admin/admin-ajax.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'action=get_mobile_menu_content'
+        })
+        .then(response => response.text())
+        .then(data => {
+            // Add close button header + mobile content
+            menuContent.innerHTML = `
+                <div class="pm-flex pm-justify-end pm-align-center pm-mb-4">
+                    <button class="pm-mobile-menu-close pm-btn pm-btn-sm" aria-label="Close menu">&times;</button>
+                </div>
+                ${data}
+            `;
+        })
+        .catch(error => {
+            console.error('Failed to load mobile menu content:', error);
+            menuContent.innerHTML = `
+                <div class="pm-flex pm-justify-end pm-align-center pm-mb-4">
+                    <button class="pm-mobile-menu-close pm-btn pm-btn-sm" aria-label="Close menu">&times;</button>
+                </div>
+                <div class="pm-text-center pm-p-4">Failed to load menu content</div>
+            `;
         });
     }
 
