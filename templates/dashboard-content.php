@@ -683,37 +683,6 @@ ob_start();
 		<?php endif; ?>
 	</div>
 </div>
-<?php else : ?>
-
-<!-- Your Profile -->
-<div class="pm-section pm-mb">
-	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Your Profile', 'partyminder' ); ?></h3>
-	</div>
-	<div class="pm-flex pm-gap pm-mb">
-		<?php 
-		$user_id = $current_user->ID;
-		$user_name = $current_user->display_name;
-		$size = 'lg';
-		PartyMinder::render_avatar( $user_id, $user_name, $size );
-		?>
-		<div class="pm-flex-1">
-			<div class="pm-heading pm-heading-sm"><?php echo esc_html( $current_user->display_name ); ?></div>
-			<?php if ( $profile_data && $profile_data['location'] ) : ?>
-			<div class="pm-text-muted"> <?php echo esc_html( $profile_data['location'] ); ?></div>
-			<?php endif; ?>
-		</div>
-	</div>
-	<div class="pm-flex pm-gap pm-flex-column">
-		<a href="<?php echo esc_url( PartyMinder::get_profile_url() ); ?>" class="pm-btn pm-btn">
-			<?php _e( 'View Profile', 'partyminder' ); ?>
-		</a>
-		<a href="<?php echo esc_url( PartyMinder::get_logout_url() ); ?>" class="pm-btn pm-btn">
-			<?php _e( 'Logout', 'partyminder' ); ?>
-		</a>
-	</div>
-</div>
-
 <?php endif; ?>
 
 <?php

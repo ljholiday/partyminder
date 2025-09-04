@@ -65,4 +65,39 @@ $is_logged_in = is_user_logged_in();
             </a>
         <?php endif; ?>
     </div>
+    
+    <?php if ( $is_logged_in ) : ?>
+    <!-- Profile Card -->
+    <div class="pm-profile-card pm-mt-4">
+        <div class="pm-flex pm-gap pm-mb">
+            <?php 
+            $user_id = $current_user->ID;
+            $user_name = $current_user->display_name;
+            $size = 'lg';
+            PartyMinder::render_avatar( $user_id, $user_name, $size );
+            
+            // Get user profile data
+            $profile_data = null;
+            if ( class_exists( 'PartyMinder_Profile_Manager' ) ) {
+                $profile_data = PartyMinder_Profile_Manager::get_user_profile( $current_user->ID );
+            }
+            ?>
+            <div class="pm-flex-1">
+                <div class="pm-heading pm-heading-sm"><?php echo esc_html( $current_user->display_name ); ?></div>
+                <?php if ( $profile_data && $profile_data['location'] ) : ?>
+                <div class="pm-text-muted"> <?php echo esc_html( $profile_data['location'] ); ?></div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <div class="pm-flex pm-gap pm-flex-column">
+            <a href="<?php echo esc_url( PartyMinder::get_profile_url() ); ?>" class="pm-btn pm-btn">
+                <?php _e( 'Edit Profile', 'partyminder' ); ?>
+            </a>
+            <a href="<?php echo esc_url( PartyMinder::get_logout_url() ); ?>" class="pm-btn pm-btn">
+                <?php _e( 'Logout', 'partyminder' ); ?>
+            </a>
+        </div>
+    </div>
+    <?php endif; ?>
+    
 </div>

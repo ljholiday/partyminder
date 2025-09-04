@@ -103,9 +103,8 @@ class PartyMinderMobileMenu {
         
         // Add header with close button
         const header = document.createElement('div');
-        header.className = 'pm-flex pm-flex-between pm-align-center pm-mb-4';
+        header.className = 'pm-flex pm-justify-end pm-align-center pm-mb-4';
         header.innerHTML = `
-            <h3 class="pm-heading pm-heading-sm pm-m-0">Quick Actions</h3>
             <button class="pm-mobile-menu-close pm-btn pm-btn-sm" aria-label="Close menu">&times;</button>
         `;
         menuContent.appendChild(header);
