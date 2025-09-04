@@ -4,16 +4,22 @@
  */
 
 jQuery(document).ready(function($) {
-    const searchInput = $('#pm-search-input');
-    const searchResults = $('#pm-search-results');
+    const desktopSearchInput = $('#pm-search-input');
+    const mobileSearchInput = $('#pm-mobile-search-input');
+    const desktopSearchResults = $('#pm-search-results');
+    const mobileSearchResults = $('#pm-mobile-search-results');
     let searchTimeout;
     
-    if (!searchInput.length) return;
+    // Handle both desktop and mobile search inputs
+    const searchInputs = $('.pm-input[id*="search-input"]');
+    console.log('PartyMinder Search: Found', searchInputs.length, 'search inputs');
+    
+    if (!searchInputs.length) return;
     
     // Search function
-    function performSearch(query) {
+    function performSearch(query, resultsContainer) {
         if (query.length < 2) {
-            searchResults.hide().empty();
+            resultsContainer.hide().empty();
             return;
         }
         
@@ -25,23 +31,23 @@ jQuery(document).ready(function($) {
                 limit: 10
             },
             beforeSend: function() {
-                searchResults.html('<div class="pm-text-center pm-p-4">Searching...</div>').show();
+                resultsContainer.html('<div class="pm-text-center pm-p-4">Searching...</div>').show();
             },
             success: function(response) {
                 if (response.items && response.items.length > 0) {
-                    renderSearchResults(response.items);
+                    renderSearchResults(response.items, resultsContainer);
                 } else {
-                    searchResults.html('<div class="pm-text-center pm-p-4 pm-text-muted">No results found</div>').show();
+                    resultsContainer.html('<div class="pm-text-center pm-p-4 pm-text-muted">No results found</div>').show();
                 }
             },
             error: function() {
-                searchResults.html('<div class="pm-text-center pm-p-4 pm-text-error">Search error occurred</div>').show();
+                resultsContainer.html('<div class="pm-text-center pm-p-4 pm-text-error">Search error occurred</div>').show();
             }
         });
     }
     
     // Render search results
-    function renderSearchResults(items) {
+    function renderSearchResults(items, resultsContainer) {
         let html = '<div class="pm-search-results-list">';
         
         items.forEach(function(item) {
@@ -65,7 +71,7 @@ jQuery(document).ready(function($) {
         });
         
         html += '</div>';
-        searchResults.html(html).show();
+        resultsContainer.html(html).show();
     }
     
     // Get icon for entity type
@@ -79,40 +85,48 @@ jQuery(document).ready(function($) {
         return icons[type] || '📄';
     }
     
-    // Handle input
-    searchInput.on('input', function() {
+    // Handle input for both desktop and mobile search
+    searchInputs.on('input', function() {
         const query = $(this).val().trim();
+        const currentInput = $(this);
+        const resultsContainer = currentInput.attr('id') === 'pm-search-input' ? desktopSearchResults : mobileSearchResults;
         
         clearTimeout(searchTimeout);
         
         if (query.length < 2) {
-            searchResults.hide().empty();
+            resultsContainer.hide().empty();
             return;
         }
         
         searchTimeout = setTimeout(function() {
-            performSearch(query);
+            performSearch(query, resultsContainer);
         }, 300);
     });
     
-    // Handle focus
-    searchInput.on('focus', function() {
+    // Handle focus for both inputs
+    searchInputs.on('focus', function() {
         const query = $(this).val().trim();
+        const currentInput = $(this);
+        const resultsContainer = currentInput.attr('id') === 'pm-search-input' ? desktopSearchResults : mobileSearchResults;
+        
         if (query.length >= 2) {
-            performSearch(query);
+            performSearch(query, resultsContainer);
         }
     });
     
     // Hide results when clicking outside
     $(document).on('click', function(e) {
-        if (!$(e.target).closest('.pm-search-box').length) {
-            searchResults.hide();
+        if (!$(e.target).closest('.pm-search-box, .pm-mb-4').length) {
+            desktopSearchResults.hide();
+            mobileSearchResults.hide();
         }
     });
     
-    // Handle keyboard navigation
-    searchInput.on('keydown', function(e) {
-        const results = searchResults.find('.pm-search-result-item');
+    // Handle keyboard navigation for both inputs
+    searchInputs.on('keydown', function(e) {
+        const currentInput = $(this);
+        const resultsContainer = currentInput.attr('id') === 'pm-search-input' ? desktopSearchResults : mobileSearchResults;
+        const results = resultsContainer.find('.pm-search-result-item');
         let current = results.filter('.active').index();
         
         if (e.keyCode === 38) { // Up arrow
@@ -133,8 +147,8 @@ jQuery(document).ready(function($) {
                 }
             }
         } else if (e.keyCode === 27) { // Escape
-            searchResults.hide();
-            searchInput.blur();
+            resultsContainer.hide();
+            currentInput.blur();
         }
     });
 });

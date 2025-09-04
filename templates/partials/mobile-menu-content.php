@@ -50,7 +50,7 @@ $is_logged_in = is_user_logged_in();
     <a href="<?php echo esc_url( PartyMinder::get_profile_url() ); ?>" class="pm-btn pm-btn pm-mb-3" style="width: 100%; display: block;">
         <?php _e( 'Edit Profile', 'partyminder' ); ?>
     </a>
-    <a href="<?php echo esc_url( PartyMinder::get_logout_url() ); ?>" class="pm-btn pm-btn pm-mb-3" style="width: 100%; display: block;">
+    <a href="<?php echo esc_url( PartyMinder::get_logout_url() ); ?>" class="pm-btn pm-btn" style="width: 100%; display: block;">
         <?php _e( 'Logout', 'partyminder' ); ?>
     </a>
 </div>

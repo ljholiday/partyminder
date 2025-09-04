@@ -86,3 +86,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php endif; ?>
 	</div>
 </div>
+
+<!-- Mobile Menu Modal - Server-side rendered -->
+<div class="pm-modal pm-mobile-menu-modal" aria-hidden="true" style="display: none;">
+	<div class="pm-modal-overlay"></div>
+	<div class="pm-modal-content" style="padding: 1.5rem;">
+		<div class="pm-flex pm-justify-end pm-align-center pm-mb-4">
+			<button class="pm-mobile-menu-close pm-btn pm-btn-sm" aria-label="Close menu">&times;</button>
+		</div>
+		<?php include PARTYMINDER_PLUGIN_DIR . 'templates/partials/mobile-menu-content.php'; ?>
+	</div>
+</div>

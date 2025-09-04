@@ -41,10 +41,15 @@ class PartyMinderMobileMenu {
             return;
         }
 
-        this.createMobileMenuInTopNav(mainNav);
-    }
+        // Find the existing mobile menu modal (server-rendered)
+        this.mobileMenu = document.querySelector('.pm-mobile-menu-modal');
+        if (!this.mobileMenu) {
+            console.error('Mobile menu modal not found');
+            return;
+        }
 
-    createMobileMenuInTopNav(mainNav) {
+        this.menuOverlay = this.mobileMenu.querySelector('.pm-modal-overlay');
+
         // Create mobile menu toggle button in top nav
         if (!this.menuToggle) {
             this.menuToggle = document.createElement('button');
@@ -62,71 +67,6 @@ class PartyMinderMobileMenu {
             // Append to main navigation
             mainNav.appendChild(this.menuToggle);
         }
-
-        // Create mobile menu using existing modal classes
-        if (!this.mobileMenu) {
-            this.mobileMenu = document.createElement('div');
-            this.mobileMenu.className = 'pm-modal pm-mobile-menu-modal';
-            this.mobileMenu.setAttribute('aria-hidden', 'true');
-            this.mobileMenu.style.display = 'none';
-            
-            // Create overlay using existing class
-            this.menuOverlay = document.createElement('div');
-            this.menuOverlay.className = 'pm-modal-overlay';
-            
-            // Create content container
-            const menuContent = document.createElement('div');
-            menuContent.className = 'pm-modal-content';
-            menuContent.style.padding = '1.5rem';
-            
-            this.mobileMenu.appendChild(this.menuOverlay);
-            this.mobileMenu.appendChild(menuContent);
-            document.body.appendChild(this.mobileMenu);
-        }
-
-        // Load mobile menu content via AJAX
-        this.loadMobileMenuContent();
-    }
-
-    loadMobileMenuContent() {
-        const menuContent = this.mobileMenu.querySelector('.pm-modal-content');
-        if (!menuContent) return;
-
-        // Add loading state
-        menuContent.innerHTML = `
-            <div class="pm-flex pm-justify-end pm-align-center pm-mb-4">
-                <button class="pm-mobile-menu-close pm-btn pm-btn-sm" aria-label="Close menu">&times;</button>
-            </div>
-            <div class="pm-text-center pm-p-4">Loading...</div>
-        `;
-
-        // Make AJAX request to load mobile menu content
-        fetch(window.partyminder_ajax?.ajax_url || '/wp-admin/admin-ajax.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'action=get_mobile_menu_content'
-        })
-        .then(response => response.text())
-        .then(data => {
-            // Add close button header + mobile content
-            menuContent.innerHTML = `
-                <div class="pm-flex pm-justify-end pm-align-center pm-mb-4">
-                    <button class="pm-mobile-menu-close pm-btn pm-btn-sm" aria-label="Close menu">&times;</button>
-                </div>
-                ${data}
-            `;
-        })
-        .catch(error => {
-            console.error('Failed to load mobile menu content:', error);
-            menuContent.innerHTML = `
-                <div class="pm-flex pm-justify-end pm-align-center pm-mb-4">
-                    <button class="pm-mobile-menu-close pm-btn pm-btn-sm" aria-label="Close menu">&times;</button>
-                </div>
-                <div class="pm-text-center pm-p-4">Failed to load menu content</div>
-            `;
-        });
     }
 
     bindEvents() {

@@ -1527,6 +1527,16 @@ body.admin-bar .pm-page-two-column {
     font-size: 15px;
     padding: 10px 14px;
   }
+  
+  /* Mobile search results - fix positioning in modal */
+  .pm-mobile-menu-modal .pm-search-results {
+    position: static;
+    box-shadow: none;
+    border: 1px solid var(--pm-border);
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+    max-height: 300px;
+  }
 }
 
 /* Search Styles */

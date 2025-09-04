@@ -171,8 +171,6 @@ class PartyMinder {
 		add_action( 'wp_ajax_partyminder_process_rsvp_landing', array( $this, 'ajax_process_rsvp_landing' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_process_rsvp_landing', array( $this, 'ajax_process_rsvp_landing' ) );
 		add_action( 'wp_ajax_partyminder_reindex_search', array( $this, 'ajax_reindex_search' ) );
-		add_action( 'wp_ajax_get_mobile_menu_content', array( $this, 'ajax_get_mobile_menu_content' ) );
-		add_action( 'wp_ajax_nopriv_get_mobile_menu_content', array( $this, 'ajax_get_mobile_menu_content' ) );
 
 		// Image upload AJAX handlers
 		add_action( 'wp_ajax_partyminder_avatar_upload', array( 'PartyMinder_Image_Upload', 'handle_avatar_upload' ) );
@@ -257,16 +255,15 @@ class PartyMinder {
 		wp_add_inline_style( 'partyminder', $custom_css );
 
 		wp_enqueue_script( 'partyminder-public', PARTYMINDER_PLUGIN_URL . 'assets/js/public.js', array( 'jquery' ), PARTYMINDER_VERSION, true );
-		wp_enqueue_script( 'partyminder-mobile-menu', PARTYMINDER_PLUGIN_URL . 'assets/js/mobile-menu.js', array(), PARTYMINDER_VERSION, true );
+		wp_enqueue_script( 'partyminder-mobile-menu', PARTYMINDER_PLUGIN_URL . 'assets/js/mobile-menu.js', array( 'jquery' ), PARTYMINDER_VERSION, true );
 		wp_enqueue_script( 'partyminder-search', PARTYMINDER_PLUGIN_URL . 'assets/js/search.js', array( 'jquery' ), PARTYMINDER_VERSION, true );
 
 		$current_user = wp_get_current_user();
-		wp_localize_script(
-			'partyminder-public',
-			'partyminder_ajax',
-			array(
-				'ajax_url'          => admin_url( 'admin-ajax.php' ),
-				'nonce'             => wp_create_nonce( 'partyminder_nonce' ),
+		
+		// Localize AJAX data for multiple scripts
+		$ajax_data = array(
+			'ajax_url'          => admin_url( 'admin-ajax.php' ),
+			'nonce'             => wp_create_nonce( 'partyminder_nonce' ),
 				'community_nonce'   => wp_create_nonce( 'partyminder_community_action' ),
 				'event_nonce'       => wp_create_nonce( 'partyminder_event_action' ),
 				'at_protocol_nonce' => wp_create_nonce( 'partyminder_at_protocol' ),
@@ -289,8 +286,11 @@ class PartyMinder {
 					'confirm_join'  => __( 'Are you sure you want to join this community?', 'partyminder' ),
 					'confirm_leave' => __( 'Are you sure you want to leave this community?', 'partyminder' ),
 				),
-			)
-		);
+			);
+		
+		// Localize for both public and mobile menu scripts
+		wp_localize_script( 'partyminder-public', 'partyminder_ajax', $ajax_data );
+		wp_localize_script( 'partyminder-mobile-menu', 'partyminder_ajax', $ajax_data );
 	}
 
 	public function enqueue_admin_scripts( $hook ) {
@@ -440,23 +440,6 @@ class PartyMinder {
 		$indexed_count = PartyMinder_Search_Indexer_Init::index_all_content();
 		
 		wp_send_json_success( "Search index rebuilt. Indexed $indexed_count items." );
-	}
-
-	public function ajax_get_mobile_menu_content() {
-		// No nonce verification needed for non-sensitive mobile menu content
-		
-		// Start output buffering to capture the template output
-		ob_start();
-		
-		// Include the mobile menu content template
-		include PARTYMINDER_PLUGIN_DIR . 'templates/partials/mobile-menu-content.php';
-		
-		// Get the buffered content and clean the buffer
-		$mobile_content = ob_get_clean();
-		
-		// Return just the HTML content without JSON wrapper
-		echo $mobile_content;
-		wp_die();
 	}
 
 	public function ajax_process_rsvp_landing() {
