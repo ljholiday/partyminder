@@ -14,6 +14,7 @@ require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-profile-manager.php';
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-manager.php';
+require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-activity-tracker.php';
 
 $event_manager        = new PartyMinder_Event_Manager();
 $guest_manager        = new PartyMinder_Guest_Manager();
@@ -167,8 +168,19 @@ ob_start();
 <!-- Events Section -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
-		<h2 class="pm-heading pm-heading-md pm-mb"><?php _e( 'Events', 'partyminder' ); ?></h2>
-		<p class="pm-text-muted"><?php _e( 'Events you\'ve created or RSVP\'d to', 'partyminder' ); ?></p>
+		<?php 
+		// Get events notification count
+		$events_new_count = 0;
+		if ( $user_logged_in && ! empty( $recent_events ) ) {
+			$events_new_count = PartyMinder_Activity_Tracker::get_new_count( $current_user->ID, 'events', $recent_events );
+		}
+		?>
+		<h2 class="pm-heading pm-heading-md pm-mb">
+			<?php _e( 'Events', 'partyminder' ); ?>
+			<?php if ( $events_new_count > 0 ) : ?>
+				<?php echo ' ' . sprintf( _n( '%d update', '%d updates', $events_new_count, 'partyminder' ), $events_new_count ); ?>
+			<?php endif; ?>
+		</h2>
 	</div>
 	<?php if ( ! empty( $recent_events ) ) : ?>
 		<div class="pm-flex pm-gap pm-flex-column">
@@ -176,8 +188,13 @@ ob_start();
 				<?php
 				$is_past    = strtotime( $event->event_date ) < time();
 				$is_hosting = $event->relationship_type === 'created';
+				$is_new_event = $user_logged_in && PartyMinder_Activity_Tracker::has_new_activity( $current_user->ID, 'events', $event->id, $event->updated_at ?? $event->created_at );
+				$item_classes = 'pm-section pm-flex pm-flex-between';
+				if ( $is_new_event ) {
+					$item_classes .= ' pm-item-new';
+				}
 				?>
-				<div class="pm-section pm-flex pm-flex-between">
+				<div class="<?php echo $item_classes; ?>">
 					<div class="pm-flex-1">
 						<h4 class="pm-heading pm-heading-sm">
 							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-text-primary">
@@ -214,14 +231,51 @@ ob_start();
 <!-- Conversations Section -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
-		<h2 class="pm-heading pm-heading-md pm-mb"><?php _e( 'Recent Conversations', 'partyminder' ); ?></h2>
-		<p class="pm-text-muted"><?php _e( 'Latest discussions in your close circle', 'partyminder' ); ?></p>
+		<?php 
+		// Get conversations notification count
+		$conversations_new_count = 0;
+		$conversations_reply_count = 0;
+		if ( $user_logged_in && ! empty( $recent_conversations ) ) {
+			$conversations_new_count = PartyMinder_Activity_Tracker::get_new_count( $current_user->ID, 'conversations', $recent_conversations );
+			// Count total new replies across all conversations
+			foreach ( $recent_conversations as $conversation ) {
+				if ( PartyMinder_Activity_Tracker::has_new_activity( $current_user->ID, 'conversations', $conversation->id, $conversation->last_reply_date ?? $conversation->created_at ) ) {
+					$conversations_reply_count++;
+				}
+			}
+		}
+		?>
+		<h2 class="pm-heading pm-heading-md pm-mb">
+			<?php _e( 'Recent Conversations', 'partyminder' ); ?>
+			<?php if ( $conversations_new_count > 0 || $conversations_reply_count > 0 ) : ?>
+				<?php 
+				$notification_parts = array();
+				if ( $conversations_new_count > 0 ) {
+					$notification_parts[] = sprintf( _n( '%d new', '%d new', $conversations_new_count, 'partyminder' ), $conversations_new_count );
+				}
+				if ( $conversations_reply_count > 0 ) {
+					$notification_parts[] = sprintf( _n( '%d reply', '%d replies', $conversations_reply_count, 'partyminder' ), $conversations_reply_count );
+				}
+				echo ' ' . implode( ' ', $notification_parts );
+				?>
+			<?php endif; ?>
+		</h2>
 	</div>
 	
 	<?php if ( ! empty( $recent_conversations ) ) : ?>
 		<div class="pm-grid pm-grid-3 pm-gap">
-			<?php foreach ( $recent_conversations as $conversation ) : ?>
-				<div class="pm-card">
+			<?php 
+			$conversation_index = 0;
+			foreach ( $recent_conversations as $conversation ) : 
+				$is_new_conversation = $user_logged_in && PartyMinder_Activity_Tracker::has_new_activity( $current_user->ID, 'conversations', $conversation->id, $conversation->last_reply_date ?? $conversation->created_at );
+				$card_classes = 'pm-card';
+				if ( $is_new_conversation ) {
+					$card_classes .= ' pm-item-unread';
+				}
+				
+				$conversation_index++;
+				?>
+				<div class="<?php echo $card_classes; ?>">
 					<div class="pm-card-body">
 						<h3 class="pm-heading pm-heading-sm pm-mb-4">
 							<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-text-primary">
@@ -278,8 +332,25 @@ ob_start();
 <!-- Event Conversations Section -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
-		<h2 class="pm-heading pm-heading-md pm-mb"><?php _e( 'Event Conversations', 'partyminder' ); ?></h2>
-		<p class="pm-text-muted"><?php _e( 'Active conversations about specific events', 'partyminder' ); ?></p>
+		<?php 
+		// Get event conversations notification count
+		$event_conversations_new_count = 0;
+		if ( $user_logged_in && ! empty( $conversations_by_event ) ) {
+			foreach ( $conversations_by_event as $event_data ) {
+				foreach ( $event_data['conversations'] as $conversation ) {
+					if ( PartyMinder_Activity_Tracker::has_new_activity( get_current_user_id(), 'conversations', $conversation->id, $conversation->last_reply_date ?? $conversation->created_at ) ) {
+						$event_conversations_new_count++;
+					}
+				}
+			}
+		}
+		?>
+		<h2 class="pm-heading pm-heading-md pm-mb">
+			<?php _e( 'Event Conversations', 'partyminder' ); ?>
+			<?php if ( $event_conversations_new_count > 0 ) : ?>
+				<?php echo ' ' . sprintf( _n( '%d new', '%d new', $event_conversations_new_count, 'partyminder' ), $event_conversations_new_count ); ?>
+			<?php endif; ?>
+		</h2>
 	</div>
 	<?php if ( ! empty( $conversations_by_event ) ) : ?>
 		<div class="pm-event-conversations-grouped">
@@ -328,7 +399,14 @@ ob_start();
 					<!-- Conversations List (Initially collapsed) -->
 					<div class="pm-event-conversations-list pm-mt-4" id="event-<?php echo $event_id; ?>" style="display: none;">
 						<?php foreach ( $event_data['conversations'] as $conversation ) : ?>
-							<div class="pm-section pm-flex pm-flex-between pm-mb-4">
+							<?php
+							$is_unread_conversation = $user_logged_in && PartyMinder_Activity_Tracker::has_new_activity( get_current_user_id(), 'conversations', $conversation->id, $conversation->last_reply_date ?? $conversation->created_at );
+							$conversation_classes = 'pm-section pm-flex pm-flex-between pm-mb-4';
+							if ( $is_unread_conversation ) {
+								$conversation_classes .= ' pm-item-unread';
+							}
+							?>
+							<div class="<?php echo $conversation_classes; ?>">
 								<div class="pm-flex-1">
 									<div class="pm-flex pm-gap">
 										<span></span>
@@ -375,8 +453,38 @@ ob_start();
 <!-- Community Conversations Section -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
-		<h2 class="pm-heading pm-heading-md pm-mb"><?php _e( 'Community Conversations', 'partyminder' ); ?></h2>
-		<p class="pm-text-muted"><?php _e( 'Active conversations in your communities', 'partyminder' ); ?></p>
+		<?php 
+		// Get community activity counts
+		$community_new_members = 0;
+		$community_new_conversations = 0;
+		$community_new_events = 0;
+		if ( $user_logged_in ) {
+			// This is simplified for now - we'll expand when we implement community tracking
+			if ( ! empty( $conversations_by_community ) ) {
+				foreach ( $conversations_by_community as $community_data ) {
+					$community_new_conversations += count( $community_data['conversations'] );
+				}
+			}
+		}
+		?>
+		<h2 class="pm-heading pm-heading-md pm-mb">
+			<?php _e( 'My Communities', 'partyminder' ); ?>
+			<?php if ( $community_new_members > 0 || $community_new_conversations > 0 || $community_new_events > 0 ) : ?>
+				<?php 
+				$community_parts = array();
+				if ( $community_new_members > 0 ) {
+					$community_parts[] = sprintf( _n( '%d new member', '%d new members', $community_new_members, 'partyminder' ), $community_new_members );
+				}
+				if ( $community_new_conversations > 0 ) {
+					$community_parts[] = sprintf( _n( '%d new conversation', '%d new conversations', $community_new_conversations, 'partyminder' ), $community_new_conversations );
+				}
+				if ( $community_new_events > 0 ) {
+					$community_parts[] = sprintf( _n( '%d new event', '%d new events', $community_new_events, 'partyminder' ), $community_new_events );
+				}
+				echo ' ' . implode( ' ', $community_parts );
+				?>
+			<?php endif; ?>
+		</h2>
 	</div>
 	<?php if ( ! empty( $conversations_by_community ) ) : ?>
 		<div class="pm-community-conversations-grouped">
@@ -421,7 +529,14 @@ ob_start();
 					<!-- Conversations List (Initially collapsed) -->
 					<div class="pm-community-conversations-list pm-mt-4" id="community-<?php echo $community_id; ?>" style="display: none;">
 						<?php foreach ( $community_data['conversations'] as $conversation ) : ?>
-							<div class="pm-section pm-flex pm-flex-between pm-mb-4">
+							<?php
+							$is_unread_community_conversation = $user_logged_in && PartyMinder_Activity_Tracker::has_new_activity( get_current_user_id(), 'conversations', $conversation->id, $conversation->last_reply_date ?? $conversation->created_at );
+							$community_conversation_classes = 'pm-section pm-flex pm-flex-between pm-mb-4';
+							if ( $is_unread_community_conversation ) {
+								$community_conversation_classes .= ' pm-item-unread';
+							}
+							?>
+							<div class="<?php echo $community_conversation_classes; ?>">
 								<div class="pm-flex-1">
 									<div class="pm-flex pm-gap">
 										<?php if ( $conversation->is_pinned ) : ?>
@@ -470,7 +585,6 @@ ob_start();
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
 		<h2 class="pm-heading pm-heading-md pm-mb"> <?php _e( 'Community Activity', 'partyminder' ); ?></h2>
-		<p class="pm-text-muted"><?php _e( 'See what\'s happening in the community', 'partyminder' ); ?></p>
 	</div>
 	<?php
 	// Include community activity feed

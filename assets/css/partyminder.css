@@ -327,6 +327,26 @@ body.admin-bar .pm-page-two-column {
 .pm-font-bold {
     font-weight: 700;
 }
+
+/* New/Unread Item Styling */
+.pm-item-new,
+.pm-item-unread,
+.pm-card.pm-item-unread {
+    font-weight: 700;
+    background-color: #f0f4ff;
+    border-left: 4px solid #0066ff;
+    padding-left: 0.75rem;
+}
+
+.pm-item-new .pm-heading,
+.pm-item-unread .pm-heading {
+    font-weight: 700;
+}
+
+.pm-item-new .pm-text-primary,
+.pm-item-unread .pm-text-primary {
+    font-weight: 700;
+}
 .pm-title-primary {
     color: var(--pm-primary);
     font-weight: 600;

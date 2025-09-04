@@ -240,6 +240,9 @@ class PartyMinder_Conversation_Manager {
 		// Auto-follow the conversation for reply author
 		$this->follow_conversation( $conversation_id, $data['author_id'], $data['author_email'] );
 
+		// Mark conversation as updated for activity tracking
+		$this->mark_conversation_updated( $conversation_id );
+
 		return $reply_id;
 	}
 
@@ -1094,5 +1097,27 @@ class PartyMinder_Conversation_Manager {
 		}
 		
 		return $privacy;
+	}
+
+	/**
+	 * Mark conversation as updated for activity tracking
+	 */
+	private function mark_conversation_updated( $conversation_id ) {
+		if ( ! class_exists( 'PartyMinder_Activity_Tracker' ) ) {
+			require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-activity-tracker.php';
+		}
+
+		global $wpdb;
+		$tracking_table = $wpdb->prefix . 'partyminder_user_activity_tracking';
+		
+		// Clear all existing tracking for this conversation so it appears "new" to everyone
+		$wpdb->delete(
+			$tracking_table,
+			array( 
+				'activity_type' => 'conversations',
+				'item_id' => $conversation_id
+			),
+			array( '%s', '%d' )
+		);
 	}
 }

@@ -21,10 +21,16 @@ if ( ! $event ) {
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-manager.php';
+require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-activity-tracker.php';
 
 $event_manager        = new PartyMinder_Event_Manager();
 $guest_manager        = new PartyMinder_Guest_Manager();
 $conversation_manager = new PartyMinder_Conversation_Manager();
+
+// Mark event as read for logged-in users
+if ( is_user_logged_in() ) {
+	PartyMinder_Activity_Tracker::track_user_activity( get_current_user_id(), 'events', $event->id );
+}
 
 // Get additional event data
 $event->guest_stats  = $event_manager->get_guest_stats( $event->id );

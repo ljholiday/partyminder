@@ -601,6 +601,9 @@ class PartyMinder_Activator {
 		dbDelta( $community_invitations_sql );
 		dbDelta( $member_identities_sql );
 		dbDelta( $sync_log_sql );
+		
+		// Create user activity tracking table
+		self::create_user_activity_tracking_table();
 	}
 
 	private static function run_database_migrations() {
@@ -1022,6 +1025,32 @@ class PartyMinder_Activator {
 				error_log( 'PartyMinder: Search indexing failed during activation: ' . $e->getMessage() );
 			}
 		}
+	}
+
+	/**
+	 * Create user activity tracking table for dashboard notifications
+	 */
+	private static function create_user_activity_tracking_table() {
+		global $wpdb;
+
+		$charset_collate = $wpdb->get_charset_collate();
+		$tracking_table = $wpdb->prefix . 'partyminder_user_activity_tracking';
+
+		$tracking_sql = "CREATE TABLE $tracking_table (
+			id mediumint(9) NOT NULL AUTO_INCREMENT,
+			user_id bigint(20) UNSIGNED NOT NULL,
+			activity_type varchar(50) NOT NULL,
+			item_id mediumint(9) NOT NULL,
+			last_seen_at datetime DEFAULT CURRENT_TIMESTAMP,
+			created_at datetime DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			UNIQUE KEY unique_tracking (user_id, activity_type, item_id),
+			KEY user_id (user_id),
+			KEY activity_type (activity_type)
+		) $charset_collate;";
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta( $tracking_sql );
 	}
 
 }

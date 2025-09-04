@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Load required classes
 require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-conversation-manager.php';
+require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-activity-tracker.php';
 
 $conversation_manager = new PartyMinder_Conversation_Manager();
 
@@ -28,6 +29,11 @@ $conversation = $conversation_manager->get_conversation( $conversation_slug, tru
 if ( ! $conversation ) {
 	echo '<div class="pm-alert pm-alert-error">Conversation not found.</div>';
 	return;
+}
+
+// Mark conversation as read for logged-in users
+if ( is_user_logged_in() ) {
+	PartyMinder_Activity_Tracker::track_user_activity( get_current_user_id(), 'conversations', $conversation->id );
 }
 
 // Get replies
