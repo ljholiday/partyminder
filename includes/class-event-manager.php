@@ -194,12 +194,16 @@ class PartyMinder_Event_Manager {
 
 		// Enhanced privacy logic that respects inheritance
 		if ( $current_user_id && is_user_logged_in() ) {
-			// For logged-in users: show public events, their own events, 
-			// events from public communities, and events from communities they belong to
+			// For logged-in users: show ALL events they have permission to view including:
+			// 1. Public events, 2. Their own events, 3. Events they've RSVP'd to,
+			// 4. Events from public communities, 5. Events from communities they belong to
 			$query = "SELECT DISTINCT e.* FROM $events_table e
 					 LEFT JOIN $communities_table c ON e.community_id = c.id
+					 LEFT JOIN $guests_table g ON e.id = g.event_id AND g.email = (SELECT user_email FROM {$wpdb->users} WHERE ID = %d)
 	                 WHERE e.event_status = 'active'
 	                 AND (
+						e.author_id = %d OR
+						g.event_id IS NOT NULL OR
 						((e.community_id IS NULL OR e.community_id = 0) AND e.privacy = 'public') OR
 						(e.community_id IS NOT NULL AND e.community_id != 0 AND (
 							c.visibility = 'public' OR 
@@ -214,7 +218,7 @@ class PartyMinder_Event_Manager {
 	                 ORDER BY e.event_date ASC 
 	                 LIMIT %d";
 
-			$results = $wpdb->get_results( $wpdb->prepare( $query, $current_user_id, $current_user_id, $limit ) );
+			$results = $wpdb->get_results( $wpdb->prepare( $query, $current_user_id, $current_user_id, $current_user_id, $current_user_id, $limit ) );
 		} else {
 			// Not logged in: only show public events and events from public communities
 			$query = "SELECT DISTINCT e.* FROM $events_table e

@@ -21,17 +21,16 @@ $current_user = wp_get_current_user();
 $user_logged_in = is_user_logged_in();
 $user_email = $user_logged_in ? $current_user->user_email : '';
 
-// Get data for both tabs
-$public_events = $event_manager->get_upcoming_events( 20 );
+// Get data for all tabs
 $user_events = array();
 $rsvp_events = array();
+$all_events = array();
 
 if ( $user_logged_in ) {
+	// Get user's created events
 	$user_events = $event_manager->get_user_events( $current_user->ID, 20 );
-}
-
-// Get user's RSVP events (copied from my-events-content.php)
-if ( $user_email ) {
+	
+	// Get user's RSVP events
 	global $wpdb;
 	$events_table = $wpdb->prefix . 'partyminder_events';
 	$guests_table = $wpdb->prefix . 'partyminder_guests';
@@ -48,6 +47,20 @@ if ( $user_email ) {
 	foreach ( $rsvp_events as $event ) {
 		$event->guest_stats = $event_manager->get_guest_stats( $event->id );
 	}
+	
+	// Get ALL events the user has permission to view (includes public events, 
+	// their own events, RSVP events, and community events they have access to)
+	$all_events = $event_manager->get_upcoming_events( 50 ); // Increased limit for comprehensive view
+	
+	// Add guest stats to each event in all_events
+	foreach ( $all_events as $event ) {
+		if ( ! isset( $event->guest_stats ) ) {
+			$event->guest_stats = $event_manager->get_guest_stats( $event->id );
+		}
+	}
+} else {
+	// Not logged in - only show public events
+	$all_events = $event_manager->get_upcoming_events( 20 );
 }
 
 // Set up template variables
@@ -145,8 +158,8 @@ ob_start();
 
 			<!-- All Events Tab Content -->
 			<div class="pm-events-tab-content pm-hidden" data-tab="all-events">
-				<?php if ( ! empty( $public_events ) ) : ?>
-					<?php foreach ( $public_events as $event ) : ?>
+				<?php if ( ! empty( $all_events ) ) : ?>
+					<?php foreach ( $all_events as $event ) : ?>
 						<?php
 						$event_date  = new DateTime( $event->event_date );
 						$is_today    = $event_date->format( 'Y-m-d' ) === date( 'Y-m-d' );
@@ -194,7 +207,7 @@ ob_start();
 					<?php endforeach; ?>
 				<?php else : ?>
 					<div class="pm-text-center pm-p-4">
-						<p class="pm-text-muted"><?php _e( 'No public events found.', 'partyminder' ); ?></p>
+						<p class="pm-text-muted"><?php _e( 'No events found that you have permission to view.', 'partyminder' ); ?></p>
 					</div>
 				<?php endif; ?>
 			</div>
@@ -266,8 +279,8 @@ ob_start();
 			</div>
 		<?php else : ?>
 			<!-- Not logged in - show public events -->
-			<?php if ( ! empty( $public_events ) ) : ?>
-				<?php foreach ( $public_events as $event ) : ?>
+			<?php if ( ! empty( $all_events ) ) : ?>
+				<?php foreach ( $all_events as $event ) : ?>
 					<?php
 					$event_date  = new DateTime( $event->event_date );
 					$is_today    = $event_date->format( 'Y-m-d' ) === date( 'Y-m-d' );
