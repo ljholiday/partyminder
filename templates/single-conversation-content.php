@@ -96,15 +96,15 @@ if ( is_user_logged_in() ) {
 	<div class="pm-flex pm-gap-4">
 		<button type="button" class="pm-btn pm-btn-primary pm-reply-btn" 
 		        data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
-			<?php _e( 'Add Reply', 'partyminder' ); ?>
+			<?php _e( 'Reply', 'partyminder' ); ?>
 		</button>
 		<?php if ( $can_manage_conversation ) : ?>
 			<a href="<?php echo home_url( '/conversations/edit/' . $conversation->slug ); ?>" class="pm-btn pm-btn">
-				<?php _e( 'Edit Conversation', 'partyminder' ); ?>
+				<?php _e( 'Edit', 'partyminder' ); ?>
 			</a>
 			<button type="button" class="pm-btn pm-btn-danger delete-conversation-btn" 
 					data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
-				<?php _e( 'Delete Conversation', 'partyminder' ); ?>
+				<?php _e( 'Delete', 'partyminder' ); ?>
 			</button>
 		<?php endif; ?>
 	</div>
@@ -350,7 +350,7 @@ ob_start();
 		<?php endif; ?>
 		<button type="button" class="pm-btn pm-btn pm-reply-btn" 
 		        data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
-			<?php _e( 'Add Reply', 'partyminder' ); ?>
+			<?php _e( 'Reply', 'partyminder' ); ?>
 		</button>
 		<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn">
 			<?php _e( 'Back to Conversations', 'partyminder' ); ?>
