@@ -97,3 +97,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php include PARTYMINDER_PLUGIN_DIR . 'templates/partials/mobile-menu-content.php'; ?>
 	</div>
 </div>
+
+<!-- Reply Modal - Server-side rendered -->
+<?php include PARTYMINDER_PLUGIN_DIR . 'templates/partials/reply-modal.php'; ?>

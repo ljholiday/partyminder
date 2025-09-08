@@ -91,55 +91,23 @@ if ( is_user_logged_in() ) {
 }
 ?>
 
-<?php if ( $can_manage_conversation ) : ?>
-<!-- Admin Controls -->
+<!-- Conversation Controls -->
 <div class="pm-section pm-mb-4">
 	<div class="pm-flex pm-gap-4">
-		<a href="<?php echo home_url( '/conversations/edit/' . $conversation->slug ); ?>" class="pm-btn pm-btn">
-			<?php _e( 'Edit Conversation', 'partyminder' ); ?>
-		</a>
-		<button type="button" class="pm-btn pm-btn-danger delete-conversation-btn" 
-				data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
-			<?php _e( 'Delete Conversation', 'partyminder' ); ?>
+		<button type="button" class="pm-btn pm-btn-primary pm-reply-btn" 
+		        data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
+			<?php _e( 'Add Reply', 'partyminder' ); ?>
 		</button>
-	</div>
-</div>
-<?php endif; ?>
-
-<!-- Simple Reply Form -->
-<div class="pm-section pm-mb" id="reply-form">
-	<form class="pm-form">
-		<input type="hidden" name="nonce" value="<?php echo wp_create_nonce( 'partyminder_nonce' ); ?>">
-		<input type="hidden" name="action" value="partyminder_add_reply">
-		<input type="hidden" name="conversation_id" value="<?php echo esc_attr( $conversation->id ); ?>">
-		<input type="hidden" name="parent_reply_id" value="">
-		
-		<?php if ( ! is_user_logged_in() ) : ?>
-			<div class="pm-form-row pm-mb">
-				<div class="pm-form-group">
-					<input type="text" name="guest_name" class="pm-form-input" placeholder="<?php esc_attr_e( 'Your Name', 'partyminder' ); ?>" required>
-				</div>
-				<div class="pm-form-group">
-					<input type="email" name="guest_email" class="pm-form-input" placeholder="<?php esc_attr_e( 'Your Email', 'partyminder' ); ?>" required>
-				</div>
-			</div>
+		<?php if ( $can_manage_conversation ) : ?>
+			<a href="<?php echo home_url( '/conversations/edit/' . $conversation->slug ); ?>" class="pm-btn pm-btn">
+				<?php _e( 'Edit Conversation', 'partyminder' ); ?>
+			</a>
+			<button type="button" class="pm-btn pm-btn-danger delete-conversation-btn" 
+					data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
+				<?php _e( 'Delete Conversation', 'partyminder' ); ?>
+			</button>
 		<?php endif; ?>
-		
-		<div class="pm-form-group pm-reply-input-container">
-			<textarea name="content" class="pm-form-textarea" placeholder="<?php esc_attr_e( 'Reply', 'partyminder' ); ?>" required rows="3"></textarea>
-			<button type="button" class="pm-attachment-btn" title="Add file">
-				<span class="pm-plus-icon">+</span>
-			</button>
-			<input type="file" class="pm-file-input" accept="image/*,application/pdf,.doc,.docx" multiple style="display: none;">
-		</div>
-		
-		<div class="pm-form-actions">
-			<button type="submit" class="pm-btn">
-				<span class="button-text"><?php _e( 'Post Reply', 'partyminder' ); ?></span>
-				<span class="button-spinner" style="display: none;"><?php _e( 'Posting...', 'partyminder' ); ?></span>
-			</button>
-		</div>
-	</form>
+	</div>
 </div>
 
 <!-- Conversation Header -->
@@ -227,11 +195,11 @@ if ( is_user_logged_in() ) {
 					<?php echo $conversation_manager->process_content_embeds( $reply->content ); ?>
 				</div>
 				<div class="pm-reply-actions">
-					<a href="#reply-form" class="pm-btn pm-btn pm-btn-sm reply-btn"
-						data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>"
-						data-parent-reply-id="<?php echo esc_attr( $reply->id ); ?>">
+					<button type="button" class="pm-btn pm-btn pm-btn-sm pm-reply-btn"
+					        data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>"
+					        data-parent-reply-id="<?php echo esc_attr( $reply->id ); ?>">
 						<?php _e( 'Reply', 'partyminder' ); ?>
-					</a>
+					</button>
 					<?php
 					// Show edit/delete buttons if user owns this reply
 					$can_edit = false;
@@ -241,8 +209,9 @@ if ( is_user_logged_in() ) {
 					}
 					if ( $can_edit ) :
 					?>
-						<button type="button" class="pm-btn pm-btn-secondary pm-btn-sm edit-reply-btn" 
-								data-reply-id="<?php echo esc_attr( $reply->id ); ?>">
+						<button type="button" class="pm-btn pm-btn-secondary pm-btn-sm pm-edit-reply-btn" 
+						        data-reply-id="<?php echo esc_attr( $reply->id ); ?>"
+						        data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
 							<?php _e( 'Edit', 'partyminder' ); ?>
 						</button>
 					<?php endif; ?>
@@ -379,9 +348,10 @@ ob_start();
 				<?php _e( 'View Event', 'partyminder' ); ?>
 			</a>
 		<?php endif; ?>
-		<a href="#reply-form" class="pm-btn pm-btn">
+		<button type="button" class="pm-btn pm-btn pm-reply-btn" 
+		        data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
 			<?php _e( 'Add Reply', 'partyminder' ); ?>
-		</a>
+		</button>
 		<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn">
 			<?php _e( 'Back to Conversations', 'partyminder' ); ?>
 		</a>
@@ -427,203 +397,6 @@ jQuery(document).ready(function($) {
 		});
 	});
 	
-	// Handle reply button clicks
-	$('.reply-btn').on('click', function(e) {
-		e.preventDefault();
-		const parentReplyId = $(this).data('parent-reply-id') || '';
-		$('input[name="parent_reply_id"]').val(parentReplyId);
-		$('#reply-form')[0].scrollIntoView({behavior: 'smooth'});
-		$('#reply_content').focus();
-	});
-	
-	// Handle attachment button click
-	$(document).on('click', '.pm-attachment-btn', function(e) {
-		e.preventDefault();
-		const $fileInput = $(this).siblings('.pm-file-input');
-		$fileInput.click();
-	});
-	
-	// Handle file selection
-	$(document).on('change', '.pm-file-input', function(e) {
-		const files = this.files;
-		const $attachBtn = $(this).siblings('.pm-attachment-btn');
-		const $plusIcon = $attachBtn.find('.pm-plus-icon');
-		
-		if (files && files.length > 0) {
-			$(this).closest('form').data('attachedFiles', files);
-			
-			// Update button appearance and text
-			$attachBtn.addClass('files-selected');
-			
-			if (files.length === 1) {
-				$plusIcon.text('1');
-				$attachBtn.attr('title', '1 file selected: ' + files[0].name);
-			} else {
-				$plusIcon.text(files.length);
-				$attachBtn.attr('title', files.length + ' files selected');
-			}
-		} else {
-			// Reset button if no files
-			$attachBtn.removeClass('files-selected').attr('title', 'Add file');
-			$plusIcon.text('+');
-			$(this).closest('form').removeData('attachedFiles');
-		}
-	});
-	
-	// Handle form submission
-	$('.pm-form').off('submit').on('submit', function(e) {
-		e.preventDefault();
-		e.stopPropagation();
-		e.stopImmediatePropagation();
-		
-		const $form = $(this);
-		const $submitBtn = $form.find('button[type="submit"]');
-		const $buttonText = $submitBtn.find('.button-text');
-		const $buttonSpinner = $submitBtn.find('.button-spinner');
-		
-		// Prevent multiple submissions
-		if ($submitBtn.prop('disabled') || $form.data('submitting')) {
-			return false;
-		}
-		
-		// Mark as submitting
-		$form.data('submitting', true);
-		
-		$buttonText.hide();
-		$buttonSpinner.show();
-		$submitBtn.prop('disabled', true);
-		
-		// Check for attached files
-		const attachedFiles = $form.data('attachedFiles');
-		let formData;
-		
-		if (attachedFiles && attachedFiles.length > 0) {
-			// Use FormData for file upload
-			formData = new FormData();
-			const formElements = $form.serializeArray();
-			formElements.forEach(function(field) {
-				formData.append(field.name, field.value);
-			});
-			
-			// Add all files
-			for (let i = 0; i < attachedFiles.length; i++) {
-				formData.append('attachments[]', attachedFiles[i]);
-			}
-		} else {
-			// Use regular form data
-			formData = $form.serialize();
-		}
-		
-		$.ajax({
-			url: partyminder_ajax.ajax_url,
-			type: 'POST',
-			data: formData,
-			processData: !attachedFiles,
-			contentType: attachedFiles ? false : 'application/x-www-form-urlencoded; charset=UTF-8',
-			success: function(response) {
-				if (response.success) {
-					// Reset attachment button before reload
-					$form.find('.pm-attachment-btn').removeClass('files-selected').attr('title', 'Add file');
-					$form.find('.pm-plus-icon').text('+');
-					location.reload();
-				} else {
-					alert(response.data || 'Error posting reply. Please try again.');
-				}
-			},
-			error: function() {
-				alert('Network error. Please try again.');
-			},
-			complete: function() {
-				$buttonText.show();
-				$buttonSpinner.hide();
-				$submitBtn.prop('disabled', false);
-				$form.data('submitting', false);
-			}
-		});
-	});
-	
-	// Handle edit reply button clicks
-	$('.edit-reply-btn').on('click', function(e) {
-		e.preventDefault();
-		
-		const $btn = $(this);
-		const replyId = $btn.data('reply-id');
-		const $replyItem = $btn.closest('.pm-reply-item');
-		const $content = $replyItem.find('.pm-content');
-		const $actions = $replyItem.find('.pm-reply-actions');
-		
-		// Get current content text
-		const currentContent = $content.text().trim();
-		
-		// Replace content with textarea
-		$content.html(`
-			<textarea class="pm-form-textarea edit-reply-textarea" style="width: 100%; min-height: 100px;">${currentContent}</textarea>
-		`);
-		
-		// Replace actions with save/cancel buttons
-		$actions.html(`
-			<button type="button" class="pm-btn pm-btn-sm save-reply-btn" data-reply-id="${replyId}">
-				<?php _e( 'Save', 'partyminder' ); ?>
-			</button>
-			<button type="button" class="pm-btn pm-btn-secondary pm-btn-sm cancel-edit-btn">
-				<?php _e( 'Cancel', 'partyminder' ); ?>
-			</button>
-		`);
-		
-		// Focus textarea
-		$content.find('.edit-reply-textarea').focus();
-	});
-	
-	// Handle save reply button clicks
-	$(document).on('click', '.save-reply-btn', function(e) {
-		e.preventDefault();
-		
-		const $btn = $(this);
-		const replyId = $btn.data('reply-id');
-		const $replyItem = $btn.closest('.pm-reply-item');
-		const $textarea = $replyItem.find('.edit-reply-textarea');
-		const newContent = $textarea.val().trim();
-		
-		if (!newContent) {
-			alert('<?php _e( 'Reply content cannot be empty.', 'partyminder' ); ?>');
-			return;
-		}
-		
-		$btn.prop('disabled', true).text('<?php _e( 'Saving...', 'partyminder' ); ?>');
-		
-		$.ajax({
-			url: partyminder_ajax.ajax_url,
-			type: 'POST',
-			data: {
-				action: 'partyminder_update_reply',
-				reply_id: replyId,
-				content: newContent,
-				nonce: partyminder_ajax.nonce
-			},
-			success: function(response) {
-				if (response.success) {
-					// Reload the page to show updated content
-					location.reload();
-				} else {
-					alert(response.data || '<?php _e( 'Failed to update reply.', 'partyminder' ); ?>');
-					$btn.prop('disabled', false).text('<?php _e( 'Save', 'partyminder' ); ?>');
-				}
-			},
-			error: function() {
-				alert('<?php _e( 'Network error. Please try again.', 'partyminder' ); ?>');
-				$btn.prop('disabled', false).text('<?php _e( 'Save', 'partyminder' ); ?>');
-			}
-		});
-	});
-	
-	// Handle cancel edit button clicks
-	$(document).on('click', '.cancel-edit-btn', function(e) {
-		e.preventDefault();
-		
-		// Reload the page to restore original content and actions
-		location.reload();
-	});
-	
 	// Handle delete reply button clicks
 	$('.delete-reply-btn').on('click', function(e) {
 		e.preventDefault();
@@ -649,12 +422,7 @@ jQuery(document).ready(function($) {
 			},
 			success: function(response) {
 				if (response.success) {
-					// Remove the reply from the DOM
-					$btn.closest('.pm-reply-item').fadeOut(300, function() {
-						$(this).remove();
-						// Update reply count in header
-						location.reload(); // Simple approach - reload to update counts
-					});
+					location.reload();
 				} else {
 					alert(response.data || 'Failed to delete reply.');
 					$btn.prop('disabled', false).text('Delete');
@@ -690,7 +458,6 @@ jQuery(document).ready(function($) {
 			},
 			success: function(response) {
 				if (response.success) {
-					// Redirect to conversations list
 					window.location.href = '<?php echo PartyMinder::get_conversations_url(); ?>';
 				} else {
 					alert(response.data || 'Failed to delete conversation.');

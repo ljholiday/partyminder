@@ -264,6 +264,7 @@ class PartyMinder {
 		$ajax_data = array(
 			'ajax_url'          => admin_url( 'admin-ajax.php' ),
 			'nonce'             => wp_create_nonce( 'partyminder_nonce' ),
+			'is_user_logged_in' => is_user_logged_in(),
 				'community_nonce'   => wp_create_nonce( 'partyminder_community_action' ),
 				'event_nonce'       => wp_create_nonce( 'partyminder_event_action' ),
 				'at_protocol_nonce' => wp_create_nonce( 'partyminder_at_protocol' ),
@@ -288,9 +289,12 @@ class PartyMinder {
 				),
 			);
 		
-		// Localize for both public and mobile menu scripts
+		// Localize for all scripts that need AJAX data
 		wp_localize_script( 'partyminder-public', 'partyminder_ajax', $ajax_data );
 		wp_localize_script( 'partyminder-mobile-menu', 'partyminder_ajax', $ajax_data );
+		if ( wp_script_is( 'partyminder-reply-modal', 'enqueued' ) ) {
+			wp_localize_script( 'partyminder-reply-modal', 'partyminder_ajax', $ajax_data );
+		}
 	}
 
 	public function enqueue_admin_scripts( $hook ) {
@@ -1250,6 +1254,15 @@ class PartyMinder {
 					true
 				);
 			}
+			
+			// Add reply modal for all PartyMinder pages to ensure it loads
+			wp_enqueue_script(
+				'partyminder-reply-modal',
+				PARTYMINDER_PLUGIN_URL . 'assets/js/reply-modal.js',
+				array( 'jquery', 'partyminder-public' ),
+				PARTYMINDER_VERSION,
+				true
+			);
 
 			// Add Flatpickr for event creation/editing
 			if ( $page_type === 'create-event' || $page_type === 'edit-event' ) {
