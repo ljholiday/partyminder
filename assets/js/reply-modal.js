@@ -16,6 +16,7 @@
         isEditMode: false,
         draftAutoSaveInterval: null,
         fileUploads: [],
+        removedImages: [],
 
         init: function() {
             this.bindEvents();
@@ -42,6 +43,7 @@
             // File upload controls
             $(document).on('change', '.pm-file-input', this.handleFileSelection.bind(this));
             $(document).on('click', '.pm-file-remove-btn', this.removeFile.bind(this));
+            $(document).on('click', '.pm-existing-image-remove-btn', this.removeExistingImage.bind(this));
             
         },
 
@@ -109,6 +111,7 @@
             $('.pm-submit-btn').prop('disabled', false).text('Post Reply');
             $('.pm-modal-title').text('Reply to Conversation');
             this.fileUploads = [];
+            this.removedImages = [];
         },
 
         handleSubmit: function(e) {
@@ -138,6 +141,11 @@
                 this.fileUploads.forEach((file, index) => {
                     formData.append(`attachments[${index}]`, file);
                 });
+                
+                // Add removed images list
+                if (this.removedImages.length > 0) {
+                    formData.append('removed_images', JSON.stringify(this.removedImages));
+                }
             } else {
                 formData.append('action', 'partyminder_add_reply');
                 formData.append('conversation_id', this.currentConversationId);
@@ -271,13 +279,52 @@
             });
         },
 
+        removeExistingImage: function(e) {
+            e.preventDefault();
+            const imageSrc = $(e.currentTarget).data('image-src');
+            
+            // Add to removed images list
+            if (!this.removedImages.includes(imageSrc)) {
+                this.removedImages.push(imageSrc);
+            }
+            
+            // Remove preview
+            $(`.pm-existing-image[data-image-src="${imageSrc}"]`).remove();
+        },
 
         loadReplyForEdit: function(replyId) {
             // Find the reply by its ID attribute (reply-{id})
             const replyElement = $(`#reply-${replyId}`);
             if (replyElement.length > 0) {
-                const content = replyElement.find('.pm-content').text().trim();
-                $('.pm-reply-content').val(content);
+                const contentElement = replyElement.find('.pm-content');
+                
+                // Extract text content without images
+                let textContent = '';
+                const clonedContent = contentElement.clone();
+                clonedContent.find('img').remove(); // Remove images from clone
+                textContent = clonedContent.text().trim();
+                
+                // Extract existing images
+                const existingImages = contentElement.find('img');
+                existingImages.each((index, img) => {
+                    const imgSrc = $(img).attr('src');
+                    const imgAlt = $(img).attr('alt') || 'Existing image';
+                    
+                    // Create preview for existing image
+                    const preview = $(`
+                        <div class="pm-file-preview pm-existing-image" data-image-src="${imgSrc}">
+                            <img src="${imgSrc}" alt="${imgAlt}">
+                            <div class="pm-file-info">
+                                <span class="pm-file-name">${imgAlt}</span>
+                                <button type="button" class="pm-existing-image-remove-btn" data-image-src="${imgSrc}">Remove</button>
+                            </div>
+                        </div>
+                    `);
+                    
+                    $('.pm-file-previews').append(preview);
+                });
+                
+                $('.pm-reply-content').val(textContent);
                 $('.pm-submit-btn').text('Update Reply');
                 $('.pm-modal-title').text('Edit Reply');
             } else {

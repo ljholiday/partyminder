@@ -618,6 +618,32 @@ class PartyMinder_Conversation_Ajax_Handler {
 			wp_send_json_error( __( 'You can only edit your own replies.', 'partyminder' ) );
 		}
 
+		// Get preserved images from original content (excluding removed ones)
+		$original_content = $reply->content;
+		$preserved_images = '';
+		
+		// Extract images from original content
+		preg_match_all( '/<img[^>]*src=["\']([^"\']+)["\'][^>]*>/i', $original_content, $image_matches );
+		if ( ! empty( $image_matches[0] ) ) {
+			$removed_images = array();
+			if ( isset( $_POST['removed_images'] ) ) {
+				$removed_images = json_decode( stripslashes( $_POST['removed_images'] ), true );
+				if ( ! is_array( $removed_images ) ) {
+					$removed_images = array();
+				}
+			}
+			
+			foreach ( $image_matches[0] as $i => $img_tag ) {
+				$img_src = $image_matches[1][$i];
+				if ( ! in_array( $img_src, $removed_images ) ) {
+					$preserved_images .= "\n\n" . $img_tag;
+				}
+			}
+		}
+		
+		// Start with new text content and add preserved images
+		$content = $content . $preserved_images;
+
 		// Handle file attachments if present
 		if ( isset( $_FILES['attachments'] ) && is_array( $_FILES['attachments']['name'] ) ) {
 			$upload_overrides = array( 'test_form' => false );
