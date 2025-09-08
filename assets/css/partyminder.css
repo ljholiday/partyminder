@@ -857,14 +857,6 @@ body.admin-bar .pm-page-two-column {
     overflow-y: auto;
 }
 
-.pm-reply-modal .pm-modal-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-}
-
 .pm-reply-modal .pm-modal-content {
     position: relative;
     width: 600px;
@@ -1130,11 +1122,6 @@ body.pm-modal-open {
     margin-top: 0.25rem;
 }
 
-.pm-form-row {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-}
 
 
 /* List Components */

@@ -12,10 +12,10 @@
     const ReplyModal = {
         currentConversationId: null,
         currentReplyId: null,
+        parentReplyId: null,
         isEditMode: false,
         draftAutoSaveInterval: null,
         fileUploads: [],
-        uploadXhr: null,
 
         init: function() {
             this.bindEvents();
@@ -42,18 +42,15 @@
             // File upload controls
             $(document).on('change', '.pm-file-input', this.handleFileSelection.bind(this));
             $(document).on('click', '.pm-file-remove-btn', this.removeFile.bind(this));
-            $(document).on('click', '.pm-upload-cancel-btn', this.cancelUpload.bind(this));
             
-            // Draft detection
-            $(document).on('input', '.pm-reply-content', this.markAsModified.bind(this));
         },
 
         openReplyModal: function(e) {
             e.preventDefault();
-            console.log('Reply button clicked');
             const button = $(e.currentTarget);
             this.currentConversationId = button.data('conversation-id');
             this.currentReplyId = null;
+            this.parentReplyId = button.data('parent-reply-id') || null;
             this.isEditMode = false;
             
             this.resetModal();
@@ -66,6 +63,7 @@
             const button = $(e.currentTarget);
             this.currentReplyId = button.data('reply-id');
             this.currentConversationId = button.data('conversation-id');
+            this.parentReplyId = null; // Clear parent ID for edit mode
             this.isEditMode = true;
             
             this.resetModal();
@@ -109,14 +107,13 @@
             $('.pm-file-previews').empty();
             $('.pm-form-error').hide();
             $('.pm-submit-btn').prop('disabled', false).text('Post Reply');
+            $('.pm-modal-title').text('Reply to Conversation');
             this.fileUploads = [];
-            this.cancelUpload();
         },
 
         handleSubmit: function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Form submission intercepted');
             
             const form = $(e.currentTarget);
             const submitBtn = form.find('.pm-submit-btn');
@@ -136,9 +133,19 @@
             if (this.isEditMode) {
                 formData.append('action', 'partyminder_update_reply');
                 formData.append('reply_id', this.currentReplyId);
+                
+                // Add file attachments for edit mode too
+                this.fileUploads.forEach((file, index) => {
+                    formData.append(`attachments[${index}]`, file);
+                });
             } else {
                 formData.append('action', 'partyminder_add_reply');
                 formData.append('conversation_id', this.currentConversationId);
+                
+                // Add parent reply ID if this is a reply to a reply
+                if (this.parentReplyId) {
+                    formData.append('parent_reply_id', this.parentReplyId);
+                }
                 
                 // Add file attachments
                 this.fileUploads.forEach((file, index) => {
@@ -264,21 +271,19 @@
             });
         },
 
-        cancelUpload: function() {
-            if (this.uploadXhr) {
-                this.uploadXhr.abort();
-                this.uploadXhr = null;
-            }
-        },
 
         loadReplyForEdit: function(replyId) {
-            // In a real implementation, this would load the reply content via AJAX
-            // For now, we'll get it from the DOM
-            const replyElement = $(`.pm-reply[data-reply-id="${replyId}"]`);
-            const content = replyElement.find('.pm-reply-content').text().trim();
-            
-            $('.pm-reply-content').val(content);
-            $('.pm-submit-btn').text('Update Reply');
+            // Find the reply by its ID attribute (reply-{id})
+            const replyElement = $(`#reply-${replyId}`);
+            if (replyElement.length > 0) {
+                const content = replyElement.find('.pm-content').text().trim();
+                $('.pm-reply-content').val(content);
+                $('.pm-submit-btn').text('Update Reply');
+                $('.pm-modal-title').text('Edit Reply');
+            } else {
+                // If we can't find the reply, show error
+                this.showError('Could not load reply content for editing.');
+            }
         },
 
         initDraftAutoSave: function() {
@@ -338,10 +343,6 @@
             return this.hasContent() || this.fileUploads.length > 0;
         },
 
-        markAsModified: function() {
-            // This is called when content is modified
-            // Could be used for additional change tracking if needed
-        },
 
         showError: function(message) {
             const errorDiv = $('.pm-form-error');
@@ -356,11 +357,7 @@
 
     // Initialize when DOM is ready
     $(document).ready(function() {
-        console.log('Reply modal initializing...');
-        console.log('Modal exists in DOM:', $('.pm-reply-modal').length);
-        console.log('Reply buttons exist:', $('.pm-reply-btn').length);
         ReplyModal.init();
-        console.log('Reply modal initialized');
     });
 
     // Expose to global scope

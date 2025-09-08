@@ -1263,6 +1263,15 @@ class PartyMinder {
 				PARTYMINDER_VERSION,
 				true
 			);
+			
+			// Add conversation actions for all PartyMinder pages
+			wp_enqueue_script(
+				'partyminder-conversation-actions',
+				PARTYMINDER_PLUGIN_URL . 'assets/js/conversation-actions.js',
+				array( 'jquery', 'partyminder-public' ),
+				PARTYMINDER_VERSION,
+				true
+			);
 
 			// Add Flatpickr for event creation/editing
 			if ( $page_type === 'create-event' || $page_type === 'edit-event' ) {
