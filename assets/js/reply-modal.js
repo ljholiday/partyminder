@@ -225,11 +225,11 @@
         },
 
         validateFile: function(file) {
-            const maxSize = 5 * 1024 * 1024; // 5MB
+            const maxSize = partyminder_ajax.max_file_size || (5 * 1024 * 1024); // Use setting or fallback to 5MB
             const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             
             if (file.size > maxSize) {
-                this.showError('File size must be less than 5MB.');
+                this.showError(partyminder_ajax.file_size_error || 'File size must be less than 5MB.');
                 return false;
             }
             

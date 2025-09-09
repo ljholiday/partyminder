@@ -55,7 +55,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<?php _e( 'Choose Files', 'partyminder' ); ?>
 					</button>
 					<div class="pm-file-help-text">
-						<?php _e( 'JPG, PNG, GIF, WebP up to 5MB each', 'partyminder' ); ?>
+						<?php echo PartyMinder_Settings::get_file_size_description(); ?>
 					</div>
 				</div>
 				

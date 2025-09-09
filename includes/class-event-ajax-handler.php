@@ -839,8 +839,8 @@ class PartyMinder_Event_Ajax_Handler {
 			return new WP_Error( 'invalid_file_type', __( 'Only JPG, PNG, GIF, and WebP images are allowed.', 'partyminder' ) );
 		}
 
-		if ( $file['size'] > 5 * 1024 * 1024 ) { // 5MB limit
-			return new WP_Error( 'file_too_large', __( 'File size must be less than 5MB.', 'partyminder' ) );
+		if ( $file['size'] > PartyMinder_Settings::get_max_file_size() ) {
+			return new WP_Error( 'file_too_large', PartyMinder_Settings::get_file_size_error_message() );
 		}
 
 		// Use WordPress built-in upload handling

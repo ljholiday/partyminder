@@ -230,7 +230,7 @@ ob_start();
 		<div class="pm-form-group">
 			<label for="cover_image" class="pm-form-label"><?php _e( 'Cover Image', 'partyminder' ); ?></label>
 			<input type="file" id="cover_image" name="cover_image" class="pm-form-input" accept="image/*">
-			<p class="pm-form-help pm-text-muted"><?php _e( 'Optional: Upload a cover image for this event (JPG, PNG, max 5MB)', 'partyminder' ); ?></p>
+			<p class="pm-form-help pm-text-muted"><?php printf( __( 'Optional: Upload a cover image for this event (%s)', 'partyminder' ), PartyMinder_Settings::get_file_size_description() ); ?></p>
 			
 			<!-- Upload Progress Bar -->
 			<div id="event-upload-progress" class="pm-progress-container pm-mt-2" style="display: none;">

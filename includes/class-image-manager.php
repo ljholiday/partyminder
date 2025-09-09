@@ -6,7 +6,6 @@
  */
 class PartyMinder_Image_Manager {
 
-	const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 	const ALLOWED_TYPES = array( 'image/jpeg', 'image/png', 'image/gif', 'image/webp' );
 
 	// Image dimensions for different types
@@ -65,10 +64,10 @@ class PartyMinder_Image_Manager {
 		}
 
 		// Check file size
-		if ( $file['size'] > self::MAX_FILE_SIZE ) {
+		if ( $file['size'] > PartyMinder_Settings::get_max_file_size() ) {
 			return array(
 				'success' => false,
-				'error'   => __( 'Image must be smaller than 5MB.', 'partyminder' ),
+				'error'   => PartyMinder_Settings::get_file_size_error_message(),
 			);
 		}
 

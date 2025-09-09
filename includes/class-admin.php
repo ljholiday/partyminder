@@ -109,6 +109,9 @@ class PartyMinder_Admin {
 		register_setting( 'partyminder_style_settings', 'partyminder_secondary_color' );
 		register_setting( 'partyminder_style_settings', 'partyminder_button_style' );
 		register_setting( 'partyminder_style_settings', 'partyminder_form_layout' );
+
+		// Upload Settings
+		register_setting( 'partyminder_upload_settings', 'partyminder_max_file_size_mb' );
 	}
 
 	public function dashboard_page() {
@@ -589,6 +592,9 @@ class PartyMinder_Admin {
 			update_option( 'partyminder_communities_require_approval', isset( $_POST['communities_require_approval'] ) );
 			update_option( 'partyminder_max_communities_per_user', intval( $_POST['max_communities_per_user'] ) );
 
+			// Upload settings
+			update_option( 'partyminder_max_file_size_mb', intval( $_POST['max_file_size_mb'] ) );
+
 			echo '<div class="notice notice-success"><p>' . __( 'Settings saved!', 'partyminder' ) . '</p></div>';
 		}
 
@@ -758,6 +764,19 @@ class PartyMinder_Admin {
 						</td>
 					</tr>
 					<?php endif; ?>
+				</table>
+				
+				<h2><?php _e( 'File Upload Settings', 'partyminder' ); ?></h2>
+				<table class="form-table">
+					<tr>
+						<th><label for="max_file_size_mb"><?php _e( 'Maximum File Size (MB)', 'partyminder' ); ?></label></th>
+						<td>
+							<input type="number" id="max_file_size_mb" name="max_file_size_mb" 
+									value="<?php echo esc_attr( get_option( 'partyminder_max_file_size_mb', 5 ) ); ?>" 
+									min="1" max="50" />
+							<p class="description"><?php _e( 'Maximum file size allowed for image uploads in megabytes (1-50).', 'partyminder' ); ?></p>
+						</td>
+					</tr>
 				</table>
 				
 				<?php submit_button(); ?>

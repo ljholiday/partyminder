@@ -22,8 +22,8 @@ function handle_community_cover_image_upload( $file, $community_id ) {
 		return new WP_Error( 'invalid_file_type', __( 'Only JPG, PNG, GIF, and WebP images are allowed.', 'partyminder' ) );
 	}
 
-	if ( $file['size'] > 5 * 1024 * 1024 ) { // 5MB limit
-		return new WP_Error( 'file_too_large', __( 'File size must be less than 5MB.', 'partyminder' ) );
+	if ( $file['size'] > PartyMinder_Settings::get_max_file_size() ) {
+		return new WP_Error( 'file_too_large', PartyMinder_Settings::get_file_size_error_message() );
 	}
 
 	// Use WordPress built-in upload handling
@@ -230,7 +230,7 @@ ob_start();
 		<div class="pm-form-group">
 			<label class="pm-form-label"><?php _e( 'Cover Image', 'partyminder' ); ?></label>
 			<input type="file" name="cover_image" class="pm-form-input" accept="image/*">
-			<p class="pm-form-help pm-text-muted"><?php _e( 'Optional: Upload a cover image for this community (JPG, PNG, max 5MB)', 'partyminder' ); ?></p>
+			<p class="pm-form-help pm-text-muted"><?php printf( __( 'Optional: Upload a cover image for this community (%s)', 'partyminder' ), PartyMinder_Settings::get_file_size_description() ); ?></p>
 			
 			<?php if ( ! empty( $community->featured_image ) ) : ?>
 				<div class="pm-current-cover pm-mt-2">

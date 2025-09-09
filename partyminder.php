@@ -95,6 +95,7 @@ class PartyMinder {
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-member-display.php';
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-search-indexer.php';
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-search-api.php';
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-settings.php';
 
 		// AJAX handler classes
 		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-ajax-handler.php';
@@ -287,6 +288,9 @@ class PartyMinder {
 					'confirm_join'  => __( 'Are you sure you want to join this community?', 'partyminder' ),
 					'confirm_leave' => __( 'Are you sure you want to leave this community?', 'partyminder' ),
 				),
+				'max_file_size'     => PartyMinder_Settings::get_max_file_size(),
+				'file_size_error'   => PartyMinder_Settings::get_file_size_error_message(),
+				'file_size_desc'    => PartyMinder_Settings::get_file_size_description(),
 			);
 		
 		// Localize for all scripts that need AJAX data
