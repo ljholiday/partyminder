@@ -270,57 +270,6 @@ class PartyMinder_Profile_Manager {
 		}
 	}
 
-	/**
-	 * Handle profile image upload
-	 */
-	private static function handle_profile_image_upload( $file, $user_id ) {
-		// Check file size (max 2MB)
-		if ( $file['size'] > 2 * 1024 * 1024 ) {
-			return array(
-				'success' => false,
-				'error'   => __( 'Profile image must be smaller than 2MB.', 'partyminder' ),
-			);
-		}
-
-		// Check file type
-		$allowed_types = array( 'image/jpeg', 'image/png', 'image/gif' );
-		if ( ! in_array( $file['type'], $allowed_types ) ) {
-			return array(
-				'success' => false,
-				'error'   => __( 'Profile image must be JPG, PNG, or GIF format.', 'partyminder' ),
-			);
-		}
-
-		// Set up upload directory
-		$upload_dir      = wp_upload_dir();
-		$partyminder_dir = $upload_dir['basedir'] . '/partyminder/profiles/';
-		$partyminder_url = $upload_dir['baseurl'] . '/partyminder/profiles/';
-
-		// Create directory if it doesn't exist
-		if ( ! file_exists( $partyminder_dir ) ) {
-			wp_mkdir_p( $partyminder_dir );
-		}
-
-		// Generate unique filename
-		$file_info = pathinfo( $file['name'] );
-		$filename  = 'user-' . $user_id . '-' . time() . '.' . $file_info['extension'];
-		$file_path = $partyminder_dir . $filename;
-		$file_url  = $partyminder_url . $filename;
-
-		// Move uploaded file
-		if ( move_uploaded_file( $file['tmp_name'], $file_path ) ) {
-			return array(
-				'success' => true,
-				'url'     => $file_url,
-				'path'    => $file_path,
-			);
-		} else {
-			return array(
-				'success' => false,
-				'error'   => __( 'Failed to upload profile image. Please try again.', 'partyminder' ),
-			);
-		}
-	}
 
 	/**
 	 * Update last active time

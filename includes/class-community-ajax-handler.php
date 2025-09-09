@@ -597,13 +597,9 @@ class PartyMinder_Community_Ajax_Handler {
 
 	private function handle_cover_image_upload( $file, $community_id ) {
 		// Validate file
-		$allowed_types = array( 'image/jpeg', 'image/png', 'image/gif', 'image/webp' );
-		if ( ! in_array( $file['type'], $allowed_types ) ) {
-			return new WP_Error( 'invalid_file_type', __( 'Only JPG, PNG, GIF, and WebP images are allowed.', 'partyminder' ) );
-		}
-
-		if ( $file['size'] > PartyMinder_Settings::get_max_file_size() ) {
-			return new WP_Error( 'file_too_large', PartyMinder_Settings::get_file_size_error_message() );
+		$validation_result = PartyMinder_Settings::validate_uploaded_file( $file );
+		if ( is_wp_error( $validation_result ) ) {
+			return $validation_result;
 		}
 
 		// Use WordPress built-in upload handling

@@ -52,39 +52,15 @@ class PartyMinder_Image_Manager {
 	}
 
 	/**
-	 * Validate uploaded image file
+	 * Validate uploaded image file using centralized validation
 	 */
 	private static function validate_image_file( $file, $image_type ) {
-		// Check for upload errors
-		if ( $file['error'] !== UPLOAD_ERR_OK ) {
+		$validation_result = PartyMinder_Settings::validate_uploaded_file( $file );
+		
+		if ( is_wp_error( $validation_result ) ) {
 			return array(
 				'success' => false,
-				'error'   => __( 'File upload error occurred.', 'partyminder' ),
-			);
-		}
-
-		// Check file size
-		if ( $file['size'] > PartyMinder_Settings::get_max_file_size() ) {
-			return array(
-				'success' => false,
-				'error'   => PartyMinder_Settings::get_file_size_error_message(),
-			);
-		}
-
-		// Check file type
-		if ( ! in_array( $file['type'], self::ALLOWED_TYPES ) ) {
-			return array(
-				'success' => false,
-				'error'   => __( 'Image must be JPG, PNG, GIF, or WebP format.', 'partyminder' ),
-			);
-		}
-
-		// Additional validation for image type
-		$image_info = getimagesize( $file['tmp_name'] );
-		if ( $image_info === false ) {
-			return array(
-				'success' => false,
-				'error'   => __( 'Invalid image file.', 'partyminder' ),
+				'error'   => $validation_result->get_error_message(),
 			);
 		}
 
@@ -148,7 +124,7 @@ class PartyMinder_Image_Manager {
 	}
 
 	/**
-	 * Process and save image with resizing
+	 * Process and save image with resizing using WordPress media APIs
 	 */
 	private static function process_and_save_image( $file, $file_path, $image_type ) {
 		// Get max dimensions based on image type
@@ -167,91 +143,35 @@ class PartyMinder_Image_Manager {
 				break;
 		}
 
-		// Load image
-		$image_info       = getimagesize( $file['tmp_name'] );
-		$image_type_const = $image_info[2];
-
-		switch ( $image_type_const ) {
-			case IMAGETYPE_JPEG:
-				$source_image = imagecreatefromjpeg( $file['tmp_name'] );
-				break;
-			case IMAGETYPE_PNG:
-				$source_image = imagecreatefrompng( $file['tmp_name'] );
-				break;
-			case IMAGETYPE_GIF:
-				$source_image = imagecreatefromgif( $file['tmp_name'] );
-				break;
-			case IMAGETYPE_WEBP:
-				$source_image = imagecreatefromwebp( $file['tmp_name'] );
-				break;
-			default:
-				return array(
-					'success' => false,
-					'error'   => __( 'Unsupported image format.', 'partyminder' ),
-				);
-		}
-
-		if ( ! $source_image ) {
+		// Use WordPress image editor for processing
+		$image_editor = wp_get_image_editor( $file['tmp_name'] );
+		
+		if ( is_wp_error( $image_editor ) ) {
 			return array(
 				'success' => false,
 				'error'   => __( 'Failed to process image.', 'partyminder' ),
 			);
 		}
 
-		// Get original dimensions
-		$orig_width  = imagesx( $source_image );
-		$orig_height = imagesy( $source_image );
-
-		// Calculate new dimensions
-		$new_dimensions = self::calculate_resize_dimensions( $orig_width, $orig_height, $max_width, $max_height );
-
-		// Create resized image
-		$resized_image = imagecreatetruecolor( $new_dimensions['width'], $new_dimensions['height'] );
-
-		// Preserve transparency for PNG and GIF
-		if ( $image_type_const === IMAGETYPE_PNG || $image_type_const === IMAGETYPE_GIF ) {
-			imagealphablending( $resized_image, false );
-			imagesavealpha( $resized_image, true );
-			$transparent = imagecolorallocatealpha( $resized_image, 255, 255, 255, 127 );
-			imagefilledrectangle( $resized_image, 0, 0, $new_dimensions['width'], $new_dimensions['height'], $transparent );
+		// Get current dimensions
+		$size = $image_editor->get_size();
+		
+		// Only resize if image is larger than max dimensions
+		if ( $size['width'] > $max_width || $size['height'] > $max_height ) {
+			$resize_result = $image_editor->resize( $max_width, $max_height );
+			
+			if ( is_wp_error( $resize_result ) ) {
+				return array(
+					'success' => false,
+					'error'   => __( 'Failed to resize image.', 'partyminder' ),
+				);
+			}
 		}
 
-		// Resize image
-		imagecopyresampled(
-			$resized_image,
-			$source_image,
-			0,
-			0,
-			0,
-			0,
-			$new_dimensions['width'],
-			$new_dimensions['height'],
-			$orig_width,
-			$orig_height
-		);
-
-		// Save image
-		$save_result = false;
-		switch ( $image_type_const ) {
-			case IMAGETYPE_JPEG:
-				$save_result = imagejpeg( $resized_image, $file_path, 90 );
-				break;
-			case IMAGETYPE_PNG:
-				$save_result = imagepng( $resized_image, $file_path, 8 );
-				break;
-			case IMAGETYPE_GIF:
-				$save_result = imagegif( $resized_image, $file_path );
-				break;
-			case IMAGETYPE_WEBP:
-				$save_result = imagewebp( $resized_image, $file_path, 90 );
-				break;
-		}
-
-		// Clean up memory
-		imagedestroy( $source_image );
-		imagedestroy( $resized_image );
-
-		if ( ! $save_result ) {
+		// Save the processed image
+		$save_result = $image_editor->save( $file_path );
+		
+		if ( is_wp_error( $save_result ) ) {
 			return array(
 				'success' => false,
 				'error'   => __( 'Failed to save processed image.', 'partyminder' ),
@@ -261,17 +181,6 @@ class PartyMinder_Image_Manager {
 		return array( 'success' => true );
 	}
 
-	/**
-	 * Calculate resize dimensions maintaining aspect ratio
-	 */
-	private static function calculate_resize_dimensions( $orig_width, $orig_height, $max_width, $max_height ) {
-		$ratio = min( $max_width / $orig_width, $max_height / $orig_height );
-
-		return array(
-			'width'  => round( $orig_width * $ratio ),
-			'height' => round( $orig_height * $ratio ),
-		);
-	}
 
 	/**
 	 * Delete image file
