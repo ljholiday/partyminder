@@ -77,7 +77,7 @@ if ( method_exists( 'PartyMinder', 'get_profile_url' ) ) {
 }
 ?>
 
-<div class="<?php echo esc_attr( $args['class'] ); ?> pm-flex pm-items-center pm-gap-2">
+<div class="<?php echo esc_attr( $args['class'] ); ?> pm-flex pm-items-center pm-gap">
 	<?php if ( $args['show_avatar'] ) : ?>
 		<?php 
 		$avatar = get_avatar( $user_obj->ID, $args['avatar_size'], '', $display_name, array(
