@@ -177,7 +177,7 @@ ob_start();
 									</div>
 									
 									<div class="pm-conversation-meta pm-text-muted">
-										<span>Started by <strong><?php echo esc_html( $conversation->author_name ); ?></strong></span>
+										<span>Started by</span> <?php PartyMinder_Member_Display::member_display( $conversation->author_id, array( 'avatar_size' => 24, 'show_avatar' => false ) ); ?>
 										<span>•</span>
 										<span><?php echo human_time_diff( strtotime( $conversation->created_at ), current_time( 'timestamp' ) ) . ' ago'; ?></span>
 										<?php if ( $conversation->last_reply_date != $conversation->created_at ) : ?>

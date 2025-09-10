@@ -62,15 +62,8 @@ if ( ! isset( $conversation_manager ) ) {
 				</div>
 				
 				<div class="pm-flex pm-gap pm-mb-4">
-					<?php 
-					$user_id = $conversation->author_id;
-					$user_name = $conversation->author_name;
-					$size = 'sm';
-					PartyMinder::render_avatar( $user_id, $user_name, $size );
-					?>
-					<span class="pm-text-muted">
-						<?php printf( __( 'Started by %s', 'partyminder' ), esc_html( $conversation->author_name ) ); ?>
-					</span>
+					<span class="pm-text-muted"><?php _e( 'Started by', 'partyminder' ); ?></span>
+					<?php PartyMinder_Member_Display::member_display( $conversation->author_id, array( 'avatar_size' => 32 ) ); ?>
 				</div>
 			</div>
 			

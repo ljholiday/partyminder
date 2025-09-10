@@ -115,7 +115,7 @@ if ( is_user_logged_in() ) {
 	<div class="pm-section-header">
 		<h2 class="pm-heading pm-heading-lg pm-text-primary"><?php echo esc_html( $conversation->title ); ?></h2>
 		<div class="pm-flex pm-flex-wrap pm-gap pm-text-muted">
-			<span><?php printf( __( 'Started by %s', 'partyminder' ), esc_html( $conversation->author_name ) ); ?></span>
+			<span><?php _e( 'Started by', 'partyminder' ); ?> <?php PartyMinder_Member_Display::member_display( $conversation->author_id, array( 'show_avatar' => false, 'avatar_size' => 16 ) ); ?></span>
 			<span><?php echo human_time_diff( strtotime( $conversation->created_at ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'partyminder' ); ?></span>
 			<?php if ( $event_data ) : ?>
 				<span><?php printf( __( 'for event: %s', 'partyminder' ), esc_html( $event_data->title ) ); ?></span>
@@ -163,9 +163,8 @@ if ( is_user_logged_in() ) {
 <!-- Original Post -->
 <div class="pm-section pm-mb">
 	<div class="pm-flex pm-gap pm-mb">
-		<?php PartyMinder_Member_Display::member_display( $conversation->author_id, array( 'show_name' => false, 'avatar_size' => 40 ) ); ?>
+		<?php PartyMinder_Member_Display::member_display( $conversation->author_id, array( 'avatar_size' => 40 ) ); ?>
 		<div class="pm-flex-1">
-			<?php PartyMinder_Member_Display::member_display( $conversation->author_id, array( 'show_avatar' => false, 'class' => 'pm-member-display-name-only' ) ); ?>
 			<div class="pm-text-muted"><?php echo date( 'F j, Y \a\t g:i A', strtotime( $conversation->created_at ) ); ?></div>
 		</div>
 	</div>
@@ -185,9 +184,8 @@ if ( is_user_logged_in() ) {
 		<?php foreach ( $replies as $reply ) : ?>
 			<div class="pm-reply-item pm-mb" id="reply-<?php echo $reply->id; ?>" style="margin-left: <?php echo min( $reply->depth_level, 5 ) * 20; ?>px;">
 				<div class="pm-flex pm-gap pm-mb">
-					<?php PartyMinder_Member_Display::member_display( $reply->author_id, array( 'show_name' => false, 'avatar_size' => 32 ) ); ?>
+					<?php PartyMinder_Member_Display::member_display( $reply->author_id, array( 'avatar_size' => 32 ) ); ?>
 					<div class="pm-flex-1">
-						<?php PartyMinder_Member_Display::member_display( $reply->author_id, array( 'show_avatar' => false, 'class' => 'pm-member-display-name-only' ) ); ?>
 						<div class="pm-text-muted"><?php echo date( 'F j, Y \a\t g:i A', strtotime( $reply->created_at ) ); ?></div>
 					</div>
 				</div>
@@ -305,7 +303,7 @@ ob_start();
 	<div class="pm-stat-list">
 		<div class="pm-stat-item">
 			<span class="pm-stat-label"><?php _e( 'Started by', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo esc_html( $conversation->author_name ); ?></span>
+			<span class="pm-stat-value"><?php PartyMinder_Member_Display::member_display( $conversation->author_id, array( 'show_avatar' => false, 'avatar_size' => 16 ) ); ?></span>
 		</div>
 		<div class="pm-stat-item">
 			<span class="pm-stat-label"><?php _e( 'Created', 'partyminder' ); ?></span>

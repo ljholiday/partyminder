@@ -71,19 +71,15 @@ $is_logged_in = is_user_logged_in();
     <div class="pm-profile-card pm-mt-4">
         <div class="pm-flex pm-gap pm-mb">
             <?php 
-            $user_id = $current_user->ID;
-            $user_name = $current_user->display_name;
-            $size = 'lg';
-            PartyMinder::render_avatar( $user_id, $user_name, $size );
-            
-            // Get user profile data
+            // Get user profile data for location
             $profile_data = null;
             if ( class_exists( 'PartyMinder_Profile_Manager' ) ) {
                 $profile_data = PartyMinder_Profile_Manager::get_user_profile( $current_user->ID );
             }
+            
+            PartyMinder_Member_Display::member_display( $current_user->ID, array( 'avatar_size' => 56 ) );
             ?>
             <div class="pm-flex-1">
-                <div class="pm-heading pm-heading-sm"><?php echo esc_html( $current_user->display_name ); ?></div>
                 <?php if ( $profile_data && $profile_data['location'] ) : ?>
                 <div class="pm-text-muted"> <?php echo esc_html( $profile_data['location'] ); ?></div>
                 <?php endif; ?>
