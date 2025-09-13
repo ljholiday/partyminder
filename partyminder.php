@@ -1241,6 +1241,38 @@ class PartyMinder {
 				wp_enqueue_script( 'flatpickr', PARTYMINDER_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.js', array(), '4.6.13', true );
 				wp_enqueue_script( 'partyminder-enhanced-date-picker', PARTYMINDER_PLUGIN_URL . 'assets/js/enhanced-date-picker.js', array( 'jquery', 'flatpickr' ), PARTYMINDER_VERSION, true );
 			}
+			
+			// Add create-event specific JavaScript
+			if ( $page_type === 'create-event' ) {
+				wp_enqueue_script(
+					'partyminder-create-event',
+					PARTYMINDER_PLUGIN_URL . 'assets/js/create-event.js',
+					array( 'jquery', 'flatpickr' ),
+					PARTYMINDER_VERSION,
+					true
+				);
+				
+				// Localize script with PHP variables
+				wp_localize_script( 'partyminder-create-event', 'PartyMinderCreateEvent', array(
+					'ajax_url'                    => admin_url( 'admin-ajax.php' ),
+					'success_url'                 => PartyMinder::get_create_event_url(),
+					'at_protocol_enabled'         => PartyMinder_Feature_Flags::is_at_protocol_enabled(),
+					'at_protocol_nonce'           => wp_create_nonce( 'partyminder_at_protocol' ),
+					'creating_text'               => __( 'Creating Event...', 'partyminder' ),
+					'fix_issues_text'             => __( 'Please fix the following issues:', 'partyminder' ),
+					'unknown_error_text'          => __( 'Unknown error occurred', 'partyminder' ),
+					'error_text'                  => __( 'Error', 'partyminder' ),
+					'network_error_text'          => __( 'Network error. Please try again.', 'partyminder' ),
+					'connecting_text'             => __( 'Connecting...', 'partyminder' ),
+					'connection_failed_text'      => __( 'Connection failed. Please check your credentials.', 'partyminder' ),
+					'connect_account_text'        => __( 'Connect Account', 'partyminder' ),
+					'disconnect_confirm_text'     => __( 'Are you sure you want to disconnect your Bluesky account?', 'partyminder' ),
+					'failed_load_followers_text'  => __( 'Failed to load followers', 'partyminder' ),
+					'network_error_followers_text' => __( 'Network error loading followers', 'partyminder' ),
+					'no_followers_text'           => __( 'No followers found', 'partyminder' ),
+					'invitation_todo_text'        => __( 'Invitation functionality will be implemented next', 'partyminder' ),
+				) );
+			}
 
 			// Add page-specific JavaScript
 			if ( $page_type === 'conversations' || $page_type === 'dashboard' ) {
