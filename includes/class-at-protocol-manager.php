@@ -67,6 +67,7 @@ class PartyMinder_AT_Protocol_Manager {
 				return array(
 					'success' => true,
 					'message' => 'Successfully connected to Bluesky',
+					'handle'  => $handle,
 				);
 			} else {
 				error_log( '[PartyMinder AT Protocol] Could not create or find member identity' );

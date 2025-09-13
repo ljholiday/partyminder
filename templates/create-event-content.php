@@ -483,11 +483,11 @@ jQuery(document).ready(function($) {
 				},
 				success: function(response) {
 					if (response.success) {
-						showCreateBlueskyConnected(response.data.handle);
+						showCreateBlueskyConnected(response.handle);
 						modal.attr('aria-hidden', 'true').hide();
 						$('body').removeClass('pm-modal-open');
 					} else {
-						alert(response.data || '<?php _e( 'Connection failed. Please check your credentials.', 'partyminder' ); ?>');
+						alert(response.message || '<?php _e( 'Connection failed. Please check your credentials.', 'partyminder' ); ?>');
 					}
 				},
 				error: function() {
