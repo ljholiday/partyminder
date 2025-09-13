@@ -778,22 +778,7 @@ body.admin-bar .pm-page-two-column {
 
 
 
-/* Modals */
-.pm-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1000;
-    display: none;
-}
 
-.pm-modal.active {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
 
 .pm-modal-overlay {
     position: absolute;
@@ -809,9 +794,11 @@ body.admin-bar .pm-page-two-column {
     background: var(--pm-surface);
     border-radius: 0.5rem;
     max-width: 90vw;
-    max-height: 90vh;
+    max-height: none;
     width: 500px;
-    overflow: hidden;
+    overflow: visible;
+    margin: 2rem auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 .pm-modal-sm .pm-modal-content {
@@ -845,9 +832,9 @@ body.admin-bar .pm-page-two-column {
     justify-content: flex-end;
 }
 
-/* Reply Modal Specific Styles */
-.partyminder-content .pm-reply-modal,
-.pm-reply-modal {
+/* Modal Styles - All modals use same positioning */
+.partyminder-content .pm-modal,
+.pm-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -1041,6 +1028,7 @@ body.admin-bar .pm-page-two-column {
     margin-bottom: 1rem;
     border: 1px solid #fecaca;
 }
+
 
 /* Modal Open Body Style */
 body.pm-modal-open {

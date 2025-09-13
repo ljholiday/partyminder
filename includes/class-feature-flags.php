@@ -19,7 +19,7 @@ class PartyMinder_Feature_Flags {
 	 * Check if AT Protocol feature is enabled
 	 */
 	public static function is_at_protocol_enabled() {
-		return (bool) get_option( 'partyminder_enable_at_protocol', false );
+		return true;
 	}
 
 	/**
@@ -203,7 +203,7 @@ class PartyMinder_Feature_Flags {
 	 * Step 4: General conversations default to personal communities
 	 */
 	public static function is_general_convo_default_to_personal_enabled() {
-		return (bool) get_option( 'partyminder_general_convo_default_to_personal', false );
+		return true;
 	}
 
 	/**
@@ -217,7 +217,7 @@ class PartyMinder_Feature_Flags {
 	 * Step 6: Circles resolver (inner/trusted/extended logic)
 	 */
 	public static function is_circles_resolver_enabled() {
-		return (bool) get_option( 'partyminder_circles_resolver', false );
+		return true;
 	}
 
 	/**

@@ -447,59 +447,28 @@ jQuery(document).ready(function($) {
 	}
 	
 	function showCreateBlueskyConnectModal() {
-		const connectHtml = `
-			<div id="create-bluesky-connect-modal" class="pm-modal-overlay" style="z-index: 10001;">
-				<div class="pm-modal pm-modal-sm">
-					<div class="pm-modal-header">
-						<h3>🦋 <?php _e( 'Connect to Bluesky', 'partyminder' ); ?></h3>
-						<button type="button" class="create-bluesky-connect-close pm-btn pm-btn" style="padding: 5px; border-radius: 50%; width: 35px; height: 35px;">×</button>
-					</div>
-					<div class="pm-modal-body">
-						<form id="create-bluesky-connect-form">
-							<div class="pm-form-group">
-								<label class="pm-form-label"><?php _e( 'Bluesky Handle', 'partyminder' ); ?></label>
-								<input type="text" class="pm-form-input" id="create-bluesky-handle-input" 
-										placeholder="<?php _e( 'username.bsky.social', 'partyminder' ); ?>" required>
-							</div>
-							<div class="pm-form-group">
-								<label class="pm-form-label"><?php _e( 'App Password', 'partyminder' ); ?></label>
-								<input type="password" class="pm-form-input" id="create-bluesky-password-input" 
-										placeholder="<?php _e( 'Your Bluesky app password', 'partyminder' ); ?>" required>
-								<small class="pm-text-muted">
-									<?php _e( 'Create an app password in your Bluesky settings for secure access.', 'partyminder' ); ?>
-								</small>
-							</div>
-							<div class="pm-flex pm-gap pm-mt-4">
-								<button type="submit" class="pm-btn">
-									<?php _e( 'Connect Account', 'partyminder' ); ?>
-								</button>
-								<button type="button" class="create-bluesky-connect-close pm-btn pm-btn">
-									<?php _e( 'Cancel', 'partyminder' ); ?>
-								</button>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-		`;
+		const modal = $('#pm-bluesky-connect-modal');
+		modal.attr('aria-hidden', 'false').show();
+		$('body').addClass('pm-modal-open');
 		
-		$('body').append(connectHtml);
+		// Focus on handle input
+		setTimeout(() => {
+			$('.pm-bluesky-handle').focus();
+		}, 100);
 		
-		const $connectModal = $('#create-bluesky-connect-modal');
-		$connectModal.addClass('active');
-		
-		// Close handlers
-		$connectModal.find('.create-bluesky-connect-close').on('click', function() {
-			$connectModal.remove();
+		// Set up close button handler
+		modal.find('.pm-modal-close').off('click').on('click', function() {
+			modal.attr('aria-hidden', 'true').hide();
+			$('body').removeClass('pm-modal-open');
 		});
 		
-		// Form submission
-		$('#create-bluesky-connect-form').on('submit', function(e) {
+		// Set up form submission handler
+		$('#pm-bluesky-connect-form').off('submit').on('submit', function(e) {
 			e.preventDefault();
 			
-			const handle = $('#create-bluesky-handle-input').val();
-			const password = $('#create-bluesky-password-input').val();
-			const $submitBtn = $(this).find('button[type="submit"]');
+			const handle = $('.pm-bluesky-handle').val();
+			const password = $('.pm-bluesky-password').val();
+			const $submitBtn = $('.pm-bluesky-connect-submit');
 			
 			$submitBtn.prop('disabled', true).text('<?php _e( 'Connecting...', 'partyminder' ); ?>');
 			
@@ -515,7 +484,8 @@ jQuery(document).ready(function($) {
 				success: function(response) {
 					if (response.success) {
 						showCreateBlueskyConnected(response.data.handle);
-						$connectModal.remove();
+						modal.attr('aria-hidden', 'true').hide();
+						$('body').removeClass('pm-modal-open');
 					} else {
 						alert(response.data || '<?php _e( 'Connection failed. Please check your credentials.', 'partyminder' ); ?>');
 					}

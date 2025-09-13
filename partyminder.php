@@ -154,6 +154,7 @@ class PartyMinder {
 
 		// Theme integration hooks
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_page_specific_assets' ) );
+		add_action( 'wp_footer', array( $this, 'render_reply_modal' ) );
 		
 		// Personal community creation for new users (Step 2 of circles plan)
 		add_action( 'user_register', array( $this, 'create_personal_community_for_new_user' ) );
@@ -1563,5 +1564,32 @@ class PartyMinder {
 		if ( $community_id && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "PartyMinder: Created personal community (ID: $community_id) for new user $user_id" );
 		}
+	}
+
+	/**
+	 * Render reply modal in footer on PartyMinder pages
+	 */
+	public function render_reply_modal() {
+		if ( ! $this->is_partyminder_page() ) {
+			return;
+		}
+		include PARTYMINDER_PLUGIN_DIR . 'templates/partials/reply-modal.php';
+		include PARTYMINDER_PLUGIN_DIR . 'templates/partials/modal-bluesky-connect.php';
+	}
+
+	/**
+	 * Check if current page is a PartyMinder page
+	 */
+	private function is_partyminder_page() {
+		$partyminder_pages = array( 'events', 'create-event', 'create-community-event', 'my-events', 'communities', 'conversations', 'dashboard', 'profile' );
+		
+		foreach ( $partyminder_pages as $page_key ) {
+			$page_id = get_option( 'partyminder_page_' . $page_key );
+			if ( $page_id && is_page( $page_id ) ) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }
