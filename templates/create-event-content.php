@@ -270,12 +270,7 @@ jQuery(document).ready(function($) {
 	$('#create-connect-bluesky-btn').on('click', showCreateBlueskyConnectModal);
 	$('#create-disconnect-bluesky-btn').on('click', disconnectCreateBluesky);
 	
-	// Debug the invite button
-	console.log('Looking for invite button:', $('#create-invite-bluesky-btn').length);
-	$('#create-invite-bluesky-btn').on('click', function() {
-		console.log('Invite button clicked!');
-		showBlueskyFollowersModal();
-	});
+	$('#create-invite-bluesky-btn').on('click', showBlueskyFollowersModal);
 	<?php endif; ?>
 	
 	$('#partyminder-event-form').on('submit', function(e) {
@@ -533,13 +528,6 @@ jQuery(document).ready(function($) {
 	// Bluesky Followers Modal Functions
 	function showBlueskyFollowersModal() {
 		const modal = $('#pm-bluesky-followers-modal');
-		console.log('Followers modal element:', modal.length);
-		
-		if (modal.length === 0) {
-			alert('Followers modal not found in DOM');
-			return;
-		}
-		
 		modal.show();
 		$('body').addClass('pm-modal-open');
 		
