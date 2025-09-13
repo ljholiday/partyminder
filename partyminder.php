@@ -1575,6 +1575,7 @@ class PartyMinder {
 		}
 		include PARTYMINDER_PLUGIN_DIR . 'templates/partials/reply-modal.php';
 		include PARTYMINDER_PLUGIN_DIR . 'templates/partials/modal-bluesky-connect.php';
+		include PARTYMINDER_PLUGIN_DIR . 'templates/partials/modal-bluesky-followers.php';
 	}
 
 	/**

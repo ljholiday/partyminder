@@ -31,8 +31,8 @@
             $(document).on('click', '.pm-edit-reply-btn', this.openEditModal.bind(this));
             
             // Modal controls
-            $(document).on('click', '.pm-reply-modal-close', this.closeModal.bind(this));
-            $(document).on('click', '.pm-reply-modal .pm-modal-overlay', this.closeModal.bind(this));
+            $(document).on('click', '#pm-reply-modal .pm-modal-close', this.closeModal.bind(this));
+            $(document).on('click', '#pm-reply-modal .pm-modal-overlay', this.closeModal.bind(this));
             
             // Form submission
             $(document).on('submit', '.pm-reply-form', this.handleSubmit.bind(this));
@@ -74,8 +74,8 @@
         },
 
         showModal: function() {
-            const modal = $('.pm-reply-modal');
-            modal.attr('aria-hidden', 'false').show();
+            const modal = $('#pm-reply-modal');
+            modal.show();
             $('body').addClass('pm-modal-open');
             
             // Focus on content textarea
@@ -99,8 +99,8 @@
         },
 
         hideModal: function() {
-            const modal = $('.pm-reply-modal');
-            modal.attr('aria-hidden', 'true').hide();
+            const modal = $('#pm-reply-modal');
+            modal.hide();
             $('body').removeClass('pm-modal-open');
         },
 

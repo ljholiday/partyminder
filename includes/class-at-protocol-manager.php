@@ -239,7 +239,7 @@ class PartyMinder_AT_Protocol_Manager {
 		}
 
 		$result = $this->get_bluesky_contacts( get_current_user_id() );
-		wp_die( json_encode( $result ) );
+		wp_send_json( $result );
 	}
 
 	/**
@@ -260,7 +260,7 @@ class PartyMinder_AT_Protocol_Manager {
 		}
 
 		$result = $this->disconnect_bluesky( get_current_user_id() );
-		wp_die( json_encode( $result ) );
+		wp_send_json( $result );
 	}
 
 	/**
@@ -270,27 +270,13 @@ class PartyMinder_AT_Protocol_Manager {
 		check_ajax_referer( 'partyminder_at_protocol', 'nonce' );
 
 		if ( ! is_user_logged_in() ) {
-			wp_die(
-				json_encode(
-					array(
-						'success' => false,
-						'message' => 'Not authenticated',
-					)
-				)
-			);
+			wp_send_json_error( 'Not authenticated' );
 		}
 
 		$user_id           = get_current_user_id();
 		$connection_status = $this->validate_bluesky_connection( $user_id );
 
-		wp_die(
-			json_encode(
-				array(
-					'success' => true,
-					'data'    => $connection_status,
-				)
-			)
-		);
+		wp_send_json_success( $connection_status );
 	}
 
 	/**

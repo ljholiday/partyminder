@@ -1035,6 +1035,49 @@ body.pm-modal-open {
     overflow: hidden;
 }
 
+/* Followers List Styles */
+.pm-followers-list {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+}
+
+.pm-follower-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.pm-follower-item:last-child {
+    border-bottom: none;
+}
+
+.pm-follower-item:hover {
+    background-color: #f9fafb;
+}
+
+.pm-form-checkbox {
+    margin-right: 0;
+}
+
+.pm-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f4f6;
+    border-radius: 50%;
+    border-top-color: #3b82f6;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.pm-modal-lg .pm-modal-content {
+    width: 800px;
+}
+
 /* Activity Feed */
 .pm-activity-feed {
     display: flex;

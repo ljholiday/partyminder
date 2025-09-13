@@ -15,9 +15,10 @@ $modal_title = $modal_title ?? '';
 $modal_content = $modal_content ?? '';
 $modal_footer = $modal_footer ?? '';
 $modal_close_label = $modal_close_label ?? __( 'Close modal', 'partyminder' );
+$modal_class = $modal_class ?? '';
 ?>
 
-<div id="<?php echo esc_attr( $modal_id ); ?>" class="pm-modal pm-modal-<?php echo esc_attr( $modal_size ); ?>" aria-hidden="true" style="display: none;">
+<div id="<?php echo esc_attr( $modal_id ); ?>" class="pm-modal pm-modal-<?php echo esc_attr( $modal_size ); ?><?php echo $modal_class ? ' ' . esc_attr( $modal_class ) : ''; ?>" aria-hidden="true" style="display: none;">
 	<div class="pm-modal-overlay"></div>
 	<div class="pm-modal-content">
 		<div class="pm-modal-header">

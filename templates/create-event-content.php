@@ -209,9 +209,14 @@ ob_start();
 						<p class="pm-text-muted pm-mb-4">
 							<?php _e( 'Connected as', 'partyminder' ); ?> <strong id="create-bluesky-handle"></strong>
 						</p>
-						<button type="button" class="pm-btn pm-btn-danger pm-btn-sm" id="create-disconnect-bluesky-btn">
-							<?php _e( 'Disconnect', 'partyminder' ); ?>
-						</button>
+						<div class="pm-flex pm-gap-2">
+							<button type="button" class="pm-btn pm-btn-primary pm-btn-sm" id="create-invite-bluesky-btn">
+								<?php _e( 'Invite from Bluesky', 'partyminder' ); ?>
+							</button>
+							<button type="button" class="pm-btn pm-btn-danger pm-btn-sm" id="create-disconnect-bluesky-btn">
+								<?php _e( 'Disconnect', 'partyminder' ); ?>
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -264,6 +269,13 @@ jQuery(document).ready(function($) {
 	// Handle Bluesky buttons
 	$('#create-connect-bluesky-btn').on('click', showCreateBlueskyConnectModal);
 	$('#create-disconnect-bluesky-btn').on('click', disconnectCreateBluesky);
+	
+	// Debug the invite button
+	console.log('Looking for invite button:', $('#create-invite-bluesky-btn').length);
+	$('#create-invite-bluesky-btn').on('click', function() {
+		console.log('Invite button clicked!');
+		showBlueskyFollowersModal();
+	});
 	<?php endif; ?>
 	
 	$('#partyminder-event-form').on('submit', function(e) {
@@ -448,7 +460,7 @@ jQuery(document).ready(function($) {
 	
 	function showCreateBlueskyConnectModal() {
 		const modal = $('#pm-bluesky-connect-modal');
-		modal.attr('aria-hidden', 'false').show();
+		modal.show();
 		$('body').addClass('pm-modal-open');
 		
 		// Focus on handle input
@@ -484,7 +496,7 @@ jQuery(document).ready(function($) {
 				success: function(response) {
 					if (response.success) {
 						showCreateBlueskyConnected(response.handle);
-						modal.attr('aria-hidden', 'true').hide();
+						modal.hide();
 						$('body').removeClass('pm-modal-open');
 					} else {
 						alert(response.message || '<?php _e( 'Connection failed. Please check your credentials.', 'partyminder' ); ?>');
@@ -517,6 +529,126 @@ jQuery(document).ready(function($) {
 			}
 		});
 	}
+	
+	// Bluesky Followers Modal Functions
+	function showBlueskyFollowersModal() {
+		const modal = $('#pm-bluesky-followers-modal');
+		console.log('Followers modal element:', modal.length);
+		
+		if (modal.length === 0) {
+			alert('Followers modal not found in DOM');
+			return;
+		}
+		
+		modal.show();
+		$('body').addClass('pm-modal-open');
+		
+		// Load followers
+		loadBlueskyFollowers();
+	}
+	
+	function loadBlueskyFollowers() {
+		$('#pm-bluesky-followers-loading').show();
+		$('#pm-bluesky-followers-list').hide();
+		$('#pm-bluesky-followers-error').hide();
+		
+		$.ajax({
+			url: partyminder_ajax.ajax_url,
+			type: 'POST',
+			data: {
+				action: 'partyminder_get_bluesky_contacts',
+				nonce: partyminder_ajax.at_protocol_nonce
+			},
+			success: function(response) {
+				$('#pm-bluesky-followers-loading').hide();
+				
+				if (response.success && response.contacts) {
+					displayBlueskyFollowers(response.contacts);
+					$('#pm-bluesky-followers-list').show();
+				} else {
+					showFollowersError(response.message || '<?php _e( 'Failed to load followers', 'partyminder' ); ?>');
+				}
+			},
+			error: function() {
+				$('#pm-bluesky-followers-loading').hide();
+				showFollowersError('<?php _e( 'Network error loading followers', 'partyminder' ); ?>');
+			}
+		});
+	}
+	
+	function displayBlueskyFollowers(contacts) {
+		const container = $('#pm-followers-container');
+		container.empty();
+		
+		if (contacts.length === 0) {
+			container.html('<p class="pm-text-muted"><?php _e( 'No followers found', 'partyminder' ); ?></p>');
+			return;
+		}
+		
+		contacts.forEach(function(contact) {
+			const followerHtml = `
+				<div class="pm-follower-item pm-py-2 pm-border-b">
+					<label class="pm-form-label pm-flex pm-items-center">
+						<input type="checkbox" class="pm-form-checkbox pm-follower-checkbox" value="${contact.handle}" data-display-name="${contact.display_name || contact.handle}">
+						<div class="pm-ml-3">
+							<div class="pm-font-medium">${contact.display_name || contact.handle}</div>
+							<div class="pm-text-sm pm-text-muted">@${contact.handle}</div>
+						</div>
+					</label>
+				</div>
+			`;
+			container.append(followerHtml);
+		});
+		
+		// Update send button state when checkboxes change
+		$('.pm-follower-checkbox').on('change', updateSendButtonState);
+		$('#pm-select-all-followers').on('change', function() {
+			const isChecked = $(this).is(':checked');
+			$('.pm-follower-checkbox').prop('checked', isChecked);
+			updateSendButtonState();
+		});
+		
+		updateSendButtonState();
+	}
+	
+	function showFollowersError(message) {
+		$('#pm-followers-error-message').text(message);
+		$('#pm-bluesky-followers-error').show();
+	}
+	
+	function updateSendButtonState() {
+		const checkedCount = $('.pm-follower-checkbox:checked').length;
+		$('#pm-send-followers-invites').prop('disabled', checkedCount === 0);
+	}
+	
+	// Handle followers modal events
+	$(document).ready(function() {
+		// Close followers modal
+		$('#pm-bluesky-followers-modal .pm-modal-close').on('click', function() {
+			$('#pm-bluesky-followers-modal').hide();
+			$('body').removeClass('pm-modal-open');
+		});
+		
+		// Send invitations
+		$('#pm-send-followers-invites').on('click', function() {
+			const selectedFollowers = [];
+			$('.pm-follower-checkbox:checked').each(function() {
+				selectedFollowers.push({
+					handle: $(this).val(),
+					display_name: $(this).data('display-name')
+				});
+			});
+			
+			if (selectedFollowers.length > 0) {
+				// TODO: Implement actual invitation sending
+				alert('<?php _e( 'Invitation functionality will be implemented next', 'partyminder' ); ?>');
+				// For now, just close the modal
+				$('#pm-bluesky-followers-modal').hide();
+				$('body').removeClass('pm-modal-open');
+			}
+		});
+	});
+	
 	<?php endif; ?>
 });
 </script>
