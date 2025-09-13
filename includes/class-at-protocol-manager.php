@@ -217,7 +217,8 @@ class PartyMinder_AT_Protocol_Manager {
 
 		$result = $this->connect_bluesky( get_current_user_id(), $handle, $password );
 		error_log( '[PartyMinder AT Protocol] Connect result: ' . json_encode( $result ) );
-		wp_die( json_encode( $result ) );
+		
+		wp_send_json( $result );
 	}
 
 	/**
