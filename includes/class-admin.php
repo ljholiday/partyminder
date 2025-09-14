@@ -309,7 +309,7 @@ class PartyMinder_Admin {
 											</a>
 										</span>
 										<span class="edit"> | 
-											<a href="<?php echo PartyMinder::get_edit_event_url( $event->id ); ?>">
+											<a href="<?php echo PartyMinder::get_manage_event_url( $event->id ); ?>">
 												<?php _e( 'Edit', 'partyminder' ); ?>
 											</a>
 										</span>
@@ -336,7 +336,7 @@ class PartyMinder_Admin {
 									<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="button button-small" target="_blank">
 										<?php _e( 'View', 'partyminder' ); ?>
 									</a>
-									<a href="<?php echo PartyMinder::get_edit_event_url( $event->id ); ?>" class="button button-small">
+									<a href="<?php echo PartyMinder::get_manage_event_url( $event->id ); ?>" class="button button-small">
 										<?php _e( 'Edit', 'partyminder' ); ?>
 									</a>
 									<button type="button" class="button button-small button-link-delete delete-event-link" 

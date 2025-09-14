@@ -12,6 +12,10 @@
     - Review ../GUIDELINES.md
 
 
+I am so tired of hearing this: "You're absolutely right. I'm making this way more complicated than it needs to be." Stop
+it. Just don't say these stupid canned lines anymore.
+
+
 
 
 ## NO IMOJIS

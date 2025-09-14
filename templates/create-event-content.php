@@ -180,68 +180,6 @@ ob_start();
 			</div>
 		</div>
 
-		<!-- Invitation Section for Create Event -->
-		<div class="pm-mb-4">
-			<h3 class="pm-heading pm-heading-md pm-text-primary pm-mb-4"><?php _e( 'Ready to Invite Guests?', 'partyminder' ); ?></h3>
-			
-			<?php if ( PartyMinder_Feature_Flags::is_at_protocol_enabled() ) : ?>
-			<!-- Bluesky Connection Status -->
-			<div id="create-bluesky-connection-section" class="pm-mb-4">
-				<div id="create-bluesky-not-connected" class="pm-card pm-card-info" style="border-left: 4px solid #1d9bf0;">
-					<div class="pm-card-body">
-						<h5 class="pm-heading pm-heading-sm pm-mb-4">
-							 <?php _e( 'Connect Bluesky for Easy Invites', 'partyminder' ); ?>
-						</h5>
-						<p class="pm-text-muted pm-mb-4">
-							<?php _e( 'Connect your Bluesky account to quickly invite your contacts after creating the event.', 'partyminder' ); ?>
-						</p>
-						<button type="button" class="pm-btn pm-btn" id="create-connect-bluesky-btn">
-							<?php _e( 'Connect Bluesky Account', 'partyminder' ); ?>
-						</button>
-					</div>
-				</div>
-				
-				<div id="create-bluesky-connected" class="pm-card pm-card-success" style="border-left: 4px solid #10b981; display: none;">
-					<div class="pm-card-body">
-						<h5 class="pm-heading pm-heading-sm pm-mb-4">
-							 <?php _e( 'Bluesky Connected', 'partyminder' ); ?>
-						</h5>
-						<p class="pm-text-muted pm-mb-4">
-							<?php _e( 'Connected as', 'partyminder' ); ?> <strong id="create-bluesky-handle"></strong>
-						</p>
-						<div class="pm-flex pm-gap-2">
-							<button type="button" class="pm-btn pm-btn-primary pm-btn-sm" id="create-invite-bluesky-btn">
-								<?php _e( 'Invite from Bluesky', 'partyminder' ); ?>
-							</button>
-							<button type="button" class="pm-btn pm-btn-danger pm-btn-sm" id="create-disconnect-bluesky-btn">
-								<?php _e( 'Disconnect', 'partyminder' ); ?>
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			<?php endif; ?>
-			
-			<!-- Manual Email Preview -->
-			<div class="pm-card">
-				<div class="pm-card-body">
-					<h5 class="pm-heading pm-heading-sm pm-mb-4"><?php _e( 'Manual Email Invitations', 'partyminder' ); ?></h5>
-					<p class="pm-text-muted pm-mb-4">
-						<?php _e( 'After creating your event, you\'ll be able to send email invitations to specific guests.', 'partyminder' ); ?>
-					</p>
-					<div class="pm-form-group">
-						<input type="email" class="pm-form-input" placeholder="<?php _e( 'Enter email addresses here...', 'partyminder' ); ?>" disabled>
-					</div>
-					<div class="pm-form-group">
-						<textarea class="pm-form-textarea" rows="2" placeholder="<?php _e( 'Add a personal message...', 'partyminder' ); ?>" disabled></textarea>
-					</div>
-					<button type="button" class="pm-btn pm-btn" disabled>
-						<?php _e( 'Available After Event Creation', 'partyminder' ); ?>
-					</button>
-				</div>
-			</div>
-		</div>
-
 		<div class="pm-flex pm-gap pm-mt-4">
 			<button type="submit" name="partyminder_create_event" class="pm-btn pm-btn-lg">
 				<?php _e( 'Create Event', 'partyminder' ); ?>

@@ -196,6 +196,7 @@ class PartyMinder {
 		add_shortcode( 'partyminder_dashboard', array( $this, 'dashboard_shortcode' ) );
 		add_shortcode( 'partyminder_event_form', array( $this, 'event_form_shortcode' ) );
 		add_shortcode( 'partyminder_event_edit_form', array( $this, 'event_edit_form_shortcode' ) );
+		add_shortcode( 'partyminder_manage_event', array( $this, 'manage_event_shortcode' ) );
 		add_shortcode( 'partyminder_rsvp_form', array( $this, 'rsvp_form_shortcode' ) );
 		add_shortcode( 'partyminder_events_list', array( $this, 'events_list_shortcode' ) );
 		add_shortcode( 'partyminder_my_events', array( $this, 'my_events_shortcode' ) );
@@ -737,6 +738,31 @@ class PartyMinder {
 		return '<div class="partyminder-shortcode-wrapper warning"><p>' . __( 'Event ID required for editing.', 'partyminder' ) . '</p></div>';
 	}
 
+	public function manage_event_shortcode( $atts ) {
+		$atts = shortcode_atts(
+			array(
+				'event_id' => isset( $_GET['event_id'] ) ? intval( $_GET['event_id'] ) : 0,
+			),
+			$atts
+		);
+
+		$event_id = intval( $atts['event_id'] );
+
+		// Check if we're on the dedicated page
+		$on_dedicated_page = $this->is_on_dedicated_page( 'manage-event' );
+
+		if ( $event_id > 0 && $on_dedicated_page ) {
+			ob_start();
+			echo '<div class="partyminder-shortcode-wrapper">';
+			echo '<h3>' . __( 'Manage Event', 'partyminder' ) . '</h3>';
+			echo '<p>' . __( 'Manage your event settings, guests, and invitations.', 'partyminder' ) . '</p>';
+			echo '<a href="' . esc_url( self::get_manage_event_url( $event_id ) ) . '" class="pm-button">' . __( 'Manage Event', 'partyminder' ) . '</a>';
+			echo '</div>';
+			return ob_get_clean();
+		}
+		return '<div class="partyminder-shortcode-wrapper warning"><p>' . __( 'Event ID required for management.', 'partyminder' ) . '</p></div>';
+	}
+
 	public function profile_shortcode( $atts ) {
 		$atts = shortcode_atts(
 			array(
@@ -824,6 +850,10 @@ class PartyMinder {
 
 	public static function get_edit_event_url( $event_id ) {
 		return self::get_page_url( 'edit-event', array( 'event_id' => $event_id ) );
+	}
+
+	public static function get_manage_event_url( $event_id, $tab = 'settings' ) {
+		return self::get_page_url( 'manage-event', array( 'event_id' => $event_id, 'tab' => $tab ) );
 	}
 
 	public static function get_conversations_url() {
@@ -1075,7 +1105,7 @@ class PartyMinder {
 		}
 
 		// Modify titles for our dedicated pages
-		$page_keys = array( 'events', 'create-event', 'create-community-event', 'my-events', 'edit-event', 'create-conversation', 'create-community' );
+		$page_keys = array( 'events', 'create-event', 'create-community-event', 'my-events', 'edit-event', 'manage-event', 'create-conversation', 'create-community' );
 
 		foreach ( $page_keys as $key ) {
 			$page_id = get_option( 'partyminder_page_' . $key );
@@ -1110,6 +1140,21 @@ class PartyMinder {
 							}
 						} else {
 							$title_parts['title'] = __( 'Edit Event - Update Event Details', 'partyminder' );
+						}
+						break;
+					case 'manage-event':
+						if ( isset( $_GET['event_id'] ) ) {
+							require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+							$event_manager = new PartyMinder_Event_Manager();
+							$event         = $event_manager->get_event( intval( $_GET['event_id'] ) );
+							$current_tab   = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'settings';
+							if ( $event ) {
+								$title_parts['title'] = sprintf( __( 'Manage %s - %s', 'partyminder' ), $event->title, ucfirst( $current_tab ) );
+							} else {
+								$title_parts['title'] = __( 'Manage Event', 'partyminder' );
+							}
+						} else {
+							$title_parts['title'] = __( 'Manage Event', 'partyminder' );
 						}
 						break;
 					case 'create-community':
@@ -1254,23 +1299,83 @@ class PartyMinder {
 				
 				// Localize script with PHP variables
 				wp_localize_script( 'partyminder-create-event', 'PartyMinderCreateEvent', array(
-					'ajax_url'                    => admin_url( 'admin-ajax.php' ),
-					'success_url'                 => PartyMinder::get_create_event_url(),
-					'at_protocol_enabled'         => PartyMinder_Feature_Flags::is_at_protocol_enabled(),
-					'at_protocol_nonce'           => wp_create_nonce( 'partyminder_at_protocol' ),
-					'creating_text'               => __( 'Creating Event...', 'partyminder' ),
-					'fix_issues_text'             => __( 'Please fix the following issues:', 'partyminder' ),
-					'unknown_error_text'          => __( 'Unknown error occurred', 'partyminder' ),
-					'error_text'                  => __( 'Error', 'partyminder' ),
-					'network_error_text'          => __( 'Network error. Please try again.', 'partyminder' ),
-					'connecting_text'             => __( 'Connecting...', 'partyminder' ),
-					'connection_failed_text'      => __( 'Connection failed. Please check your credentials.', 'partyminder' ),
-					'connect_account_text'        => __( 'Connect Account', 'partyminder' ),
-					'disconnect_confirm_text'     => __( 'Are you sure you want to disconnect your Bluesky account?', 'partyminder' ),
-					'failed_load_followers_text'  => __( 'Failed to load followers', 'partyminder' ),
-					'network_error_followers_text' => __( 'Network error loading followers', 'partyminder' ),
-					'no_followers_text'           => __( 'No followers found', 'partyminder' ),
-					'invitation_todo_text'        => __( 'Invitation functionality will be implemented next', 'partyminder' ),
+					'ajax_url'           => admin_url( 'admin-ajax.php' ),
+					'success_url'        => PartyMinder::get_create_event_url(),
+					'creating_text'      => __( 'Creating Event...', 'partyminder' ),
+					'fix_issues_text'    => __( 'Please fix the following issues:', 'partyminder' ),
+					'unknown_error_text' => __( 'Unknown error occurred', 'partyminder' ),
+					'error_text'         => __( 'Error', 'partyminder' ),
+					'network_error_text' => __( 'Network error. Please try again.', 'partyminder' ),
+				) );
+			}
+
+			// Add manage-event specific JavaScript
+			if ( $page_type === 'manage-event' ) {
+				wp_enqueue_script(
+					'partyminder-manage-event',
+					PARTYMINDER_PLUGIN_URL . 'assets/js/manage-event.js',
+					array( 'jquery', 'flatpickr' ),
+					PARTYMINDER_VERSION,
+					true
+				);
+				
+				// Get current tab and event data
+				$current_tab = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'settings';
+				$event_id = isset( $_GET['event_id'] ) ? intval( $_GET['event_id'] ) : 0;
+				$event_title = '';
+				
+				if ( $event_id ) {
+					require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+					$event_manager = new PartyMinder_Event_Manager();
+					$event = $event_manager->get_event( $event_id );
+					if ( $event ) {
+						$event_title = $event->title;
+					}
+				}
+				
+				// Localize script with PHP variables
+				wp_localize_script( 'partyminder-manage-event', 'PartyMinderManageEvent', array(
+					'ajax_url'                        => admin_url( 'admin-ajax.php' ),
+					'current_tab'                     => $current_tab,
+					'event_id'                        => $event_id,
+					'event_title'                     => $event_title,
+					'my_events_url'                   => PartyMinder::get_my_events_url(),
+					'at_protocol_enabled'             => PartyMinder_Feature_Flags::is_at_protocol_enabled(),
+					'at_protocol_nonce'               => wp_create_nonce( 'partyminder_at_protocol' ),
+					'nonce'                           => wp_create_nonce( 'partyminder_event_action' ),
+					'update_nonce'                    => wp_create_nonce( 'edit_partyminder_event' ),
+					'updating_text'                   => __( 'Updating Event...', 'partyminder' ),
+					'update_success_text'             => __( 'Event settings updated successfully!', 'partyminder' ),
+					'fix_issues_text'                 => __( 'Please fix the following issues:', 'partyminder' ),
+					'unknown_error_text'              => __( 'Unknown error occurred', 'partyminder' ),
+					'error_text'                      => __( 'Error', 'partyminder' ),
+					'network_error_text'              => __( 'Network error. Please try again.', 'partyminder' ),
+					'sending_text'                    => __( 'Sending...', 'partyminder' ),
+					'enter_email_text'                => __( 'Please enter an email address.', 'partyminder' ),
+					'invitation_sent_text'            => __( 'Invitation sent successfully!', 'partyminder' ),
+					'invitation_failed_text'          => __( 'Failed to send invitation.', 'partyminder' ),
+					'cancel_invitation_confirm_text'  => __( 'Are you sure you want to cancel this invitation?', 'partyminder' ),
+					'cancelling_text'                 => __( 'Cancelling...', 'partyminder' ),
+					'cancel_failed_text'              => __( 'Failed to cancel invitation.', 'partyminder' ),
+					'delete_confirm_text'             => __( 'Are you absolutely sure you want to delete this event? This action cannot be undone.', 'partyminder' ),
+					'deleting_text'                   => __( 'Deleting...', 'partyminder' ),
+					'deleted_text'                    => __( 'Event Deleted!', 'partyminder' ),
+					'delete_failed_text'              => __( 'Failed to delete event.', 'partyminder' ),
+					'loading_guests_text'             => __( 'Loading event guests...', 'partyminder' ),
+					'no_guests_text'                  => __( 'No guests found.', 'partyminder' ),
+					'error_loading_guests_text'       => __( 'Error loading guests.', 'partyminder' ),
+					'loading_invitations_text'        => __( 'Loading pending invitations...', 'partyminder' ),
+					'no_invitations_text'             => __( 'No pending invitations.', 'partyminder' ),
+					'error_loading_invitations_text'  => __( 'Error loading invitations.', 'partyminder' ),
+					'invitation_copied_text'          => __( 'Invitation link copied to clipboard!', 'partyminder' ),
+					'connecting_text'                 => __( 'Connecting...', 'partyminder' ),
+					'connection_failed_text'          => __( 'Connection failed. Please check your credentials.', 'partyminder' ),
+					'connect_account_text'            => __( 'Connect Account', 'partyminder' ),
+					'disconnect_confirm_text'         => __( 'Are you sure you want to disconnect your Bluesky account?', 'partyminder' ),
+					'failed_load_followers_text'      => __( 'Failed to load followers', 'partyminder' ),
+					'network_error_followers_text'    => __( 'Network error loading followers', 'partyminder' ),
+					'no_followers_text'               => __( 'No followers found', 'partyminder' ),
+					'invitations_sent_text'           => __( 'Invitations sent successfully!', 'partyminder' ),
 				) );
 			}
 
@@ -1310,8 +1415,8 @@ class PartyMinder {
 				true
 			);
 
-			// Add Flatpickr for event creation/editing
-			if ( $page_type === 'create-event' || $page_type === 'edit-event' ) {
+			// Add Flatpickr for event creation/editing/management
+			if ( $page_type === 'create-event' || $page_type === 'edit-event' || $page_type === 'manage-event' ) {
 				wp_enqueue_style(
 					'flatpickr',
 					PARTYMINDER_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.css',
@@ -1614,7 +1719,7 @@ class PartyMinder {
 	 * Check if current page is a PartyMinder page
 	 */
 	private function is_partyminder_page() {
-		$partyminder_pages = array( 'events', 'create-event', 'create-community-event', 'my-events', 'communities', 'conversations', 'dashboard', 'profile' );
+		$partyminder_pages = array( 'events', 'create-event', 'create-community-event', 'my-events', 'communities', 'conversations', 'dashboard', 'profile', 'manage-event' );
 		
 		foreach ( $partyminder_pages as $page_key ) {
 			$page_id = get_option( 'partyminder_page_' . $page_key );

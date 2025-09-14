@@ -37,6 +37,7 @@ class PartyMinder_Page_Router {
 
 		// Direct page routing
 		add_rewrite_rule( '^manage-community/?$', 'index.php?pagename=manage-community', 'top' );
+		add_rewrite_rule( '^manage-event/?$', 'index.php?pagename=manage-event', 'top' );
 		add_rewrite_rule( '^create-community/?$', 'index.php?pagename=create-community', 'top' );
 		add_rewrite_rule( '^create-conversation/?$', 'index.php?pagename=create-conversation', 'top' );
 
@@ -66,7 +67,7 @@ class PartyMinder_Page_Router {
 			return;
 		}
 
-		$page_keys        = array( 'dashboard', 'events', 'create-event', 'create-community-event', 'my-events', 'edit-event', 'create-conversation', 'create-community', 'create-group', 'conversations', 'communities', 'my-communities', 'profile', 'login', 'manage-community' );
+		$page_keys        = array( 'dashboard', 'events', 'create-event', 'create-community-event', 'my-events', 'edit-event', 'manage-event', 'create-conversation', 'create-community', 'create-group', 'conversations', 'communities', 'my-communities', 'profile', 'login', 'manage-community' );
 		$current_page_key = null;
 
 		foreach ( $page_keys as $key ) {
@@ -84,6 +85,12 @@ class PartyMinder_Page_Router {
 		// Handle specific page routing
 		switch ( $current_page_key ) {
 			case 'edit-event':
+				if ( ! get_query_var( 'event_id' ) && isset( $_GET['event_id'] ) ) {
+					set_query_var( 'event_id', intval( $_GET['event_id'] ) );
+				}
+				break;
+
+			case 'manage-event':
 				if ( ! get_query_var( 'event_id' ) && isset( $_GET['event_id'] ) ) {
 					set_query_var( 'event_id', intval( $_GET['event_id'] ) );
 				}
@@ -138,6 +145,14 @@ class PartyMinder_Page_Router {
 				}
 				add_filter( 'the_content', array( $this->content_injector, 'inject_edit_event_content' ) );
 				add_filter( 'body_class', array( $this->body_class_manager, 'add_edit_event_body_class' ) );
+				break;
+
+			case 'manage-event':
+				if ( ! get_query_var( 'event_id' ) && isset( $_GET['event_id'] ) ) {
+					set_query_var( 'event_id', intval( $_GET['event_id'] ) );
+				}
+				add_filter( 'the_content', array( $this->content_injector, 'inject_manage_event_content' ) );
+				add_filter( 'body_class', array( $this->body_class_manager, 'add_manage_event_body_class' ) );
 				break;
 
 			case 'create-conversation':

@@ -101,6 +101,13 @@ class PartyMinder_Bluesky_Client {
 	}
 
 	/**
+	 * Set user DID
+	 */
+	public function set_did( $did ) {
+		$this->did = $did;
+	}
+
+	/**
 	 * Get user's follows (contacts)
 	 */
 	public function get_follows( $did, $limit = 100 ) {
@@ -391,6 +398,99 @@ class PartyMinder_Bluesky_Client {
 			'success' => false,
 			'error'   => $error_message,
 		);
+	}
+
+	/**
+	 * Create a post (skeet) on Bluesky
+	 */
+	public function create_post( $text, $mention_handles = array() ) {
+		if ( ! $this->access_token || ! $this->did ) {
+			return array( 'success' => false, 'error' => 'Not authenticated or missing DID' );
+		}
+
+		// Build the post text with mentions
+		$post_text = $text;
+		$facets = array();
+		
+		// Add mentions if provided
+		if ( ! empty( $mention_handles ) ) {
+			foreach ( $mention_handles as $handle ) {
+				// Find position of handle in text for facet
+				$mention_text = '@' . $handle;
+				$start_pos = strpos( $post_text, $mention_text );
+				
+				if ( $start_pos !== false ) {
+					// Resolve handle to DID for the mention facet
+					$profile = $this->get_profile( $handle );
+					if ( $profile['success'] && isset( $profile['profile']['did'] ) ) {
+						$facets[] = array(
+							'index' => array(
+								'byteStart' => $start_pos,
+								'byteEnd' => $start_pos + strlen( $mention_text )
+							),
+							'features' => array(
+								array(
+									'$type' => 'app.bsky.richtext.facet#mention',
+									'did' => $profile['profile']['did']
+								)
+							)
+						);
+					}
+				}
+			}
+		}
+
+		$record = array(
+			'$type' => 'app.bsky.feed.post',
+			'text' => $post_text,
+			'createdAt' => gmdate( 'Y-m-d\TH:i:s.000\Z' )
+		);
+
+		// Add facets if we have mentions
+		if ( ! empty( $facets ) ) {
+			$record['facets'] = $facets;
+		}
+
+		$endpoint = $this->pds_url . '/xrpc/com.atproto.repo.createRecord';
+		$post_data = array(
+			'repo' => $this->did,
+			'collection' => 'app.bsky.feed.post',
+			'record' => $record
+		);
+
+		error_log( '[PartyMinder Bluesky] Creating post: ' . $post_text );
+		error_log( '[PartyMinder Bluesky] Post data: ' . json_encode( $post_data ) );
+
+		$response = wp_remote_post( $endpoint, array(
+			'headers' => array(
+				'Authorization' => 'Bearer ' . $this->access_token,
+				'Content-Type' => 'application/json',
+			),
+			'body' => json_encode( $post_data ),
+			'timeout' => 30
+		) );
+
+		if ( is_wp_error( $response ) ) {
+			error_log( '[PartyMinder Bluesky] Create post error: ' . $response->get_error_message() );
+			return array( 'success' => false, 'error' => $response->get_error_message() );
+		}
+
+		$status_code = wp_remote_retrieve_response_code( $response );
+		$body = wp_remote_retrieve_body( $response );
+
+		error_log( '[PartyMinder Bluesky] Create post response status: ' . $status_code );
+		error_log( '[PartyMinder Bluesky] Create post response body: ' . $body );
+
+		if ( $status_code === 200 || $status_code === 201 ) {
+			$data = json_decode( $body, true );
+			return array(
+				'success' => true,
+				'uri' => $data['uri'] ?? null,
+				'cid' => $data['cid'] ?? null
+			);
+		}
+
+		return array( 'success' => false, 'error' => 'Failed to create post. Status: ' . $status_code . ' Body: ' . $body );
 	}
 
 	/**

@@ -110,6 +110,18 @@ class PartyMinder_Page_Content_Injector {
 		return ob_get_clean();
 	}
 
+	public function inject_manage_event_content( $content ) {
+		if ( ! $this->should_inject_content( 'manage-event' ) ) {
+			return $content;
+		}
+
+		ob_start();
+		echo '<div class="partyminder-content partyminder-manage-event-page">';
+		include PARTYMINDER_PLUGIN_DIR . 'templates/manage-event-content.php';
+		echo '</div>';
+		return ob_get_clean();
+	}
+
 	public function inject_create_conversation_content( $content ) {
 		if ( ! $this->should_inject_content( 'create-conversation' ) ) {
 			return $content;

@@ -16,6 +16,7 @@ class PartyMinder_AT_Protocol_Manager {
 			add_action( 'wp_ajax_partyminder_get_bluesky_contacts', array( $this, 'ajax_get_bluesky_contacts' ) );
 			add_action( 'wp_ajax_partyminder_disconnect_bluesky', array( $this, 'ajax_disconnect_bluesky' ) );
 			add_action( 'wp_ajax_partyminder_check_bluesky_connection', array( $this, 'ajax_check_bluesky_connection' ) );
+			add_action( 'wp_ajax_partyminder_send_bluesky_invitations', array( $this, 'ajax_send_bluesky_invitations' ) );
 		}
 	}
 
@@ -409,5 +410,344 @@ class PartyMinder_AT_Protocol_Manager {
 
 		// Fallback from base64 encoding
 		return base64_decode( $encrypted_token );
+	}
+
+	/**
+	 * AJAX handler for sending Bluesky invitations
+	 */
+	public function ajax_send_bluesky_invitations() {
+		error_log( "[PartyMinder Bluesky] AJAX handler called" );
+		
+		// Verify nonce
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'partyminder_at_protocol' ) ) {
+			error_log( "[PartyMinder Bluesky] Nonce verification failed" );
+			wp_send_json_error( array( 'message' => __( 'Invalid security token.', 'partyminder' ) ) );
+		}
+
+		// Check if user is logged in
+		if ( ! is_user_logged_in() ) {
+			wp_send_json_error( array( 'message' => __( 'You must be logged in to send invitations.', 'partyminder' ) ) );
+		}
+
+		// Get request data
+		$event_id = intval( $_POST['event_id'] ?? 0 );
+		$followers = $_POST['followers'] ?? array();
+		$message = sanitize_textarea_field( $_POST['message'] ?? '' );
+
+		error_log( "[PartyMinder Bluesky] Event ID: $event_id" );
+		error_log( "[PartyMinder Bluesky] Followers count: " . count($followers) );
+		error_log( "[PartyMinder Bluesky] Followers data: " . json_encode($followers) );
+
+		if ( ! $event_id ) {
+			error_log( "[PartyMinder Bluesky] No event ID provided" );
+			wp_send_json_error( array( 'message' => __( 'Event ID is required.', 'partyminder' ) ) );
+		}
+
+		if ( empty( $followers ) || ! is_array( $followers ) ) {
+			error_log( "[PartyMinder Bluesky] No followers provided" );
+			wp_send_json_error( array( 'message' => __( 'No followers selected.', 'partyminder' ) ) );
+		}
+
+		// Verify user owns the event
+		error_log( "[PartyMinder Bluesky] Loading event manager" );
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+		$event_manager = new PartyMinder_Event_Manager();
+		$event = $event_manager->get_event( $event_id );
+		
+		error_log( "[PartyMinder Bluesky] Event loaded: " . ($event ? 'yes' : 'no') );
+		
+		if ( ! $event ) {
+			error_log( "[PartyMinder Bluesky] Event not found" );
+			wp_send_json_error( array( 'message' => __( 'Event not found.', 'partyminder' ) ) );
+		}
+
+		$current_user = wp_get_current_user();
+		error_log( "[PartyMinder Bluesky] Checking permissions: event author=" . $event->author_id . ", current user=" . $current_user->ID );
+		
+		if ( $event->author_id != $current_user->ID && ! current_user_can( 'edit_others_posts' ) ) {
+			error_log( "[PartyMinder Bluesky] Permission denied" );
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to send invitations for this event.', 'partyminder' ) ) );
+		}
+
+		// Check if user is connected to Bluesky
+		error_log( "[PartyMinder Bluesky] Checking Bluesky connection" );
+		$identity_manager = new PartyMinder_Member_Identity_Manager();
+		$identity = $identity_manager->get_member_identity( $current_user->ID );
+		
+		if ( ! $identity || ! isset( $identity->at_protocol_data['bluesky'] ) ) {
+			error_log( "[PartyMinder Bluesky] Not connected to Bluesky" );
+			wp_send_json_error( array( 'message' => __( 'You must be connected to Bluesky to send invitations.', 'partyminder' ) ) );
+		}
+		
+		error_log( "[PartyMinder Bluesky] All checks passed, starting invitation loop" );
+
+		$sent_count = 0;
+		$failed_count = 0;
+		$duplicate_count = 0;
+		$failed_handles = array();
+		$duplicate_handles = array();
+
+		// Send invitation to each selected follower
+		foreach ( $followers as $follower ) {
+			$handle = sanitize_text_field( $follower['handle'] ?? '' );
+			$display_name = sanitize_text_field( $follower['display_name'] ?? $handle );
+			
+			if ( empty( $handle ) ) {
+				$failed_count++;
+				continue;
+			}
+
+			// Check if invitation already exists before trying to create
+			global $wpdb;
+			$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
+			$existing_invitation = $wpdb->get_row( $wpdb->prepare(
+				"SELECT id FROM {$invitations_table} WHERE event_id = %d AND invited_email = %s AND status = 'sent'",
+				$event_id,
+				$handle . '@bsky.social'
+			) );
+
+			if ( $existing_invitation ) {
+				$duplicate_count++;
+				$duplicate_handles[] = $handle;
+				continue;
+			}
+
+			// Create invitation record in database
+			$result = $this->create_bluesky_invitation( $event_id, $handle, $display_name, $message );
+			
+			if ( $result ) {
+				$sent_count++;
+			} else {
+				$failed_count++;
+				$failed_handles[] = $handle;
+			}
+		}
+
+		// Prepare response message
+		$messages = array();
+		
+		if ( $sent_count > 0 ) {
+			$messages[] = sprintf( 
+				_n( 'Successfully sent %d invitation.', 'Successfully sent %d invitations.', $sent_count, 'partyminder' ),
+				$sent_count
+			);
+		}
+		
+		if ( $duplicate_count > 0 ) {
+			$messages[] = sprintf( 
+				_n( '%d invitation was already sent.', '%d invitations were already sent.', $duplicate_count, 'partyminder' ),
+				$duplicate_count
+			);
+		}
+		
+		if ( $failed_count > 0 ) {
+			$messages[] = sprintf( 
+				_n( '%d invitation failed.', '%d invitations failed.', $failed_count, 'partyminder' ),
+				$failed_count
+			);
+		}
+
+		if ( $sent_count > 0 || $duplicate_count > 0 ) {
+			wp_send_json_success( array(
+				'message' => implode( ' ', $messages ),
+				'sent_count' => $sent_count,
+				'duplicate_count' => $duplicate_count,
+				'failed_count' => $failed_count
+			) );
+		} else {
+			wp_send_json_error( array( 
+				'message' => __( 'Failed to send invitations.', 'partyminder' ) 
+			) );
+		}
+	}
+
+	/**
+	 * Create a Bluesky invitation record
+	 */
+	private function create_bluesky_invitation( $event_id, $handle, $display_name, $message ) {
+		global $wpdb;
+		
+		// Generate invitation token
+		$invitation_token = wp_generate_password( 32, false );
+		
+		// Get event details for invitation
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+		$event_manager = new PartyMinder_Event_Manager();
+		$event = $event_manager->get_event( $event_id );
+		
+		// Create invitation URL
+		$invitation_url = home_url( '/events/' . $event->slug . '?invitation=' . $invitation_token );
+		
+		// Insert into invitations table (reusing existing structure)
+		$invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
+		
+		// Check if invitation already exists
+		$existing_invitation = $wpdb->get_row( $wpdb->prepare(
+			"SELECT id FROM {$invitations_table} WHERE event_id = %d AND invited_email = %s AND status = 'sent'",
+			$event_id,
+			$handle . '@bsky.social'
+		) );
+
+		if ( $existing_invitation ) {
+			error_log( "[PartyMinder Bluesky] Invitation already exists for {$handle} to event {$event_id}" );
+			return false; // Don't send duplicate invitation
+		}
+
+		$result = $wpdb->insert(
+			$invitations_table,
+			array(
+				'event_id' => $event_id,
+				'invited_by_user_id' => get_current_user_id(),
+				'invited_email' => $handle . '@bsky.social', // Use handle as pseudo-email
+				'invitation_token' => $invitation_token,
+				'status' => 'sent',
+				'expires_at' => date( 'Y-m-d H:i:s', strtotime( '+30 days' ) )
+			),
+			array( '%d', '%d', '%s', '%s', '%s', '%s' )
+		);
+
+		if ( $result ) {
+			// Send the actual Bluesky invitation post
+			$event_manager = new PartyMinder_Event_Manager();
+			$event = $event_manager->get_event( $event_id );
+			
+			if ( $event ) {
+				// Get user's Bluesky connection
+				$identity_manager = new PartyMinder_Member_Identity_Manager();
+				$identity = $identity_manager->get_member_identity( get_current_user_id() );
+				
+				if ( ! $identity || ! isset( $identity->at_protocol_data['bluesky'] ) ) {
+					return true; // Still return true since DB insert worked
+				}
+				
+				$bluesky_data = $identity->at_protocol_data['bluesky'];
+				
+				// Initialize and authenticate Bluesky client
+				if ( ! $this->bluesky_client ) {
+					$this->bluesky_client = new PartyMinder_Bluesky_Client();
+				}
+				
+				$this->bluesky_client->set_tokens(
+					$this->decrypt_token( $bluesky_data['access_token'] ),
+					$this->decrypt_token( $bluesky_data['refresh_token'] )
+				);
+				
+				// Set the user's DID for post creation
+				$this->bluesky_client->set_did( $bluesky_data['did'] );
+				
+				// Create invitation post
+				$post_text = "Hey @{$handle}! You're invited to \"{$event->title}\" on " . date( 'M j, Y', strtotime( $event->event_date ) );
+				if ( $message ) {
+					$post_text .= "\n\n" . $message;
+				}
+				$post_text .= "\n\nRSVP here: {$invitation_url}";
+				
+				error_log( "[PartyMinder Bluesky] About to create post: " . $post_text );
+				
+				$post_result = $this->bluesky_client->create_post( $post_text, array( $handle ) );
+				
+				error_log( "[PartyMinder Bluesky] Post result: " . json_encode($post_result) );
+				
+				if ( $post_result['success'] ) {
+					error_log( "[PartyMinder Bluesky] Invitation post sent successfully to {$handle}" );
+					error_log( "[PartyMinder Bluesky] Post URI: " . $post_result['uri'] );
+				} else {
+					error_log( "[PartyMinder Bluesky] Failed to send invitation post to {$handle}: " . $post_result['error'] );
+				}
+			}
+			
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Store pending invitations in user meta for processing after event creation
+	 */
+	private function store_pending_invitations( $user_id, $followers, $message = '' ) {
+		$pending_data = array(
+			'followers' => $followers,
+			'message' => $message,
+			'timestamp' => time()
+		);
+		
+		update_user_meta( $user_id, 'partyminder_pending_invitations', $pending_data );
+	}
+
+	/**
+	 * Process pending invitations after event creation
+	 */
+	public function process_pending_invitations( $user_id, $event_id ) {
+		$pending_data = get_user_meta( $user_id, 'partyminder_pending_invitations', true );
+		
+		if ( ! $pending_data || empty( $pending_data['followers'] ) ) {
+			return false;
+		}
+
+		// Clean up pending data first
+		delete_user_meta( $user_id, 'partyminder_pending_invitations' );
+		
+		// Process the invitations
+		$followers = $pending_data['followers'];
+		$message = $pending_data['message'] ?? '';
+		
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+		$event_manager = new PartyMinder_Event_Manager();
+		$event = $event_manager->get_event( $event_id );
+		
+		if ( ! $event || $event->author_id != $user_id ) {
+			return false;
+		}
+
+		$identity_manager = new PartyMinder_Member_Identity_Manager();
+		$identity = $identity_manager->get_member_identity( $user_id );
+		
+		if ( ! $identity || ! isset( $identity->at_protocol_data['bluesky'] ) ) {
+			return false;
+		}
+
+		$sent_count = 0;
+		$failed_count = 0;
+
+		// Send invitation to each follower
+		foreach ( $followers as $follower ) {
+			if ( ! isset( $follower['handle'] ) ) {
+				$failed_count++;
+				continue;
+			}
+
+			$handle = sanitize_text_field( $follower['handle'] );
+			$display_name = sanitize_text_field( $follower['display_name'] ?? $handle );
+
+			// Create invitation record
+			global $wpdb;
+			$invitations_table = $wpdb->prefix . 'partyminder_invitations';
+			
+			$invitation_data = array(
+				'event_id' => $event_id,
+				'inviter_user_id' => $user_id,
+				'invitee_identifier' => $handle,
+				'invitee_type' => 'bluesky',
+				'invitation_method' => 'bluesky',
+				'status' => 'sent',
+				'custom_message' => $message,
+				'invitation_token' => wp_generate_password( 32, false ),
+				'created_at' => current_time( 'mysql' )
+			);
+
+			$result = $wpdb->insert( $invitations_table, $invitation_data );
+			
+			if ( $result ) {
+				$sent_count++;
+			} else {
+				$failed_count++;
+			}
+		}
+
+		return array(
+			'sent' => $sent_count,
+			'failed' => $failed_count
+		);
 	}
 }

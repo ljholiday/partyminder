@@ -139,8 +139,8 @@ ob_start();
 									<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn pm-btn-sm">
 										<?php _e( 'View', 'partyminder' ); ?>
 									</a>
-									<a href="<?php echo PartyMinder::get_edit_event_url( $event->id ); ?>" class="pm-btn pm-btn pm-btn-sm">
-										<?php _e( 'Edit', 'partyminder' ); ?>
+									<a href="<?php echo PartyMinder::get_manage_event_url( $event->id ); ?>" class="pm-btn pm-btn pm-btn-sm">
+										<?php _e( 'Manage', 'partyminder' ); ?>
 									</a>
 								</div>
 							</div>

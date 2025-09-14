@@ -36,6 +36,11 @@ class PartyMinder_Page_Body_Class_Manager {
 		return $classes;
 	}
 
+	public function add_manage_event_body_class( $classes ) {
+		$classes[] = 'partyminder-event-management';
+		return $classes;
+	}
+
 	public function add_login_body_class( $classes ) {
 		$classes[] = 'partyminder-login';
 		return $classes;

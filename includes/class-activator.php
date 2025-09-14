@@ -764,6 +764,12 @@ class PartyMinder_Activator {
 				'slug'        => 'edit-event',
 				'description' => __( 'Edit your event details and settings', 'partyminder' ),
 			),
+			'manage-event'             => array(
+				'title'       => __( 'Manage Event', 'partyminder' ),
+				'content'     => '[partyminder_manage_event]',
+				'slug'        => 'manage-event',
+				'description' => __( 'Manage your event settings, guests, and invitations', 'partyminder' ),
+			),
 			'create-conversation'      => array(
 				'title'       => __( 'Start Conversation', 'partyminder' ),
 				'content'     => '[partyminder_create_conversation]',
@@ -843,6 +849,7 @@ class PartyMinder_Activator {
 					// Special handling for certain page types
 					switch ( $page_key ) {
 						case 'edit-event':
+						case 'manage-event':
 							update_post_meta( $page_id, '_partyminder_requires_login', true );
 							break;
 					}
