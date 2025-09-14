@@ -359,6 +359,9 @@ jQuery(document).ready(function($) {
 				} else {
 					showManageBlueskyNotConnected();
 				}
+			},
+			error: function() {
+				showManageBlueskyNotConnected();
 			}
 		});
 	}
@@ -413,7 +416,7 @@ jQuery(document).ready(function($) {
 					if (response.success) {
 						$modal.hide();
 						$('body').removeClass('pm-modal-open');
-						showManageBlueskyConnected(response.data.handle);
+						showManageBlueskyConnected(response.handle);
 						$('#pm-bluesky-connect-form')[0].reset();
 						$('.pm-form-error').hide();
 					} else {
@@ -490,20 +493,20 @@ jQuery(document).ready(function($) {
 				url: PartyMinderManageCommunity.ajax_url,
 				type: 'POST',
 				data: {
-					action: 'partyminder_send_community_bluesky_invitations',
+					action: 'partyminder_send_bluesky_invitations',
 					community_id: communityId,
 					followers: selectedFollowers,
-					nonce: PartyMinderManageCommunity.community_nonce
+					nonce: PartyMinderManageCommunity.at_protocol_nonce
 				},
 				success: function(response) {
 					if (response.success) {
-						alert(response.data.message || PartyMinderManageCommunity.strings.invitations_sent);
+						alert(PartyMinderManageCommunity.strings.invitations_sent);
 						$modal.hide();
 						$('body').removeClass('pm-modal-open');
 						// Reload invitations list
 						loadCommunityInvitations(communityId);
 					} else {
-						alert(response.data || PartyMinderManageCommunity.strings.invitations_failed);
+						alert(response.message || PartyMinderManageCommunity.strings.invitations_failed);
 					}
 					$sendBtn.prop('disabled', false).text(PartyMinderManageCommunity.strings.send_invitations);
 				},
