@@ -380,8 +380,23 @@ ob_start();
 <?php endif; ?>
 
 <?php
+// Enqueue scripts
+$community_dependencies = array( 'jquery' );
+
+// Enqueue shared BlueSky module if AT Protocol is enabled
+if ( PartyMinder_Feature_Flags::is_at_protocol_enabled() ) {
+	wp_enqueue_script(
+		'partyminder-bluesky-followers',
+		PARTYMINDER_PLUGIN_URL . 'assets/js/bluesky-followers.js',
+		array( 'jquery' ),
+		PARTYMINDER_VERSION,
+		true
+	);
+	$community_dependencies[] = 'partyminder-bluesky-followers';
+}
+
 // Enqueue manage-community script with localized data
-wp_enqueue_script( 'partyminder-manage-community', PARTYMINDER_PLUGIN_URL . 'assets/js/manage-community.js', array( 'jquery' ), '1.0.0', true );
+wp_enqueue_script( 'partyminder-manage-community', PARTYMINDER_PLUGIN_URL . 'assets/js/manage-community.js', $community_dependencies, PARTYMINDER_VERSION, true );
 
 // Localize script data
 wp_localize_script( 'partyminder-manage-community', 'PartyMinderManageCommunity', array(

@@ -1321,10 +1321,24 @@ class PartyMinder {
 
 			// Add manage-event specific JavaScript
 			if ( $page_type === 'manage-event' ) {
+				$event_dependencies = array( 'jquery', 'flatpickr' );
+
+				// Enqueue shared BlueSky module if AT Protocol is enabled
+				if ( PartyMinder_Feature_Flags::is_at_protocol_enabled() ) {
+					wp_enqueue_script(
+						'partyminder-bluesky-followers',
+						PARTYMINDER_PLUGIN_URL . 'assets/js/bluesky-followers.js',
+						array( 'jquery' ),
+						PARTYMINDER_VERSION,
+						true
+					);
+					$event_dependencies[] = 'partyminder-bluesky-followers';
+				}
+
 				wp_enqueue_script(
 					'partyminder-manage-event',
 					PARTYMINDER_PLUGIN_URL . 'assets/js/manage-event.js',
-					array( 'jquery', 'flatpickr' ),
+					$event_dependencies,
 					PARTYMINDER_VERSION,
 					true
 				);

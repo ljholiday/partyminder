@@ -17,12 +17,39 @@ jQuery(document).ready(function($) {
 
 		// Initialize BlueSky integration if enabled
 		if (PartyMinderManageCommunity.at_protocol_enabled) {
-			checkManageBlueskyConnection();
+			// Initialize shared BlueSky module
+			PartyMinderBlueSky.init({
+				ajax_url: PartyMinderManageCommunity.ajax_url,
+				at_protocol_nonce: PartyMinderManageCommunity.at_protocol_nonce,
+				context_id: communityId,
+				context_type: 'community',
+				strings: {
+					loading_followers: 'Loading your BlueSky followers...',
+					no_followers: PartyMinderManageCommunity.strings.no_followers || 'No followers found.',
+					load_followers_failed: PartyMinderManageCommunity.strings.load_followers_failed || 'Failed to load followers.',
+					network_error_followers: PartyMinderManageCommunity.strings.network_error_followers || 'Network error loading followers.',
+					select_followers: PartyMinderManageCommunity.strings.select_followers || 'Please select at least one follower.',
+					sending_invitations: PartyMinderManageCommunity.strings.sending_invitations || 'Sending invitations...',
+					invitations_sent: PartyMinderManageCommunity.strings.invitations_sent || 'Invitations sent successfully!',
+					invitations_failed: PartyMinderManageCommunity.strings.invitations_failed || 'Failed to send invitations.',
+					network_error: PartyMinderManageCommunity.strings.network_error || 'Network error occurred.',
+					send_invitations: PartyMinderManageCommunity.strings.send_invitations || 'Send Invitations',
+					connecting: PartyMinderManageCommunity.strings.connecting || 'Connecting...',
+					connection_failed: PartyMinderManageCommunity.strings.connection_failed || 'Connection failed.',
+					connect_account: PartyMinderManageCommunity.strings.connect_account || 'Connect Account',
+					confirm_disconnect: PartyMinderManageCommunity.strings.confirm_disconnect || 'Are you sure you want to disconnect your BlueSky account?',
+					disconnected_successfully: PartyMinderManageCommunity.strings.disconnected_successfully || 'BlueSky account disconnected.',
+					disconnect_failed: PartyMinderManageCommunity.strings.disconnect_failed || 'Failed to disconnect BlueSky account.',
+					connection_failed_network: PartyMinderManageCommunity.strings.connection_failed_network || 'Network error during connection.'
+				}
+			});
+
+			PartyMinderBlueSky.checkConnection();
 
 			// Handle Bluesky buttons
-			$('#manage-connect-bluesky-btn').on('click', showManageBlueskyConnectModal);
-			$('#manage-disconnect-bluesky-btn').on('click', disconnectManageBluesky);
-			$('#create-invite-bluesky-btn').on('click', showBlueskyFollowersModal);
+			$('#manage-connect-bluesky-btn').on('click', PartyMinderBlueSky.showConnectModal);
+			$('#manage-disconnect-bluesky-btn').on('click', PartyMinderBlueSky.disconnect);
+			$('#create-invite-bluesky-btn').on('click', PartyMinderBlueSky.showFollowersModal);
 		}
 	}
 
@@ -342,255 +369,6 @@ jQuery(document).ready(function($) {
 				alert(PartyMinderManageCommunity.strings.network_error);
 			}
 		});
-	}
-
-	// BlueSky Integration Functions
-	function checkManageBlueskyConnection() {
-		$.ajax({
-			url: PartyMinderManageCommunity.ajax_url,
-			type: 'POST',
-			data: {
-				action: 'partyminder_check_bluesky_connection',
-				nonce: PartyMinderManageCommunity.at_protocol_nonce
-			},
-			success: function(response) {
-				if (response.success && response.data.connected) {
-					showManageBlueskyConnected(response.data.handle);
-				} else {
-					showManageBlueskyNotConnected();
-				}
-			},
-			error: function() {
-				showManageBlueskyNotConnected();
-			}
-		});
-	}
-
-	function showManageBlueskyConnected(handle) {
-		$('#manage-bluesky-not-connected').hide();
-		$('#manage-bluesky-connected').show();
-		$('#manage-bluesky-handle').text(handle);
-	}
-
-	function showManageBlueskyNotConnected() {
-		$('#manage-bluesky-not-connected').show();
-		$('#manage-bluesky-connected').hide();
-	}
-
-	function showManageBlueskyConnectModal() {
-		const $modal = $('#pm-bluesky-connect-modal');
-		$modal.show();
-		$('body').addClass('pm-modal-open');
-
-		// Focus on handle input
-		setTimeout(() => {
-			$('.pm-bluesky-handle').focus();
-		}, 100);
-
-		// Set up close button handler
-		$modal.find('.pm-modal-close').off('click').on('click', function() {
-			$modal.hide();
-			$('body').removeClass('pm-modal-open');
-		});
-
-		// Set up form submission handler
-		$('#pm-bluesky-connect-form').off('submit').on('submit', function(e) {
-			e.preventDefault();
-
-			const handle = $('.pm-bluesky-handle').val();
-			const password = $('.pm-bluesky-password').val();
-			const $submitBtn = $('.pm-bluesky-connect-submit');
-
-			$submitBtn.prop('disabled', true).text(PartyMinderManageCommunity.strings.connecting);
-
-			$.ajax({
-				url: PartyMinderManageCommunity.ajax_url,
-				type: 'POST',
-				data: {
-					action: 'partyminder_connect_bluesky',
-					handle: handle,
-					password: password,
-					nonce: PartyMinderManageCommunity.at_protocol_nonce
-				},
-				success: function(response) {
-					if (response.success) {
-						$modal.hide();
-						$('body').removeClass('pm-modal-open');
-						showManageBlueskyConnected(response.handle);
-						$('#pm-bluesky-connect-form')[0].reset();
-						$('.pm-form-error').hide();
-					} else {
-						$('.pm-form-error').show().text(response.data || PartyMinderManageCommunity.strings.connection_failed);
-					}
-					$submitBtn.prop('disabled', false).text(PartyMinderManageCommunity.strings.connect_account);
-				},
-				error: function() {
-					$('.pm-form-error').show().text(PartyMinderManageCommunity.strings.connection_failed_network);
-					$submitBtn.prop('disabled', false).text(PartyMinderManageCommunity.strings.connect_account);
-				}
-			});
-		});
-	}
-
-	function disconnectManageBluesky() {
-		if (!confirm(PartyMinderManageCommunity.strings.confirm_disconnect)) {
-			return;
-		}
-
-		$.ajax({
-			url: PartyMinderManageCommunity.ajax_url,
-			type: 'POST',
-			data: {
-				action: 'partyminder_disconnect_bluesky',
-				nonce: PartyMinderManageCommunity.at_protocol_nonce
-			},
-			success: function(response) {
-				if (response.success) {
-					showManageBlueskyNotConnected();
-					alert(PartyMinderManageCommunity.strings.disconnected_successfully);
-				} else {
-					alert(response.data || PartyMinderManageCommunity.strings.disconnect_failed);
-				}
-			},
-			error: function() {
-				alert(PartyMinderManageCommunity.strings.network_error);
-			}
-		});
-	}
-
-	function showBlueskyFollowersModal() {
-		const $modal = $('#pm-bluesky-followers-modal');
-		$modal.show();
-		$('body').addClass('pm-modal-open');
-		loadBlueskyFollowersForCommunity();
-
-		// Set up modal close handlers
-		$modal.find('.pm-modal-close').off('click').on('click', function() {
-			$modal.hide();
-			$('body').removeClass('pm-modal-open');
-		});
-
-		// Set up send invitations handler
-		$('#pm-send-followers-invites').off('click').on('click', function() {
-			const selectedFollowers = [];
-			$('.pm-follower-checkbox:checked').each(function() {
-				const $followerItem = $(this).closest('.pm-follower-item');
-				selectedFollowers.push({
-					handle: $(this).val(),
-					display_name: $(this).data('display-name')
-				});
-			});
-
-			if (selectedFollowers.length === 0) {
-				alert(PartyMinderManageCommunity.strings.select_followers);
-				return;
-			}
-
-			const $sendBtn = $(this);
-			$sendBtn.prop('disabled', true).text(PartyMinderManageCommunity.strings.sending_invitations);
-
-			$.ajax({
-				url: PartyMinderManageCommunity.ajax_url,
-				type: 'POST',
-				data: {
-					action: 'partyminder_send_bluesky_invitations',
-					community_id: communityId,
-					followers: selectedFollowers,
-					nonce: PartyMinderManageCommunity.at_protocol_nonce
-				},
-				success: function(response) {
-					if (response.success) {
-						alert(PartyMinderManageCommunity.strings.invitations_sent);
-						$modal.hide();
-						$('body').removeClass('pm-modal-open');
-						// Reload invitations list
-						loadCommunityInvitations(communityId);
-					} else {
-						alert(response.message || PartyMinderManageCommunity.strings.invitations_failed);
-					}
-					$sendBtn.prop('disabled', false).text(PartyMinderManageCommunity.strings.send_invitations);
-				},
-				error: function() {
-					alert(PartyMinderManageCommunity.strings.network_error);
-					$sendBtn.prop('disabled', false).text(PartyMinderManageCommunity.strings.send_invitations);
-				}
-			});
-		});
-	}
-
-	function loadBlueskyFollowersForCommunity() {
-		$('#pm-bluesky-followers-loading').show();
-		$('#pm-bluesky-followers-list').hide();
-		$('#pm-bluesky-followers-error').hide();
-
-		$.ajax({
-			url: PartyMinderManageCommunity.ajax_url,
-			type: 'POST',
-			data: {
-				action: 'partyminder_get_bluesky_contacts',
-				nonce: PartyMinderManageCommunity.at_protocol_nonce
-			},
-			success: function(response) {
-				$('#pm-bluesky-followers-loading').hide();
-
-				if (response.success && response.contacts) {
-					displayBlueskyFollowersForCommunity(response.contacts);
-					$('#pm-bluesky-followers-list').show();
-				} else {
-					$('#pm-bluesky-followers-error').show();
-					$('#pm-followers-error-message').text(response.message || PartyMinderManageCommunity.strings.load_followers_failed);
-				}
-			},
-			error: function() {
-				$('#pm-bluesky-followers-loading').hide();
-				$('#pm-bluesky-followers-error').show();
-				$('#pm-followers-error-message').text(PartyMinderManageCommunity.strings.network_error_followers);
-			}
-		});
-	}
-
-	function displayBlueskyFollowersForCommunity(contacts) {
-		const $container = $('#pm-followers-container');
-		$container.empty();
-
-		if (contacts.length === 0) {
-			$container.html('<p class="pm-text-muted">' + PartyMinderManageCommunity.strings.no_followers + '</p>');
-			return;
-		}
-
-		contacts.forEach(function(contact) {
-			const followerHtml = `
-				<div class="pm-follower-item pm-py-2 pm-border-b">
-					<label class="pm-form-label pm-flex pm-items-center">
-						<input type="checkbox" class="pm-form-checkbox pm-follower-checkbox" value="${contact.handle}" data-display-name="${contact.display_name || contact.handle}">
-						<div class="pm-ml-3">
-							<div class="pm-follower-name pm-font-medium">${contact.display_name || contact.handle}</div>
-							<div class="pm-text-sm pm-text-muted">@${contact.handle}</div>
-						</div>
-					</label>
-				</div>
-			`;
-			$container.append(followerHtml);
-		});
-
-		// Set up select all functionality
-		const $selectAllCheckbox = $('#pm-select-all-followers');
-		const $followerCheckboxes = $container.find('.pm-follower-checkbox');
-		const $sendBtn = $('#pm-send-followers-invites');
-
-		$selectAllCheckbox.off('change').on('change', function() {
-			$followerCheckboxes.prop('checked', this.checked);
-			updateSendButton();
-		});
-
-		$followerCheckboxes.off('change').on('change', updateSendButton);
-
-		function updateSendButton() {
-			const checkedCount = $container.find('.pm-follower-checkbox:checked').length;
-			$sendBtn.prop('disabled', checkedCount === 0);
-		}
-
-		updateSendButton();
 	}
 
 	// Community deletion confirmation
