@@ -641,15 +641,7 @@ class PartyMinder_Activator {
 			$wpdb->query( "ALTER TABLE $guests_table ADD INDEX temporary_guest_id (temporary_guest_id)" );
 			$wpdb->query( "ALTER TABLE $guests_table ADD INDEX converted_user_id (converted_user_id)" );
 			
-			// Debug: Log the migration
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'RSVP Debug - Database migration completed. Added rsvp_token, temporary_guest_id, converted_user_id columns to ' . $guests_table );
-			}
 		} else {
-			// Debug: Log that migration was skipped
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'RSVP Debug - Database migration skipped. rsvp_token column already exists in ' . $guests_table );
-			}
 		}
 
 		// Run other existing migrations
@@ -1021,16 +1013,9 @@ class PartyMinder_Activator {
 			// Index all existing content
 			$indexed_count = PartyMinder_Search_Indexer_Init::index_all_content();
 			
-			// Log success for debugging
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( "PartyMinder: Search indexing completed during activation. Indexed $indexed_count items." );
-			}
 			
 		} catch ( Exception $e ) {
 			// Don't let search indexing break plugin activation
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'PartyMinder: Search indexing failed during activation: ' . $e->getMessage() );
-			}
 		}
 	}
 

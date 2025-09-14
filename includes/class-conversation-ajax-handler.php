@@ -564,8 +564,17 @@ class PartyMinder_Conversation_Ajax_Handler {
 				break;
 				
 			case 'private':
-				// Private community - require explicit access request
-				return new WP_Error( 'access_restricted', __( 'This is a private community. Please request access from the community owner', 'partyminder' ) );
+				// Private community - provide contact info for access request
+				$creator_user = get_user_by( 'id', $community->creator_id );
+				$contact_info = $creator_user ? $creator_user->display_name : __( 'the community administrator', 'partyminder' );
+
+				$message = sprintf(
+					__( 'This is a private community. To request access, contact %s or email %s', 'partyminder' ),
+					$contact_info,
+					get_option( 'admin_email' )
+				);
+
+				return new WP_Error( 'access_restricted', $message );
 				break;
 		}
 		

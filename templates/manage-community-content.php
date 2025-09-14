@@ -245,10 +245,10 @@ ob_start();
 			</label>
 			<select name="visibility" class="pm-form-select">
 				<option value="public" <?php selected( $community->visibility, 'public' ); ?>>
-					<?php _e( '🌍 Public - Anyone can join', 'partyminder' ); ?>
+					<?php _e( 'Public - Anyone can join', 'partyminder' ); ?>
 				</option>
 				<option value="private" <?php selected( $community->visibility, 'private' ); ?>>
-					<?php _e( '🔒 Private - Invite only', 'partyminder' ); ?>
+					<?php _e( 'Private - Invite only', 'partyminder' ); ?>
 				</option>
 			</select>
 		</div>
@@ -324,7 +324,49 @@ ob_start();
 			<?php _e( 'Send Invitation', 'partyminder' ); ?>
 		</button>
 	</form>
-	
+
+	<?php if ( PartyMinder_Feature_Flags::is_at_protocol_enabled() ) : ?>
+	<!-- Bluesky Invitations Section -->
+	<div class="pm-mt">
+		<h4><?php _e( 'Bluesky Invitations', 'partyminder' ); ?></h4>
+
+		<div id="manage-bluesky-connection-section" class="pm-mb-4">
+			<div id="manage-bluesky-not-connected" class="pm-card pm-card-info" style="border-left: 4px solid #1d9bf0;">
+				<div class="pm-card-body">
+					<h5 class="pm-heading pm-heading-sm pm-mb-4">
+						<?php _e( 'Connect Bluesky for Easy Invites', 'partyminder' ); ?>
+					</h5>
+					<p class="pm-text-muted pm-mb-4">
+						<?php _e( 'Connect your Bluesky account to invite your contacts to this community.', 'partyminder' ); ?>
+					</p>
+					<button type="button" class="pm-btn pm-btn" id="manage-connect-bluesky-btn">
+						<?php _e( 'Connect Bluesky Account', 'partyminder' ); ?>
+					</button>
+				</div>
+			</div>
+
+			<div id="manage-bluesky-connected" class="pm-card pm-card-success" style="border-left: 4px solid #10b981; display: none;">
+				<div class="pm-card-body">
+					<h5 class="pm-heading pm-heading-sm pm-mb-4">
+						<?php _e( 'Bluesky Connected', 'partyminder' ); ?>
+					</h5>
+					<p class="pm-text-muted pm-mb-4">
+						<?php _e( 'Connected as', 'partyminder' ); ?> <strong id="manage-bluesky-handle"></strong>
+					</p>
+					<div class="pm-flex pm-gap-2">
+						<button type="button" class="pm-btn pm-btn-primary pm-btn-sm" id="create-invite-bluesky-btn">
+							<?php _e( 'Invite from Bluesky', 'partyminder' ); ?>
+						</button>
+						<button type="button" class="pm-btn pm-btn-danger pm-btn-sm" id="manage-disconnect-bluesky-btn">
+							<?php _e( 'Disconnect', 'partyminder' ); ?>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php endif; ?>
+
 	<div class="pm-mt">
 		<h4><?php _e( 'Pending Invitations', 'partyminder' ); ?></h4>
 		<div id="invitations-list">
@@ -337,361 +379,63 @@ ob_start();
 
 <?php endif; ?>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-	const communityId = <?php echo intval( $community_id ); ?>;
-	const currentTab = '<?php echo esc_js( $current_tab ); ?>';
-	
-	// Load appropriate tab content based on current tab
-	if (currentTab === 'members') {
-		loadCommunityMembers(communityId);
-	} else if (currentTab === 'invitations') {
-		loadCommunityInvitations(communityId);
-	}
-	
-	// Handle delete community form
-	const deleteConfirmInput = document.getElementById('delete-confirm-name');
-	const deleteBtn = document.getElementById('delete-community-btn');
-	const communityName = '<?php echo esc_js( $community->name ); ?>';
-	
-	if (deleteConfirmInput && deleteBtn) {
-		deleteConfirmInput.addEventListener('input', function() {
-			deleteBtn.disabled = this.value !== communityName;
-		});
-	}
-	
-	// Handle invitation form submission
-	const invitationForm = document.getElementById('send-invitation-form');
-	if (invitationForm) {
-		invitationForm.addEventListener('submit', function(e) {
-			e.preventDefault();
-			
-			const email = document.getElementById('invitation-email').value;
-			const message = document.getElementById('invitation-message').value;
-			
-			if (!email) {
-				alert('<?php _e( 'Please enter an email address.', 'partyminder' ); ?>');
-				return;
-			}
-			
-			const submitBtn = this.querySelector('button[type="submit"]');
-			const originalText = submitBtn.textContent;
-			submitBtn.textContent = '<?php _e( 'Sending...', 'partyminder' ); ?>';
-			submitBtn.disabled = true;
-			
-			jQuery.ajax({
-				url: partyminder_ajax.ajax_url,
-				type: 'POST',
-				data: {
-					action: 'partyminder_send_invitation',
-					community_id: communityId,
-					email: email,
-					message: message,
-					nonce: partyminder_ajax.community_nonce
-				},
-				success: function(response) {
-					if (response.success) {
-						alert(response.data.message);
-						// Clear form
-						document.getElementById('invitation-email').value = '';
-						document.getElementById('invitation-message').value = '';
-						// Reload invitations list if we're on that tab
-						if (currentTab === 'invitations') {
-							loadCommunityInvitations(communityId);
-						}
-					} else {
-						alert(response.data || '<?php _e( 'Failed to send invitation. Please try again.', 'partyminder' ); ?>');
-					}
-					submitBtn.textContent = originalText;
-					submitBtn.disabled = false;
-				},
-				error: function() {
-					alert('<?php _e( 'Network error. Please try again.', 'partyminder' ); ?>');
-					submitBtn.textContent = originalText;
-					submitBtn.disabled = false;
-				}
-			});
-		});
-	}
-	
-	// Load community members
-	function loadCommunityMembers(communityId) {
-		const membersList = document.getElementById('members-list');
-		if (!membersList) return;
-		
-		membersList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e( 'Loading community members...', 'partyminder' ); ?></p></div>';
-		
-		jQuery.ajax({
-			url: partyminder_ajax.ajax_url,
-			type: 'POST',
-			data: {
-				action: 'partyminder_get_community_members',
-				community_id: communityId,
-				nonce: partyminder_ajax.community_nonce
-			},
-			success: function(response) {
-				if (response.success && response.data.members_html) {
-					membersList.innerHTML = response.data.members_html;
-				} else {
-					membersList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e( 'No members found.', 'partyminder' ); ?></p></div>';
-				}
-			},
-			error: function() {
-				membersList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e( 'Error loading members.', 'partyminder' ); ?></p></div>';
-			}
-		});
-	}
-	
-	// Load community invitations
-	function loadCommunityInvitations(communityId) {
-		const invitationsList = document.getElementById('invitations-list');
-		if (!invitationsList) return;
-		
-		invitationsList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e( 'Loading pending invitations...', 'partyminder' ); ?></p></div>';
-		
-		jQuery.ajax({
-			url: partyminder_ajax.ajax_url,
-			type: 'POST',
-			data: {
-				action: 'partyminder_get_community_invitations',
-				community_id: communityId,
-				nonce: partyminder_ajax.community_nonce
-			},
-			success: function(response) {
-				if (response.success && response.data.invitations) {
-					renderInvitationsList(response.data.invitations);
-				} else {
-					invitationsList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e( 'No pending invitations.', 'partyminder' ); ?></p></div>';
-				}
-			},
-			error: function() {
-				invitationsList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e( 'Error loading invitations.', 'partyminder' ); ?></p></div>';
-			}
-		});
-	}
-	
-	// Render invitations list
-	function renderInvitationsList(invitations) {
-		const invitationsList = document.getElementById('invitations-list');
-		
-		if (!invitations || invitations.length === 0) {
-			invitationsList.innerHTML = '<div class="pm-loading-placeholder"><p><?php _e( 'No pending invitations.', 'partyminder' ); ?></p></div>';
-			return;
-		}
-		
-		let html = '<div class="pm-invitation-list">';
-		invitations.forEach(invitation => {
-			const createdDate = new Date(invitation.created_at).toLocaleDateString();
-			const expiresDate = new Date(invitation.expires_at).toLocaleDateString();
-			
-			html += `
-				<div class="pm-invitation-item" data-invitation-id="${invitation.id}">
-					<div class="pm-invitation-info">
-						<div class="pm-invitation-details">
-							<h4>${invitation.invited_email}</h4>
-							<small><?php _e( 'Invited on', 'partyminder' ); ?> ${createdDate}</small>
-							<br><small><?php _e( 'Expires', 'partyminder' ); ?> ${expiresDate}</small>
-							${invitation.message ? '<br><small><em>"' + invitation.message + '"</em></small>' : ''}
-						</div>
-					</div>
-					<div class="pm-invitation-actions">
-						<span class="pm-member-role pending"><?php _e( 'pending', 'partyminder' ); ?></span>
-						<button class="pm-btn copy-invitation-btn" data-invitation-token="${invitation.invitation_token}" data-community-id="${invitation.community_id}">
-							<?php _e( 'Copy Invite', 'partyminder' ); ?>
-						</button>
-						<button class="pm-btn pm-btn-danger cancel-invitation-btn" data-invitation-id="${invitation.id}" data-email="${invitation.invited_email}">
-							<?php _e( 'Cancel', 'partyminder' ); ?>
-						</button>
-					</div>
-				</div>
-			`;
-		});
-		html += '</div>';
-		
-		invitationsList.innerHTML = html;
-		
-		// Add event listeners for invitation actions
-		attachInvitationActionListeners();
-	}
-	
-	// Attach event listeners for member actions
-	function attachMemberActionListeners() {
-		// Promote buttons
-		document.querySelectorAll('.promote-btn').forEach(btn => {
-			btn.addEventListener('click', function() {
-				const memberId = this.getAttribute('data-member-id');
-				updateMemberRole(memberId, 'admin');
-			});
-		});
-		
-		// Demote buttons
-		document.querySelectorAll('.demote-btn').forEach(btn => {
-			btn.addEventListener('click', function() {
-				const memberId = this.getAttribute('data-member-id');
-				updateMemberRole(memberId, 'member');
-			});
-		});
-		
-		// Remove buttons
-		document.querySelectorAll('.remove-btn').forEach(btn => {
-			btn.addEventListener('click', function() {
-				const memberId = this.getAttribute('data-member-id');
-				const memberName = this.getAttribute('data-member-name');
-				
-				if (confirm('<?php _e( 'Are you sure you want to remove', 'partyminder' ); ?> "' + memberName + '" <?php _e( 'from this community?', 'partyminder' ); ?>')) {
-					removeMember(memberId);
-				}
-			});
-		});
-	}
-	
-	// Attach event listeners for invitation actions
-	function attachInvitationActionListeners() {
-		// Copy invitation buttons
-		document.querySelectorAll('.copy-invitation-btn').forEach(btn => {
-			btn.addEventListener('click', function() {
-				const token = this.getAttribute('data-invitation-token');
-				const communityId = this.getAttribute('data-community-id');
-				
-				// Get community slug from the current URL or community data
-				const communitySlug = '<?php echo esc_js( $community->slug ); ?>';
-				const invitationUrl = '<?php echo home_url(); ?>/communities/' + communitySlug + '?invitation=' + token + '&community=' + communityId;
-				
-				// Copy to clipboard
-				if (navigator.clipboard && navigator.clipboard.writeText) {
-					navigator.clipboard.writeText(invitationUrl).then(() => {
-						// Change button text temporarily
-						const originalText = this.textContent;
-						this.textContent = '<?php _e( 'Copied!', 'partyminder' ); ?>';
-						setTimeout(() => {
-							this.textContent = originalText;
-						}, 2000);
-					}).catch(err => {
-						console.error('Failed to copy: ', err);
-						alert('<?php _e( 'Failed to copy to clipboard', 'partyminder' ); ?>');
-					});
-				} else {
-					// Fallback for older browsers
-					const textArea = document.createElement('textarea');
-					textArea.value = invitationUrl;
-					document.body.appendChild(textArea);
-					textArea.focus();
-					textArea.select();
-					try {
-						document.execCommand('copy');
-						const originalText = this.textContent;
-						this.textContent = '<?php _e( 'Copied!', 'partyminder' ); ?>';
-						setTimeout(() => {
-							this.textContent = originalText;
-						}, 2000);
-					} catch (err) {
-						console.error('Fallback copy failed: ', err);
-						alert('<?php _e( 'Failed to copy to clipboard', 'partyminder' ); ?>');
-					}
-					document.body.removeChild(textArea);
-				}
-			});
-		});
-		
-		// Cancel invitation buttons
-		document.querySelectorAll('.cancel-invitation-btn').forEach(btn => {
-			btn.addEventListener('click', function() {
-				const invitationId = this.getAttribute('data-invitation-id');
-				const email = this.getAttribute('data-email');
-				
-				if (confirm('<?php _e( 'Are you sure you want to cancel the invitation to', 'partyminder' ); ?> "' + email + '"?')) {
-					cancelInvitation(invitationId);
-				}
-			});
-		});
-	}
-	
-	// Update member role
-	function updateMemberRole(memberId, newRole) {
-		jQuery.ajax({
-			url: partyminder_ajax.ajax_url,
-			type: 'POST',
-			data: {
-				action: 'partyminder_update_member_role',
-				community_id: communityId,
-				member_id: memberId,
-				new_role: newRole,
-				nonce: partyminder_ajax.community_nonce
-			},
-			success: function(response) {
-				if (response.success) {
-					alert(response.data.message);
-					// Reload members list
-					loadCommunityMembers(communityId);
-				} else {
-					alert(response.data || '<?php _e( 'Failed to update member role.', 'partyminder' ); ?>');
-				}
-			},
-			error: function() {
-				alert('<?php _e( 'Network error. Please try again.', 'partyminder' ); ?>');
-			}
-		});
-	}
-	
-	// Remove member
-	function removeMember(memberId) {
-		jQuery.ajax({
-			url: partyminder_ajax.ajax_url,
-			type: 'POST',
-			data: {
-				action: 'partyminder_remove_member',
-				community_id: communityId,
-				member_id: memberId,
-				nonce: partyminder_ajax.community_nonce
-			},
-			success: function(response) {
-				if (response.success) {
-					alert(response.data.message);
-					// Reload members list
-					loadCommunityMembers(communityId);
-				} else {
-					alert(response.data || '<?php _e( 'Failed to remove member.', 'partyminder' ); ?>');
-				}
-			},
-			error: function() {
-				alert('<?php _e( 'Network error. Please try again.', 'partyminder' ); ?>');
-			}
-		});
-	}
-	
-	// Cancel invitation
-	function cancelInvitation(invitationId) {
-		jQuery.ajax({
-			url: partyminder_ajax.ajax_url,
-			type: 'POST',
-			data: {
-				action: 'partyminder_cancel_invitation',
-				community_id: communityId,
-				invitation_id: invitationId,
-				nonce: partyminder_ajax.community_nonce
-			},
-			success: function(response) {
-				if (response.success) {
-					alert(response.data.message);
-					// Reload invitations list
-					loadCommunityInvitations(communityId);
-				} else {
-					alert(response.data || '<?php _e( 'Failed to cancel invitation.', 'partyminder' ); ?>');
-				}
-			},
-			error: function() {
-				alert('<?php _e( 'Network error. Please try again.', 'partyminder' ); ?>');
-			}
-		});
-	}
-	
-	// Community deletion confirmation
-	window.confirmCommunityDeletion = function(event) {
-		const communityName = '<?php echo esc_js( $community->name ); ?>';
-		return confirm('<?php _e( 'Are you absolutely sure you want to delete', 'partyminder' ); ?> "' + communityName + '"?\n\n<?php _e( 'This action cannot be undone. All community data, members, events, and conversations will be permanently deleted.', 'partyminder' ); ?>');
-	};
-});
-</script>
+<?php
+// Enqueue manage-community script with localized data
+wp_enqueue_script( 'partyminder-manage-community', PARTYMINDER_PLUGIN_URL . 'assets/js/manage-community.js', array( 'jquery' ), '1.0.0', true );
+
+// Localize script data
+wp_localize_script( 'partyminder-manage-community', 'PartyMinderManageCommunity', array(
+	'ajax_url' => admin_url( 'admin-ajax.php' ),
+	'community_id' => intval( $community_id ),
+	'current_tab' => esc_js( $current_tab ),
+	'community_name' => esc_js( $community->name ),
+	'community_slug' => esc_js( $community->slug ),
+	'home_url' => home_url(),
+	'community_nonce' => wp_create_nonce( 'partyminder_community_action' ),
+	'at_protocol_enabled' => PartyMinder_Feature_Flags::is_at_protocol_enabled(),
+	'at_protocol_nonce' => wp_create_nonce( 'partyminder_at_protocol_nonce' ),
+	'strings' => array(
+		'enter_email' => __( 'Please enter an email address.', 'partyminder' ),
+		'sending' => __( 'Sending...', 'partyminder' ),
+		'invitation_failed' => __( 'Failed to send invitation. Please try again.', 'partyminder' ),
+		'network_error' => __( 'Network error. Please try again.', 'partyminder' ),
+		'loading_members' => __( 'Loading community members...', 'partyminder' ),
+		'no_members' => __( 'No members found.', 'partyminder' ),
+		'error_loading_members' => __( 'Error loading members.', 'partyminder' ),
+		'loading_invitations' => __( 'Loading pending invitations...', 'partyminder' ),
+		'no_invitations' => __( 'No pending invitations.', 'partyminder' ),
+		'error_loading_invitations' => __( 'Error loading invitations.', 'partyminder' ),
+		'invited_on' => __( 'Invited on', 'partyminder' ),
+		'expires' => __( 'Expires', 'partyminder' ),
+		'pending' => __( 'pending', 'partyminder' ),
+		'copy_invite' => __( 'Copy Invite', 'partyminder' ),
+		'cancel' => __( 'Cancel', 'partyminder' ),
+		'copied' => __( 'Copied!', 'partyminder' ),
+		'copy_failed' => __( 'Failed to copy to clipboard', 'partyminder' ),
+		'confirm_remove' => __( 'Are you sure you want to remove "%s" from this community?', 'partyminder' ),
+		'confirm_cancel_invitation' => __( 'Are you sure you want to cancel the invitation to "%s"?', 'partyminder' ),
+		'update_role_failed' => __( 'Failed to update member role.', 'partyminder' ),
+		'remove_member_failed' => __( 'Failed to remove member.', 'partyminder' ),
+		'cancel_invitation_failed' => __( 'Failed to cancel invitation.', 'partyminder' ),
+		'connecting' => __( 'Connecting...', 'partyminder' ),
+		'connection_failed' => __( 'Connection failed', 'partyminder' ),
+		'connection_failed_network' => __( 'Connection failed. Please try again.', 'partyminder' ),
+		'connect_account' => __( 'Connect Account', 'partyminder' ),
+		'confirm_disconnect' => __( 'Are you sure you want to disconnect your BlueSky account?', 'partyminder' ),
+		'disconnected_successfully' => __( 'BlueSky account disconnected successfully', 'partyminder' ),
+		'disconnect_failed' => __( 'Failed to disconnect BlueSky account', 'partyminder' ),
+		'select_followers' => __( 'Please select at least one follower to invite', 'partyminder' ),
+		'sending_invitations' => __( 'Sending Invitations...', 'partyminder' ),
+		'invitations_sent' => __( 'Invitations sent successfully!', 'partyminder' ),
+		'invitations_failed' => __( 'Failed to send invitations', 'partyminder' ),
+		'send_invitations' => __( 'Send Invitations', 'partyminder' ),
+		'load_followers_failed' => __( 'Failed to load followers', 'partyminder' ),
+		'network_error_followers' => __( 'Network error loading followers', 'partyminder' ),
+		'no_followers' => __( 'No followers found to invite', 'partyminder' ),
+		'confirm_delete' => __( 'Are you absolutely sure you want to delete "%s"?\n\nThis action cannot be undone. All community data, members, events, and conversations will be permanently deleted.', 'partyminder' ),
+	)
+) );
+?>
 
 <?php
 $main_content = ob_get_clean();
@@ -734,4 +478,10 @@ $sidebar_content = ob_get_clean();
 
 // Include two-column template
 require PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php';
+
+// Include BlueSky modals if AT Protocol is enabled
+if ( PartyMinder_Feature_Flags::is_at_protocol_enabled() ) :
+	include PARTYMINDER_PLUGIN_DIR . 'templates/partials/modal-bluesky-connect.php';
+	include PARTYMINDER_PLUGIN_DIR . 'templates/partials/modal-bluesky-followers.php';
+endif;
 ?>

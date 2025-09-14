@@ -64,6 +64,16 @@ class PartyMinder {
 	private $event_manager;
 	private $guest_manager;
 	private $ai_assistant;
+	private $content_injector;
+	private $body_class_manager;
+	private $page_router;
+	private $event_ajax_handler;
+	private $community_ajax_handler;
+	private $conversation_ajax_handler;
+	private $conversation_manager;
+	private $community_manager;
+	private $member_identity_manager;
+	private $at_protocol_manager;
 
 	public static function get_instance() {
 		if ( null === self::$instance ) {
@@ -1698,9 +1708,6 @@ class PartyMinder {
 
 		$community_id = PartyMinder_Personal_Community_Service::create_for_user( $user_id );
 		
-		if ( $community_id && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( "PartyMinder: Created personal community (ID: $community_id) for new user $user_id" );
-		}
 	}
 
 	/**

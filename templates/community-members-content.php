@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
 				type: 'POST',
 				data: {
-					action: 'partyminder_invite_community_member',
+					action: 'partyminder_send_invitation',
 					community_id: <?php echo $community->id; ?>,
 					email: email,
 					role: role,
