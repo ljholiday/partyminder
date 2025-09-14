@@ -393,7 +393,7 @@ wp_localize_script( 'partyminder-manage-community', 'PartyMinderManageCommunity'
 	'home_url' => home_url(),
 	'community_nonce' => wp_create_nonce( 'partyminder_community_action' ),
 	'at_protocol_enabled' => PartyMinder_Feature_Flags::is_at_protocol_enabled(),
-	'at_protocol_nonce' => wp_create_nonce( 'partyminder_at_protocol_nonce' ),
+	'at_protocol_nonce' => wp_create_nonce( 'partyminder_at_protocol' ),
 	'strings' => array(
 		'enter_email' => __( 'Please enter an email address.', 'partyminder' ),
 		'sending' => __( 'Sending...', 'partyminder' ),

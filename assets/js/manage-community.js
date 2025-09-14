@@ -474,8 +474,7 @@ jQuery(document).ready(function($) {
 				const $followerItem = $(this).closest('.pm-follower-item');
 				selectedFollowers.push({
 					handle: $(this).val(),
-					display_name: $followerItem.find('.pm-follower-name').text(),
-					avatar: $followerItem.find('.pm-follower-avatar').attr('src') || ''
+					display_name: $(this).data('display-name')
 				});
 			});
 
@@ -531,12 +530,12 @@ jQuery(document).ready(function($) {
 			success: function(response) {
 				$('#pm-bluesky-followers-loading').hide();
 
-				if (response.success && response.data.contacts) {
-					displayBlueskyFollowersForCommunity(response.data.contacts);
+				if (response.success && response.contacts) {
+					displayBlueskyFollowersForCommunity(response.contacts);
 					$('#pm-bluesky-followers-list').show();
 				} else {
 					$('#pm-bluesky-followers-error').show();
-					$('#pm-followers-error-message').text(response.data || PartyMinderManageCommunity.strings.load_followers_failed);
+					$('#pm-followers-error-message').text(response.message || PartyMinderManageCommunity.strings.load_followers_failed);
 				}
 			},
 			error: function() {
@@ -558,15 +557,12 @@ jQuery(document).ready(function($) {
 
 		contacts.forEach(function(contact) {
 			const followerHtml = `
-				<div class="pm-follower-item pm-flex pm-gap-3 pm-p-3 pm-border-b">
-					<label class="pm-flex pm-gap-3 pm-flex-1 pm-cursor-pointer">
-						<input type="checkbox" class="pm-follower-checkbox pm-form-checkbox" value="${contact.handle}">
-						<div class="pm-flex pm-gap-3 pm-flex-1">
-							${contact.avatar ? `<img src="${contact.avatar}" alt="${contact.display_name}" class="pm-follower-avatar pm-w-10 pm-h-10 pm-rounded-full">` : `<div class="pm-follower-avatar pm-w-10 pm-h-10 pm-rounded-full pm-bg-primary pm-flex pm-items-center pm-justify-center pm-text-white pm-font-bold">${contact.display_name.charAt(0).toUpperCase()}</div>`}
-							<div class="pm-flex-1">
-								<div class="pm-follower-name pm-font-medium">${contact.display_name}</div>
-								<div class="pm-text-muted pm-text-sm">@${contact.handle}</div>
-							</div>
+				<div class="pm-follower-item pm-py-2 pm-border-b">
+					<label class="pm-form-label pm-flex pm-items-center">
+						<input type="checkbox" class="pm-form-checkbox pm-follower-checkbox" value="${contact.handle}" data-display-name="${contact.display_name || contact.handle}">
+						<div class="pm-ml-3">
+							<div class="pm-follower-name pm-font-medium">${contact.display_name || contact.handle}</div>
+							<div class="pm-text-sm pm-text-muted">@${contact.handle}</div>
 						</div>
 					</label>
 				</div>
