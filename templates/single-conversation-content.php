@@ -295,66 +295,6 @@ ob_start();
 <!-- Community context would go here if implemented -->
 <?php endif; ?>
 
-<!-- Conversation Info -->
-<div class="pm-section pm-mb">
-	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Conversation Info', 'partyminder' ); ?></h3>
-	</div>
-	<div class="pm-stat-list">
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Started by', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php PartyMinder_Member_Display::member_display( $conversation->author_id, array( 'show_avatar' => false, 'avatar_size' => 16 ) ); ?></span>
-		</div>
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Created', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo human_time_diff( strtotime( $conversation->created_at ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'partyminder' ); ?></span>
-		</div>
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Replies', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo $conversation->reply_count; ?></span>
-		</div>
-		<?php if ( $conversation->reply_count > 0 ) : ?>
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Last Reply', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo human_time_diff( strtotime( $conversation->last_reply_date ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'partyminder' ); ?></span>
-		</div>
-		<div class="pm-stat-item">
-			<span class="pm-stat-label"><?php _e( 'Last Reply By', 'partyminder' ); ?></span>
-			<span class="pm-stat-value"><?php echo esc_html( $conversation->last_reply_author ); ?></span>
-		</div>
-		<?php endif; ?>
-	</div>
-</div>
-
-<!-- Essential Actions -->
-<div class="pm-section pm-mb">
-	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Actions', 'partyminder' ); ?></h3>
-	</div>
-	<div class="pm-flex pm-flex-column pm-gap">
-		<?php if ( $user_email ) : ?>
-			<button class="pm-btn follow-btn" data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
-				<?php if ( $is_following ) : ?>
-					<?php _e( 'Unfollow', 'partyminder' ); ?>
-				<?php else : ?>
-					<?php _e( 'Follow', 'partyminder' ); ?>
-				<?php endif; ?>
-			</button>
-		<?php endif; ?>
-		<?php if ( $event_data ) : ?>
-			<a href="<?php echo home_url( '/events/' . $event_data->slug ); ?>" class="pm-btn pm-btn">
-				<?php _e( 'View Event', 'partyminder' ); ?>
-			</a>
-		<?php endif; ?>
-		<button type="button" class="pm-btn pm-btn pm-reply-btn" 
-		        data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
-			<?php _e( 'Reply', 'partyminder' ); ?>
-		</button>
-		<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn">
-			<?php _e( 'Back to Conversations', 'partyminder' ); ?>
-		</a>
-	</div>
-</div>
 
 <?php
 $sidebar_content = ob_get_clean();

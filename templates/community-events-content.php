@@ -242,14 +242,7 @@ ob_start();
 				</div>
 			<?php endforeach; ?>
 		</div>
-		
-		<div class="pm-card pm-mt-4">
-			<div class="pm-card-body pm-text-center">
-				<p class="pm-text-muted">
-					<?php _e( 'Note: Currently showing all public events. Community-specific events coming soon!', 'partyminder' ); ?>
-				</p>
-			</div>
-		</div>
+
 	<?php endif; ?>
 </div>
 

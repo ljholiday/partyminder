@@ -351,25 +351,8 @@ $main_content = ob_get_clean();
 ob_start();
 ?>
 
-<!-- Recent Activity -->
-<?php if ( ! empty( $community_conversations ) ) : ?>
-<div class="pm-section pm-mb">
-	<div class="pm-section-header">
-		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Recent Activity', 'partyminder' ); ?></h3>
-	</div>
-	<div class="pm-text-muted">
-		<?php
-		$recent_conversation = $community_conversations[0];
-		$time_ago = human_time_diff( strtotime( $recent_conversation->last_reply_date ), current_time( 'timestamp' ) );
-		?>
-		<p class="pm-mb-2"><?php printf( __( 'Last conversation: %s ago', 'partyminder' ), $time_ago ); ?></p>
-		<p class="pm-mb-2"><?php printf( __( 'Most recent: "%s"', 'partyminder' ), esc_html( $conversation_manager->get_display_title( $recent_conversation, false ) ) ); ?></p>
-		<p><?php printf( __( 'By %s', 'partyminder' ), esc_html( $recent_conversation->author_name ) ); ?></p>
-	</div>
-</div>
-<?php endif; ?>
-
 <!-- Community Stats -->
+<!--
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
 		<h3 class="pm-heading pm-heading-sm"><?php _e( 'Community Stats', 'partyminder' ); ?></h3>
@@ -403,6 +386,7 @@ ob_start();
 		<?php endif; ?>
 	</div>
 </div>
+-->
 
 <?php
 $sidebar_content = ob_get_clean();
