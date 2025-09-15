@@ -6,6 +6,8 @@
 window.PartyMinderRSVP = (function($) {
 	'use strict';
 
+	let isSubmitting = false;
+
 	function init() {
 		bindEvents();
 		checkAutoOpen();
@@ -39,6 +41,15 @@ window.PartyMinderRSVP = (function($) {
 		// Modal close handlers
 		$(document).on('click', '#pm-rsvp-modal .pm-modal-close', closeModal);
 		$(document).on('click', '#pm-rsvp-modal .pm-modal-overlay', closeModal);
+
+		// Footer submit button handler
+		$(document).on('click', '#pm-submit-rsvp', function(e) {
+			e.preventDefault();
+			const $form = $('#pm-modal-rsvp-form');
+			if ($form.length) {
+				$form.trigger('submit');
+			}
+		});
 	}
 
 	function openModal(eventId, token = null) {
@@ -105,17 +116,38 @@ window.PartyMinderRSVP = (function($) {
 		$(document).off('submit', '#pm-modal-rsvp-form').on('submit', '#pm-modal-rsvp-form', function(e) {
 			e.preventDefault();
 
+			// Prevent double submissions
+			if (isSubmitting) {
+				return false;
+			}
+			isSubmitting = true;
+
 			const $form = $(this);
 			const $submitBtn = $('#pm-submit-rsvp');
 			const originalText = $submitBtn.text();
 
 			$submitBtn.prop('disabled', true).text(partyminder_ajax.strings.loading || 'Submitting...');
 
+			// Get form data and map field names
+			const formData = new FormData($form[0]);
+			const ajaxData = {
+				action: 'partyminder_rsvp',
+				event_id: formData.get('event_id'),
+				name: formData.get('guest_name'),
+				email: formData.get('guest_email'),
+				status: formData.get('rsvp_status'),
+				dietary: formData.get('dietary_restrictions'),
+				notes: formData.get('guest_notes'),
+				invitation_source: formData.get('invitation_source'),
+				nonce: partyminder_ajax.nonce
+			};
+
 			$.ajax({
 				url: partyminder_ajax.ajax_url,
 				type: 'POST',
-				data: $form.serialize() + '&action=partyminder_rsvp&nonce=' + partyminder_ajax.nonce,
+				data: ajaxData,
 				success: function(response) {
+					isSubmitting = false;
 					if (response.success) {
 						$('#pm-rsvp-form-messages').html('<div class="pm-alert pm-alert-success">' +
 							(response.data.message || partyminder_ajax.strings.success) + '</div>');
@@ -127,6 +159,7 @@ window.PartyMinderRSVP = (function($) {
 					}
 				},
 				error: function() {
+					isSubmitting = false;
 					$('#pm-rsvp-form-messages').html('<div class="pm-alert pm-alert-error">' +
 						(partyminder_ajax.strings.error || 'An error occurred. Please try again.') + '</div>');
 					$submitBtn.prop('disabled', false).text(originalText);

@@ -361,6 +361,7 @@ class PartyMinder {
 			'status'   => sanitize_text_field( $_POST['status'] ),
 			'dietary'  => sanitize_text_field( $_POST['dietary'] ),
 			'notes'    => sanitize_text_field( $_POST['notes'] ),
+			'invitation_source' => sanitize_text_field( $_POST['invitation_source'] ?? 'direct' ),
 		);
 
 		$result = $this->guest_manager->process_rsvp( $rsvp_data );
@@ -383,15 +384,36 @@ class PartyMinder {
 			return;
 		}
 
-		// If token provided, get existing guest data
+		// If token provided, get existing guest data and determine invitation source
 		$existing_guest = null;
+		$invitation_source = 'direct';
 		if ( $token ) {
 			require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
 			$guest_manager = new PartyMinder_Guest_Manager();
 			$existing_guest = $guest_manager->get_guest_by_token( $token );
+
+			// Check if this is a BlueSky invitation token
+			global $wpdb;
+			$event_invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
+			$bluesky_invitation = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT * FROM $event_invitations_table WHERE invitation_token = %s",
+					$token
+				)
+			);
+
+			if ( $bluesky_invitation ) {
+				$invitation_source = 'bluesky';
+			} elseif ( $existing_guest ) {
+				$invitation_source = 'email';
+			}
 		}
 
 		ob_start();
+		// Make variables available to template
+		$event_id = $event_id; // Ensure $event_id is in scope
+		$existing_guest = $existing_guest; // Ensure $existing_guest is in scope
+		$invitation_source = $invitation_source; // Ensure $invitation_source is in scope
 		include PARTYMINDER_PLUGIN_DIR . 'templates/forms/modal-rsvp-form.php';
 		$form_html = ob_get_clean();
 

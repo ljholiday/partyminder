@@ -309,8 +309,8 @@ class PartyMinder_Event_Ajax_Handler {
 		$guests_table = $wpdb->prefix . 'partyminder_guests';
 		$guests = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM $guests_table 
-				 WHERE event_id = %d AND rsvp_token != '' 
+				"SELECT * FROM $guests_table
+				 WHERE event_id = %d
 				 ORDER BY rsvp_date DESC",
 				$event_id
 			)
@@ -364,6 +364,17 @@ class PartyMinder_Event_Ajax_Handler {
 				$html .= '<div class="pm-flex pm-gap-4">';
 				$html .= '<strong>' . esc_html( $guest->email ) . '</strong>';
 				$html .= '<span class="pm-badge pm-badge-' . $status_class . '">' . esc_html( $status_text ) . '</span>';
+
+				// Add invitation source badge
+				$source = $guest->invitation_source ?? 'direct';
+				$source_badges = array(
+					'direct' => array( 'label' => __( 'Direct', 'partyminder' ), 'class' => 'pm-badge-primary' ),
+					'email' => array( 'label' => __( 'Email', 'partyminder' ), 'class' => 'pm-badge-secondary' ),
+					'bluesky' => array( 'label' => __( 'BlueSky', 'partyminder' ), 'class' => 'pm-badge-info' ),
+				);
+				$source_info = $source_badges[ $source ] ?? $source_badges['direct'];
+				$html .= '<span class="pm-badge ' . $source_info['class'] . '">' . esc_html( $source_info['label'] ) . '</span>';
+
 				$html .= '</div>';
 				
 				if ( ! empty( $guest->name ) ) {
@@ -528,7 +539,7 @@ class PartyMinder_Event_Ajax_Handler {
 			),
 			'invitations_sent' => $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM $guests_table WHERE event_id = %d AND rsvp_token != ''",
+					"SELECT COUNT(*) FROM $guests_table WHERE event_id = %d",
 					$event_id
 				)
 			),

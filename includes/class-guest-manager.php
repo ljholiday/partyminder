@@ -58,7 +58,9 @@ class PartyMinder_Guest_Manager {
 
 			$guest_id = $existing_guest->id;
 		} else {
-			// Create new guest record
+			// Create new guest record with token for RSVPs
+			$rsvp_token = wp_generate_password( 32, false );
+			$invitation_source = sanitize_text_field( $rsvp_data['invitation_source'] ?? 'direct' );
 			$result = $wpdb->insert(
 				$guests_table,
 				array(
@@ -68,9 +70,11 @@ class PartyMinder_Guest_Manager {
 					'status'               => sanitize_text_field( $rsvp_data['status'] ),
 					'dietary_restrictions' => sanitize_text_field( $rsvp_data['dietary'] ?? '' ),
 					'notes'                => sanitize_text_field( $rsvp_data['notes'] ?? '' ),
+					'rsvp_token'           => $rsvp_token,
+					'invitation_source'    => $invitation_source,
 					'rsvp_date'            => current_time( 'mysql' ),
 				),
-				array( '%d', '%s', '%s', '%s', '%s', '%s', '%s' )
+				array( '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )
 			);
 
 			$guest_id = $wpdb->insert_id;
@@ -245,7 +249,7 @@ class PartyMinder_Guest_Manager {
 	/**
 	 * Create anonymous RSVP invitation with token for RSVP flow
 	 */
-	public function create_rsvp_invitation( $event_id, $email, $temporary_guest_id = '' ) {
+	public function create_rsvp_invitation( $event_id, $email, $temporary_guest_id = '', $invitation_source = 'email' ) {
 		global $wpdb;
 
 		// Generate secure token
@@ -270,14 +274,15 @@ class PartyMinder_Guest_Manager {
 			// Update token and reset status to pending for existing guest
 			$wpdb->update(
 				$guests_table,
-				array( 
+				array(
 					'rsvp_token' => $rsvp_token,
 					'temporary_guest_id' => $temporary_guest_id,
 					'status' => 'pending',
+					'invitation_source' => $invitation_source,
 					'rsvp_date' => current_time( 'mysql' )
 				),
 				array( 'id' => $existing_guest->id ),
-				array( '%s', '%s', '%s', '%s' ),
+				array( '%s', '%s', '%s', '%s', '%s' ),
 				array( '%d' )
 			);
 		} else {
@@ -291,9 +296,10 @@ class PartyMinder_Guest_Manager {
 					'email' => $email,
 					'name' => '', // Will be filled during RSVP
 					'status' => 'pending',
+					'invitation_source' => $invitation_source,
 					'rsvp_date' => current_time( 'mysql' )
 				),
-				array( '%s', '%s', '%d', '%s', '%s', '%s', '%s' )
+				array( '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s' )
 			);
 		}
 

@@ -640,8 +640,30 @@ class PartyMinder_Activator {
 			$wpdb->query( "ALTER TABLE $guests_table ADD INDEX rsvp_token (rsvp_token)" );
 			$wpdb->query( "ALTER TABLE $guests_table ADD INDEX temporary_guest_id (temporary_guest_id)" );
 			$wpdb->query( "ALTER TABLE $guests_table ADD INDEX converted_user_id (converted_user_id)" );
-			
-		} else {
+		}
+
+		// Add invitation_source field to guests table
+		$invitation_source_column = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $guests_table LIKE %s",
+				'invitation_source'
+			)
+		);
+		if ( empty( $invitation_source_column ) ) {
+			$wpdb->query( "ALTER TABLE $guests_table ADD COLUMN invitation_source varchar(20) DEFAULT 'direct' AFTER status" );
+			$wpdb->query( "ALTER TABLE $guests_table ADD INDEX invitation_source (invitation_source)" );
+		}
+
+		// Add custom_message field to event_invitations table
+		$event_invitations_table = $wpdb->prefix . 'partyminder_event_invitations';
+		$custom_message_column = $wpdb->get_results(
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM $event_invitations_table LIKE %s",
+				'custom_message'
+			)
+		);
+		if ( empty( $custom_message_column ) ) {
+			$wpdb->query( "ALTER TABLE $event_invitations_table ADD COLUMN custom_message text AFTER status" );
 		}
 
 		// Run other existing migrations

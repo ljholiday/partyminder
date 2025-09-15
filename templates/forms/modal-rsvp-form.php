@@ -74,6 +74,7 @@ $is_past_event = $event_date < new DateTime();
 	<form id="pm-modal-rsvp-form" class="pm-form">
 		<?php wp_nonce_field( 'partyminder_modal_rsvp_' . $event_id, 'partyminder_modal_rsvp_nonce' ); ?>
 		<input type="hidden" name="event_id" value="<?php echo esc_attr( $event_id ); ?>" />
+		<input type="hidden" name="invitation_source" value="<?php echo esc_attr( $invitation_source ?? 'direct' ); ?>" />
 
 		<!-- Guest Information -->
 		<div class="pm-form-section pm-mb-4">
