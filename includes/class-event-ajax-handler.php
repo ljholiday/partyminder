@@ -316,6 +316,7 @@ class PartyMinder_Event_Ajax_Handler {
 			)
 		);
 
+
 		// Add invitation URLs to each guest - all use event page with modal
 		foreach ( $guests as &$guest ) {
 			if ( ! empty( $guest->rsvp_token ) ) {
@@ -332,6 +333,7 @@ class PartyMinder_Event_Ajax_Handler {
 				);
 			}
 		}
+		unset($guest); // Break the reference to avoid issues with subsequent foreach loops
 
 		// Generate HTML for invitations list
 		$html = '';

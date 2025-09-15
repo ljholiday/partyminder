@@ -362,6 +362,7 @@ class PartyMinder {
 			'dietary'  => sanitize_text_field( $_POST['dietary'] ),
 			'notes'    => sanitize_text_field( $_POST['notes'] ),
 			'invitation_source' => sanitize_text_field( $_POST['invitation_source'] ?? 'direct' ),
+			'existing_guest_id' => intval( $_POST['existing_guest_id'] ?? 0 ),
 		);
 
 		$result = $this->guest_manager->process_rsvp( $rsvp_data );

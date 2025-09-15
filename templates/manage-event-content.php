@@ -575,59 +575,6 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	}
 	
-	// Handle invitation form submission
-	const invitationForm = document.getElementById('send-invitation-form');
-	if (invitationForm) {
-		invitationForm.addEventListener('submit', function(e) {
-			e.preventDefault();
-			
-			const email = document.getElementById('invitation-email').value;
-			const message = document.getElementById('invitation-message').value;
-			
-			if (!email) {
-				alert('<?php _e( 'Please enter an email address.', 'partyminder' ); ?>');
-				return;
-			}
-			
-			const submitBtn = this.querySelector('button[type="submit"]');
-			const originalText = submitBtn.textContent;
-			submitBtn.textContent = '<?php _e( 'Sending...', 'partyminder' ); ?>';
-			submitBtn.disabled = true;
-			
-			jQuery.ajax({
-				url: partyminder_ajax.ajax_url,
-				type: 'POST',
-				data: {
-					action: 'partyminder_send_event_invitation',
-					event_id: eventId,
-					email: email,
-					message: message,
-					nonce: partyminder_ajax.event_nonce
-				},
-				success: function(response) {
-					if (response.success) {
-						alert(response.data.message || '<?php _e( 'Invitation sent successfully!', 'partyminder' ); ?>');
-						// Clear form
-						document.getElementById('invitation-email').value = '';
-						document.getElementById('invitation-message').value = '';
-						// Reload invitations list if we're on that tab
-						if (currentTab === 'invites') {
-							loadEventInvitations(eventId);
-						}
-					} else {
-						alert(response.data || '<?php _e( 'Failed to send invitation. Please try again.', 'partyminder' ); ?>');
-					}
-					submitBtn.textContent = originalText;
-					submitBtn.disabled = false;
-				},
-				error: function() {
-					alert('<?php _e( 'Network error. Please try again.', 'partyminder' ); ?>');
-					submitBtn.textContent = originalText;
-					submitBtn.disabled = false;
-				}
-			});
-		});
-	}
 	
 	// Load event guests
 	function loadEventGuests(eventId) {

@@ -139,6 +139,7 @@ window.PartyMinderRSVP = (function($) {
 				dietary: formData.get('dietary_restrictions'),
 				notes: formData.get('guest_notes'),
 				invitation_source: formData.get('invitation_source'),
+				existing_guest_id: formData.get('existing_guest_id'),
 				nonce: partyminder_ajax.nonce
 			};
 

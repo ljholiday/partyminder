@@ -29,14 +29,27 @@ class PartyMinder_Guest_Manager {
 
 		$guests_table = $wpdb->prefix . 'partyminder_guests';
 
-		// Check for existing guest
-		$existing_guest = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM $guests_table WHERE event_id = %d AND email = %s",
-				$rsvp_data['event_id'],
-				$rsvp_data['email']
-			)
-		);
+		// Check for existing guest - prioritize existing_guest_id if provided
+		$existing_guest = null;
+		if ( ! empty( $rsvp_data['existing_guest_id'] ) ) {
+			$existing_guest = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT * FROM $guests_table WHERE id = %d",
+					$rsvp_data['existing_guest_id']
+				)
+			);
+		}
+
+		// If no existing guest found by ID, check by event_id + email
+		if ( ! $existing_guest ) {
+			$existing_guest = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT * FROM $guests_table WHERE event_id = %d AND email = %s",
+					$rsvp_data['event_id'],
+					$rsvp_data['email']
+				)
+			);
+		}
 
 		if ( $existing_guest ) {
 			// Update existing RSVP

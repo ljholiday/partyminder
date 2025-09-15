@@ -129,19 +129,19 @@ jQuery(document).ready(function($) {
 	// Handle invitation form submission (invites tab)
 	$('#send-invitation-form').on('submit', function(e) {
 		e.preventDefault();
-		
+
 		const email = $('#invitation-email').val().trim();
 		const message = $('#invitation-message').val().trim();
-		
+
 		if (!email) {
 			alert(PartyMinderManageEvent.enter_email_text);
 			return;
 		}
-		
+
 		const $form = $(this);
 		const $submitBtn = $form.find('button[type="submit"]');
 		const originalText = $submitBtn.text();
-		
+
 		$submitBtn.prop('disabled', true).text(PartyMinderManageEvent.sending_text);
 		
 		$.ajax({
@@ -381,9 +381,9 @@ jQuery(document).ready(function($) {
 	function loadEventInvitations() {
 		const $invitationsList = $('#invitations-list');
 		if (!$invitationsList.length) return;
-		
+
 		$invitationsList.html('<div class="pm-loading-placeholder"><p>' + PartyMinderManageEvent.loading_invitations_text + '</p></div>');
-		
+
 		$.ajax({
 			url: PartyMinderManageEvent.ajax_url,
 			type: 'POST',
