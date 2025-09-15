@@ -654,13 +654,16 @@ class PartyMinder_AT_Protocol_Manager {
 				
 				// Set the user's DID for post creation
 				$this->bluesky_client->set_did( $bluesky_data['did'] );
-				
+
+				// Create RSVP invitation URL
+				$invitation_url = home_url( '/events/join?token=' . $invitation_token );
+
 				// Create invitation post
 				$post_text = "Hey @{$handle}! You're invited to \"{$event->title}\" on " . date( 'M j, Y', strtotime( $event->event_date ) );
 				if ( $message ) {
 					$post_text .= "\n\n" . $message;
 				}
-				$post_text .= "\n\nRSVP here: {$invitation_url}";
+				$post_text .= "\n\nRSVP here: " . $invitation_url;
 				
 				error_log( "[PartyMinder Bluesky] About to create post: " . $post_text );
 				
