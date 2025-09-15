@@ -301,7 +301,42 @@ ob_start();
 	<div class="pm-section-header">
 		<h2 class="pm-heading pm-heading-md pm-text-primary"><?php _e( 'Send Invitations', 'partyminder' ); ?></h2>
 	</div>
-	
+
+	<!-- Copyable Invitation Links -->
+	<div class="pm-card pm-mb-4">
+		<div class="pm-card-header">
+			<h3 class="pm-heading pm-heading-sm"><?php _e( 'Share Community Link', 'partyminder' ); ?></h3>
+		</div>
+		<div class="pm-card-body">
+			<p class="pm-text-muted pm-mb-4">
+				<?php _e( 'Copy and share this link via text, social media, Discord, Slack, or any other platform.', 'partyminder' ); ?>
+			</p>
+
+			<div class="pm-form-group pm-mb-4">
+				<label class="pm-form-label"><?php _e( 'Community Invitation Link', 'partyminder' ); ?></label>
+				<div class="pm-flex pm-gap-2">
+					<input type="text" class="pm-form-input pm-flex-1" id="invitation-link"
+						value="<?php echo esc_attr( home_url( '/communities/' . $community->slug ) ); ?>"
+						readonly>
+					<button type="button" class="pm-btn pm-btn pm-copy-invitation-link">
+						<?php _e( 'Copy', 'partyminder' ); ?>
+					</button>
+				</div>
+			</div>
+
+			<div class="pm-form-group">
+				<label class="pm-form-label"><?php _e( 'Custom Message (Optional)', 'partyminder' ); ?></label>
+				<textarea class="pm-form-textarea" id="custom-message" rows="3"
+					placeholder="<?php _e( 'Add a personal message to include when sharing...', 'partyminder' ); ?>"></textarea>
+				<div class="pm-mt-2">
+					<button type="button" class="pm-btn pm-btn pm-copy-invitation-with-message">
+						<?php _e( 'Copy Link with Message', 'partyminder' ); ?>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<!-- Email Invitation Form -->
 	<form id="send-invitation-form" class="pm-form">
 		<div class="pm-form-group">

@@ -417,7 +417,10 @@ class PartyMinder_Event_Manager {
 	 */
 	private function send_event_invitation_email( $event, $inviter, $email, $token, $message = '' ) {
 		$site_name      = get_bloginfo( 'name' );
-		$invitation_url = home_url( '/events/join?token=' . $token );
+		$invitation_url = add_query_arg(
+			array( 'token' => $token ),
+			home_url( '/events/' . $event->slug )
+		);
 
 		$subject = sprintf( __( '[%1$s] You\'re invited to %2$s', 'partyminder' ), $site_name, $event->title );
 

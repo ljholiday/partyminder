@@ -175,6 +175,8 @@ class PartyMinder {
 		// Keep only essential AJAX handlers that aren't moved to dedicated classes
 		add_action( 'wp_ajax_partyminder_rsvp', array( $this, 'ajax_rsvp' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_rsvp', array( $this, 'ajax_rsvp' ) );
+		add_action( 'wp_ajax_partyminder_load_rsvp_form', array( $this, 'ajax_load_rsvp_form' ) );
+		add_action( 'wp_ajax_nopriv_partyminder_load_rsvp_form', array( $this, 'ajax_load_rsvp_form' ) );
 		add_action( 'wp_ajax_partyminder_generate_ai_plan', array( $this, 'ajax_generate_ai_plan' ) );
 		add_action( 'wp_ajax_partyminder_load_more_events', array( $this, 'ajax_load_more_events' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_load_more_events', array( $this, 'ajax_load_more_events' ) );
@@ -281,6 +283,7 @@ class PartyMinder {
 				'community_nonce'   => wp_create_nonce( 'partyminder_community_action' ),
 				'event_nonce'       => wp_create_nonce( 'partyminder_event_action' ),
 				'at_protocol_nonce' => wp_create_nonce( 'partyminder_at_protocol' ),
+				'rsvp_form_nonce'   => wp_create_nonce( 'partyminder_rsvp_form_nonce' ),
 				'avatar_upload_nonce' => wp_create_nonce( 'partyminder_avatar_upload' ),
 				'cover_upload_nonce' => wp_create_nonce( 'partyminder_cover_upload' ),
 				'event_photo_upload_nonce' => wp_create_nonce( 'partyminder_event_photo_upload' ),
@@ -310,6 +313,9 @@ class PartyMinder {
 		wp_localize_script( 'partyminder-mobile-menu', 'partyminder_ajax', $ajax_data );
 		if ( wp_script_is( 'partyminder-reply-modal', 'enqueued' ) ) {
 			wp_localize_script( 'partyminder-reply-modal', 'partyminder_ajax', $ajax_data );
+		}
+		if ( wp_script_is( 'partyminder-rsvp-modal', 'enqueued' ) ) {
+			wp_localize_script( 'partyminder-rsvp-modal', 'partyminder_ajax', $ajax_data );
 		}
 	}
 
@@ -364,6 +370,32 @@ class PartyMinder {
 		} else {
 			wp_send_json_error( $result['message'] );
 		}
+	}
+
+	public function ajax_load_rsvp_form() {
+		check_ajax_referer( 'partyminder_rsvp_form_nonce', 'nonce' );
+
+		$event_id = intval( $_POST['event_id'] );
+		$token = sanitize_text_field( $_POST['token'] ?? '' );
+
+		if ( ! $event_id ) {
+			wp_send_json_error( __( 'Missing event ID.', 'partyminder' ) );
+			return;
+		}
+
+		// If token provided, get existing guest data
+		$existing_guest = null;
+		if ( $token ) {
+			require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-guest-manager.php';
+			$guest_manager = new PartyMinder_Guest_Manager();
+			$existing_guest = $guest_manager->get_guest_by_token( $token );
+		}
+
+		ob_start();
+		include PARTYMINDER_PLUGIN_DIR . 'templates/forms/modal-rsvp-form.php';
+		$form_html = ob_get_clean();
+
+		wp_send_json_success( array( 'html' => $form_html ) );
 	}
 
 	public function ajax_generate_ai_plan() {
@@ -1342,6 +1374,14 @@ class PartyMinder {
 					PARTYMINDER_VERSION,
 					true
 				);
+
+				wp_enqueue_script(
+					'partyminder-invitation-links',
+					PARTYMINDER_PLUGIN_URL . 'assets/js/invitation-links.js',
+					array( 'jquery' ),
+					PARTYMINDER_VERSION,
+					true
+				);
 				
 				// Get current tab and event data
 				$current_tab = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'settings';
@@ -1403,6 +1443,17 @@ class PartyMinder {
 				) );
 			}
 
+			// Add manage-community specific JavaScript
+			if ( $page_type === 'manage-community' ) {
+				wp_enqueue_script(
+					'partyminder-invitation-links',
+					PARTYMINDER_PLUGIN_URL . 'assets/js/invitation-links.js',
+					array( 'jquery' ),
+					PARTYMINDER_VERSION,
+					true
+				);
+			}
+
 			// Add page-specific JavaScript
 			if ( $page_type === 'conversations' || $page_type === 'dashboard' ) {
 				wp_enqueue_script(
@@ -1462,6 +1513,17 @@ class PartyMinder {
 					true
 				);
 			}
+		}
+
+		// Add RSVP modal script for single event pages
+		if ( isset( $GLOBALS['partyminder_is_single_event'] ) && $GLOBALS['partyminder_is_single_event'] ) {
+			wp_enqueue_script(
+				'partyminder-rsvp-modal',
+				PARTYMINDER_PLUGIN_URL . 'assets/js/rsvp-modal.js',
+				array( 'jquery' ),
+				PARTYMINDER_VERSION,
+				true
+			);
 		}
 	}
 

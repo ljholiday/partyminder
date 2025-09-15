@@ -235,33 +235,38 @@ ob_start();
 	</div>
 </div>
 
-<?php
-$main_content = ob_get_clean();
-
-// Sidebar content
-ob_start();
-?>
-
-
-
 <?php if ( ! $is_past && ! $is_event_host ) : ?>
-<div class="pm-section pm-mb" id="rsvp">
+<div class="pm-section pm-mb">
 	<div class="pm-card">
 		<div class="pm-card-header">
-			<h3 class="pm-heading pm-heading-md">RSVP for this Event</h3>
+			<h3 class="pm-heading pm-heading-md">RSVP</h3>
 		</div>
-		<div class="pm-card-body">
-			<?php echo do_shortcode( '[partyminder_rsvp_form event_id="' . $event->id . '"]' ); ?>
+		<div class="pm-card-body pm-text-center">
+			<p class="pm-text-muted pm-mb-4">Will you be attending this event?</p>
+			<button type="button" class="pm-btn pm-btn-primary pm-rsvp-btn" data-event-id="<?php echo esc_attr( $event->id ); ?>">
+				<?php _e( 'RSVP Now', 'partyminder' ); ?>
+			</button>
 		</div>
 	</div>
 </div>
 <?php endif; ?>
 
 <?php
+$main_content = ob_get_clean();
+
+// Empty sidebar for now
+ob_start();
+?>
+<?php
 $sidebar_content = ob_get_clean();
 
 // Include two-column template
 require PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php';
+
+// Include RSVP modal
+if ( ! $is_past && ! $is_event_host ) {
+	include PARTYMINDER_PLUGIN_DIR . 'templates/partials/modal-rsvp.php';
+}
 ?>
 
 <script>

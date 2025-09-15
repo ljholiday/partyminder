@@ -316,16 +316,20 @@ class PartyMinder_Event_Ajax_Handler {
 			)
 		);
 
-		// Add invitation URLs to each guest
+		// Add invitation URLs to each guest - all use event page with modal
 		foreach ( $guests as &$guest ) {
 			if ( ! empty( $guest->rsvp_token ) ) {
-				$guest->invitation_url = add_query_arg( 
-					array( 'token' => $guest->rsvp_token ), 
-					home_url( '/events/join' ) 
+				// Token-based URL for existing RSVPs (pre-fills modal)
+				$guest->invitation_url = add_query_arg(
+					array( 'token' => $guest->rsvp_token ),
+					home_url( '/events/' . $event->slug )
 				);
 			} else {
-				// For guests without tokens, create a basic event link
-				$guest->invitation_url = home_url( '/events/' . $event->slug );
+				// RSVP URL for new invitations (auto-opens modal)
+				$guest->invitation_url = add_query_arg(
+					array( 'rsvp' => '1' ),
+					home_url( '/events/' . $event->slug )
+				);
 			}
 		}
 

@@ -297,9 +297,18 @@ class PartyMinder_Guest_Manager {
 			);
 		}
 
+		// Get event details for URL generation
+		require_once PARTYMINDER_PLUGIN_DIR . 'includes/class-event-manager.php';
+		$event_manager = new PartyMinder_Event_Manager();
+		$event = $event_manager->get_event( $event_id );
+
+		$invitation_url = $event ?
+			add_query_arg( array( 'token' => $rsvp_token ), home_url( '/events/' . $event->slug ) ) :
+			add_query_arg( array( 'token' => $rsvp_token ), home_url( '/events/join' ) );
+
 		return array(
 			'token' => $rsvp_token,
-			'url' => add_query_arg( array( 'token' => $rsvp_token ), home_url( '/events/join' ) )
+			'url' => $invitation_url
 		);
 	}
 
@@ -614,7 +623,7 @@ class PartyMinder_Guest_Manager {
 			'success' => true,
 			'email_sent' => $sent,
 			'token' => $rsvp_token,
-			'url' => add_query_arg( array( 'token' => $rsvp_token ), home_url( '/events/join' ) )
+			'url' => $invitation_url
 		);
 	}
 }

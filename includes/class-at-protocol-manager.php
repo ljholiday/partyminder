@@ -656,7 +656,10 @@ class PartyMinder_AT_Protocol_Manager {
 				$this->bluesky_client->set_did( $bluesky_data['did'] );
 
 				// Create RSVP invitation URL
-				$invitation_url = home_url( '/events/join?token=' . $invitation_token );
+				$invitation_url = add_query_arg(
+					array( 'token' => $invitation_token ),
+					home_url( '/events/' . $event->slug )
+				);
 
 				// Create invitation post
 				$post_text = "Hey @{$handle}! You're invited to \"{$event->title}\" on " . date( 'M j, Y', strtotime( $event->event_date ) );
