@@ -100,7 +100,7 @@ $nav_items        = array(
 	),
 	array(
 		'title' => 'Members',
-		'url'   => home_url( '/communities/' . $community->slug . '/members' ),
+		'url'   => home_url( '/manage-community/?community_id=' . $community->id . '&tab=members' ),
 	),
 );
 
@@ -263,7 +263,7 @@ ob_start();
 			<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn pm-btn">
 				<?php _e( 'Events', 'partyminder' ); ?>
 			</a>
-			<a href="<?php echo home_url( '/communities/' . $community->slug . '/members' ); ?>" class="pm-btn pm-btn">
+			<a href="<?php echo home_url( '/manage-community/?community_id=' . $community->id . '&tab=members' ); ?>" class="pm-btn pm-btn">
 				<?php _e( 'Members', 'partyminder' ); ?>
 			</a>
 			<a href="<?php echo home_url( '/communities/' . $community->slug . '/conversations' ); ?>" class="pm-btn pm-btn-primary">

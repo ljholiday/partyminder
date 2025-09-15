@@ -260,17 +260,6 @@ class PartyMinder_Page_Content_Injector {
 		return ob_get_clean();
 	}
 
-	public function inject_community_members_content( $content ) {
-		if ( ! $this->should_inject_content( 'communities' ) ) {
-			return $content;
-		}
-
-		ob_start();
-		echo '<div class="partyminder-content partyminder-community-members-page">';
-		include PARTYMINDER_PLUGIN_DIR . 'templates/community-members-content.php';
-		echo '</div>';
-		return ob_get_clean();
-	}
 
 	public function inject_community_events_content( $content ) {
 		if ( ! $this->should_inject_content( 'communities' ) ) {

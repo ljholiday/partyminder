@@ -72,7 +72,7 @@ ob_start();
 			<button class="pm-btn pm-create-event-btn">
 				<?php _e( 'Create Event', 'partyminder' ); ?>
 			</button>
-			<a href="<?php echo home_url( '/communities/' . $community->slug . '/members' ); ?>" class="pm-btn pm-btn">
+			<a href="<?php echo home_url( '/manage-community/?community_id=' . $community->id . '&tab=members' ); ?>" class="pm-btn pm-btn">
 				<?php _e( 'View Members', 'partyminder' ); ?>
 			</a>
 		<?php elseif ( $is_logged_in ) : ?>
@@ -87,7 +87,7 @@ ob_start();
 		<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn">
 			<?php _e( 'Back to Community', 'partyminder' ); ?>
 		</a>
-		<a href="<?php echo home_url( '/communities/' . $community->slug . '/members' ); ?>" class="pm-btn pm-btn">
+		<a href="<?php echo home_url( '/manage-community/?community_id=' . $community->id . '&tab=members' ); ?>" class="pm-btn pm-btn">
 			<?php _e( 'Members', 'partyminder' ); ?>
 		</a>
 	</div>

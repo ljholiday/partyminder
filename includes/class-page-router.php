@@ -33,7 +33,6 @@ class PartyMinder_Page_Router {
 		add_rewrite_rule( '^communities/([^/]+)/?$', 'index.php?pagename=communities&community_slug=$matches[1]', 'top' );
 		add_rewrite_rule( '^communities/([^/]+)/conversations/?$', 'index.php?pagename=communities&community_slug=$matches[1]&community_view=conversations', 'top' );
 		add_rewrite_rule( '^communities/([^/]+)/events/?$', 'index.php?pagename=communities&community_slug=$matches[1]&community_view=events', 'top' );
-		add_rewrite_rule( '^communities/([^/]+)/members/?$', 'index.php?pagename=communities&community_slug=$matches[1]&community_view=members', 'top' );
 
 		// Direct page routing
 		add_rewrite_rule( '^manage-community/?$', 'index.php?pagename=manage-community', 'top' );
@@ -229,9 +228,6 @@ class PartyMinder_Page_Router {
 		if ( $community_slug && $community_view === 'conversations' ) {
 			add_filter( 'the_content', array( $this->content_injector, 'inject_community_conversations_content' ) );
 			add_filter( 'body_class', array( $this->body_class_manager, 'add_community_conversations_body_class' ) );
-		} elseif ( $community_slug && $community_view === 'members' ) {
-			add_filter( 'the_content', array( $this->content_injector, 'inject_community_members_content' ) );
-			add_filter( 'body_class', array( $this->body_class_manager, 'add_community_members_body_class' ) );
 		} elseif ( $community_slug && $community_view === 'events' ) {
 			add_filter( 'the_content', array( $this->content_injector, 'inject_community_events_content' ) );
 			add_filter( 'body_class', array( $this->body_class_manager, 'add_community_events_body_class' ) );
