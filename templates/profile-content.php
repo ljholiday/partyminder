@@ -379,11 +379,6 @@ if ( $is_editing ) {
 						<?php _e( 'Edit Profile', 'partyminder' ); ?>
 					</a>
 				<?php endif; ?>
-				<?php if ( ! $is_own_profile ) : ?>
-					<button class="pm-btn" onclick="alert('Follow functionality coming soon!')">
-						<?php _e( 'Follow', 'partyminder' ); ?>
-					</button>
-				<?php endif; ?>
 			</div>
 		</div>
 		
