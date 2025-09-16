@@ -380,7 +380,7 @@ class PartyMinder_Event_Ajax_Handler {
 				$html .= '</div>';
 				
 				if ( ! empty( $guest->name ) ) {
-					$html .= '<div class="pm-text-muted pm-mt-2">' . esc_html( $guest->name ) . '</div>';
+					$html .= '<div class="pm-text-muted pm-mt-2">' . esc_html( $guest->name ?? '' ) . '</div>';
 				}
 				
 				$html .= '<div class="pm-text-muted pm-mt-2">';
@@ -391,11 +391,11 @@ class PartyMinder_Event_Ajax_Handler {
 				$html .= '</div>';
 				
 				if ( ! empty( $guest->dietary_restrictions ) ) {
-					$html .= '<div class="pm-text-muted pm-mt-2"><strong>Dietary:</strong> ' . esc_html( $guest->dietary_restrictions ) . '</div>';
+					$html .= '<div class="pm-text-muted pm-mt-2"><strong>Dietary:</strong> ' . esc_html( $guest->dietary_restrictions ?? '' ) . '</div>';
 				}
-				
+
 				if ( ! empty( $guest->notes ) ) {
-					$html .= '<div class="pm-text-muted pm-mt-2"><em>"' . esc_html( $guest->notes ) . '"</em></div>';
+					$html .= '<div class="pm-text-muted pm-mt-2"><em>"' . esc_html( $guest->notes ?? '' ) . '"</em></div>';
 				}
 				
 				$html .= '</div>';

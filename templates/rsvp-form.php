@@ -215,7 +215,7 @@ ob_start();
 				</div>
 			<?php endif; ?>
 
-			<form method="post" class="pm-form" id="partyminder-rsvp-form">
+			<form method="post" class="pm-form" id="pm-modal-rsvp-form">
 				<?php wp_nonce_field( 'partyminder_rsvp_' . $event_id, 'partyminder_rsvp_nonce' ); ?>
 				
 				<!-- Guest Information -->
@@ -225,15 +225,15 @@ ob_start();
 					<div class="pm-form-row">
 						<div class="pm-form-group">
 							<label for="guest_name" class="pm-form-label"><?php _e( 'Your Name *', 'partyminder' ); ?></label>
-							<input type="text" id="guest_name" name="guest_name" class="pm-form-input" 
-									value="<?php echo esc_attr( $existing_rsvp ? $existing_rsvp->name : ( $_POST['guest_name'] ?? '' ) ); ?>" 
+							<input type="text" id="guest_name" name="guest_name" class="pm-form-input"
+									value="<?php echo esc_attr( $existing_rsvp ? ( $existing_rsvp->name ?? '' ) : ( $_POST['guest_name'] ?? '' ) ); ?>"
 									required />
 						</div>
 
 						<div class="pm-form-group">
 							<label for="guest_email" class="pm-form-label"><?php _e( 'Email Address *', 'partyminder' ); ?></label>
-							<input type="email" id="guest_email" name="guest_email" class="pm-form-input" 
-									value="<?php echo esc_attr( $existing_rsvp ? $existing_rsvp->email : ( $_POST['guest_email'] ?? $_GET['guest_email'] ?? '' ) ); ?>" 
+							<input type="email" id="guest_email" name="guest_email" class="pm-form-input"
+									value="<?php echo esc_attr( $existing_rsvp ? ( $existing_rsvp->email ?? '' ) : ( $_POST['guest_email'] ?? $_GET['guest_email'] ?? '' ) ); ?>"
 									required />
 						</div>
 					</div>
@@ -287,20 +287,20 @@ ob_start();
 					 
 					<div class="pm-form-group">
 						<label for="dietary_restrictions" class="pm-form-label"><?php _e( 'Dietary Restrictions', 'partyminder' ); ?></label>
-						<textarea id="dietary_restrictions" name="dietary_restrictions" rows="2" class="pm-form-textarea" 
-									placeholder="<?php esc_attr_e( 'e.g., Vegetarian, gluten-free, no nuts...', 'partyminder' ); ?>"><?php echo esc_textarea( $existing_rsvp ? $existing_rsvp->dietary_restrictions : ( $_POST['dietary_restrictions'] ?? '' ) ); ?></textarea>
+						<textarea id="dietary_restrictions" name="dietary_restrictions" rows="2" class="pm-form-textarea"
+									placeholder="<?php esc_attr_e( 'e.g., Vegetarian, gluten-free, no nuts...', 'partyminder' ); ?>"><?php echo esc_textarea( $existing_rsvp ? ( $existing_rsvp->dietary_restrictions ?? '' ) : ( $_POST['dietary_restrictions'] ?? '' ) ); ?></textarea>
 					</div>
 
 					<div class="pm-form-group">
 						<label for="guest_notes" class="pm-form-label"><?php _e( 'Additional Notes', 'partyminder' ); ?></label>
-						<textarea id="guest_notes" name="guest_notes" rows="2" class="pm-form-textarea" 
-									placeholder="<?php esc_attr_e( 'Anything else the host should know...', 'partyminder' ); ?>"><?php echo esc_textarea( $existing_rsvp ? $existing_rsvp->notes : ( $_POST['guest_notes'] ?? '' ) ); ?></textarea>
+						<textarea id="guest_notes" name="guest_notes" rows="2" class="pm-form-textarea"
+									placeholder="<?php esc_attr_e( 'Anything else the host should know...', 'partyminder' ); ?>"><?php echo esc_textarea( $existing_rsvp ? ( $existing_rsvp->notes ?? '' ) : ( $_POST['guest_notes'] ?? '' ) ); ?></textarea>
 					</div>
 				</div>
 
 				<!-- Form Actions -->
 				<div class="flex gap-4 mt-4">
-					<button type="submit" name="partyminder_rsvp" class="btn style-<?php echo esc_attr( $button_style ); ?>">
+					<button type="submit" id="pm-submit-rsvp" name="partyminder_rsvp" class="btn style-<?php echo esc_attr( $button_style ); ?>">
 						<?php if ( $existing_rsvp ) : ?>
 							<?php _e( 'Update My RSVP', 'partyminder' ); ?>
 						<?php else : ?>
@@ -366,19 +366,5 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	});
 	
-	// Form submission handling
-	document.getElementById('partyminder-rsvp-form').addEventListener('submit', function(e) {
-		const submitBtn = this.querySelector('button[type="submit"]');
-		const originalText = submitBtn.textContent;
-		
-		submitBtn.disabled = true;
-		submitBtn.textContent = '<?php _e( 'Submitting...', 'partyminder' ); ?>';
-		
-		// Form will submit normally, this just provides visual feedback
-		setTimeout(function() {
-			submitBtn.disabled = false;
-			submitBtn.textContent = originalText;
-		}, 5000);
-	});
 });
 </script>
