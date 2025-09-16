@@ -215,7 +215,7 @@ ob_start();
 				</div>
 			<?php endif; ?>
 
-			<form method="post" class="pm-form" id="pm-modal-rsvp-form">
+			<form method="post" class="pm-form partyminder-rsvp-form" id="pm-modal-rsvp-form">
 				<?php wp_nonce_field( 'partyminder_rsvp_' . $event_id, 'partyminder_rsvp_nonce' ); ?>
 				
 				<!-- Guest Information -->
