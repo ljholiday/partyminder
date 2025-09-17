@@ -60,7 +60,7 @@ ob_start();
 		<h3><?php _e( 'Community Created Successfully!', 'partyminder' ); ?></h3>
 		<p><?php _e( 'Your community has been created and is now live.', 'partyminder' ); ?></p>
 		<div class="pm-success-actions">
-			<a href="<?php echo esc_url( $created_community['url'] ?? PartyMinder::get_communities_url() ); ?>" class="pm-btn">
+			<a href="<?php echo esc_url( $created_community['community_url'] ?? PartyMinder::get_communities_url() ); ?>" class="pm-btn">
 				<?php _e( 'View Community', 'partyminder' ); ?>
 			</a>
 			<a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn">
