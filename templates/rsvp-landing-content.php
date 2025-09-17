@@ -288,7 +288,7 @@ ob_start();
 			<?php _e( 'The easiest way to plan events and bring people together', 'partyminder' ); ?>
 		</small>
 		<div class="pm-mt-2">
-			<a href="<?php echo home_url(); ?>" class="pm-btn pm-btn pm-btn-sm">
+			<a href="<?php echo home_url(); ?>" class="pm-btn pm-btn-sm">
 				<?php _e( 'Start Planning Your Own Event', 'partyminder' ); ?>
 			</a>
 		</div>

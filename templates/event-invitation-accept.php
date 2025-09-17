@@ -346,7 +346,7 @@ ob_start();
 						</div>
 						<?php if ( $invitation->event_time ) : ?>
 						<div class="event-info-item">
-							<span>⏰</span>
+							<span></span>
 							<span><strong><?php _e( 'Time:', 'partyminder' ); ?></strong> <?php echo esc_html( $invitation->event_time ); ?></span>
 						</div>
 						<?php endif; ?>
@@ -427,7 +427,7 @@ ob_start();
 							
 							<div class="pm-text-center">
 								<button type="submit" class="pm-btn">
-									<span>✅</span> <?php _e( 'Confirm RSVP', 'partyminder' ); ?>
+									<?php _e( 'Confirm RSVP', 'partyminder' ); ?>
 								</button>
 							</div>
 						</form>
@@ -436,7 +436,7 @@ ob_start();
 			<?php else : ?>
 				<div class="pm-text-center">
 					<p><?php _e( 'Return to events to explore other options.', 'partyminder' ); ?></p>
-					<a href="<?php echo home_url( '/events' ); ?>" class="pm-btn pm-btn">
+					<a href="<?php echo home_url( '/events' ); ?>" class="pm-btn">
 						<span></span> <?php _e( 'Browse Events', 'partyminder' ); ?>
 					</a>
 				</div>

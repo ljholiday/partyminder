@@ -222,7 +222,7 @@ ob_start();
 		</div>
 	<?php endif; ?>
 	<div class="pm-text-center pm-mt-4">
-		<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn">
+		<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn">
 			<?php _e( 'Browse All Events', 'partyminder' ); ?>
 		</a>
 	</div>
@@ -323,7 +323,7 @@ ob_start();
 	<?php endif; ?>
 	
 	<div class="pm-text-center pm-mt-4">
-		<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn">
+		<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn">
 			<?php _e( 'View All Conversations', 'partyminder' ); ?>
 		</a>
 	</div>
@@ -444,7 +444,7 @@ ob_start();
 		</div>
 	<?php endif; ?>
 	<div class="pm-text-center pm-mt-4">
-		<a href="<?php echo esc_url( add_query_arg( 'filter', 'events', PartyMinder::get_conversations_url() ) ); ?>" class="pm-btn pm-btn">
+		<a href="<?php echo esc_url( add_query_arg( 'filter', 'events', PartyMinder::get_conversations_url() ) ); ?>" class="pm-btn">
 			<?php _e( 'View Event Discussions', 'partyminder' ); ?>
 		</a>
 	</div>
@@ -575,7 +575,7 @@ ob_start();
 		</div>
 	<?php endif; ?>
 	<div class="pm-text-center pm-mt-4">
-		<a href="<?php echo esc_url( add_query_arg( 'filter', 'communities', PartyMinder::get_conversations_url() ) ); ?>" class="pm-btn pm-btn">
+		<a href="<?php echo esc_url( add_query_arg( 'filter', 'communities', PartyMinder::get_conversations_url() ) ); ?>" class="pm-btn">
 			<?php _e( 'View Community Discussions', 'partyminder' ); ?>
 		</a>
 	</div>
@@ -614,7 +614,7 @@ ob_start();
 				<?php _e( 'Sign In', 'partyminder' ); ?>
 			</a>
 			<?php if ( get_option( 'users_can_register' ) ) : ?>
-			<a href="<?php echo esc_url( add_query_arg( 'action', 'register', PartyMinder::get_login_url() ) ); ?>" class="pm-btn pm-btn pm-btn-lg">
+			<a href="<?php echo esc_url( add_query_arg( 'action', 'register', PartyMinder::get_login_url() ) ); ?>" class="pm-btn pm-btn-lg">
 				<?php _e( 'Create Account', 'partyminder' ); ?>
 			</a>
 			<?php endif; ?>
@@ -651,7 +651,7 @@ ob_start();
 		</div>
 	</div>
 	<div class="pm-text-center pm-mt-4">
-		<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn pm-btn">
+		<a href="<?php echo esc_url( PartyMinder::get_events_page_url() ); ?>" class="pm-btn">
 			<?php _e( 'Browse Public Events', 'partyminder' ); ?>
 		</a>
 	</div>
@@ -677,7 +677,7 @@ ob_start();
 			<?php _e( 'Login', 'partyminder' ); ?>
 		</a>
 		<?php if ( get_option( 'users_can_register' ) ) : ?>
-		<a href="<?php echo esc_url( add_query_arg( 'action', 'register', PartyMinder::get_login_url() ) ); ?>" class="pm-btn pm-btn">
+		<a href="<?php echo esc_url( add_query_arg( 'action', 'register', PartyMinder::get_login_url() ) ); ?>" class="pm-btn">
 			<?php _e( 'Register', 'partyminder' ); ?>
 		</a>
 		<?php endif; ?>

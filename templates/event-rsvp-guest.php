@@ -264,7 +264,7 @@ ob_start();
 			<a href="<?php echo home_url( '/events/' . $invitation->slug ); ?>" class="pm-btn">
 				<?php _e( 'View Event Details', 'partyminder' ); ?>
 			</a>
-			<a href="<?php echo home_url( '/events' ); ?>" class="pm-btn pm-btn">
+			<a href="<?php echo home_url( '/events' ); ?>" class="pm-btn">
 				<?php _e( 'Browse Other Events', 'partyminder' ); ?>
 			</a>
 		</div>
@@ -391,7 +391,7 @@ ob_start();
 				<button type="submit" class="pm-btn pm-btn-lg">
 					<?php _e( 'Submit RSVP', 'partyminder' ); ?>
 				</button>
-				<a href="<?php echo home_url( '/events/' . $invitation->slug ); ?>" class="pm-btn pm-btn pm-btn-lg">
+				<a href="<?php echo home_url( '/events/' . $invitation->slug ); ?>" class="pm-btn pm-btn-lg">
 					<?php _e( 'View Event Page', 'partyminder' ); ?>
 				</a>
 			</div>
@@ -446,10 +446,10 @@ ob_start();
 			<button type="button" class="pm-btn quick-rsvp-btn" data-response="attending">
 				<?php _e( 'Yes, I\'ll be there!', 'partyminder' ); ?>
 			</button>
-			<button type="button" class="pm-btn pm-btn quick-rsvp-btn" data-response="maybe">
+			<button type="button" class="pm-btn quick-rsvp-btn" data-response="maybe">
 				<?php _e( 'Maybe', 'partyminder' ); ?>
 			</button>
-			<button type="button" class="pm-btn pm-btn quick-rsvp-btn" data-response="not_attending">
+			<button type="button" class="pm-btn quick-rsvp-btn" data-response="not_attending">
 				<?php _e( 'Can\'t make it', 'partyminder' ); ?>
 			</button>
 		</div>
@@ -464,7 +464,7 @@ ob_start();
 	</div>
 	<div class="pm-card-body">
 		<p class="pm-text-muted pm-mb"><?php _e( 'Having trouble with your RSVP? You can reply directly to the invitation email or contact the host.', 'partyminder' ); ?></p>
-		<a href="<?php echo home_url( '/events' ); ?>" class="pm-btn pm-btn">
+		<a href="<?php echo home_url( '/events' ); ?>" class="pm-btn">
 			<?php _e( 'Browse Other Events', 'partyminder' ); ?>
 		</a>
 	</div>

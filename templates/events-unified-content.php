@@ -76,13 +76,13 @@ ob_start();
 <div class="pm-section pm-mb-4">
 	<div class="pm-conversations-nav pm-flex pm-gap-4 pm-flex-wrap">
 		<!-- Event Type Filters -->
-		<button class="pm-btn pm-btn is-active" data-filter="my-events" role="tab" aria-selected="true" aria-controls="pm-events-list">
+		<button class="pm-btn is-active" data-filter="my-events" role="tab" aria-selected="true" aria-controls="pm-events-list">
 			<?php _e( 'My Events', 'partyminder' ); ?>
 		</button>
-		<button class="pm-btn pm-btn" data-filter="all-events" role="tab" aria-selected="false" aria-controls="pm-events-list">
+		<button class="pm-btn" data-filter="all-events" role="tab" aria-selected="false" aria-controls="pm-events-list">
 			<?php _e( 'All Events', 'partyminder' ); ?>
 		</button>
-		<button class="pm-btn pm-btn" data-filter="rsvp-events" role="tab" aria-selected="false" aria-controls="pm-events-list">
+		<button class="pm-btn" data-filter="rsvp-events" role="tab" aria-selected="false" aria-controls="pm-events-list">
 			<?php _e( 'My RSVPs', 'partyminder' ); ?>
 		</button>
 	</div>
@@ -136,10 +136,10 @@ ob_start();
 								</div>
 								
 								<div class="pm-flex pm-gap">
-									<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn pm-btn-sm">
+									<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn-sm">
 										<?php _e( 'View', 'partyminder' ); ?>
 									</a>
-									<a href="<?php echo PartyMinder::get_manage_event_url( $event->id ); ?>" class="pm-btn pm-btn pm-btn-sm">
+									<a href="<?php echo PartyMinder::get_manage_event_url( $event->id ); ?>" class="pm-btn pm-btn-sm">
 										<?php _e( 'Manage', 'partyminder' ); ?>
 									</a>
 								</div>
@@ -199,7 +199,7 @@ ob_start();
 									<div class="pm-stat-label"><?php _e( 'Going', 'partyminder' ); ?></div>
 								</div>
 								
-								<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn pm-btn-sm">
+								<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn-sm">
 									<?php _e( 'View Details', 'partyminder' ); ?>
 								</a>
 							</div>
@@ -265,7 +265,7 @@ ob_start();
 									<div class="pm-stat-label"><?php _e( 'Going', 'partyminder' ); ?></div>
 								</div>
 								
-								<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn pm-btn-sm">
+								<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn-sm">
 									<?php _e( 'View Details', 'partyminder' ); ?>
 								</a>
 							</div>
@@ -320,7 +320,7 @@ ob_start();
 								<div class="pm-stat-label"><?php _e( 'Going', 'partyminder' ); ?></div>
 							</div>
 							
-							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn pm-btn-sm">
+							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn-sm">
 								<?php _e( 'View Details', 'partyminder' ); ?>
 							</a>
 						</div>

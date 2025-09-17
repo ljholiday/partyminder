@@ -380,6 +380,7 @@ body.admin-bar .pm-page-two-column {
     transition: all 0.2s ease;
     background: var(--pm-primary);
     color: white;
+    max-height: 2rem;
 }
 
 .pm-btn:hover {

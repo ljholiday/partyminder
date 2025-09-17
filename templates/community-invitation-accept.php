@@ -173,7 +173,7 @@ ob_start();
 					<div style="text-align: center;">
 						<p><?php _e( 'Redirecting to your new community...', 'partyminder' ); ?></p>
 						<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn">
-							<span>🏘️</span> <?php _e( 'Go to Community', 'partyminder' ); ?>
+							<?php _e( 'Go to Community', 'partyminder' ); ?>
 						</a>
 					</div>
 				<?php else : ?>
@@ -187,7 +187,7 @@ ob_start();
 							<h4><?php _e( 'Already a Member', 'partyminder' ); ?></h4>
 							<p><?php _e( 'You are already a member of this community.', 'partyminder' ); ?></p>
 							<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn">
-								<span>🏘️</span> <?php _e( 'Go to Community', 'partyminder' ); ?>
+								<?php _e( 'Go to Community', 'partyminder' ); ?>
 							</a>
 						</div>
 					<?php else : ?>
@@ -196,7 +196,7 @@ ob_start();
 							<h4><?php _e( 'Accept Invitation', 'partyminder' ); ?></h4>
 							<p><?php _e( 'Click below to join this community.', 'partyminder' ); ?></p>
 							<button type="submit" class="pm-btn">
-								<span>✅</span> <?php _e( 'Accept & Join Community', 'partyminder' ); ?>
+								<?php _e( 'Accept & Join Community', 'partyminder' ); ?>
 							</button>
 						</form>
 					<?php endif; ?>
@@ -204,8 +204,8 @@ ob_start();
 			<?php else : ?>
 				<div style="text-align: center;">
 					<p><?php _e( 'Return to communities to explore other options.', 'partyminder' ); ?></p>
-					<a href="<?php echo home_url( '/communities' ); ?>" class="pm-btn pm-btn">
-						<span>🏘️</span> <?php _e( 'Browse Communities', 'partyminder' ); ?>
+					<a href="<?php echo home_url( '/communities' ); ?>" class="pm-btn">
+						<?php _e( 'Browse Communities', 'partyminder' ); ?>
 					</a>
 				</div>
 			<?php endif; ?>

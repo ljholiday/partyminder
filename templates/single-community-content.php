@@ -167,7 +167,7 @@ ob_start();
 						<?php echo esc_html( ucfirst( $community->visibility ) ); ?>
 					</span>
 					<?php if ( $is_member && $user_role === 'admin' ) : ?>
-						<a href="<?php echo esc_url( site_url( '/manage-community?community_id=' . $community->id . '&tab=settings' ) ); ?>" class="pm-btn pm-btn-secondary">
+						<a href="<?php echo esc_url( PartyMinder::get_manage_community_url( $community->id, 'settings' ) ); ?>" class="pm-btn">
 							<?php _e( 'Manage', 'partyminder' ); ?>
 						</a>
 					<?php endif; ?>
@@ -186,7 +186,7 @@ ob_start();
 				<h3 class="pm-heading pm-heading-md">Community Events</h3>
 				<?php if ( $is_member ) : ?>
 					<div>
-						<a href="<?php echo PartyMinder::get_create_community_event_url(); ?>?community_id=<?php echo $community->id; ?>" class="pm-btn pm-btn">
+						<a href="<?php echo PartyMinder::get_create_community_event_url(); ?>?community_id=<?php echo $community->id; ?>" class="pm-btn">
 							Create Event
 						</a>
 					</div>
@@ -250,7 +250,7 @@ ob_start();
 				</div>
 				
 				<div class="pm-card-footer pm-text-center">
-					<a href="<?php echo esc_url( home_url( '/communities/' . $community->slug . '/events' ) ); ?>" class="pm-btn pm-btn">
+					<a href="<?php echo esc_url( home_url( '/communities/' . $community->slug . '/events' ) ); ?>" class="pm-btn">
 						<?php _e( 'View All Events', 'partyminder' ); ?>
 					</a>
 				</div>
@@ -282,7 +282,7 @@ ob_start();
 				<h3 class="pm-heading pm-heading-md">Community Conversations</h3>
 				<?php if ( $is_member ) : ?>
 					<div>
-						<a href="<?php echo esc_url( site_url( '/create-conversation?community_id=' . $community->id ) ); ?>" class="pm-btn pm-btn">
+						<a href="<?php echo esc_url( add_query_arg( 'community_id', $community->id, PartyMinder::get_create_conversation_url() ) ); ?>" class="pm-btn">
 							Start Conversation
 						</a>
 					</div>
@@ -323,7 +323,7 @@ ob_start();
 					<?php endforeach; ?>
 				</div>
 				<div class="pm-card-footer pm-text-center">
-					<a href="<?php echo esc_url( home_url( '/communities/' . $community->slug . '/conversations' ) ); ?>" class="pm-btn pm-btn">
+					<a href="<?php echo esc_url( home_url( '/communities/' . $community->slug . '/conversations' ) ); ?>" class="pm-btn">
 						<?php _e( 'View All Conversations', 'partyminder' ); ?>
 					</a>
 				</div>
@@ -333,7 +333,7 @@ ob_start();
 					<p class="pm-text-muted"><?php _e( 'Be the first to start a discussion in this community!', 'partyminder' ); ?></p>
 					<?php if ( $is_member ) : ?>
 						<div class="pm-mt-4">
-							<a href="<?php echo esc_url( site_url( '/create-conversation?community_id=' . $community->id ) ); ?>" class="pm-btn">
+							<a href="<?php echo esc_url( add_query_arg( 'community_id', $community->id, PartyMinder::get_create_conversation_url() ) ); ?>" class="pm-btn">
 								<?php _e( 'Start First Conversation', 'partyminder' ); ?>
 							</a>
 						</div>

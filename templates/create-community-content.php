@@ -63,7 +63,7 @@ ob_start();
 			<a href="<?php echo esc_url( $created_community['community_url'] ?? PartyMinder::get_communities_url() ); ?>" class="pm-btn">
 				<?php _e( 'View Community', 'partyminder' ); ?>
 			</a>
-			<a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn pm-btn">
+			<a href="<?php echo PartyMinder::get_communities_url(); ?>" class="pm-btn">
 				<?php _e( 'All Communities', 'partyminder' ); ?>
 			</a>
 		</div>
@@ -146,7 +146,7 @@ ob_start();
 		<button type="submit" name="partyminder_create_community" class="pm-btn">
 			<?php _e( 'Create Community', 'partyminder' ); ?>
 		</button>
-		<a href="<?php echo esc_url( PartyMinder::get_communities_url() ); ?>" class="pm-btn pm-btn">
+		<a href="<?php echo esc_url( PartyMinder::get_communities_url() ); ?>" class="pm-btn">
 			<?php _e( 'Back to Communities', 'partyminder' ); ?>
 		</a>
 	</div>

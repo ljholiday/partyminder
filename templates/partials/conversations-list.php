@@ -13,15 +13,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( empty( $conversations ) ) {
 	?>
 	<div class="pm-section pm-text-center">
-		<div class="pm-text-6xl pm-mb-4">💬</div>
 		<h3 class="pm-heading pm-heading-md pm-mb-4"><?php _e( 'No Conversations in This Circle', 'partyminder' ); ?></h3>
 		<p class="pm-text-muted pm-mb-4"><?php _e( 'Start a conversation to connect with people in your circle.', 'partyminder' ); ?></p>
 		<?php if ( is_user_logged_in() ) : ?>
-			<a href="<?php echo PartyMinder::get_create_conversation_url(); ?>" class="pm-btn">
+			<a href="<?php echo esc_url( PartyMinder::get_create_conversation_url() ); ?>" class="pm-btn">
 				<?php _e( 'Start a Conversation', 'partyminder' ); ?>
 			</a>
 		<?php else : ?>
-			<a href="<?php echo add_query_arg( 'redirect_to', urlencode( $_SERVER['REQUEST_URI'] ), PartyMinder::get_login_url() ); ?>" class="pm-btn">
+			<a href="<?php echo esc_url( add_query_arg( 'redirect_to', urlencode( $_SERVER['REQUEST_URI'] ), PartyMinder::get_login_url() ) ); ?>" class="pm-btn">
 				<?php _e( 'Login to Start Conversations', 'partyminder' ); ?>
 			</a>
 		<?php endif; ?>
@@ -81,7 +80,7 @@ if ( ! isset( $conversation_manager ) ) {
 					</div>
 				</div>
 				
-				<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-btn pm-btn">
+				<a href="<?php echo home_url( '/conversations/' . $conversation->slug ); ?>" class="pm-btn">
 					<?php _e( 'View Details', 'partyminder' ); ?>
 				</a>
 			</div>

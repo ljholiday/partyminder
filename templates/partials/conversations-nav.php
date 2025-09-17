@@ -15,21 +15,21 @@ $topic_slug = get_query_var( 'topic_slug' ) ?? '';
 ?>
 
 <div class="pm-conversations-nav" role="tablist" aria-label="Filter conversations">
-	<button class="pm-btn pm-btn <?php echo $current_circle === 'inner' ? 'is-active' : ''; ?>" 
+	<button class="pm-btn <?php echo $current_circle === 'inner' ? 'is-active' : ''; ?>" 
 			data-circle="inner" 
 			role="tab" 
 			aria-selected="<?php echo $current_circle === 'inner' ? 'true' : 'false'; ?>" 
 			aria-controls="pm-convo-list">
 		<?php _e( 'Inner Circle', 'partyminder' ); ?>
 	</button>
-	<button class="pm-btn pm-btn <?php echo $current_circle === 'trusted' ? 'is-active' : ''; ?>" 
+	<button class="pm-btn <?php echo $current_circle === 'trusted' ? 'is-active' : ''; ?>" 
 			data-circle="trusted" 
 			role="tab" 
 			aria-selected="<?php echo $current_circle === 'trusted' ? 'true' : 'false'; ?>" 
 			aria-controls="pm-convo-list">
 		<?php _e( 'Trusted Circle', 'partyminder' ); ?>
 	</button>
-	<button class="pm-btn pm-btn <?php echo $current_circle === 'extended' ? 'is-active' : ''; ?>" 
+	<button class="pm-btn <?php echo $current_circle === 'extended' ? 'is-active' : ''; ?>" 
 			data-circle="extended" 
 			role="tab" 
 			aria-selected="<?php echo $current_circle === 'extended' ? 'true' : 'false'; ?>" 

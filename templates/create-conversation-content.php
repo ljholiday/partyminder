@@ -118,7 +118,7 @@ ob_start();
 			<a href="<?php echo esc_url( $created_conversation['url'] ?? PartyMinder::get_conversations_url() ); ?>" class="pm-btn">
 				<?php _e( 'View Conversation', 'partyminder' ); ?>
 			</a>
-			<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn pm-btn">
+			<a href="<?php echo PartyMinder::get_conversations_url(); ?>" class="pm-btn">
 				<?php _e( 'All Conversations', 'partyminder' ); ?>
 			</a>
 		</div>
@@ -243,7 +243,7 @@ ob_start();
 		<button type="submit" name="partyminder_create_conversation" class="pm-btn">
 			<?php _e( 'Start Conversation', 'partyminder' ); ?>
 		</button>
-		<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn pm-btn">
+		<a href="<?php echo esc_url( PartyMinder::get_conversations_url() ); ?>" class="pm-btn">
 			<?php _e( 'Back to Conversations', 'partyminder' ); ?>
 		</a>
 	</div>

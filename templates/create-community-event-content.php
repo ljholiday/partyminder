@@ -80,7 +80,7 @@ ob_start();
 			<h4 class="pm-heading pm-heading-sm"><?php _e( 'Community Event Created!', 'partyminder' ); ?></h4>
 			<p><?php _e( 'Your community event has been successfully created and is now live.', 'partyminder' ); ?></p>
 			<div class="pm-mt-4">
-				<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn pm-btn">
+				<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn">
 					<?php _e( 'View Community Events', 'partyminder' ); ?>
 				</a>
 			</div>
@@ -207,7 +207,7 @@ ob_start();
 			<button type="submit" class="pm-btn pm-btn-lg">
 				<?php _e( 'Create Community Event', 'partyminder' ); ?>
 			</button>
-			<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn pm-btn">
+			<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn">
 				<?php _e( 'Cancel', 'partyminder' ); ?>
 			</a>
 		</div>

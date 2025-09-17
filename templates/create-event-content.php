@@ -72,10 +72,10 @@ ob_start();
 			<a href="<?php echo $creation_data['event_url']; ?>" class="pm-btn">
 				<?php _e( 'View Event', 'partyminder' ); ?>
 			</a>
-			<a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-btn pm-btn">
+			<a href="<?php echo PartyMinder::get_my_events_url(); ?>" class="pm-btn">
 				<?php _e( 'My Events', 'partyminder' ); ?>
 			</a>
-			<button type="button" onclick="navigator.share({title: 'Check out my event!', url: '<?php echo esc_js( $creation_data['event_url'] ); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js( $creation_data['event_url'] ); ?>')" class="pm-btn pm-btn">
+			<button type="button" onclick="navigator.share({title: 'Check out my event!', url: '<?php echo esc_js( $creation_data['event_url'] ); ?>'}) || navigator.clipboard.writeText('<?php echo esc_js( $creation_data['event_url'] ); ?>')" class="pm-btn">
 				<?php _e( 'Share Event', 'partyminder' ); ?>
 			</button>
 		</div>
@@ -184,7 +184,7 @@ ob_start();
 			<button type="submit" name="partyminder_create_event" class="pm-btn pm-btn-lg">
 				<?php _e( 'Create Event', 'partyminder' ); ?>
 			</button>
-			<a href="<?php echo PartyMinder::get_events_page_url(); ?>" class="pm-btn pm-btn">
+			<a href="<?php echo PartyMinder::get_events_page_url(); ?>" class="pm-btn">
 				<?php _e( 'Back to Events', 'partyminder' ); ?>
 			</a>
 		</div>

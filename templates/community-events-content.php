@@ -72,7 +72,7 @@ ob_start();
 			<button class="pm-btn pm-create-event-btn">
 				<?php _e( 'Create Event', 'partyminder' ); ?>
 			</button>
-			<a href="<?php echo home_url( '/manage-community/?community_id=' . $community->id . '&tab=members' ); ?>" class="pm-btn pm-btn">
+			<a href="<?php echo PartyMinder::get_manage_community_url( $community->id, 'members' ); ?>" class="pm-btn">
 				<?php _e( 'View Members', 'partyminder' ); ?>
 			</a>
 		<?php elseif ( $is_logged_in ) : ?>
@@ -84,10 +84,10 @@ ob_start();
 				<?php _e( 'Login to Join', 'partyminder' ); ?>
 			</a>
 		<?php endif; ?>
-		<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn">
+		<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn">
 			<?php _e( 'Back to Community', 'partyminder' ); ?>
 		</a>
-		<a href="<?php echo home_url( '/manage-community/?community_id=' . $community->id . '&tab=members' ); ?>" class="pm-btn pm-btn">
+		<a href="<?php echo PartyMinder::get_manage_community_url( $community->id, 'members' ); ?>" class="pm-btn">
 			<?php _e( 'Members', 'partyminder' ); ?>
 		</a>
 	</div>
@@ -234,7 +234,7 @@ ob_start();
 						</div>
 						
 						<div class="pm-flex pm-gap">
-							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn pm-btn">
+							<a href="<?php echo home_url( '/events/' . $event->slug ); ?>" class="pm-btn">
 								<?php echo $is_past ? __( 'View', 'partyminder' ) : __( 'RSVP', 'partyminder' ); ?>
 							</a>
 						</div>

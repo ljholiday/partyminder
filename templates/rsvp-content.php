@@ -114,7 +114,7 @@ ob_start();
 			<p><?php printf( __( 'You\'ve already responded: %s', 'partyminder' ), '<strong>' . ucfirst( $existing_rsvp->status ) . '</strong>' ); ?></p>
 			
 			<div class="pm-mt-4">
-				<button type="button" class="pm-btn pm-btn" onclick="document.getElementById('update-rsvp-form').style.display='block'; this.style.display='none';">
+				<button type="button" class="pm-btn" onclick="document.getElementById('update-rsvp-form').style.display='block'; this.style.display='none';">
 					<?php _e( 'Update My RSVP', 'partyminder' ); ?>
 				</button>
 			</div>
@@ -150,15 +150,15 @@ ob_start();
 			<div class="pm-radio-group">
 				<label class="pm-radio-option">
 					<input type="radio" name="rsvp_status" value="yes" <?php checked( $existing_rsvp ? $existing_rsvp->status : $quick_response, 'yes' ); ?> required>
-					<span class="pm-radio-label"><?php _e( '✅ Yes, I\'ll be there!', 'partyminder' ); ?></span>
+					<span class="pm-radio-label"><?php _e( 'Yes, I\'ll be there!', 'partyminder' ); ?></span>
 				</label>
 				<label class="pm-radio-option">
 					<input type="radio" name="rsvp_status" value="maybe" <?php checked( $existing_rsvp ? $existing_rsvp->status : $quick_response, 'maybe' ); ?>>
-					<span class="pm-radio-label"><?php _e( '🤔 Maybe', 'partyminder' ); ?></span>
+					<span class="pm-radio-label"><?php _e( 'Maybe', 'partyminder' ); ?></span>
 				</label>
 				<label class="pm-radio-option">
 					<input type="radio" name="rsvp_status" value="no" <?php checked( $existing_rsvp ? $existing_rsvp->status : $quick_response, 'no' ); ?>>
-					<span class="pm-radio-label"><?php _e( '❌ Sorry, can\'t make it', 'partyminder' ); ?></span>
+					<span class="pm-radio-label"><?php _e( 'Sorry, can\'t make it', 'partyminder' ); ?></span>
 				</label>
 			</div>
 		</div>

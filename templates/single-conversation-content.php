@@ -99,7 +99,7 @@ if ( is_user_logged_in() ) {
 			<?php _e( 'Reply', 'partyminder' ); ?>
 		</button>
 		<?php if ( $can_manage_conversation ) : ?>
-			<a href="<?php echo home_url( '/conversations/edit/' . $conversation->slug ); ?>" class="pm-btn pm-btn">
+			<a href="<?php echo home_url( '/conversations/edit/' . $conversation->slug ); ?>" class="pm-btn">
 				<?php _e( 'Edit', 'partyminder' ); ?>
 			</a>
 			<button type="button" class="pm-btn pm-btn-danger delete-conversation-btn" 
@@ -133,12 +133,12 @@ if ( is_user_logged_in() ) {
 		
 		<div class="pm-flex pm-gap">
 			<?php if ( $event_data ) : ?>
-				<a href="<?php echo home_url( '/events/' . $event_data->slug ); ?>" class="pm-btn pm-btn pm-btn-sm">
+				<a href="<?php echo home_url( '/events/' . $event_data->slug ); ?>" class="pm-btn pm-btn-sm">
 					<?php _e( 'Go To Event', 'partyminder' ); ?>
 				</a>
 			<?php endif; ?>
 			<?php if ( $user_email ) : ?>
-				<button class="pm-btn pm-btn pm-btn-sm follow-btn" 
+				<button class="pm-btn pm-btn-sm follow-btn" 
 						data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
 					<?php if ( $is_following ) : ?>
 						<?php _e( 'Unfollow', 'partyminder' ); ?>
@@ -193,7 +193,7 @@ if ( is_user_logged_in() ) {
 					<?php echo $conversation_manager->process_content_embeds( $reply->content ); ?>
 				</div>
 				<div class="pm-reply-actions">
-					<button type="button" class="pm-btn pm-btn pm-btn-sm pm-reply-btn"
+					<button type="button" class="pm-btn pm-btn-sm pm-reply-btn"
 					        data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>"
 					        data-parent-reply-id="<?php echo esc_attr( $reply->id ); ?>">
 						<?php _e( 'Reply', 'partyminder' ); ?>
@@ -223,7 +223,7 @@ if ( is_user_logged_in() ) {
 					}
 					if ( $can_delete ) :
 					?>
-						<button type="button" class="pm-btn pm-btn pm-btn-sm delete-reply-btn" 
+						<button type="button" class="pm-btn pm-btn-sm delete-reply-btn" 
 								data-reply-id="<?php echo esc_attr( $reply->id ); ?>"
 								data-conversation-id="<?php echo esc_attr( $conversation->id ); ?>">
 							<?php _e( 'Delete', 'partyminder' ); ?>

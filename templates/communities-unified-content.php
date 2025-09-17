@@ -47,10 +47,10 @@ ob_start();
 <div class="pm-section pm-mb-4">
 	<div class="pm-conversations-nav pm-flex pm-gap-4 pm-flex-wrap">
 		<!-- Community Type Filters -->
-		<button class="pm-btn pm-btn is-active" data-filter="my-communities" role="tab" aria-selected="true" aria-controls="pm-communities-list">
+		<button class="pm-btn is-active" data-filter="my-communities" role="tab" aria-selected="true" aria-controls="pm-communities-list">
 			<?php _e( 'My Communities', 'partyminder' ); ?>
 		</button>
-		<button class="pm-btn pm-btn" data-filter="all-communities" role="tab" aria-selected="false" aria-controls="pm-communities-list">
+		<button class="pm-btn" data-filter="all-communities" role="tab" aria-selected="false" aria-controls="pm-communities-list">
 			<?php _e( 'All Communities', 'partyminder' ); ?>
 		</button>
 	</div>
@@ -110,11 +110,11 @@ ob_start();
 								</div>
 								
 								<div class="pm-flex pm-gap">
-									<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn">
+									<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn">
 										<?php _e( 'View', 'partyminder' ); ?>
 									</a>
 									<?php if ( $community->role === 'admin' ) : ?>
-										<a href="<?php echo esc_url( site_url( '/manage-community?community_id=' . $community->id . '&tab=settings' ) ); ?>" class="pm-btn pm-btn">
+										<a href="<?php echo esc_url( PartyMinder::get_manage_community_url( $community->id, 'settings' ) ); ?>" class="pm-btn">
 											<?php _e( 'Manage', 'partyminder' ); ?>
 										</a>
 									<?php endif; ?>
@@ -130,7 +130,7 @@ ob_start();
 								<?php _e( 'Browse Communities', 'partyminder' ); ?>
 							</a>
 							<?php if ( PartyMinder_Feature_Flags::can_user_create_community() ) : ?>
-								<a href="<?php echo esc_url( site_url( '/create-community' ) ); ?>" class="pm-btn pm-btn">
+								<a href="<?php echo esc_url( PartyMinder::get_create_community_url() ); ?>" class="pm-btn">
 									<?php _e( 'Create Community', 'partyminder' ); ?>
 								</a>
 							<?php endif; ?>

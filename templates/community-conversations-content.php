@@ -100,7 +100,7 @@ $nav_items        = array(
 	),
 	array(
 		'title' => 'Members',
-		'url'   => home_url( '/manage-community/?community_id=' . $community->id . '&tab=members' ),
+		'url'   => PartyMinder::get_manage_community_url( $community->id, 'members' ),
 	),
 );
 
@@ -142,7 +142,7 @@ ob_start();
 					</div>
 					<?php if ( $is_member ) : ?>
 						<div>
-							<a href="<?php echo esc_url( site_url( '/create-conversation?community_id=' . $community->id ) ); ?>" class="pm-btn">
+							<a href="<?php echo esc_url( add_query_arg( 'community_id', $community->id, PartyMinder::get_create_conversation_url() ) ); ?>" class="pm-btn">
 								<?php _e( 'Start Conversation', 'partyminder' ); ?>
 							</a>
 						</div>
@@ -205,7 +205,7 @@ ob_start();
 
 							if ( $page > 1 ) :
 								?>
-								<a href="<?php echo $base_url . '?paged=' . ( $page - 1 ); ?>" class="pm-btn pm-btn">
+								<a href="<?php echo $base_url . '?paged=' . ( $page - 1 ); ?>" class="pm-btn">
 									<?php _e( '← Previous', 'partyminder' ); ?>
 								</a>
 							<?php endif; ?>
@@ -215,7 +215,7 @@ ob_start();
 							</span>
 							
 							<?php if ( $page < $total_pages ) : ?>
-								<a href="<?php echo $base_url . '?paged=' . ( $page + 1 ); ?>" class="pm-btn pm-btn">
+								<a href="<?php echo $base_url . '?paged=' . ( $page + 1 ); ?>" class="pm-btn">
 									<?php _e( 'Next →', 'partyminder' ); ?>
 								</a>
 							<?php endif; ?>
@@ -229,7 +229,7 @@ ob_start();
 							<?php _e( 'This community hasn\'t started any conversations yet.', 'partyminder' ); ?>
 						</p>
 						<?php if ( $is_member ) : ?>
-							<a href="<?php echo esc_url( site_url( '/create-conversation?community_id=' . $community->id ) ); ?>" class="pm-btn">
+							<a href="<?php echo esc_url( add_query_arg( 'community_id', $community->id, PartyMinder::get_create_conversation_url() ) ); ?>" class="pm-btn">
 								<?php _e( 'Start First Conversation', 'partyminder' ); ?>
 							</a>
 						<?php else : ?>
@@ -257,13 +257,13 @@ ob_start();
 	</div>
 	<div class="pm-card-body">
 		<div class="pm-flex pm-flex-column pm-gap-4">
-			<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn pm-btn">
+			<a href="<?php echo home_url( '/communities/' . $community->slug ); ?>" class="pm-btn">
 				<?php _e( 'Overview', 'partyminder' ); ?>
 			</a>
-			<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn pm-btn">
+			<a href="<?php echo home_url( '/communities/' . $community->slug . '/events' ); ?>" class="pm-btn">
 				<?php _e( 'Events', 'partyminder' ); ?>
 			</a>
-			<a href="<?php echo home_url( '/manage-community/?community_id=' . $community->id . '&tab=members' ); ?>" class="pm-btn pm-btn">
+			<a href="<?php echo PartyMinder::get_manage_community_url( $community->id, 'members' ); ?>" class="pm-btn">
 				<?php _e( 'Members', 'partyminder' ); ?>
 			</a>
 			<a href="<?php echo home_url( '/communities/' . $community->slug . '/conversations' ); ?>" class="pm-btn pm-btn-primary">

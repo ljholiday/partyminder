@@ -190,7 +190,7 @@ ob_start();
 		<a href="?community_id=<?php echo $community_id; ?>&tab=invitations" class="pm-btn <?php echo $current_tab === 'invitations' ? '' : 'pm-btn'; ?>">
 			<?php _e( 'Invitations', 'partyminder' ); ?>
 		</a>
-		<a href="<?php echo esc_url( PartyMinder::get_community_url( $community->slug ) ); ?>" class="pm-btn pm-btn">
+		<a href="<?php echo esc_url( PartyMinder::get_community_url( $community->slug ) ); ?>" class="pm-btn">
 			<?php _e( 'View Community', 'partyminder' ); ?>
 		</a>
 	</div>
@@ -374,7 +374,7 @@ ob_start();
 					<p class="pm-text-muted pm-mb-4">
 						<?php _e( 'Connect your Bluesky account to invite your contacts to this community.', 'partyminder' ); ?>
 					</p>
-					<button type="button" class="pm-btn pm-btn" id="manage-connect-bluesky-btn">
+					<button type="button" class="pm-btn" id="manage-connect-bluesky-btn">
 						<?php _e( 'Connect Bluesky Account', 'partyminder' ); ?>
 					</button>
 				</div>

@@ -230,7 +230,7 @@ ob_start();
 		<a href="?event_id=<?php echo $event_id; ?>&tab=invites" class="pm-btn <?php echo $current_tab === 'invites' ? '' : 'pm-btn'; ?>">
 			<?php _e( 'Invites', 'partyminder' ); ?>
 		</a>
-		<a href="<?php echo esc_url( home_url( '/events/' . $event->slug ) ); ?>" class="pm-btn pm-btn">
+		<a href="<?php echo esc_url( home_url( '/events/' . $event->slug ) ); ?>" class="pm-btn">
 			<?php _e( 'View Event', 'partyminder' ); ?>
 		</a>
 	</div>
@@ -464,7 +464,7 @@ ob_start();
 					<p class="pm-text-muted pm-mb-4">
 						<?php _e( 'Connect your Bluesky account to invite your contacts to this event.', 'partyminder' ); ?>
 					</p>
-					<button type="button" class="pm-btn pm-btn" id="manage-connect-bluesky-btn">
+					<button type="button" class="pm-btn" id="manage-connect-bluesky-btn">
 						<?php _e( 'Connect Bluesky Account', 'partyminder' ); ?>
 					</button>
 				</div>

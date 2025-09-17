@@ -948,6 +948,10 @@ class PartyMinder {
 		return home_url( '/communities/' . $community_slug . '/' );
 	}
 
+	public static function get_manage_community_url( $community_id, $tab = 'settings' ) {
+		return self::get_page_url( 'manage-community', array( 'community_id' => $community_id, 'tab' => $tab ) );
+	}
+
 	public static function get_profile_url( $user_id = null ) {
 		if ( $user_id && $user_id !== get_current_user_id() ) {
 			return self::get_page_url( 'profile', array( 'user' => $user_id ) );

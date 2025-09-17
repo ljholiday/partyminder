@@ -112,7 +112,7 @@ ob_start();
 			
 			<?php if ( $event->event_time ) : ?>
 			<div class="meta-item">
-				<span class="meta-icon">🕐</span>
+				<span class="meta-icon"></span>
 				<span><?php echo date( 'g:i A', strtotime( $event->event_date ) ); ?></span>
 			</div>
 			<?php endif; ?>
@@ -125,7 +125,7 @@ ob_start();
 			<?php endif; ?>
 			
 			<div class="meta-item">
-				<span class="meta-icon">👥</span>
+				<span class="meta-icon"></span>
 				<span>
 					<?php printf( __( '%d confirmed', 'partyminder' ), $guest_stats->confirmed ); ?>
 					<?php if ( $event->guest_limit > 0 ) : ?>
@@ -157,7 +157,7 @@ ob_start();
 		
 		<!-- RSVP Success -->
 		<div class="rsvp-success">
-			<h3><?php _e( '✅ RSVP Confirmed!', 'partyminder' ); ?></h3>
+			<h3><?php _e( 'RSVP Confirmed!', 'partyminder' ); ?></h3>
 			<p><?php echo esc_html( $rsvp_message ); ?></p>
 			
 			<?php if ( $rsvp_data['status'] === 'confirmed' ) : ?>
@@ -175,7 +175,7 @@ ob_start();
 		
 		<!-- Past Event Message -->
 		<div class="past-event-message">
-			<h3><?php _e( '⏰ This Event Has Passed', 'partyminder' ); ?></h3>
+			<h3><?php _e( 'This Event Has Passed', 'partyminder' ); ?></h3>
 			<p><?php _e( 'This event is no longer accepting RSVPs.', 'partyminder' ); ?></p>
 		</div>
 
@@ -183,7 +183,7 @@ ob_start();
 		
 		<!-- Event Full Message -->
 		<div class="event-full-message">
-			<h3><?php _e( '🎫 Event is Full', 'partyminder' ); ?></h3>
+			<h3><?php _e( 'Event is Full', 'partyminder' ); ?></h3>
 			<p><?php _e( 'This event has reached capacity. You can still RSVP for the waitlist.', 'partyminder' ); ?></p>
 		</div>
 
@@ -253,12 +253,12 @@ ob_start();
 								'desc'  => __( 'Count me in', 'partyminder' ),
 							),
 							'maybe'     => array(
-								'icon'  => '🤔',
+								'icon'  => '',
 								'title' => __( 'Maybe', 'partyminder' ),
 								'desc'  => __( 'I\'ll try to make it', 'partyminder' ),
 							),
 							'declined'  => array(
-								'icon'  => '😔',
+								'icon'  => '',
 								'title' => __( 'Sorry, can\'t make it', 'partyminder' ),
 								'desc'  => __( 'Have fun without me', 'partyminder' ),
 							),
@@ -300,7 +300,7 @@ ob_start();
 
 				<!-- Form Actions -->
 				<div class="flex gap-4 mt-4">
-					<button type="submit" id="pm-submit-rsvp" name="partyminder_rsvp" class="btn style-<?php echo esc_attr( $button_style ); ?>">
+					<button type="submit" id="pm-submit-rsvp" name="partyminder_rsvp" class="pm-btn pm-btn-<?php echo esc_attr( $button_style ); ?>">
 						<?php if ( $existing_rsvp ) : ?>
 							<?php _e( 'Update My RSVP', 'partyminder' ); ?>
 						<?php else : ?>

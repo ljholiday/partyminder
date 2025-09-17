@@ -31,7 +31,7 @@ $is_logged_in = is_user_logged_in();
     </a>
     
     <?php if ( PartyMinder_Feature_Flags::can_user_create_community() ) : ?>
-        <a href="<?php echo esc_url( site_url( '/create-community' ) ); ?>" class="pm-btn pm-btn-secondary pm-mb-3" style="width: 100%; display: block;">
+        <a href="<?php echo esc_url( PartyMinder::get_create_community_url() ); ?>" class="pm-btn pm-btn-secondary pm-mb-3" style="width: 100%; display: block;">
             <?php _e( 'Create Community', 'partyminder' ); ?>
         </a>
     <?php endif; ?>
@@ -47,10 +47,10 @@ $is_logged_in = is_user_logged_in();
 
 <!-- Mobile Profile Actions -->
 <div class="pm-mobile-profile-actions">
-    <a href="<?php echo esc_url( PartyMinder::get_profile_url() ); ?>" class="pm-btn pm-btn pm-mb-3" style="width: 100%; display: block;">
+    <a href="<?php echo esc_url( PartyMinder::get_profile_url() ); ?>" class="pm-btn pm-mb-3" style="width: 100%; display: block;">
         <?php _e( 'Edit Profile', 'partyminder' ); ?>
     </a>
-    <a href="<?php echo esc_url( PartyMinder::get_logout_url() ); ?>" class="pm-btn pm-btn" style="width: 100%; display: block;">
+    <a href="<?php echo esc_url( PartyMinder::get_logout_url() ); ?>" class="pm-btn" style="width: 100%; display: block;">
         <?php _e( 'Logout', 'partyminder' ); ?>
     </a>
 </div>
