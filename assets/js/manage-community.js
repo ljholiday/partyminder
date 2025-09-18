@@ -242,7 +242,7 @@ jQuery(document).ready(function($) {
 		$(document).on('click', '.copy-invitation-btn', function() {
 			const token = $(this).data('invitation-token');
 			const communityId = $(this).data('community-id');
-			const invitationUrl = PartyMinderManageCommunity.home_url + '/communities/' + communitySlug + '?invitation=' + token + '&community=' + communityId;
+			const invitationUrl = PartyMinderManageCommunity.home_url + '/communities/join?token=' + token;
 
 			// Copy to clipboard
 			if (navigator.clipboard && navigator.clipboard.writeText) {

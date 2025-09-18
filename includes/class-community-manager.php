@@ -1170,4 +1170,95 @@ The %6$s Team',
 		return $this->add_member( $community_id, $member_data, true );
 	}
 
+	/**
+	 * Get community invitation by token (mirrors event system)
+	 */
+	public function get_invitation_by_token( $token ) {
+		global $wpdb;
+
+		$invitations_table = $wpdb->prefix . 'partyminder_community_invitations';
+		$communities_table = $wpdb->prefix . 'partyminder_communities';
+		$members_table = $wpdb->prefix . 'partyminder_community_members';
+
+		return $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT i.*, c.name as community_name, c.slug as community_slug,
+				        c.description as community_description, c.visibility, c.member_count,
+				        m.display_name as inviter_name
+				 FROM $invitations_table i
+				 LEFT JOIN $communities_table c ON i.community_id = c.id
+				 LEFT JOIN $members_table m ON i.invited_by_member_id = m.id
+				 WHERE i.invitation_token = %s",
+				$token
+			)
+		);
+	}
+
+	/**
+	 * Accept community invitation (mirrors event accept_event_invitation pattern)
+	 */
+	public function accept_community_invitation( $token, $user_id, $member_data = array() ) {
+		global $wpdb;
+
+		// Get invitation (reuse existing pattern)
+		$invitation = $this->get_invitation_by_token( $token );
+		if ( ! $invitation ) {
+			return new WP_Error( 'invitation_not_found', __( 'Invitation not found', 'partyminder' ) );
+		}
+
+		// Validation checks (same pattern as events)
+		if ( $invitation->status !== 'pending' ) {
+			return new WP_Error( 'invitation_processed', __( 'This invitation has already been processed', 'partyminder' ) );
+		}
+
+		if ( strtotime( $invitation->expires_at ) < time() ) {
+			return new WP_Error( 'invitation_expired', __( 'This invitation has expired', 'partyminder' ) );
+		}
+
+		// Check if already a member
+		if ( $this->is_member( $invitation->community_id, $user_id ) ) {
+			return new WP_Error( 'already_member', __( 'You are already a member of this community', 'partyminder' ) );
+		}
+
+		// Get user info
+		$user = get_user_by( 'id', $user_id );
+		if ( ! $user ) {
+			return new WP_Error( 'user_not_found', __( 'User not found', 'partyminder' ) );
+		}
+
+		// Add member (reuse existing method)
+		$member_result = $this->add_member(
+			$invitation->community_id,
+			array_merge(
+				array(
+					'user_id' => $user_id,
+					'email' => $invitation->invited_email,
+					'display_name' => $user->display_name,
+					'role' => 'member',
+					'status' => 'active',
+				),
+				$member_data
+			)
+		);
+
+		if ( is_wp_error( $member_result ) ) {
+			return $member_result;
+		}
+
+		// Mark invitation as accepted (same pattern as events)
+		$invitations_table = $wpdb->prefix . 'partyminder_community_invitations';
+		$wpdb->update(
+			$invitations_table,
+			array(
+				'status' => 'accepted',
+				'responded_at' => current_time( 'mysql' ),
+			),
+			array( 'id' => $invitation->id ),
+			array( '%s', '%s' ),
+			array( '%d' )
+		);
+
+		return $member_result;
+	}
+
 }

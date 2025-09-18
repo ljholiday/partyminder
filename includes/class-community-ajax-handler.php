@@ -22,6 +22,12 @@ class PartyMinder_Community_Ajax_Handler {
 		add_action( 'wp_ajax_partyminder_cancel_invitation', array( $this, 'ajax_cancel_invitation' ) );
 		add_action( 'wp_ajax_partyminder_accept_invitation', array( $this, 'ajax_accept_invitation' ) );
 		add_action( 'wp_ajax_nopriv_partyminder_accept_invitation', array( $this, 'ajax_accept_invitation' ) );
+		add_action( 'wp_ajax_partyminder_load_community_invitation_form', array( $this, 'ajax_load_community_invitation_form' ) );
+		add_action( 'wp_ajax_nopriv_partyminder_load_community_invitation_form', array( $this, 'ajax_load_community_invitation_form' ) );
+		add_action( 'wp_ajax_partyminder_accept_community_invitation', array( $this, 'ajax_accept_community_invitation' ) );
+		add_action( 'wp_ajax_nopriv_partyminder_accept_community_invitation', array( $this, 'ajax_accept_community_invitation' ) );
+		add_action( 'wp_ajax_partyminder_load_community_join_form', array( $this, 'ajax_load_community_join_form' ) );
+		add_action( 'wp_ajax_nopriv_partyminder_load_community_join_form', array( $this, 'ajax_load_community_join_form' ) );
 	}
 
 	private function get_community_manager() {
@@ -464,13 +470,7 @@ class PartyMinder_Community_Ajax_Handler {
 			return;
 		}
 
-		$invitation_url = add_query_arg(
-			array(
-				'invitation' => $invitation_token,
-				'community'  => $community_id,
-			),
-			home_url( '/communities/' . $community->slug )
-		);
+		$invitation_url = home_url( '/communities/join?token=' . $invitation_token );
 
 		$subject = sprintf( __( 'You\'re invited to join %s!', 'partyminder' ), $community->name );
 		
@@ -713,15 +713,17 @@ class PartyMinder_Community_Ajax_Handler {
 
 	/**
 	 * Create HTML email for community invitation
+	 * REUSES event email template structure and styling
 	 */
 	private function create_invitation_email_html( $community, $invitation_url, $email ) {
 		$site_name = get_bloginfo( 'name' );
 		$site_url = home_url();
 		$primary_color = get_option( 'partyminder_primary_color', '#667eea' );
-		
-		// Check if user exists
+
+		// REUSE event email data structure
 		$user_exists = email_exists( $email );
 		$signup_url = wp_registration_url();
+		$accept_url = add_query_arg( array( 'action' => 'accept' ), $invitation_url );
 		
 		ob_start();
 		?>
@@ -770,13 +772,39 @@ class PartyMinder_Community_Ajax_Handler {
 						<?php if ( $community->description ) : ?>
 							<div class="community-description"><?php echo nl2br( esc_html( $community->description ) ); ?></div>
 						<?php endif; ?>
+
+						<div style="margin: 15px 0;">
+							<span style="background: #e2e8f0; padding: 4px 12px; border-radius: 16px; font-size: 14px; color: #4a5568;">
+								<?php printf( __( '%d members', 'partyminder' ), $community->member_count ); ?>
+							</span>
+							<span style="background: #bee3f8; padding: 4px 12px; border-radius: 16px; font-size: 14px; color: #2c5282; margin-left: 8px;">
+								<?php echo esc_html( ucfirst( $community->visibility ) ); ?>
+							</span>
+						</div>
 					</div>
 
-					<!-- Accept Button -->
-					<div class="button-container">
-						<a href="<?php echo esc_url( $invitation_url ); ?>" class="accept-button">
-							<?php _e( 'Accept Invitation', 'partyminder' ); ?>
+					<!-- Member benefits section (REUSE event pattern) -->
+					<div style="background: #edf2f7; padding: 20px; border-radius: 8px; margin: 20px 0;">
+						<h3 style="margin-top: 0; color: #2d3748;"><?php _e( 'What you\'ll get:', 'partyminder' ); ?></h3>
+						<ul style="color: #4a5568; line-height: 1.8; padding-left: 20px;">
+							<li><?php _e( 'Connect with like-minded community members', 'partyminder' ); ?></li>
+							<li><?php _e( 'Get invited to exclusive community events', 'partyminder' ); ?></li>
+							<li><?php _e( 'Participate in community discussions', 'partyminder' ); ?></li>
+							<li><?php _e( 'Access member-only content and resources', 'partyminder' ); ?></li>
+						</ul>
+					</div>
+
+					<!-- CTA Buttons (REUSE event CTA structure) -->
+					<div style="text-align: center; margin: 35px 0;">
+						<a href="<?php echo esc_url( $accept_url ); ?>" class="accept-button">
+							<?php _e( 'Join Community', 'partyminder' ); ?>
 						</a>
+						<p style="margin-top: 20px; font-size: 14px; color: #718096;">
+							<?php _e( 'Or', 'partyminder' ); ?>
+							<a href="<?php echo esc_url( $invitation_url ); ?>" style="color: #667eea;">
+								<?php _e( 'view invitation details', 'partyminder' ); ?>
+							</a>
+						</p>
 					</div>
 
 					<?php if ( ! $user_exists ) : ?>
@@ -805,5 +833,156 @@ class PartyMinder_Community_Ajax_Handler {
 		</html>
 		<?php
 		return ob_get_clean();
+	}
+
+	/**
+	 * Load community invitation form (REUSES event RSVP form loading pattern)
+	 */
+	public function ajax_load_community_invitation_form() {
+		check_ajax_referer( 'partyminder_community_invitation', 'nonce' );
+
+		$token = sanitize_text_field( $_POST['token'] ?? '' );
+		if ( ! $token ) {
+			wp_send_json_error( __( 'No invitation token provided.', 'partyminder' ) );
+			return;
+		}
+
+		// REUSE event pattern: get invitation and validate
+		$community_manager = $this->get_community_manager();
+		$invitation = $community_manager->get_invitation_by_token( $token );
+
+		if ( ! $invitation ) {
+			wp_send_json_error( __( 'Invalid invitation token.', 'partyminder' ) );
+			return;
+		}
+
+		// REUSE event template loading pattern
+		ob_start();
+		include PARTYMINDER_PLUGIN_DIR . 'templates/forms/modal-community-invitation-form.php';
+		$html = ob_get_clean();
+
+		wp_send_json_success( array(
+			'html' => $html,
+			'invitation' => $invitation
+		) );
+	}
+
+	/**
+	 * Accept community invitation (REUSES event acceptance pattern)
+	 * Communities require login - no guest memberships like events
+	 */
+	public function ajax_accept_community_invitation() {
+		check_ajax_referer( 'partyminder_nonce', 'nonce' );
+
+		if ( ! is_user_logged_in() ) {
+			wp_send_json_error( __( 'You must be logged in to join communities. Please login or create an account first.', 'partyminder' ) );
+			return;
+		}
+
+		$token = sanitize_text_field( $_POST['invitation_token'] ?? '' );
+		$community_id = intval( $_POST['community_id'] ?? 0 );
+		$member_name = sanitize_text_field( $_POST['member_name'] ?? '' );
+		$member_email = sanitize_email( $_POST['member_email'] ?? '' );
+		$member_bio = sanitize_textarea_field( $_POST['member_bio'] ?? '' );
+
+		// Validate required fields - token is only required for invitation-based joins
+		if ( empty( trim( $member_name ) ) || empty( trim( $member_email ) ) ) {
+			wp_send_json_error( __( 'All required fields must be filled.', 'partyminder' ) );
+			return;
+		}
+
+		if ( ! $community_id ) {
+			wp_send_json_error( __( 'Community ID is required.', 'partyminder' ) );
+			return;
+		}
+
+		$current_user = wp_get_current_user();
+		$community_manager = $this->get_community_manager();
+
+		if ( $token ) {
+			// Token-based invitation
+			$member_data = array(
+				'bio' => $member_bio,
+				'display_name' => $member_name,
+			);
+
+			$result = $community_manager->accept_community_invitation( $token, $current_user->ID, $member_data );
+
+			if ( is_wp_error( $result ) ) {
+				wp_send_json_error( $result->get_error_message() );
+				return;
+			}
+
+			$invitation = $community_manager->get_invitation_by_token( $token );
+			$community = $community_manager->get_community( $invitation->community_id );
+		} else {
+			// Generic community join (no token)
+			$community = $community_manager->get_community( $community_id );
+			if ( ! $community ) {
+				wp_send_json_error( __( 'Community not found.', 'partyminder' ) );
+				return;
+			}
+
+			// Check if already a member
+			if ( $community_manager->is_member( $community_id, $current_user->ID ) ) {
+				wp_send_json_error( __( 'You are already a member of this community.', 'partyminder' ) );
+				return;
+			}
+
+			// Add user as member
+			$member_data = array(
+				'user_id'      => $current_user->ID,
+				'email'        => $member_email,
+				'display_name' => $member_name,
+				'bio'          => $member_bio,
+				'role'         => 'member',
+			);
+
+			$result = $community_manager->add_member( $community_id, $member_data );
+
+			if ( ! $result ) {
+				wp_send_json_error( __( 'Failed to join community. Please try again.', 'partyminder' ) );
+				return;
+			}
+		}
+
+		wp_send_json_success( array(
+			'message' => sprintf( __( 'Welcome to %s!', 'partyminder' ), $community->name ),
+			'redirect_url' => home_url( '/communities/' . $community->slug )
+		) );
+	}
+
+	/**
+	 * Load community join form for generic join links (REUSES invitation form pattern)
+	 */
+	public function ajax_load_community_join_form() {
+		check_ajax_referer( 'partyminder_community_invitation', 'nonce' );
+
+		$community_id = intval( $_POST['community_id'] ?? 0 );
+		if ( ! $community_id ) {
+			wp_send_json_error( __( 'No community ID provided.', 'partyminder' ) );
+			return;
+		}
+
+		// Get community details
+		$community_manager = $this->get_community_manager();
+		$community = $community_manager->get_community( $community_id );
+
+		if ( ! $community ) {
+			wp_send_json_error( __( 'Community not found.', 'partyminder' ) );
+			return;
+		}
+
+		// REUSE the existing invitation form template but without token
+		ob_start();
+		$token = null; // No token for generic joins
+		$GLOBALS['partyminder_current_community'] = $community; // Make community available to template
+		include PARTYMINDER_PLUGIN_DIR . 'templates/forms/modal-community-invitation-form.php';
+		$html = ob_get_clean();
+
+		wp_send_json_success( array(
+			'html' => $html,
+			'community' => $community
+		) );
 	}
 }

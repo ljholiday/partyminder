@@ -253,6 +253,9 @@ class PartyMinder_Page_Content_Injector {
 			return $content;
 		}
 
+		// Set global variable for single community page (similar to single event)
+		$GLOBALS['partyminder_is_single_community'] = true;
+
 		ob_start();
 		echo '<div class="partyminder-content partyminder-single-community-page">';
 		include PARTYMINDER_PLUGIN_DIR . 'templates/single-community-content.php';

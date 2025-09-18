@@ -281,6 +281,7 @@ class PartyMinder {
 			'nonce'             => wp_create_nonce( 'partyminder_nonce' ),
 			'is_user_logged_in' => is_user_logged_in(),
 				'community_nonce'   => wp_create_nonce( 'partyminder_community_action' ),
+				'community_invitation_nonce' => wp_create_nonce( 'partyminder_community_invitation' ),
 				'event_nonce'       => wp_create_nonce( 'partyminder_event_action' ),
 				'at_protocol_nonce' => wp_create_nonce( 'partyminder_at_protocol' ),
 				'rsvp_form_nonce'   => wp_create_nonce( 'partyminder_rsvp_form_nonce' ),
@@ -316,6 +317,9 @@ class PartyMinder {
 		}
 		if ( wp_script_is( 'partyminder-rsvp-modal', 'enqueued' ) ) {
 			wp_localize_script( 'partyminder-rsvp-modal', 'partyminder_ajax', $ajax_data );
+		}
+		if ( wp_script_is( 'partyminder-community-invitation-modal', 'enqueued' ) ) {
+			wp_localize_script( 'partyminder-community-invitation-modal', 'partyminder_ajax', $ajax_data );
 		}
 	}
 
@@ -1547,6 +1551,17 @@ class PartyMinder {
 			wp_enqueue_script(
 				'partyminder-rsvp-modal',
 				PARTYMINDER_PLUGIN_URL . 'assets/js/rsvp-modal.js',
+				array( 'jquery' ),
+				PARTYMINDER_VERSION,
+				true
+			);
+		}
+
+		// Add community invitation modal script for single community pages
+		if ( isset( $GLOBALS['partyminder_is_single_community'] ) && $GLOBALS['partyminder_is_single_community'] ) {
+			wp_enqueue_script(
+				'partyminder-community-invitation-modal',
+				PARTYMINDER_PLUGIN_URL . 'assets/js/community-invitation-modal.js',
 				array( 'jquery' ),
 				PARTYMINDER_VERSION,
 				true

@@ -735,7 +735,7 @@ class PartyMinder_AT_Protocol_Manager {
 				$this->bluesky_client->set_did( $bluesky_data['did'] );
 
 				// Create community invitation post
-				$invitation_url = home_url( '/communities/' . $community->slug . '?invitation=' . $invitation_token . '&community=' . $community_id );
+				$invitation_url = home_url( '/communities/join?token=' . $invitation_token );
 				$post_text = "Hey @{$handle}! You're invited to join the \"{$community->name}\" community";
 				if ( $message ) {
 					$post_text .= "\n\n" . $message;

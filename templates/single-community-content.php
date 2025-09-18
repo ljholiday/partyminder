@@ -500,5 +500,25 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		});
 	};
+
+	// Auto-open community invitation modal if token in URL (REUSE event pattern)
+	const urlParams = new URLSearchParams(window.location.search);
+	const tokenParam = urlParams.get('token');
+	const invitationParam = urlParams.get('invitation');
+	const joinParam = urlParams.get('join');
+
+	if (tokenParam || invitationParam) {
+		if (typeof PartyMinderCommunityInvitation !== 'undefined') {
+			PartyMinderCommunityInvitation.openModal(tokenParam || invitationParam);
+		}
+	} else if (joinParam === '1') {
+		// Auto-open modal for generic join links (REUSE event pattern)
+		if (typeof PartyMinderCommunityInvitation !== 'undefined') {
+			PartyMinderCommunityInvitation.openModal(null, <?php echo intval( $community->id ); ?>);
+		}
+	}
 });
 </script>
+
+<!-- Add community invitation modal (REUSE modal system) -->
+<?php include PARTYMINDER_PLUGIN_DIR . 'templates/partials/modal-community-invitation.php'; ?>

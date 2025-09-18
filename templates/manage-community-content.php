@@ -316,7 +316,7 @@ ob_start();
 				<label class="pm-form-label"><?php _e( 'Community Invitation Link', 'partyminder' ); ?></label>
 				<div class="pm-flex pm-gap-2">
 					<input type="text" class="pm-form-input pm-flex-1" id="invitation-link"
-						value="<?php echo esc_attr( home_url( '/communities/' . $community->slug ) ); ?>"
+						value="<?php echo esc_attr( add_query_arg( 'join', '1', home_url( '/communities/' . $community->slug ) ) ); ?>"
 						readonly>
 					<button type="button" class="pm-btn pm-btn pm-copy-invitation-link">
 						<?php _e( 'Copy', 'partyminder' ); ?>
