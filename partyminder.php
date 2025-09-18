@@ -1557,8 +1557,11 @@ class PartyMinder {
 			);
 		}
 
-		// Add community invitation modal script for single community pages
-		if ( isset( $GLOBALS['partyminder_is_single_community'] ) && $GLOBALS['partyminder_is_single_community'] ) {
+		// Add community invitation modal script for single community pages and invitation URLs
+		$community_action = get_query_var( 'community_action' );
+		if ( ( isset( $GLOBALS['partyminder_is_single_community'] ) && $GLOBALS['partyminder_is_single_community'] ) ||
+			 ( $community_action === 'join' ) ||
+			 ( is_page() && get_queried_object() && get_option( 'partyminder_page_communities' ) == get_queried_object()->ID ) ) {
 			wp_enqueue_script(
 				'partyminder-community-invitation-modal',
 				PARTYMINDER_PLUGIN_URL . 'assets/js/community-invitation-modal.js',

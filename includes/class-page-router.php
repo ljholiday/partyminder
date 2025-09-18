@@ -224,8 +224,12 @@ class PartyMinder_Page_Router {
 	private function handle_community_routing() {
 		$community_slug = get_query_var( 'community_slug' );
 		$community_view = get_query_var( 'community_view' );
+		$community_action = get_query_var( 'community_action' );
 
-		if ( $community_slug && $community_view === 'conversations' ) {
+		if ( $community_action === 'join' ) {
+			add_filter( 'the_content', array( $this->content_injector, 'inject_community_invitation_content' ) );
+			add_filter( 'body_class', array( $this->body_class_manager, 'add_communities_body_class' ) );
+		} elseif ( $community_slug && $community_view === 'conversations' ) {
 			add_filter( 'the_content', array( $this->content_injector, 'inject_community_conversations_content' ) );
 			add_filter( 'body_class', array( $this->body_class_manager, 'add_community_conversations_body_class' ) );
 		} elseif ( $community_slug && $community_view === 'events' ) {

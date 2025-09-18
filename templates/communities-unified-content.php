@@ -243,6 +243,9 @@ $sidebar_content = ob_get_clean();
 
 // Include two-column template
 require PARTYMINDER_PLUGIN_DIR . 'templates/base/template-two-column.php';
+
+// Include community invitation modal for join functionality
+include PARTYMINDER_PLUGIN_DIR . 'templates/partials/modal-community-invitation.php';
 ?>
 
 <script>

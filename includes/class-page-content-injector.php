@@ -310,4 +310,28 @@ class PartyMinder_Page_Content_Injector {
 		}
 		return $content;
 	}
+
+	public function inject_community_invitation_content( $content ) {
+		if ( ! $this->should_inject_content( 'communities' ) ) {
+			return $content;
+		}
+
+		ob_start();
+		echo '<div class="partyminder-content partyminder-community-invitation-page">';
+
+		// Check for token parameter
+		$token = isset( $_GET['token'] ) ? sanitize_text_field( $_GET['token'] ) : '';
+
+		if ( $token ) {
+			// Token-based invitation landing page
+			include PARTYMINDER_PLUGIN_DIR . 'templates/community-invitation-accept.php';
+		} else {
+			// No token - redirect to communities page
+			wp_safe_redirect( home_url( '/communities/' ) );
+			exit;
+		}
+
+		echo '</div>';
+		return ob_get_clean();
+	}
 }
