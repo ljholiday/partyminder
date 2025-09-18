@@ -62,8 +62,8 @@ class PartyMinder_Admin {
 			if ( PartyMinder_Feature_Flags::is_communities_enabled() ) {
 				add_submenu_page(
 					'partyminder',
-					__( 'Community Members', 'partyminder' ),
-					__( 'Members', 'partyminder' ),
+					__( 'Federated Identities', 'partyminder' ),
+					__( 'Federated Identities', 'partyminder' ),
 					'manage_options',
 					'partyminder-members',
 					array( $this, 'members_page' )
@@ -1040,8 +1040,12 @@ class PartyMinder_Admin {
 		$member_stats     = $identity_manager->get_member_stats();
 		?>
 		<div class="wrap">
-			<h1><?php _e( 'Community Members', 'partyminder' ); ?></h1>
-			
+			<h1><?php _e( 'Federated Identities', 'partyminder' ); ?></h1>
+
+			<div class="notice notice-info">
+				<p><?php _e( 'This section manages AT Protocol federated identities for cross-site member portability.', 'partyminder' ); ?></p>
+			</div>
+
 			<div class="member-stats">
 				<h2><?php _e( 'Member Identity Statistics', 'partyminder' ); ?></h2>
 				<div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 20px 0;">
