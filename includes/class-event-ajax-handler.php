@@ -361,12 +361,11 @@ class PartyMinder_Event_Ajax_Handler {
 						$status_text = __( 'Pending', 'partyminder' );
 				}
 
-				$html .= '<div class="pm-flex pm-flex-between pm-p-4 pm-mb-4">';
-				$html .= '<div class="pm-flex-1">';
-				$html .= '<div class="pm-flex pm-gap-4">';
-				$html .= '<strong>' . esc_html( $guest->email ) . '</strong>';
-				$html .= '<span class="pm-badge pm-badge-' . $status_class . '">' . esc_html( $status_text ) . '</span>';
+				$html .= '<div class="pm-invitation-item">';
 
+				// Badges at top
+				$html .= '<div class="pm-invitation-badges">';
+				$html .= '<span class="pm-badge pm-badge-' . $status_class . '">' . esc_html( $status_text ) . '</span>';
 				// Add invitation source badge
 				$source = $guest->invitation_source ?? 'direct';
 				$source_badges = array(
@@ -376,41 +375,36 @@ class PartyMinder_Event_Ajax_Handler {
 				);
 				$source_info = $source_badges[ $source ] ?? $source_badges['direct'];
 				$html .= '<span class="pm-badge ' . $source_info['class'] . '">' . esc_html( $source_info['label'] ) . '</span>';
-
 				$html .= '</div>';
-				
+
+				// Main content
+				$html .= '<div class="pm-invitation-details">';
+				$html .= '<h4>' . esc_html( $guest->email ) . '</h4>';
 				if ( ! empty( $guest->name ) ) {
-					$html .= '<div class="pm-text-muted pm-mt-2">' . esc_html( $guest->name ?? '' ) . '</div>';
+					$html .= '<div class="pm-text-muted">' . esc_html( $guest->name ) . '</div>';
 				}
-				
-				$html .= '<div class="pm-text-muted pm-mt-2">';
+				$html .= '<div class="pm-text-muted">';
 				$html .= sprintf(
 					__( 'Invited on %s', 'partyminder' ),
 					date( 'M j, Y', strtotime( $guest->rsvp_date ) )
 				);
 				$html .= '</div>';
-				
 				if ( ! empty( $guest->dietary_restrictions ) ) {
-					$html .= '<div class="pm-text-muted pm-mt-2"><strong>Dietary:</strong> ' . esc_html( $guest->dietary_restrictions ?? '' ) . '</div>';
+					$html .= '<div class="pm-text-muted"><strong>Dietary:</strong> ' . esc_html( $guest->dietary_restrictions ) . '</div>';
 				}
-
 				if ( ! empty( $guest->notes ) ) {
-					$html .= '<div class="pm-text-muted pm-mt-2"><em>"' . esc_html( $guest->notes ?? '' ) . '"</em></div>';
+					$html .= '<div class="pm-text-muted"><em>"' . esc_html( $guest->notes ) . '"</em></div>';
 				}
-				
 				$html .= '</div>';
-				
+
+				// Actions at bottom
+				$html .= '<div class="pm-invitation-actions">';
+				$html .= '<button type="button" class="pm-btn pm-btn-sm pm-btn-secondary" onclick="copyInvitationUrl(\'' . esc_js( $guest->invitation_url ) . '\')">' . __( 'Copy Link', 'partyminder' ) . '</button>';
 				if ( $guest->status === 'pending' ) {
-					$html .= '<div class="pm-flex pm-flex-column pm-gap-4" style="align-items: stretch; min-height: 80px;">';
-					$html .= '<button type="button" class="pm-btn pm-btn-secondary" onclick="copyInvitationUrl(\'' . esc_js( $guest->invitation_url ) . '\')">' . __( 'Copy Link', 'partyminder' ) . '</button>';
-					$html .= '<button type="button" class="pm-btn pm-btn-danger cancel-event-invitation" data-invitation-id="' . esc_attr( $guest->id ) . '">' . __( 'Remove', 'partyminder' ) . '</button>';
-					$html .= '</div>';
-				} else {
-					$html .= '<div class="pm-flex pm-flex-column pm-gap-4" style="align-items: stretch; min-height: 80px;">';
-					$html .= '<button type="button" class="pm-btn pm-btn-secondary" onclick="copyInvitationUrl(\'' . esc_js( $guest->invitation_url ) . '\')">' . __( 'Copy Link', 'partyminder' ) . '</button>';
-					$html .= '</div>';
+					$html .= '<button type="button" class="pm-btn pm-btn-sm pm-btn-danger cancel-event-invitation" data-invitation-id="' . esc_attr( $guest->id ) . '">' . __( 'Remove', 'partyminder' ) . '</button>';
 				}
-				
+				$html .= '</div>';
+
 				$html .= '</div>';
 			}
 		}

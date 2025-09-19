@@ -183,20 +183,20 @@ jQuery(document).ready(function($) {
 
 			html += `
 				<div class="pm-invitation-item" data-invitation-id="${invitation.id}">
-					<div class="pm-invitation-info">
-						<div class="pm-invitation-details">
-							<h4>${invitation.invited_email}</h4>
-							<small>${PartyMinderManageCommunity.strings.invited_on} ${createdDate}</small>
-							<br><small>${PartyMinderManageCommunity.strings.expires} ${expiresDate}</small>
-							${invitation.message ? '<br><small><em>"' + invitation.message + '"</em></small>' : ''}
-						</div>
+					<div class="pm-invitation-badges">
+						<span class="pm-badge pm-badge-secondary">${PartyMinderManageCommunity.strings.pending}</span>
+					</div>
+					<div class="pm-invitation-details">
+						<h4>${invitation.invited_email}</h4>
+						<div class="pm-text-muted">${PartyMinderManageCommunity.strings.invited_on} ${createdDate}</div>
+						<div class="pm-text-muted">${PartyMinderManageCommunity.strings.expires} ${expiresDate}</div>
+						${invitation.message ? '<div class="pm-text-muted"><em>"' + invitation.message + '"</em></div>' : ''}
 					</div>
 					<div class="pm-invitation-actions">
-						<span class="pm-member-role pending">${PartyMinderManageCommunity.strings.pending}</span>
-						<button class="pm-btn copy-invitation-btn" data-invitation-token="${invitation.invitation_token}" data-community-id="${invitation.community_id}">
+						<button class="pm-btn pm-btn-sm pm-btn-secondary copy-invitation-btn" data-invitation-token="${invitation.invitation_token}" data-community-id="${invitation.community_id}">
 							${PartyMinderManageCommunity.strings.copy_invite}
 						</button>
-						<button class="pm-btn pm-btn-danger cancel-invitation-btn" data-invitation-id="${invitation.id}" data-email="${invitation.invited_email}">
+						<button class="pm-btn pm-btn-sm pm-btn-danger cancel-invitation-btn" data-invitation-id="${invitation.id}" data-email="${invitation.invited_email}">
 							${PartyMinderManageCommunity.strings.cancel}
 						</button>
 					</div>
