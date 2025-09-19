@@ -1101,10 +1101,11 @@ class PartyMinder_Admin {
 								// Check if corresponding WordPress user exists
 								$wp_user = $identity->user_id ? get_user_by( 'id', $identity->user_id ) : null;
 								$is_orphaned = ! $wp_user;
+								$display_name = $wp_user ? $wp_user->display_name : 'Unknown User';
 								?>
 								<tr <?php echo $is_orphaned ? 'style="background-color: #fff2cd;"' : ''; ?>>
 									<td>
-										<strong><?php echo esc_html( $identity->display_name ); ?></strong>
+										<strong><?php echo esc_html( $display_name ); ?></strong>
 										<?php if ( $is_orphaned ) : ?>
 											<span style="color: #d63638; font-weight: bold;"> (Orphaned)</span>
 										<?php endif; ?>
@@ -1228,7 +1229,7 @@ class PartyMinder_Admin {
 	 * AJAX handler for deleting federated identities from admin
 	 */
 	public function ajax_admin_delete_identity() {
-		check_ajax_referer( 'partyminder_nonce', 'nonce' );
+		check_ajax_referer( 'partyminder_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( __( 'You do not have permission to delete identities.', 'partyminder' ) );

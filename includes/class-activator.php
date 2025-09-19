@@ -135,6 +135,7 @@ class PartyMinder_Activator {
             plus_one tinyint(1) DEFAULT 0,
             plus_one_name varchar(100) DEFAULT '',
             notes text,
+            invitation_source varchar(50) DEFAULT 'direct',
             rsvp_date datetime DEFAULT CURRENT_TIMESTAMP,
             reminder_sent tinyint(1) DEFAULT 0,
             PRIMARY KEY (id),
@@ -144,6 +145,7 @@ class PartyMinder_Activator {
             KEY rsvp_token (rsvp_token),
             KEY temporary_guest_id (temporary_guest_id),
             KEY converted_user_id (converted_user_id),
+            KEY invitation_source (invitation_source),
             UNIQUE KEY unique_guest_event (event_id, email)
         ) $charset_collate;";
 
@@ -165,7 +167,10 @@ class PartyMinder_Activator {
             event_id mediumint(9) NOT NULL,
             invited_by_user_id bigint(20) UNSIGNED NOT NULL,
             invited_email varchar(100) NOT NULL,
+            invited_user_id bigint(20) UNSIGNED DEFAULT NULL,
             invitation_token varchar(32) NOT NULL,
+            message text DEFAULT '',
+            custom_message text DEFAULT '',
             status varchar(20) DEFAULT 'pending',
             expires_at datetime DEFAULT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
@@ -174,6 +179,7 @@ class PartyMinder_Activator {
             KEY event_id (event_id),
             KEY invited_by_user_id (invited_by_user_id),
             KEY invited_email (invited_email),
+            KEY invited_user_id (invited_user_id),
             KEY invitation_token (invitation_token),
             KEY status (status)
         ) $charset_collate;";
@@ -440,16 +446,24 @@ class PartyMinder_Activator {
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             event_id mediumint(9) NOT NULL,
             user_id bigint(20) UNSIGNED NOT NULL,
-            image_url varchar(500) NOT NULL,
-            thumbnail_url varchar(500) DEFAULT '',
+            filename varchar(255) NOT NULL,
+            original_filename varchar(255) DEFAULT '',
+            file_url varchar(500) NOT NULL,
+            file_path varchar(500) NOT NULL,
+            file_size bigint(20) DEFAULT 0,
+            mime_type varchar(100) DEFAULT '',
+            width int(11) DEFAULT 0,
+            height int(11) DEFAULT 0,
             alt_text varchar(255) DEFAULT '',
             caption text DEFAULT '',
-            display_order int(11) DEFAULT 0,
+            sort_order int(11) DEFAULT 0,
+            is_featured tinyint(1) DEFAULT 0,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             KEY event_id (event_id),
             KEY user_id (user_id),
-            KEY display_order (display_order)
+            KEY sort_order (sort_order),
+            KEY is_featured (is_featured)
         ) $charset_collate;";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -539,16 +553,19 @@ class PartyMinder_Activator {
             community_id mediumint(9) NOT NULL,
             invited_by_member_id mediumint(9) NOT NULL,
             invited_email varchar(100) NOT NULL,
+            invited_user_id bigint(20) UNSIGNED DEFAULT NULL,
             invitation_token varchar(255) NOT NULL,
             message text DEFAULT '',
             status varchar(20) DEFAULT 'pending',
             expires_at datetime DEFAULT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             responded_at datetime DEFAULT NULL,
+            accepted_at datetime DEFAULT NULL,
             PRIMARY KEY (id),
             KEY community_id (community_id),
             KEY invited_by_member_id (invited_by_member_id),
             KEY invited_email (invited_email),
+            KEY invited_user_id (invited_user_id),
             KEY invitation_token (invitation_token),
             KEY status (status)
         ) $charset_collate;";
@@ -559,19 +576,23 @@ class PartyMinder_Activator {
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             user_id bigint(20) UNSIGNED NOT NULL,
             email varchar(100) NOT NULL,
-            did varchar(255) DEFAULT '',
-            handle varchar(255) DEFAULT '',
+            display_name varchar(255) DEFAULT '',
+            at_protocol_did varchar(255) DEFAULT '',
+            at_protocol_handle varchar(255) DEFAULT '',
             access_jwt text DEFAULT '',
             refresh_jwt text DEFAULT '',
             pds_url varchar(255) DEFAULT '',
             profile_data longtext DEFAULT '',
+            is_verified tinyint(1) DEFAULT 0,
+            last_sync_at datetime DEFAULT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             UNIQUE KEY user_id (user_id),
             KEY email (email),
-            KEY did (did),
-            KEY handle (handle)
+            KEY at_protocol_did (at_protocol_did),
+            KEY at_protocol_handle (at_protocol_handle),
+            KEY is_verified (is_verified)
         ) $charset_collate;";
 
 		// AT Protocol sync log table

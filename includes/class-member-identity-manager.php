@@ -41,7 +41,7 @@ class PartyMinder_Member_Identity_Manager {
 	/**
 	 * Ensure identity record exists for user
 	 */
-	public function ensure_identity_exists( $user_id, $email, $display_name ) {
+	public function ensure_identity_exists( $user_id, $email, $display_name = '' ) {
 		global $wpdb;
 
 		if ( ! PartyMinder_Feature_Flags::is_at_protocol_enabled() ) {
@@ -49,6 +49,13 @@ class PartyMinder_Member_Identity_Manager {
 		}
 
 		$identities_table = $wpdb->prefix . 'partyminder_member_identities';
+
+		// Validate that the WordPress user actually exists first
+		$wp_user = get_user_by( 'id', $user_id );
+		if ( ! $wp_user ) {
+			error_log( '[PartyMinder] Cannot create member identity for non-existent user ID: ' . $user_id );
+			return false;
+		}
 
 		// Check if identity already exists
 		$existing_identity = $wpdb->get_row(
@@ -60,11 +67,11 @@ class PartyMinder_Member_Identity_Manager {
 
 		if ( $existing_identity ) {
 			// Update display name if changed
-			if ( $existing_identity->display_name !== $display_name ) {
+			if ( $existing_identity->display_name !== $wp_user->display_name ) {
 				$wpdb->update(
 					$identities_table,
 					array(
-						'display_name' => $display_name,
+						'display_name' => sanitize_text_field( $wp_user->display_name ),
 						'updated_at'   => current_time( 'mysql' ),
 					),
 					array( 'user_id' => $user_id ),
@@ -75,9 +82,9 @@ class PartyMinder_Member_Identity_Manager {
 			return $existing_identity->at_protocol_did;
 		}
 
-		// Generate new DID
+		// Generate new DID and handle using WordPress user data
 		$did    = $this->generate_member_did( $user_id, $email );
-		$handle = $this->generate_member_handle( $user_id, $display_name );
+		$handle = $this->generate_member_handle( $user_id, $wp_user->display_name );
 
 		// Create identity record
 		$result = $wpdb->insert(
@@ -85,11 +92,11 @@ class PartyMinder_Member_Identity_Manager {
 			array(
 				'user_id'            => $user_id,
 				'email'              => sanitize_email( $email ),
-				'display_name'       => sanitize_text_field( $display_name ),
+				'display_name'       => sanitize_text_field( $wp_user->display_name ),
 				'at_protocol_did'    => $did,
 				'at_protocol_handle' => $handle,
-				'at_protocol_pds'    => $this->get_default_pds(),
-				'at_protocol_data'   => wp_json_encode( $this->get_default_at_protocol_data() ),
+				'pds_url'            => $this->get_default_pds(),
+				'profile_data'       => wp_json_encode( $this->get_default_at_protocol_data() ),
 				'is_verified'        => 0,
 				'created_at'         => current_time( 'mysql' ),
 			),
@@ -123,8 +130,7 @@ class PartyMinder_Member_Identity_Manager {
 		);
 
 		if ( $identity ) {
-			$identity->at_protocol_data = json_decode( $identity->at_protocol_data ?: '{}', true );
-			$identity->cross_site_data  = json_decode( $identity->cross_site_data ?: '{}', true );
+			$identity->at_protocol_data = json_decode( $identity->profile_data ?: '{}', true );
 		}
 
 		return $identity;
@@ -146,8 +152,7 @@ class PartyMinder_Member_Identity_Manager {
 		);
 
 		if ( $identity ) {
-			$identity->at_protocol_data = json_decode( $identity->at_protocol_data ?: '{}', true );
-			$identity->cross_site_data  = json_decode( $identity->cross_site_data ?: '{}', true );
+			$identity->at_protocol_data = json_decode( $identity->profile_data ?: '{}', true );
 		}
 
 		return $identity;
@@ -169,8 +174,7 @@ class PartyMinder_Member_Identity_Manager {
 		);
 
 		if ( $identity ) {
-			$identity->at_protocol_data = json_decode( $identity->at_protocol_data ?: '{}', true );
-			$identity->cross_site_data  = json_decode( $identity->cross_site_data ?: '{}', true );
+			$identity->at_protocol_data = json_decode( $identity->profile_data ?: '{}', true );
 		}
 
 		return $identity;
@@ -187,9 +191,9 @@ class PartyMinder_Member_Identity_Manager {
 		$result = $wpdb->update(
 			$identities_table,
 			array(
-				'at_protocol_data' => wp_json_encode( $at_protocol_data ),
-				'last_sync_at'     => current_time( 'mysql' ),
-				'updated_at'       => current_time( 'mysql' ),
+				'profile_data' => wp_json_encode( $at_protocol_data ),
+				'last_sync_at' => current_time( 'mysql' ),
+				'updated_at'   => current_time( 'mysql' ),
 			),
 			array( 'user_id' => $user_id ),
 			array( '%s', '%s', '%s' ),
