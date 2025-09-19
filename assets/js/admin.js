@@ -21,6 +21,7 @@
             this.initSettings();
             this.initEventMetaBoxes();
             this.initListTables();
+            this.initIdentityManagement();
         },
 
         /**
@@ -598,6 +599,62 @@
             $notice.on('click', '.notice-dismiss', function() {
                 $notice.fadeOut(function() {
                     $(this).remove();
+                });
+            });
+        },
+
+        /**
+         * Initialize identity management functionality
+         */
+        initIdentityManagement: function() {
+            // Delete identity functionality
+            $(document).on('click', '.delete-identity', function(e) {
+                e.preventDefault();
+
+                const identityId = $(this).data('identity-id');
+                const identityName = $(this).data('identity-name');
+
+                if (!confirm('Are you sure you want to delete the federated identity for "' + identityName + '"? This action cannot be undone.')) {
+                    return;
+                }
+
+                const $button = $(this);
+                const originalText = $button.text();
+
+                // Show loading state
+                $button.prop('disabled', true).text('Deleting...');
+
+                $.ajax({
+                    url: partyminder_admin.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'partyminder_admin_delete_identity',
+                        nonce: partyminder_admin.nonce,
+                        identity_id: identityId
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Remove the row from the table
+                            $button.closest('tr').fadeOut(function() {
+                                $(this).remove();
+
+                                // Show success message
+                                PartyMinderAdmin.showSuccess('Federated identity deleted successfully.');
+
+                                // If no more rows, show empty state
+                                if ($('.wp-list-table tbody tr').length === 0) {
+                                    $('.wp-list-table tbody').html('<tr><td colspan="6" class="pm-text-center pm-text-muted">No federated identities found.</td></tr>');
+                                }
+                            });
+                        } else {
+                            PartyMinderAdmin.showError(response.data || 'Failed to delete federated identity.');
+                            $button.prop('disabled', false).text(originalText);
+                        }
+                    },
+                    error: function() {
+                        PartyMinderAdmin.showError('Network error occurred while deleting federated identity.');
+                        $button.prop('disabled', false).text(originalText);
+                    }
                 });
             });
         },

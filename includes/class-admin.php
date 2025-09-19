@@ -7,6 +7,7 @@ class PartyMinder_Admin {
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 		add_action( 'wp_ajax_partyminder_admin_delete_community', array( $this, 'ajax_admin_delete_community' ) );
+		add_action( 'wp_ajax_partyminder_admin_delete_identity', array( $this, 'ajax_admin_delete_identity' ) );
 		add_action( 'admin_init', array( $this, 'restrict_dashboard_access' ) );
 	}
 
@@ -1091,14 +1092,27 @@ class PartyMinder_Admin {
 								<th><?php _e( 'Status', 'partyminder' ); ?></th>
 								<th><?php _e( 'Last Sync', 'partyminder' ); ?></th>
 								<th><?php _e( 'Created', 'partyminder' ); ?></th>
+								<th><?php _e( 'Actions', 'partyminder' ); ?></th>
 							</tr>
 						</thead>
 						<tbody>
 							<?php foreach ( $recent_identities as $identity ) : ?>
-								<tr>
+								<?php
+								// Check if corresponding WordPress user exists
+								$wp_user = $identity->user_id ? get_user_by( 'id', $identity->user_id ) : null;
+								$is_orphaned = ! $wp_user;
+								?>
+								<tr <?php echo $is_orphaned ? 'style="background-color: #fff2cd;"' : ''; ?>>
 									<td>
-										<strong><?php echo esc_html( $identity->display_name ); ?></strong><br>
+										<strong><?php echo esc_html( $identity->display_name ); ?></strong>
+										<?php if ( $is_orphaned ) : ?>
+											<span style="color: #d63638; font-weight: bold;"> (Orphaned)</span>
+										<?php endif; ?>
+										<br>
 										<small style="color: #666;"><?php echo esc_html( $identity->email ); ?></small>
+										<?php if ( $identity->user_id ) : ?>
+											<br><small style="color: #666;">User ID: <?php echo esc_html( $identity->user_id ); ?></small>
+										<?php endif; ?>
 									</td>
 									<td>
 										<code style="font-size: 0.8em;"><?php echo esc_html( $identity->at_protocol_did ); ?></code>
@@ -1123,6 +1137,14 @@ class PartyMinder_Admin {
 										<?php endif; ?>
 									</td>
 									<td><?php echo date( 'M j, Y', strtotime( $identity->created_at ) ); ?></td>
+									<td>
+										<button type="button" class="button button-small button-link-delete delete-identity"
+												data-identity-id="<?php echo (int) $identity->id; ?>"
+												data-identity-name="<?php echo esc_attr( $identity->display_name ); ?>"
+												style="color: #d63638;">
+											<?php _e( 'Delete', 'partyminder' ); ?>
+										</button>
+									</td>
 								</tr>
 							<?php endforeach; ?>
 						</tbody>
@@ -1199,6 +1221,52 @@ class PartyMinder_Admin {
 			// Rollback transaction on error
 			$wpdb->query( 'ROLLBACK' );
 			wp_send_json_error( __( 'Failed to delete community. Please try again.', 'partyminder' ) );
+		}
+	}
+
+	/**
+	 * AJAX handler for deleting federated identities from admin
+	 */
+	public function ajax_admin_delete_identity() {
+		check_ajax_referer( 'partyminder_nonce', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( __( 'You do not have permission to delete identities.', 'partyminder' ) );
+			return;
+		}
+
+		$identity_id = intval( $_POST['identity_id'] );
+		if ( ! $identity_id ) {
+			wp_send_json_error( __( 'Identity ID is required.', 'partyminder' ) );
+			return;
+		}
+
+		global $wpdb;
+		$identities_table = $wpdb->prefix . 'partyminder_member_identities';
+
+		// Check if identity exists
+		$identity = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $identities_table WHERE id = %d", $identity_id ) );
+
+		if ( ! $identity ) {
+			wp_send_json_error( __( 'Identity not found.', 'partyminder' ) );
+			return;
+		}
+
+		// Delete the identity
+		$result = $wpdb->delete(
+			$identities_table,
+			array( 'id' => $identity_id ),
+			array( '%d' )
+		);
+
+		if ( $result !== false ) {
+			wp_send_json_success(
+				array(
+					'message' => sprintf( __( 'Federated identity for "%s" deleted successfully.', 'partyminder' ), $identity->display_name ),
+				)
+			);
+		} else {
+			wp_send_json_error( __( 'Failed to delete identity. Please try again.', 'partyminder' ) );
 		}
 	}
 
