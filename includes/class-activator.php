@@ -777,7 +777,7 @@ class PartyMinder_Activator {
 			),
 			'create-event'             => array(
 				'title'       => __( 'Create Event', 'partyminder' ),
-				'content'     => '[partyminder_create_event]',
+				'content'     => '[partyminder_event_form]',
 				'slug'        => 'create-event',
 				'description' => __( 'Create and manage your own events', 'partyminder' ),
 			),
@@ -795,7 +795,7 @@ class PartyMinder_Activator {
 			),
 			'edit-event'               => array(
 				'title'       => __( 'Edit Event', 'partyminder' ),
-				'content'     => '[partyminder_edit_event]',
+				'content'     => '[partyminder_event_edit_form]',
 				'slug'        => 'edit-event',
 				'description' => __( 'Edit your event details and settings', 'partyminder' ),
 			),
