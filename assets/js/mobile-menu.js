@@ -44,7 +44,6 @@ class PartyMinderMobileMenu {
         // Find the existing mobile menu modal (server-rendered)
         this.mobileMenu = document.querySelector('.pm-mobile-menu-modal');
         if (!this.mobileMenu) {
-            console.error('Mobile menu modal not found');
             return;
         }
 

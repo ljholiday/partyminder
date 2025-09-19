@@ -56,7 +56,6 @@ window.PartyMinderRSVP = (function($) {
 		const $modal = $('#pm-rsvp-modal');
 
 		if ($modal.length === 0) {
-			console.error('RSVP modal not found');
 			return;
 		}
 

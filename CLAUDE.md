@@ -83,6 +83,7 @@ kindergarten.
 - Use semantic, descriptive names: `.pm-card`, `.pm-form-row`, `.pm-section-header`
 - Avoid generic names: `.button`, `.card`, `.header`, `.wrapper`
 - Avoid utility classes unless part of consistent `.pm-` system
+- Exception: `.partyminder-content` is required to override WordPress theme defaults
 
 ### CSS Structure
 

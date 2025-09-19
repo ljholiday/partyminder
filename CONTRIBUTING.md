@@ -112,6 +112,7 @@ if ( ! current_user_can( 'edit_posts' ) ) {
 - **Single stylesheet**: Keep everything in `assets/css/partyminder.css`
 - **No inline styles**: All styling in CSS file
 - **Responsive design**: Mobile-first approach
+- **Exception**: `.partyminder-content` is required to override WordPress theme defaults
 
 ### Professional Tone Requirements
 - **NO EMOJIS**: Never use emojis in code, templates, or user-facing text

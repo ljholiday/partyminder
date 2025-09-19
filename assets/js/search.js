@@ -12,7 +12,6 @@ jQuery(document).ready(function($) {
     
     // Handle both desktop and mobile search inputs
     const searchInputs = $('.pm-input[id*="search-input"]');
-    console.log('PartyMinder Search: Found', searchInputs.length, 'search inputs');
     
     if (!searchInputs.length) return;
     

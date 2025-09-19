@@ -314,7 +314,6 @@
                 title: title,
                 url: url
             }).catch(function(error) {
-                console.log('Error sharing:', error);
                 PartyMinder.fallbackShare(url, title);
             });
         } else {

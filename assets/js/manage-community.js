@@ -255,7 +255,6 @@ jQuery(document).ready(function($) {
 						$btn.text(originalText);
 					}, 2000);
 				}).catch(err => {
-					console.error('Failed to copy: ', err);
 					alert(PartyMinderManageCommunity.strings.copy_failed);
 				});
 			} else {
@@ -274,7 +273,6 @@ jQuery(document).ready(function($) {
 						$btn.text(originalText);
 					}, 2000);
 				} catch (err) {
-					console.error('Fallback copy failed: ', err);
 					alert(PartyMinderManageCommunity.strings.copy_failed);
 				}
 				document.body.removeChild(textArea);

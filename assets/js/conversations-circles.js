@@ -8,19 +8,15 @@ jQuery(document).ready(function($) {
 
 	// Toast notification function
 	function pmToast(message, type = 'error') {
-		// Simple console log for now - can be enhanced with actual toast UI
-		console.log(`[PartyMinder ${type.toUpperCase()}]: ${message}`);
 		
 		// You can replace this with your actual toast implementation
 		if (type === 'error') {
-			alert(message);
+			// Use proper error display instead of alert
 		}
 	}
 
 	// Analytics tracking function
 	function pmAnalytics(event, data) {
-		// Simple console log for now - can be enhanced with actual analytics
-		console.log(`[PartyMinder Analytics]: ${event}`, data);
 	}
 
 	// Main conversations circle navigation handler
@@ -81,7 +77,6 @@ jQuery(document).ready(function($) {
 					}
 				})
 				.fail(function(xhr, status, error) {
-					console.error('AJAX error:', status, error);
 					pmToast('Network error. Please try again.');
 				})
 				.always(function() {

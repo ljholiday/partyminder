@@ -62,7 +62,6 @@ window.PartyMinderCommunityInvitation = (function($) {
 		const $modal = $('#pm-community-invitation-modal');
 
 		if ($modal.length === 0) {
-			console.error('Community invitation modal not found');
 			return;
 		}
 
