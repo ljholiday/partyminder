@@ -113,13 +113,27 @@ if ( is_user_logged_in() ) {
 <!-- Conversation Header -->
 <div class="pm-section pm-mb">
 	<div class="pm-section-header">
+
 		<h2 class="pm-heading pm-heading-lg pm-text-primary"><?php echo esc_html( $conversation->title ); ?></h2>
+
 		<div class="pm-flex pm-flex-wrap pm-gap pm-text-muted">
-			<span><?php _e( 'Started by', 'partyminder' ); ?> <?php PartyMinder_Member_Display::member_display( $conversation->author_id, array( 'show_avatar' => false, 'avatar_size' => 16 ) ); ?></span>
-			<span><?php echo human_time_diff( strtotime( $conversation->created_at ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'partyminder' ); ?></span>
+
+<!-- Started by, avatar/link, Display name, date all on one line. -->
+			<span>
+					<?php _e( 'Started by', 'partyminder' ); ?> 
+			</span>
+			<div>
+					<?php PartyMinder_Member_Display::member_display( $conversation->author_id, array( 'show_avatar' => true, 'avatar_size' => 40) ); ?>
+			</div>
+			<span>
+					<?php echo human_time_diff( strtotime( $conversation->created_at ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'partyminder' ); ?>
+			</span>
+
+<!-- If this is an event conversation, the event title goes here. -->
 			<?php if ( $event_data ) : ?>
 				<span><?php printf( __( 'for event: %s', 'partyminder' ), esc_html( $event_data->title ) ); ?></span>
 			<?php endif; ?>
+
 		</div>
 	</div>
 	
